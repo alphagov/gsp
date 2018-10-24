@@ -18,8 +18,8 @@ This is unfortunately a bit of an anti-pattern as:
 
 * We shall provide a single load-balancer to provide ingress to each cluster.
 * We shall provide an [ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-controllers) as part of our managed cluster deployments to enable Ingress resources
-* We shall provide guidance to promote the use of Ingress over [`LoadBalancer`](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) types of [`Service`](https://kubernetes.io/docs/concepts/services-networking/service) for routing
-* We shall not support and may disable the use of [`LoadBalancer`](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) types of [`Service`] entirely
+* We shall provide guidance to promote the use of [`Ingress`](https://kubernetes.io/docs/concepts/services-networking/ingress/) over [`LoadBalancer`](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) types of [`Service`](https://kubernetes.io/docs/concepts/services-networking/service) for routing
+* We shall not support and may disable the use of [`LoadBalancer`](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) types of [`Service`](https://kubernetes.io/docs/concepts/services-networking/service/) entirely
 
 ## Consequences
 
