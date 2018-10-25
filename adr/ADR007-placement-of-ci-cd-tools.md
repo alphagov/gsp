@@ -1,8 +1,8 @@
-# ADR 003: Placement of CI and CD Tools
+# ADR007: Placement of CI and CD Tools
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 

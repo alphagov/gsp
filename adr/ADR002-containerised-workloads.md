@@ -1,8 +1,8 @@
-# ADR 002: Containerised Workloads
+# ADR002: Containerised Workloads
 
 ## Status
 
-Approved
+Accepted
 
 ## Context
 

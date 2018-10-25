@@ -1,8 +1,8 @@
-# ADR 002: Identity Provider
+# ADR009: Identity Provider
 
 ## Status
 
-PROPOSED
+Accepted
 
 ## Context
 

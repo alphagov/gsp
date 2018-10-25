@@ -1,4 +1,4 @@
-# ADR 004: Tenant isolation
+# ADR004: Tenant isolation
 
 ## Status
 

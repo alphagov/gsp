@@ -1,4 +1,4 @@
-# ADR 001: Support Workflow vs. Platform as a Service
+# ADR001: Support Workflow vs. Platform as a Service
 
 ## Status
 

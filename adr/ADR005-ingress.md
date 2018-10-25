@@ -1,4 +1,4 @@
-# ADR 005: Ingress
+# ADR005: Ingress
 
 ## Status
 

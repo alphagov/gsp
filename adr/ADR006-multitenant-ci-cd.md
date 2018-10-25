@@ -1,8 +1,8 @@
-# ADR 006: Multi-tenancy for CI and CD
+# ADR006: Multi-tenancy for CI and CD
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 

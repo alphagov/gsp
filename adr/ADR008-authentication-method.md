@@ -1,8 +1,8 @@
-# ADR 001: Cluster Authentication Method
+# ADR008: Cluster Authentication Method
 
 ## Status
 
-PROPOSED
+Accepted
 
 ## Context
 

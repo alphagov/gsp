@@ -1,8 +1,8 @@
-# ADR 003: Container Orchestration
+# ADR003: Container Orchestration
 
 ## Status
 
-Approved
+Accepted
 
 ## Context
 
