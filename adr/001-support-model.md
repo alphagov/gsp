@@ -66,10 +66,13 @@ With more of the operations skills centralised in Reliability Engineering, model
 
 ## Decision
 
-* We shall design a system around a shared responsibility between SREs and Service Teams
-* We shall provide and promote the use of a common language for declarativly describing everything from infrastructure to deployments
-* We shall provide and maintain the low-level deployment primitives suitable for teams to build upon
-* We shall work closely and continously with teams to identify, extract and improve and reuse solutions to common needs of Service Teams
+We will design a system around a shared responsibility between Reliability Engineering and Service Teams.
+
+We believe that the middle ground where service teams have a high level of responsibility over their deployments but reliability engineering takes most of the responsibility for the lower-level deployment primatives as well as providing solutions to the common needs of service teams (such as deployment workflows, monitoring, deployment patterns) will maintain the flexability service teams need when iterating new features as well as providing the framework for getting support from reliability engineering when such new features could beneifit from harderning or sharing with the organsiation as a whole.
+
+* We should provide, promote and support the use of a common language for declarativly describing infrastructure and deployments
+* We should provide, promote and support low-level deployment primitives suitable for service teams to build upon
+* We should work closely and continously with service teams to reduce duplication of effort by identify common needs and providing reliable, reusable solutions 
 
 ## Consequences
 
