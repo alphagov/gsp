@@ -1,4 +1,4 @@
-# ADR001: Support Workflow vs. Platform as a Service
+# ADR001: Support Model
 
 ## Status
 
