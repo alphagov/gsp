@@ -1,4 +1,4 @@
-# ADR009: Identity Provider
+# ADR007: Identity Provider
 
 ## Status
 
@@ -14,7 +14,7 @@ People working on GitHub repositories are likely the same people who are deployi
 
 ## Decision
 
-Use GitHub.
+We will use GitHub as our identify provider.
 
 ## Consequences
 

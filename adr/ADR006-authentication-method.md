@@ -1,4 +1,4 @@
-# ADR008: Cluster Authentication Method
+# ADR006: Cluster Authentication Method
 
 ## Status
 
