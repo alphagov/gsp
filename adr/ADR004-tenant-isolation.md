@@ -27,11 +27,15 @@ To ensure strong network/compute isolation between Service Teams it would be pre
 
 ## Decision
 
-* We shall isolate each environment as its own cluster for strong isolation and improved availability
-* We shall enable cluster deployment into target account for billing purposes
-* We shall enable cluster deployment into target VPCs for migration purposes
+We will manage multiple Kubernetes clusters, one per environment per tenant.
+
+This should provide:
+
+* Strong network/compute isolatation between service teams
+* Clear seperation of billing
+* Ability to deploy into target VPCs to make piecemeal microservice migration practical
 
 ## Consequences
 
 * Management multiple clusters across multiple accounts may be more complex than managing a single big one
-* Less control over the target account/environment
+* Lack of direct control over the target account/environment may introduce complexities
