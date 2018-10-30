@@ -23,7 +23,7 @@ We will provide the tools and guidance for teams to practice [continuous deliver
 
 We expect this to improve the effciency of supporting multiple services by:
 
-* promoting a consistant pattern for deployment accross teams (merging PRs)
+* promoting a consistent pattern for deployment accross teams (merging PRs)
 * giving confidence to those making changes to deployments (culture of testing/staging releases)
 * giving confidence that the desired state of deployment is what is commited to git
 
