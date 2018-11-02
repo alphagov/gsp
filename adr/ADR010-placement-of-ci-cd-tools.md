@@ -11,10 +11,10 @@ The placement of the CI and CD toolset, either within or external to the control
 
 ## Decision
 
-- The CI and CD tools will run seperate from the control cluster
+- The CI and CD tools will run separate from the control cluster
 - The CI and CD tools will run within their own kubernetes cluster
 
 
 ## Consequences
 
-- The seperation of the CI and CD tool sets from the control cluster will ensure the control cluster remains as lean and allow us to make it as secure as possible.
+- The separation of the CI and CD tool sets from the control cluster will ensure the control cluster remains as lean and allow us to make it as secure as possible.

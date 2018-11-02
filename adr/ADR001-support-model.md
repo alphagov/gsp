@@ -53,7 +53,7 @@ these models.
 | Iterating new features | RE | RE/ServiceTeam | ServiceTeam |
 | Workflow/Process | RE | RE | ServiceTeam |
 | Productionizing common features | RE | RE | ServiceTeam |
-| Infrastructure Responsibility | RE | RE | ServiceTeam | 
+| Infrastructure Responsibility | RE | RE | ServiceTeam |
 
 Traditionally GDS teams were operating closest to a "paved path" model where teams took complete control over their own infrastructure. GDS also operates the [GOV.UK PaaS](https://cloud.service.gov.uk), a platform targeting other government departments with limited operations capability.
 
@@ -62,17 +62,17 @@ More recently GDS has created a Reliability Engineering team (RE) to provide sup
 With more of the operations skills centralised in Reliability Engineering, models on the "paved path" end of the spectrum become more difficult to sustain. This leaves us with two choices:
 
 * provide a full-stack PaaS model, growing the size of the PaaS team as required to keep up with demand for new features.
-* provide only the lower-level building blocks, guidance and let service teams contribute to the development of new features 
+* provide only the lower-level building blocks, guidance and let service teams contribute to the development of new features
 
 ## Decision
 
 We will design a system around a shared responsibility between Reliability Engineering and Service Teams.
 
-We believe that the middle ground where service teams have a high level of responsibility over their deployments but reliability engineering takes most of the responsibility for the lower-level deployment primatives as well as providing solutions to the common needs of service teams (such as deployment workflows, monitoring, deployment patterns) will maintain the flexability service teams need when iterating new features as well as providing the framework for getting support from reliability engineering when such new features could beneifit from harderning or sharing with the organsiation as a whole.
+We believe that the middle ground where service teams have a high level of responsibility over their deployments but Reliability Engineering takes most of the responsibility for the lower-level deployment primitives as well as providing solutions to the common needs of service teams (such as deployment workflows, monitoring, deployment patterns) will maintain the flexibility service teams need when iterating new features as well as providing the framework for getting support from Reliability Engineering when such new features could benefit from hardening or sharing with the organisation as a whole.
 
-* We should provide, promote and support the use of a common language for declarativly describing infrastructure and deployments
+* We should provide, promote and support the use of a common language for declaratively describing infrastructure and deployments
 * We should provide, promote and support low-level deployment primitives suitable for service teams to build upon
-* We should work closely and continously with service teams to reduce duplication of effort by identify common needs and providing reliable, reusable solutions 
+* We should work closely and continuously with service teams to reduce duplication of effort by identify common needs and providing reliable, reusable solutions 
 
 ## Consequences
 
@@ -80,5 +80,3 @@ We believe that the middle ground where service teams have a high level of respo
 * Will require a migration to a common declarative deployment language
 * Gives more control/flexibility to Service Teams than a PaaS model at the cost of potentially more complex deployment patterns
 * Keeping Service Teams converging on a smaller set of best-practice solutions would be harder than with a centrally enforced PaaS model
-
-

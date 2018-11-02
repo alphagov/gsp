@@ -21,14 +21,14 @@ processes often differ significantly between teams.
 
 We will provide the tools and guidance for teams to practice [continuous delivery](https://en.wikipedia.org/wiki/Continuous_delivery)
 
-We expect this to improve the effciency of supporting multiple services by:
+We expect this to improve the efficiency of supporting multiple services by:
 
-* promoting a consistent pattern for deployment accross teams (merging PRs)
+* promoting a consistent pattern for deployment across teams (merging PRs)
 * giving confidence to those making changes to deployments (culture of testing/staging releases)
 * giving confidence that the desired state of deployment is what is commited to git
 
 ## Consequences
 
-* We will likely have to run and maintain CI/CD tooling
-* CI/CD toolings is an area where people have quite strong opinions
+* We will likely have to run and maintain CI/CD tools
+* CI/CD tooling is an area where people have quite strong opinions
 * Some teams may have complicated "gated" pipelines where human approval is required

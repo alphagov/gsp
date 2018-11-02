@@ -15,7 +15,7 @@ There are some competing container image formats, namely:
 * [OCI]
 * [ACI]
 
-The OCI image format is [based off the Docker v2][oci-standard] image format.
+The OCI image format is [based on the Docker v2][oci-standard] image format.
 
 The Kubernetes project appears to [prefer Docker/OCI][k8s-preferance] images
 over ACI.

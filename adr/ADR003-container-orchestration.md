@@ -36,9 +36,9 @@ We did not feel like the additional abstraction layer in DCOS/Marathon provided 
 
 We were unsure that a system based on Swarm would provide the flexibility we want to respond to the evolving needs of service teams.
 
-Kubernetes has been emerging as somewhat of an industry standard, with most major cloud providers offering various services around the technology. It offers only the very basic building blocks for managing container workloads but has a large strong community of compatible projects ([CNCF](https://landscape.cncf.io/)) to extend functionality.
+Kubernetes has been emerging as an industry standard, with most major cloud providers offering various services around the technology. It offers only the very basic building blocks for managing container workloads but has a large strong community of compatible projects ([CNCF](https://landscape.cncf.io/)) to extend functionality.
 
-The vendor specific solutions such as ECS/Fargate are very compelling, potentially reducing the maintenance burdon of running infrastructure. However as a public body we should try to avoid unnecessary vendor lock-in.
+The vendor specific solutions such as ECS/Fargate are very compelling, potentially reducing the maintenance burden of running infrastructure. However as a public body we should try to avoid unnecessary vendor lock-in.
 
 ## Decision
 

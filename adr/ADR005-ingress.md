@@ -10,7 +10,7 @@ Creating a [`Service`](https://kubernetes.io/docs/concepts/services-networking/s
 
 This is unfortunately a bit of an anti-pattern as:
 
-* Provisioning one load balancer per exposed service would be unnecasarily expensive.
+* Provisioning one load balancer per exposed service would be unnecessarily expensive.
 * Provisioning a load balancer takes time, which can result in significantly slower deployment times.
 * LoadBalancer types of Service require vendor specific extensions and have often have vendor specific configuration that is not portable
 
@@ -23,4 +23,4 @@ This is unfortunately a bit of an anti-pattern as:
 
 ## Consequences
 
-* The LoadBalancer Service type is well documented around the web and does provide a convinent way to expose a Service that people may expect to be enabled
+* The LoadBalancer Service type is well documented around the web and does provide a convenient way to expose a Service that people may expect to be enabled

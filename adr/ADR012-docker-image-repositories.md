@@ -6,7 +6,7 @@ Pending
 
 ## Context
 
-Artifacts that we build must be published somewhere that a Kubernetes cluster
+Artefacts that we build must be published somewhere that a Kubernetes cluster
 can pull from. This can be solved by using an image repository. Multiple options
 exist including:
 
@@ -18,11 +18,11 @@ exist including:
 
 All the above implement the Docker registry API and are broadly equivalent.
 
-Docker Hub will require managing authentication and authorization separate to
+Docker Hub will require managing authentication and authorisation separate to
 the existing IAM setup.
 
-Managed Registry form a vendor, would save us from dealing with authentication
-or authorization provided we are running the Kubernetes nodes with that vendor.
+Managed Registry from a vendor, would save us from dealing with authentication
+or authorisation provided we are running the Kubernetes nodes with that vendor.
 
 Running a self-hosted Docker registry will involved maintenance and operational
 work from the team. But gives us a lot of flexibility.

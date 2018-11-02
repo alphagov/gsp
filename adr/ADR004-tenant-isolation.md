@@ -21,8 +21,8 @@ Some Service Teams have unique network isolation requirements that may be hard t
 
 To ensure "smooth transition" during a migration it would be preferable to have clusters deployed to Service Team's VPCs.
 
-To ensure separation of billing it would be preferable to deploy clusters to Service Team's AWS accounts. 
- 
+To ensure separation of billing it would be preferable to deploy clusters to Service Team's AWS accounts.
+
 To ensure strong network/compute isolation between Service Teams it would be preferable to deploy separate clusters for separate environments.
 
 ## Decision
@@ -32,7 +32,7 @@ We will manage multiple Kubernetes clusters, one per environment per tenant.
 This should provide:
 
 * Strong network/compute isolatation between service teams
-* Clear seperation of billing
+* Clear separation of billing
 * Ability to deploy into target VPCs to make piecemeal microservice migration practical
 
 ## Consequences
