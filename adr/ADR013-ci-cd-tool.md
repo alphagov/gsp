@@ -23,5 +23,5 @@ Reasons:
 
 ## Consequences
 
-- Research to discern whether concourse is still an appropriate choice will occur as team becomes better familiar with the technolgy
+- Research to discern whether concourse is still an appropriate choice will occur as team becomes better familiar with the technology
 - User research will be possible once an alpha can be presented to users for evaluation, and a decision to change tool or begin using different tools for CI and CD will be possible
