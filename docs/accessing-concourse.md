@@ -1,7 +1,7 @@
 # Accessing Concourse
 
-Each cluster that comes with a `gsp-base` chart pre installed will contain
-Concourse setup.
+Each CI cluster that comes with a `ci-system` chart pre installed that will
+contain Concourse setup.
 
 For convenience and security, the ingress is disabled by default. This means
 Concourse is not accessible via the public internet connection.
@@ -13,7 +13,7 @@ endpoint with `fly`.
 ## Setting up the tunnel
 
 ```sh
-kubectl port-forward service/gsp-base-web -n gsp-base 8080:8080
+kubectl port-forward service/ci-system-web -n ci-system 8080:8080
 ```
 
 You should be able to visit [`http://127.0.0.1:8080/`](http://127.0.0.1:8080/)
@@ -23,6 +23,16 @@ The username and password by default are `admin:password`. Based on the need to
 setup the tunnel, we believe these do not need to be changed.
 
 ## Using `fly`
+
+We strongly discourage the use of `fly`. The Build and Run team are working
+hardly to produce a consistent way of auto-deploying and updating the pipelines
+with a GitOps solution.
+
+The above means, any manual change to the CI system with `fly`, will be shortly
+overwritten by an operator.
+
+You may find a need of going against the recommendation, for instance you'd like
+to `hijack` a container to debug a failed `job`.
 
 Concourse on the landing page, should encourage you to download the binary used
 to interact with its API.
@@ -91,5 +101,5 @@ concourse:
     web:
       auth:
         mainTeam:
-          localUser: "admin"
+          localUser: admin
 ```
