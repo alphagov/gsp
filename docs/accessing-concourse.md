@@ -25,10 +25,10 @@ setup the tunnel, we believe these do not need to be changed.
 ## Using `fly`
 
 We strongly discourage the use of `fly`. The Build and Run team are working
-hardly to produce a consistent way of auto-deploying and updating the pipelines
+hard to provide a consistent way of auto-deploying and updating the pipelines
 with a GitOps solution.
 
-The above means, any manual change to the CI system with `fly`, will be shortly
+The above means, any manual change to the CI system with `fly`, will be
 overwritten by an operator.
 
 You may find a need of going against the recommendation, for instance you'd like
