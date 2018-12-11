@@ -1,8 +1,8 @@
-# Build and Run - team manual
+# Build & Run Knowledgebase
 
-
+Recording decisions, info, docs...
 
 ## Index
 
 - [Architecture Decision Records](/adr)
-- [Cluster](/cluster)
+- [Docs](/docs)
