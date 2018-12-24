@@ -1,0 +1,23 @@
+[Unit]
+Description=Amazon SSM Agent
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=30
+RestartPreventExitStatus=5
+SyslogIdentifier=ssm-agent
+Environment=PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/opt/bin:/snap/amazon-ssm-agent/current
+ExecStartPre=-/usr/bin/docker rm ssm-installer
+ExecStartPre=/usr/bin/mkdir -p /etc/amazon /snap/amazon-ssm-agent/current
+ExecStartPre=/usr/bin/chmod 0750 /snap/amazon-ssm-agent/current
+ExecStartPre=-/bin/sh -c '/usr/bin/test ! -e /snap/amazon-ssm-agent/current/amazon-ssm-agent && /usr/bin/docker run -d --name="ssm-installer" --entrypoint=/bin/true govsvc/amazon-ssm-agent:0.0.1546956426'
+ExecStartPre=-/bin/sh -c '/usr/bin/test ! -e /snap/amazon-ssm-agent/current/amazon-ssm-agent && /usr/bin/docker cp ssm-installer:/usr/local/amazon/bin/. /snap/amazon-ssm-agent/current/'
+ExecStartPre=-/bin/sh -c '/usr/bin/test ! -d /etc/amazon/ssm && /usr/bin/docker cp ssm-installer:/etc/amazon/ssm /etc/amazon/ssm'
+ExecStartPre=-/usr/bin/chmod -R 0550 /snap/amazon-ssm-agent/current
+ExecStart=/snap/amazon-ssm-agent/current/amazon-ssm-agent
+ExecStop=-/usr/bin/docker stop ssm-installer
+
+[Install]
+WantedBy=multi-user.target
