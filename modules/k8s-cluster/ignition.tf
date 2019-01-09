@@ -62,7 +62,7 @@ resource "aws_s3_bucket_object" "controller-user-data" {
 
 data "ignition_config" "controller-actual" {
   replace = {
-    source       = "s3://${var.user_data_bucket_name}${data.template_file.controller-user-data-object-key.rendered}"
+    source       = "s3://${var.user_data_bucket_name}${aws_s3_bucket_object.controller-user-data.id}"
     verification = "sha512-${sha512(data.ignition_config.controller.rendered)}"
   }
 }
@@ -75,7 +75,7 @@ resource "aws_s3_bucket_object" "worker-user-data" {
 
 data "ignition_config" "worker-actual" {
   replace = {
-    source       = "s3://${var.user_data_bucket_name}${data.template_file.worker-user-data-object-key.rendered}"
+    source       = "s3://${var.user_data_bucket_name}${aws_s3_bucket_object.worker-user-data.id}"
     verification = "sha512-${sha512(data.ignition_config.worker.rendered)}"
   }
 }
