@@ -5,7 +5,7 @@ module "common" {
 module "k8s-node" {
   source                = "../k8s-node-ignition"
   dns_service_ip        = "${var.dns_service_ip}"
-  node_labels           = "node-role.kubernetes.io/master"
+  node_labels           = "node-role.kubernetes.io/master,node-role.kubernetes.io/bootstrapper"
   node_taints           = "node-role.kubernetes.io/master=:NoSchedule"
   cluster_domain_suffix = "${var.cluster_domain_suffix}"
   k8s_tag               = "${var.k8s_tag}"
