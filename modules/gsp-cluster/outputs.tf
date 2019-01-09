@@ -1,5 +1,5 @@
 output "bootstrap-base-userdata-source" {
-  value = "s3://${var.user_data_bucket_name}${data.template_file.user-data-object-key.rendered}"
+  value = "s3://${var.user_data_bucket_name}${aws_s3_bucket_object.bootstrap-user-data.id}"
 }
 
 output "bootstrap-base-userdata-verification" {

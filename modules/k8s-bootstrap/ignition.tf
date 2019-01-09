@@ -28,7 +28,7 @@ resource "aws_s3_bucket_object" "bootstrap-user-data" {
 
 data "ignition_config" "bootstrap-actual" {
   replace = {
-    source       = "s3://${var.user_data_bucket_name}${data.template_file.bootstrap-user-data-object-key.rendered}"
+    source       = "s3://${var.user_data_bucket_name}${aws_s3_bucket_object.bootstrap-user-data.id}"
     verification = "sha512-${sha512(data.ignition_config.bootstrap.rendered)}"
   }
 }
