@@ -1,0 +1,55 @@
+[Unit]
+Wants=rpc-statd.service
+
+[Service]
+Restart=always
+RestartSec=30
+Environment=KUBELET_IMAGE_URL=docker://k8s.gcr.io/hyperkube
+Environment=KUBELET_IMAGE_TAG=${k8s_tag}
+Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
+  --volume resolv,kind=host,source=/etc/resolv.conf \
+  --mount volume=resolv,target=/etc/resolv.conf \
+  --volume var-lib-cni,kind=host,source=/var/lib/cni \
+  --mount volume=var-lib-cni,target=/var/lib/cni \
+  --volume var-lib-calico,kind=host,source=/var/lib/calico \
+  --mount volume=var-lib-calico,target=/var/lib/calico \
+  --volume opt-cni-bin,kind=host,source=/opt/cni/bin \
+  --mount volume=opt-cni-bin,target=/opt/cni/bin \
+  --volume var-log,kind=host,source=/var/log \
+  --mount volume=var-log,target=/var/log \
+  --volume var-lib-kubelet,kind=host,source=/var/lib/kubelet \
+  --mount volume=var-lib-kubelet,target=/var/lib/kubelet \
+  --insecure-options=image"
+ExecStartPre=/bin/mkdir -p /opt/cni/bin
+ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
+ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
+ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
+ExecStartPre=/bin/mkdir -p /etc/kubernetes/inactive-manifests
+ExecStartPre=/bin/mkdir -p /var/lib/cni
+ExecStartPre=/bin/mkdir -p /var/lib/calico
+ExecStartPre=/bin/mkdir -p /var/lib/kubelet/pki
+ExecStartPre=/bin/mkdir -p /var/lib/kubelet/volumeplugins
+ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/kubelet-pod.uuid
+ExecStart=/usr/lib/coreos/kubelet-wrapper \
+  --allow-privileged \
+  --anonymous-auth=false \
+  --cert-dir=/var/lib/kubelet/pki \
+  --client-ca-file=/etc/kubernetes/ca.crt \
+  --cloud-provider=aws \
+  --cluster_dns=${dns_service_ip} \
+  --cluster_domain=${cluster_domain} \
+  --cni-conf-dir=/etc/kubernetes/cni/net.d \
+  --exit-on-lock-contention \
+  --kubeconfig=/etc/kubernetes/kubeconfig \
+  --lock-file=/var/run/lock/kubelet.lock \
+  --network-plugin=cni \
+  --node-labels=${node_labels} \
+  --pod-manifest-path=/etc/kubernetes/manifests \
+  --register-with-taints=${node_taints} \
+  --rotate-certificates \
+  --volume-plugin-dir=/var/lib/kubelet/volumeplugins
+
+ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
+
+[Install]
+WantedBy=multi-user.target

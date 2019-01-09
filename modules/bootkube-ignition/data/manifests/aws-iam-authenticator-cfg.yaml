@@ -1,0 +1,20 @@
+# Based on https://github.com/kubernetes-sigs/aws-iam-authenticator/blob/master/example.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: kube-system
+  name: aws-iam-authenticator-config
+  labels:
+    k8s-app: aws-iam-authenticator
+data:
+  config.yaml: |
+    # a unique-per-cluster identifier to prevent replay attacks
+    # (good choices are a random token or a domain name that will be unique to your cluster)
+    clusterID: ${cluster_id}
+    server:
+      # each mapRoles entry maps an IAM role to a username and set of groups
+      # Each username and group can optionally contain template parameters:
+      #  1) "{{AccountID}}" is the 12 digit AWS ID.
+      #  2) "{{SessionName}}" is the role session name.
+      mapRoles:
+${iam_role_mappings}

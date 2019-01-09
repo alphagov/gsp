@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bootstrap-kube-scheduler
+  namespace: kube-system
+spec:
+  containers:
+  - name: kube-scheduler
+    image: k8s.gcr.io/hyperkube:${k8s_tag}
+    command:
+    - ./hyperkube
+    - scheduler
+    - --kubeconfig=/etc/kubernetes/secrets/kubeconfig
+    - --leader-elect=true
+    volumeMounts:
+    - name: secrets
+      mountPath: /etc/kubernetes/secrets
+      readOnly: true
+  hostNetwork: true
+  volumes:
+  - name: secrets
+    hostPath:
+      path: /etc/kubernetes/bootstrap-secrets

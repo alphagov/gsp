@@ -1,0 +1,25 @@
+[Unit]
+ConditionPathExists=!/opt/bootkube/init_bootkube.done
+After=kubelet.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/opt/bootkube
+ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/bootkube-pod.uuid
+ExecStart=/usr/bin/rkt run \
+  --uuid-file-save=/var/cache/bootkube-pod.uuid \
+  --trust-keys-from-https \
+  --volume assets,kind=host,source=${assets_dir} \
+  --volume bootstrap,kind=host,source=/etc/kubernetes \
+  --mount volume=assets,target=/assets \
+  --mount volume=bootstrap,target=/etc/kubernetes \
+  --insecure-options=image \
+  quay.io/coreos/bootkube:v0.13.0 \
+  --net=host \
+  --dns=host \
+  --exec=/bootkube -- start --asset-dir=/assets
+ExecStartPost=/bin/touch /opt/bootkube/init_bootkube.done
+
+[Install]
+WantedBy=multi-user.target
