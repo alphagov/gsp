@@ -10,6 +10,7 @@ module "etcd-cluster" {
   user_data_bucket_name   = "${var.user_data_bucket_name}"
   user_data_bucket_region = "${var.user_data_bucket_region}"
   instance_type           = "${var.etcd_instance_type}"
+  s3_user_data_policy_arn = "${aws_iam_policy.s3-user-data-policy.arn}"
 }
 
 module "bootkube-assets" {
@@ -48,4 +49,5 @@ module "k8s-cluster" {
   worker_count             = "${var.worker_count}"
   controller_instance_type = "${var.controller_instance_type}"
   worker_instance_type     = "${var.worker_instance_type}"
+  s3_user_data_policy_arn  = "${aws_iam_policy.s3-user-data-policy.arn}"
 }

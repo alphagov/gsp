@@ -5,20 +5,8 @@ data "aws_iam_policy_document" "user_data_policy_document" {
     ]
 
     resources = [
-      "${data.aws_s3_bucket.user_data.arn}/*",
+      "${data.aws_s3_bucket.user_data.arn}/user_data/${var.cluster_name}-*",
     ]
-
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:sourceVpc"
-
-      values = ["${aws_vpc.network.id}"]
-    }
   }
 }
 
@@ -26,7 +14,7 @@ data "aws_s3_bucket" "user_data" {
   bucket = "${var.user_data_bucket_name}"
 }
 
-resource "aws_s3_bucket_policy" "user_data_bucket_policy" {
-  bucket = "${data.aws_s3_bucket.user_data.id}"
+resource "aws_iam_policy" "s3-user-data-policy" {
+  name   = "${var.cluster_name}-s3-user-data-policy"
   policy = "${data.aws_iam_policy_document.user_data_policy_document.json}"
 }

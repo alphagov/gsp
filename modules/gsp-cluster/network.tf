@@ -74,13 +74,6 @@ resource "aws_route_table_association" "cluster-public" {
   subnet_id      = "${element(aws_subnet.cluster-public.*.id, count.index)}"
 }
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = "${aws_vpc.network.id}"
-  service_name      = "com.amazonaws.eu-west-2.s3"
-  vpc_endpoint_type = "Gateway"
-  route_table_ids   = ["${aws_route_table.cluster-private.*.id}"]
-}
-
 resource "aws_eip" "public" {
   count = "${length(data.aws_availability_zones.all.names)}"
 

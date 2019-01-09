@@ -102,6 +102,11 @@ resource "aws_iam_role_policy_attachment" "controller-ssm-policy-attachment" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
 
+resource "aws_iam_role_policy_attachment" "controller-s3-user-data-policy-attachment" {
+  role       = "${aws_iam_role.controller_role.id}"
+  policy_arn = "${var.s3_user_data_policy_arn}"
+}
+
 resource "aws_iam_instance_profile" "controller_profile" {
   name = "${var.cluster_name}-controller-instance-role"
   role = "${aws_iam_role.controller_role.name}"
@@ -154,6 +159,11 @@ resource "aws_iam_role_policy_attachment" "worker-policy-attachment" {
 resource "aws_iam_role_policy_attachment" "worker-ssm-policy-attachment" {
   role       = "${aws_iam_role.worker_role.id}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
+resource "aws_iam_role_policy_attachment" "worker-s3-user-data-policy-attachment" {
+  role       = "${aws_iam_role.worker_role.id}"
+  policy_arn = "${var.s3_user_data_policy_arn}"
 }
 
 resource "aws_iam_instance_profile" "worker_profile" {

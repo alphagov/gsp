@@ -82,7 +82,7 @@ data "ignition_config" "etcd-actual" {
   count = "${var.node_count}"
 
   replace = {
-    source       = "https://s3.${var.user_data_bucket_region}.amazonaws.com/${var.user_data_bucket_name}${element(data.template_file.user_data_object_key.*.rendered, count.index)}"
+    source       = "s3://${var.user_data_bucket_name}${element(data.template_file.user_data_object_key.*.rendered, count.index)}"
     verification = "sha512-${sha512(element(data.ignition_config.etcd.*.rendered, count.index))}"
   }
 }
