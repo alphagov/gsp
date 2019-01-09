@@ -30,7 +30,7 @@ resource "aws_route_table" "cluster-private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${element(aws_nat_gateway.cluster.*.id, count.index)}"
+    nat_gateway_id = "${element(aws_nat_gateway.cluster.*.id, count.index)}"
   }
 
   tags = "${map("Name", "${var.cluster_name}")}"
