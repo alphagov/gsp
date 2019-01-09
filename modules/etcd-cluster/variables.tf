@@ -26,6 +26,10 @@ variable "user_data_bucket_region" {
   type = "string"
 }
 
+variable "s3_user_data_policy_arn" {
+  type = "string"
+}
+
 variable "node_count" {
   type    = "string"
   default = "3"

@@ -42,6 +42,10 @@ variable "k8s_tag" {
   type = "string"
 }
 
+variable "s3_user_data_policy_arn" {
+  type = "string"
+}
+
 variable "service_cidr" {
   type    = "string"
   default = "10.3.0.0/24"
