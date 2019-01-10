@@ -45,9 +45,8 @@ resource "aws_lb_target_group" "workers-http" {
   port     = 80
 
   health_check {
-    protocol = "HTTP"
-    port     = 10254
-    path     = "/healthz"
+    protocol = "TCP"
+    port     = 80
 
     healthy_threshold   = 3
     unhealthy_threshold = 3
@@ -76,9 +75,8 @@ resource "aws_lb_target_group" "workers-https" {
   port     = 443
 
   health_check {
-    protocol = "HTTP"
-    port     = 10254
-    path     = "/healthz"
+    protocol = "TCP"
+    port     = 443
 
     healthy_threshold   = 3
     unhealthy_threshold = 3

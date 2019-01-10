@@ -216,16 +216,6 @@ resource "aws_security_group_rule" "worker-node-exporter" {
   self      = true
 }
 
-resource "aws_security_group_rule" "ingress-health" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type        = "ingress"
-  protocol    = "tcp"
-  from_port   = 10254
-  to_port     = 10254
-  cidr_blocks = ["0.0.0.0/0"]
-}
-
 resource "aws_security_group_rule" "worker-kubelet" {
   security_group_id = "${aws_security_group.worker.id}"
 
