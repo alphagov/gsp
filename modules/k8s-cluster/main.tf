@@ -23,6 +23,7 @@ data "aws_ami" "coreos" {
 }
 
 resource "aws_launch_configuration" "controller" {
+  name_prefix       = "${var.cluster_name}-controller-"
   image_id          = "${data.aws_ami.coreos.image_id}"
   instance_type     = "${var.controller_instance_type}"
   enable_monitoring = false
@@ -38,14 +39,14 @@ resource "aws_launch_configuration" "controller" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = ["image_id"]
+    ignore_changes = ["image_id"]
   }
 
   iam_instance_profile = "${aws_iam_instance_profile.controller_profile.name}"
 }
 
 resource "aws_autoscaling_group" "controllers" {
-  name = "${var.cluster_name}-controller ${aws_launch_configuration.controller.name}"
+  name = "${var.cluster_name}-controller"
 
   desired_capacity          = "${var.controller_count}"
   min_size                  = "${var.controller_count}"
@@ -58,10 +59,6 @@ resource "aws_autoscaling_group" "controllers" {
   launch_configuration = "${aws_launch_configuration.controller.name}"
 
   target_group_arns = ["${var.controller_target_group_arns}"]
-
-  lifecycle {
-    create_before_destroy = true
-  }
 
   # Waiting for instance creation delays adding the ASG to state. If instances
   # can't be created (e.g. spot price too low), the ASG will be orphaned.
@@ -94,6 +91,7 @@ resource "aws_autoscaling_group" "controllers" {
 }
 
 resource "aws_launch_configuration" "worker" {
+  name_prefix       = "${var.cluster_name}-worker-"
   image_id          = "${data.aws_ami.coreos.image_id}"
   instance_type     = "${var.worker_instance_type}"
   enable_monitoring = false
@@ -116,7 +114,7 @@ resource "aws_launch_configuration" "worker" {
 }
 
 resource "aws_autoscaling_group" "workers" {
-  name = "${var.cluster_name}-worker ${aws_launch_configuration.worker.name}"
+  name = "${var.cluster_name}-worker"
 
   desired_capacity          = "${var.worker_count}"
   min_size                  = "${var.worker_count}"
@@ -129,10 +127,6 @@ resource "aws_autoscaling_group" "workers" {
   launch_configuration = "${aws_launch_configuration.worker.name}"
 
   target_group_arns = ["${var.worker_target_group_arns}"]
-
-  lifecycle {
-    create_before_destroy = true
-  }
 
   # Waiting for instance creation delays adding the ASG to state. If instances
   # can't be created (e.g. spot price too low), the ASG will be orphaned.
