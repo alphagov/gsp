@@ -26,6 +26,22 @@ output "dns-service-ip" {
   value = "${module.k8s-cluster.dns-service-ip}"
 }
 
+output "cluster-name" {
+  value = "${var.cluster_name}"
+}
+
+output "k8s_tag" {
+  value = "${var.k8s_tag}"
+}
+
+output "user_data_bucket_name" {
+  value = "${var.user_data_bucket_name}"
+}
+
+output "user_data_bucket_region" {
+  value = "${var.user_data_bucket_region}"
+}
+
 output "cluster-domain-suffix" {
   value = "${var.cluster_name}.${var.dns_zone}"
 }
@@ -40,4 +56,8 @@ output "admin-kubeconfig" {
 
 output "kube-ca-crt" {
   value = "${module.bootkube-assets.kube-ca-crt}"
+}
+
+output "ci-system-release-name" {
+  value = "${module.ci-system.release-name}"
 }

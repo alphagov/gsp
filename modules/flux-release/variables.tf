@@ -1,3 +1,8 @@
+variable "enabled" {
+  type = "string"
+  default = "true"
+}
+
 variable "namespace" {
     description = "namespace to deploy into"
     type = "string"
