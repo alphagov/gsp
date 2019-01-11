@@ -5,7 +5,7 @@ module "etcd-cluster" {
   dns_zone                = "${var.dns_zone}"
   subnet_ids              = "${aws_subnet.cluster-private.*.id}"
   vpc_id                  = "${aws_vpc.network.id}"
-  dns_zone_id             = "${var.dns_zone_id}"
+  dns_zone_id             = "${aws_route53_zone.zone.zone_id}"
   node_count              = "${var.etcd_node_count}"
   user_data_bucket_name   = "${var.user_data_bucket_name}"
   user_data_bucket_region = "${var.user_data_bucket_region}"
