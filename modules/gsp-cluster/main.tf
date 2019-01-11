@@ -51,3 +51,38 @@ module "k8s-cluster" {
   worker_instance_type     = "${var.worker_instance_type}"
   s3_user_data_policy_arn  = "${aws_iam_policy.s3-user-data-policy.arn}"
 }
+
+module "ingress-system" {
+  source = "../flux-release"
+
+  namespace      = "ingress-system"
+  chart_git      = "https://github.com/alphagov/gsp-ingress-system.git"
+  chart_ref      = "master"
+  cluster_name   = "${var.cluster_name}"
+  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+}
+
+module "monitoring-system" {
+  source = "../flux-release"
+
+  namespace      = "monitoring-system"
+  chart_git      = "https://github.com/alphagov/gsp-monitoring-system.git"
+  chart_ref      = "master"
+  cluster_name   = "${var.cluster_name}"
+  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+}
+
+module "secrets-system" {
+  source = "../flux-release"
+
+  namespace      = "secrets-system"
+  chart_git      = "https://github.com/alphagov/gsp-secrets-system.git"
+  chart_ref      = "master"
+  cluster_name   = "${var.cluster_name}"
+  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+}
+
+module "gsp-canary" {
+  source = "../canary-release"
+  cluster_id = "${var.dns_zone}"
+}
