@@ -16,7 +16,7 @@ module "etcd-cluster" {
 module "bootkube-assets" {
   source                      = "../bootkube-ignition"
   apiserver_address           = "${aws_route53_record.apiserver.fqdn}"
-  cluster_domain_suffix       = "${var.cluster_name}.${var.dns_zone}"
+  cluster_domain_suffix       = "cluster.local"
   etcd_servers                = ["${module.etcd-cluster.etcd_servers}"]
   k8s_tag                     = "${var.k8s_tag}"
   cluster_name                = "${var.cluster_name}"
@@ -29,7 +29,7 @@ module "bootkube-assets" {
 
 module "k8s-cluster" {
   source                       = "../k8s-cluster"
-  cluster_domain_suffix        = "${var.cluster_name}.${var.dns_zone}"
+  cluster_domain_suffix        = "cluster.local"
   kubelet_kubeconfig           = "${module.bootkube-assets.kubelet-kubeconfig}"
   kube_ca_crt                  = "${module.bootkube-assets.kube-ca-crt}"
   user_data_bucket_name        = "${var.user_data_bucket_name}"
