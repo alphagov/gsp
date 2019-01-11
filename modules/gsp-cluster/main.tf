@@ -20,7 +20,7 @@ module "bootkube-assets" {
   etcd_servers                = ["${module.etcd-cluster.etcd_servers}"]
   k8s_tag                     = "${var.k8s_tag}"
   cluster_name                = "${var.cluster_name}"
-  cluster_id                  = "${var.cluster_id}"
+  cluster_id                  = "${var.cluster_name}.${var.dns_zone}"
   etcd_ca_cert_pem            = "${module.etcd-cluster.ca_cert_pem}"
   etcd_client_private_key_pem = "${module.etcd-cluster.client_private_key_pem}"
   etcd_client_cert_pem        = "${module.etcd-cluster.client_cert_pem}"
@@ -53,6 +53,7 @@ module "k8s-cluster" {
 }
 
 module "ingress-system" {
+  enabled = "${var.addons["ingress"]}"
   source = "../flux-release"
 
   namespace      = "ingress-system"
@@ -66,6 +67,7 @@ module "ingress-system" {
 module "monitoring-system" {
   source = "../flux-release"
 
+  enabled = "${var.addons["monitoring"]}"
   namespace      = "monitoring-system"
   chart_git      = "https://github.com/alphagov/gsp-monitoring-system.git"
   chart_ref      = "master"
@@ -77,6 +79,7 @@ module "monitoring-system" {
 module "secrets-system" {
   source = "../flux-release"
 
+  enabled = "${var.addons["secrets"]}"
   namespace      = "secrets-system"
   chart_git      = "https://github.com/alphagov/gsp-secrets-system.git"
   chart_ref      = "master"
@@ -85,8 +88,21 @@ module "secrets-system" {
   addons_dir     = "addons/${var.cluster_name}"
 }
 
+module "ci-system" {
+  source = "..//flux-release"
+
+  enabled = "${var.addons["ci"]}"
+  namespace      = "ci-system"
+  chart_git      = "https://github.com/alphagov/gsp-ci-system.git"
+  chart_ref      = "master"
+  cluster_name   = "${var.cluster_name}"
+  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir     = "addons/${var.cluster_name}"
+}
+
 resource "aws_codecommit_repository" "canary" {
-  repository_name = "gsp-canary-chart-${var.dns_zone}"
+  count = "${var.addons["canary"] ? 1 : 0}"
+  repository_name = "canary.${var.cluster_name}.${var.dns_zone}"
 
   provisioner "local-exec" {
     command = "../../../scripts/initialise_canary_helm_codecommit.sh"
@@ -101,12 +117,13 @@ resource "aws_codecommit_repository" "canary" {
 module "canary-system" {
   source = "../flux-release"
 
+  enabled = "${var.addons["canary"]}"
   namespace  = "gsp-canary"
   chart_git  = "${aws_codecommit_repository.canary.clone_url_http}"
   chart_ref  = "master"
   chart_path = "charts/gsp-canary"
   cluster_name = ""
-  cluster_domain = "${var.cluster_id}"
+  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
   values = <<EOF
     updater:

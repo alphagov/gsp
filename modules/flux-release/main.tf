@@ -7,6 +7,7 @@ data "template_file" "flux" {
 }
 
 resource "local_file" "flux" {
+  count = "${var.enabled == 0 ? 0 : 1}"
   filename = "${var.addons_dir}/flux.yaml"
   content  = "${data.template_file.flux.rendered}"
 }
@@ -20,6 +21,7 @@ data "template_file" "namespace" {
 }
 
 resource "local_file" "namespace" {
+  count = "${var.enabled == 0 ? 0 : 1}"
   filename = "${var.addons_dir}/${var.namespace}-namespace.yaml"
   content  = "${data.template_file.namespace.rendered}"
 }
@@ -40,6 +42,7 @@ data "template_file" "helm-release" {
 }
 
 resource "local_file" "helm-release-yaml" {
+  count = "${var.enabled == 0 ? 0 : 1}"
   filename = "${var.addons_dir}/${var.namespace}-helm-release.yaml"
   content  = "${data.template_file.helm-release.rendered}"
 }

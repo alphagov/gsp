@@ -2,10 +2,6 @@ variable "cluster_name" {
   type = "string"
 }
 
-variable "cluster_id" {
-  type = "string"
-}
-
 variable "dns_zone" {
   type = "string"
 }
@@ -61,4 +57,15 @@ variable "controller_instance_type" {
 variable "worker_instance_type" {
   type    = "string"
   default = "t2.small"
+}
+
+variable "addons" {
+  type    = "map"
+  default = {
+    ingress = 1
+    canary = 1
+    monitoring = 1
+    secrets = 1
+    ci = 0
+  }
 }

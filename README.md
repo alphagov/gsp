@@ -17,8 +17,6 @@ The main entrypoint of this repo is the `gsp-cluster` terraform module. An examp
 module "gsp-cluster" {
     source = "git::https://github.com/alphagov/gsp-terraform-ignition//modules/gsp-cluster"
     cluster_name = "production"
-    cluster_id = "production.govuk.aws.ext.govsvc.uk"
-    dns_zone_id = "Z00SW0QP0LD0TS"
     dns_zone = "govuk.aws.ext.govsvc.uk"
     user_data_bucket_name = "gds-govuk-production-tfstate"
     user_data_bucket_region = "eu-west-2"
