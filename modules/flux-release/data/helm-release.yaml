@@ -1,0 +1,17 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: "${namespace}"
+  namespace: "${namespace}"
+spec:
+  releaseName: "${namespace}"
+  chart:
+    git: "${chart_git}"
+    ref: "${chart_ref}"
+    path: "${chart_path}"
+  valueFileSecrets: ${valueFileSecrets}
+  values:
+    cluster:
+      name: ${cluster_name}
+      domain: ${cluster_domain}
+${values}
