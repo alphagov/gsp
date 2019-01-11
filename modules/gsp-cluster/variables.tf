@@ -6,10 +6,6 @@ variable "cluster_id" {
   type = "string"
 }
 
-variable "dns_zone_id" {
-  type = "string"
-}
-
 variable "dns_zone" {
   type = "string"
 }
