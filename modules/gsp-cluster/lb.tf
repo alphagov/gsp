@@ -97,7 +97,7 @@ resource "aws_lb_listener" "ingress-https" {
 }
 
 resource "aws_route53_record" "apiserver" {
-  zone_id = "${var.dns_zone_id}"
+  zone_id = "${data.aws_route53_zone.zone.zone_id}"
 
   name = "${format("%s.%s.", var.cluster_name, var.dns_zone)}"
   type = "A"
@@ -110,7 +110,7 @@ resource "aws_route53_record" "apiserver" {
 }
 
 resource "aws_route53_record" "ingress" {
-  zone_id = "${var.dns_zone_id}"
+  zone_id = "${data.aws_route53_zone.zone.zone_id}"
   name    = "*.${var.cluster_name}.${var.dns_zone}"
   type    = "CNAME"
   ttl     = "300"
