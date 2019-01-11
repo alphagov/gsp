@@ -60,6 +60,7 @@ module "ingress-system" {
   chart_ref      = "master"
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir     = "addons/${var.cluster_name}"
 }
 
 module "monitoring-system" {
@@ -70,6 +71,7 @@ module "monitoring-system" {
   chart_ref      = "master"
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir     = "addons/${var.cluster_name}"
 }
 
 module "secrets-system" {
@@ -80,9 +82,34 @@ module "secrets-system" {
   chart_ref      = "master"
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir     = "addons/${var.cluster_name}"
 }
 
-module "gsp-canary" {
-  source = "../canary-release"
-  cluster_id = "${var.dns_zone}"
+resource "aws_codecommit_repository" "canary" {
+  repository_name = "gsp-canary-chart-${var.dns_zone}"
+
+  provisioner "local-exec" {
+    command = "../../../scripts/initialise_canary_helm_codecommit.sh"
+
+    environment {
+      SOURCE_REPO_URL     = "https://github.com/alphagov/gsp-canary-chart"
+      CODECOMMIT_REPO_URL = "${aws_codecommit_repository.canary.clone_url_http}"
+    }
+  }
+}
+
+module "canary-system" {
+  source = "../flux-release"
+
+  namespace  = "gsp-canary"
+  chart_git  = "${aws_codecommit_repository.canary.clone_url_http}"
+  chart_ref  = "master"
+  chart_path = "charts/gsp-canary"
+  cluster_name = ""
+  cluster_domain = "${var.cluster_id}"
+  addons_dir     = "addons/${var.cluster_name}"
+  values = <<EOF
+    updater:
+      helmChartRepoUrl: ${aws_codecommit_repository.canary.clone_url_http}
+EOF
 }
