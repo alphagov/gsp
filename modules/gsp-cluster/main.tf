@@ -119,7 +119,7 @@ module "canary-system" {
 
   enabled = "${var.addons["canary"]}"
   namespace  = "gsp-canary"
-  chart_git  = "${var.addons["canary"] ? element(aws_codecommit_repository.canary.*.clone_url_http, 0) : ""}"
+  chart_git  = "${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}"
   chart_ref  = "master"
   chart_path = "charts/gsp-canary"
   cluster_name = ""
@@ -127,6 +127,6 @@ module "canary-system" {
   addons_dir     = "addons/${var.cluster_name}"
   values = <<EOF
     updater:
-    helmChartRepoUrl: ${var.addons["canary"] ? element(aws_codecommit_repository.canary.*.clone_url_http, 0) : ""}
+    helmChartRepoUrl: ${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}
 EOF
 }
