@@ -105,7 +105,7 @@ resource "aws_codecommit_repository" "canary" {
   repository_name = "canary.${var.cluster_name}.${var.dns_zone}"
 
   provisioner "local-exec" {
-    command = "../../../scripts/initialise_canary_helm_codecommit.sh"
+    command = "${path.module}/scripts/initialise_canary_helm_codecommit.sh")
 
     environment {
       SOURCE_REPO_URL     = "https://github.com/alphagov/gsp-canary-chart"
