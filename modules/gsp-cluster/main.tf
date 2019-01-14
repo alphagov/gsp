@@ -109,7 +109,7 @@ resource "aws_codecommit_repository" "canary" {
 
     environment {
       SOURCE_REPO_URL     = "https://github.com/alphagov/gsp-canary-chart"
-      CODECOMMIT_REPO_URL = "${var.addons["canary"] ? element(aws_codecommit_repository.canary.*.clone_url_http, 0) : ""}"
+      CODECOMMIT_REPO_URL = "${aws_codecommit_repository.canary.clone_url_http}"
     }
   }
 }
