@@ -94,6 +94,19 @@ module "secrets-system" {
   addons_dir     = "addons/${var.cluster_name}"
 }
 
+resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
+  count = "${var.addons["ci"]}"
+
+  bucket = "registry-${var.cluster_name}-${replace(var.dns_zone, ".", "-")}"
+  acl    = "private"
+  
+  force_destroy = true # NEED TO VALIDATE!!!
+
+  tags = {
+    Name = "Harbor registry and chartmuseum storage"
+  }
+}
+
 module "ci-system" {
   source = "..//flux-release"
 
@@ -104,6 +117,29 @@ module "ci-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+  values         = <<EOF
+    harbor:
+      harborAdminPassword: "${base64encode(random_string.harbor_password.result)}"
+      secretKey: "${base64encode(random_string.harbor_secret_key.result)}"
+      externalURL: "https://registry.${var.cluster_name}.${var.dns_zone}"
+      persistence:
+        imageChartStorage:
+          type: s3
+          s3:
+            bucket: ${aws_s3_bucket.ci-system-harbor-registry-storage.id}
+            region: ${aws_s3_bucket.ci-system-harbor-registry-storage.region}
+            regionendpoint: s3.${aws_s3_bucket.ci-system-harbor-registry-storage.region}.amazonaws.com
+      expose:
+        tls:
+          secretName: harbor-registry-certificates
+          notarySecretName: harbor-notary-certificates
+        ingress:
+          annotations:
+            kubernetes.io/tls-acme: "true"
+          hosts:
+            core: "registry.${var.cluster_name}.${var.dns_zone}"
+            notary: "notary.${var.cluster_name}.${var.dns_zone}"
+EOF
 }
 
 resource "aws_codecommit_repository" "canary" {
