@@ -48,6 +48,7 @@ output "k8s-tag" {
 
 output "kubelet-kubeconfig" {
     value = "${module.gsp-cluster.kubelet-kubeconfig}"
+    sensitive = true
 }
 
 output "admin-kubeconfig" {

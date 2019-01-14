@@ -48,6 +48,7 @@ output "cluster-domain-suffix" {
 
 output "kubelet-kubeconfig" {
   value = "${module.bootkube-assets.kubelet-kubeconfig}"
+  sensitive = true
 }
 
 output "admin-kubeconfig" {
