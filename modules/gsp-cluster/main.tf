@@ -127,6 +127,6 @@ module "canary-system" {
   addons_dir     = "addons/${var.cluster_name}"
   values = <<EOF
     updater:
-    helmChartRepoUrl: ${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}
+      helmChartRepoUrl: ${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}
 EOF
 }
