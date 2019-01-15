@@ -90,3 +90,21 @@ variable "worker_count" {
   type    = "string"
   default = "2"
 }
+
+variable "api_allowed_ips" {
+  description = "Office IPs that are allowed to talk to the k8s API, taken from the GDS wiki"
+  type = "list"
+  default = [
+    "213.86.153.212/32",
+    "213.86.153.213/32",
+    "213.86.153.214/32",
+    "213.86.153.235/32",
+    "213.86.153.236/32",
+    "213.86.153.237/32",
+    "85.133.67.244/32",
+  ]
+}
+
+variable "nat_gateway_ips" {
+  type = "list"
+}
