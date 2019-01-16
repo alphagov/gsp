@@ -124,8 +124,8 @@ module "ci-system" {
           kubernetes:
             namespacePrefix: "${module.ci-system.release-name}-"
     harbor:
-      harborAdminPassword: "${base64encode(random_string.harbor_password.result)}"
-      secretKey: "${base64encode(random_string.harbor_secret_key.result)}"
+      harborAdminPassword: "${random_string.harbor_password.result}"
+      secretKey: "${random_string.harbor_secret_key.result}"
       externalURL: "https://registry.${var.cluster_name}.${var.dns_zone}"
       persistence:
         imageChartStorage:
