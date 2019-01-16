@@ -118,6 +118,11 @@ module "ci-system" {
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
   values         = <<EOF
+    concourse:
+      concourse:
+        web:
+          kubernetes:
+            namespacePrefix: "${module.ci-system.release-name}-"
     harbor:
       harborAdminPassword: "${base64encode(random_string.harbor_password.result)}"
       secretKey: "${base64encode(random_string.harbor_secret_key.result)}"
