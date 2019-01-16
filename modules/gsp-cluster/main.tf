@@ -80,6 +80,21 @@ module "monitoring-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+  values = <<EOF
+    fluentd-cloudwatch:
+      logGroupName: "${var.cluster_name}.${var.dns_zone}"
+    prometheus-operator:
+      prometheus:
+        prometheusSpec:
+          externalLabels:
+            clustername: "${var.cluster_name}.${var.dns_zone}"
+EOF
+}
+
+resource "aws_cloudwatch_log_group" "logs" {
+  count             = "${var.addons["monitoring"] ? 1 : 0}"
+  name              = "${var.cluster_name}.${var.dns_zone}"
+  retention_in_days = 30
 }
 
 module "secrets-system" {
