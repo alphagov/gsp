@@ -39,7 +39,7 @@ resource "aws_launch_configuration" "controller" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = ["image_id"]
+    ignore_changes        = ["image_id"]
   }
 
   iam_instance_profile = "${aws_iam_instance_profile.controller_profile.name}"

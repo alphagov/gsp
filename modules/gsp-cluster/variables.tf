@@ -60,19 +60,21 @@ variable "worker_instance_type" {
 }
 
 variable "addons" {
-  type    = "map"
+  type = "map"
+
   default = {
-    ingress = 1
-    canary = 1
+    ingress    = 1
+    canary     = 1
     monitoring = 1
-    secrets = 1
-    ci = 0
+    secrets    = 1
+    ci         = 0
   }
 }
 
 variable "gds_external_cidrs" {
   description = "External GDS CIDRs that are allowed to talk to the clusters, taken from the GDS wiki"
-  type = "list"
+  type        = "list"
+
   default = [
     "213.86.153.212/32",
     "213.86.153.213/32",
