@@ -7,44 +7,14 @@ resource "aws_security_group" "controller" {
   tags = "${map("Name", "${var.cluster_name}-controller")}"
 }
 
-resource "aws_security_group_rule" "controller-apiserver-office-ips" {
+resource "aws_security_group_rule" "controller-apiserver-cidrs" {
   security_group_id = "${aws_security_group.controller.id}"
 
   type        = "ingress"
   protocol    = "tcp"
   from_port   = 6443
   to_port     = 6443
-  cidr_blocks = "${var.api_allowed_ips}"
-}
-
-resource "aws_security_group_rule" "controller-nat-gateway-ips" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type        = "ingress"
-  protocol    = "tcp"
-  from_port   = 6443
-  to_port     = 6443
-  cidr_blocks = ["${formatlist("%s/32", var.nat_gateway_ips)}"]
-}
-
-resource "aws_security_group_rule" "controller-apiserver-workers" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 6443
-  to_port                  = 6443
-  source_security_group_id = "${aws_security_group.worker.id}"
-}
-
-resource "aws_security_group_rule" "controller-apiserver-self" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 6443
-  to_port                  = 6443
-  self                     = true
+  cidr_blocks = ["${var.apiserver_allowed_cidrs}"]
 }
 
 resource "aws_security_group_rule" "controller-flannel" {
