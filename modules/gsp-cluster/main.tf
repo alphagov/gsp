@@ -50,12 +50,17 @@ module "k8s-cluster" {
   controller_instance_type = "${var.controller_instance_type}"
   worker_instance_type     = "${var.worker_instance_type}"
   s3_user_data_policy_arn  = "${aws_iam_policy.s3-user-data-policy.arn}"
-  nat_gateway_ips          = "${aws_nat_gateway.cluster.*.public_ip}"
+
+  apiserver_allowed_cidrs = ["${concat(
+      list(aws_vpc.network.cidr_block),
+      formatlist("%s/32", aws_nat_gateway.cluster.*.public_ip),
+      var.gds_external_cidrs,
+  )}"]
 }
 
 module "ingress-system" {
   enabled = "${var.addons["ingress"]}"
-  source = "../flux-release"
+  source  = "../flux-release"
 
   namespace      = "ingress-system"
   chart_git      = "https://github.com/alphagov/gsp-ingress-system.git"
@@ -68,7 +73,7 @@ module "ingress-system" {
 module "monitoring-system" {
   source = "../flux-release"
 
-  enabled = "${var.addons["monitoring"]}"
+  enabled        = "${var.addons["monitoring"]}"
   namespace      = "monitoring-system"
   chart_git      = "https://github.com/alphagov/gsp-monitoring-system.git"
   chart_ref      = "master"
@@ -80,7 +85,7 @@ module "monitoring-system" {
 module "secrets-system" {
   source = "../flux-release"
 
-  enabled = "${var.addons["secrets"]}"
+  enabled        = "${var.addons["secrets"]}"
   namespace      = "secrets-system"
   chart_git      = "https://github.com/alphagov/gsp-secrets-system.git"
   chart_ref      = "master"
@@ -92,7 +97,7 @@ module "secrets-system" {
 module "ci-system" {
   source = "..//flux-release"
 
-  enabled = "${var.addons["ci"]}"
+  enabled        = "${var.addons["ci"]}"
   namespace      = "ci-system"
   chart_git      = "https://github.com/alphagov/gsp-ci-system.git"
   chart_ref      = "master"
@@ -102,7 +107,7 @@ module "ci-system" {
 }
 
 resource "aws_codecommit_repository" "canary" {
-  count = "${var.addons["canary"] ? 1 : 0}"
+  count           = "${var.addons["canary"] ? 1 : 0}"
   repository_name = "canary.${var.cluster_name}.${var.dns_zone}"
 
   provisioner "local-exec" {
@@ -118,14 +123,15 @@ resource "aws_codecommit_repository" "canary" {
 module "canary-system" {
   source = "../flux-release"
 
-  enabled = "${var.addons["canary"]}"
-  namespace  = "gsp-canary"
-  chart_git  = "${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}"
-  chart_ref  = "master"
-  chart_path = "charts/gsp-canary"
-  cluster_name = ""
+  enabled        = "${var.addons["canary"]}"
+  namespace      = "gsp-canary"
+  chart_git      = "${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}"
+  chart_ref      = "master"
+  chart_path     = "charts/gsp-canary"
+  cluster_name   = ""
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+
   values = <<EOF
     updater:
       helmChartRepoUrl: ${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}

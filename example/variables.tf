@@ -1,19 +1,19 @@
 variable "user_data_bucket_name" {
-    type = "string"
+  type = "string"
 }
 
 variable "user_data_bucket_region" {
-    type = "string"
+  type = "string"
 }
 
 variable "cluster_name" {
-    type = "string"
+  type = "string"
 }
 
 variable "k8s_tag" {
-    type = "string"
+  type = "string"
 }
 
 variable "cluster_zone" {
-    type = "string"
+  type = "string"
 }

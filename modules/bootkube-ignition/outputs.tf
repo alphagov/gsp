@@ -74,7 +74,7 @@ output "admin-kubeconfig" {
 }
 
 output "kubelet-kubeconfig" {
-  value = "${data.template_file.kubeconfig-kubelet.rendered}"
+  value     = "${data.template_file.kubeconfig-kubelet.rendered}"
   sensitive = true
 }
 
