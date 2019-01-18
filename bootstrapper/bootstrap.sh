@@ -20,4 +20,4 @@ done
 
 aws-vault exec "${aws_vault_profile}" -- kubectl --kubeconfig kubeconfig drain --ignore-daemonsets --force --grace-period=60 -l 'node-role.kubernetes.io/bootstrapper'
 aws-vault exec "${aws_vault_profile}" -- terraform destroy -auto-approve -var "remote_state_bucket_name=${remote_state_bucket_name}" -var "remote_state_key=${remote_state_key}"
-aws-vault exec "${aws_vault_profile}" -- kubectl --kubeconfig kubeconfig delete -l 'node-role.kubernetes.io/bootstrapper'
+aws-vault exec "${aws_vault_profile}" -- kubectl --kubeconfig kubeconfig delete node -l 'node-role.kubernetes.io/bootstrapper'
