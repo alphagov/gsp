@@ -194,3 +194,11 @@ module "canary-system" {
       helmChartRepoUrl: ${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}
 EOF
 }
+
+module "group-role-bindings" {
+  source = "../group-role-bindings"
+
+  namespaces = ["${var.dev_namespaces}"]
+  addons_dir = "addons/${var.cluster_name}"
+  group_name = "dev"
+}
