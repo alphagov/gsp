@@ -165,7 +165,7 @@ spec:
         # There are no ":latest" images for helm-operator. Find the most recent
         # release or image version at https://quay.io/weaveworks/helm-operator
         # and replace the tag here.
-        image: govsvc/aws-flux-helm-operator:0.0.1544026878
+        image: govsvc/aws-flux-helm-operator:0.0.1547744608
         imagePullPolicy: IfNotPresent
         args:
         - --charts-sync-interval=1m
