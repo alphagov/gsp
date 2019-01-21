@@ -92,10 +92,12 @@ module "monitoring-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+  permitted_roles_regex = "^${aws_iam_role.cloudwatch_log_shipping_role.name}$"
 
   values = <<EOF
     fluentd-cloudwatch:
       logGroupName: "${var.cluster_name}.${var.dns_zone}"
+      awsRole: "${aws_iam_role.cloudwatch_log_shipping_role.name}"
     prometheus-operator:
       prometheus:
         prometheusSpec:
@@ -145,6 +147,24 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
     Name = "Harbor registry and chartmuseum storage"
   }
 }
+
+module "kiam-system" {
+  source = "../flux-release"
+
+  enabled        = 1
+  namespace      = "kiam-system"
+  chart_git      = "https://github.com/alphagov/gsp-kiam-system"
+  chart_ref      = "master"
+  cluster_name   = "${var.cluster_name}"
+  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir     = "addons/${var.cluster_name}"
+  values = <<EOF
+    kiam:
+      server:
+        assumeRoleArn: "${aws_iam_role.kiam_server_role.arn}"
+EOF
+}
+
 
 module "ci-system" {
   source = "..//flux-release"

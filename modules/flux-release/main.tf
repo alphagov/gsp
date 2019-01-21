@@ -16,6 +16,7 @@ data "template_file" "namespace" {
   template = "${file("${path.module}/data/namespace.yaml")}"
 
   vars {
+    permitted_roles_regex = "${var.permitted_roles_regex}"
     namespace = "${var.namespace}"
   }
 }
