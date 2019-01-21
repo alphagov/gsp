@@ -25,6 +25,7 @@ module "bootkube-assets" {
   etcd_client_private_key_pem = "${module.etcd-cluster.client_private_key_pem}"
   etcd_client_cert_pem        = "${module.etcd-cluster.client_cert_pem}"
   admin_role_arns             = ["${var.admin_role_arns}"]
+  dev_role_arns               = ["${aws_iam_role.dev.arn}"]
 }
 
 module "k8s-cluster" {

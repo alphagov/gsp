@@ -3,7 +3,8 @@ data "template_file" "aws-iam-authenticator-cfg" {
 
   vars {
     cluster_id        = "${var.cluster_id}"
-    iam_role_mappings = "${join("\n", formatlist(var.admin_role_arn_mapping_template, var.admin_role_arns))}"
+    iam_admin_role_mappings = "${join("\n", formatlist(var.admin_role_arn_mapping_template, var.admin_role_arns))}"
+    iam_dev_role_mappings = "${join("\n", formatlist(var.dev_role_arn_mapping_template, var.dev_role_arns))}"
   }
 }
 

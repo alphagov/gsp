@@ -18,6 +18,12 @@ variable "admin_role_arns" {
   type = "list"
 }
 
+variable "dev_user_arns" {
+  description = "A list of user ARNs that will be mapped to the cluster dev role"
+  type        = "list"
+  default     = []
+}
+
 variable "host_cidr" {
   description = "CIDR IPv4 range to assign to EC2 nodes"
   type        = "string"
@@ -71,17 +77,7 @@ variable "addons" {
   }
 }
 
-variable "gds_external_cidrs" {
-  description = "External GDS CIDRs that are allowed to talk to the clusters, taken from the GDS wiki"
-  type        = "list"
-
-  default = [
-    "213.86.153.212/32",
-    "213.86.153.213/32",
-    "213.86.153.214/32",
-    "213.86.153.235/32",
-    "213.86.153.236/32",
-    "213.86.153.237/32",
-    "85.133.67.244/32",
-  ]
+variable "dev_namespaces" {
+  type = "list"
+  default = []
 }
