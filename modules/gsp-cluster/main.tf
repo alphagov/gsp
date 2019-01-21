@@ -37,6 +37,7 @@ module "k8s-cluster" {
   user_data_bucket_region      = "${var.user_data_bucket_region}"
   vpc_id                       = "${aws_vpc.network.id}"
   subnet_ids                   = ["${aws_subnet.cluster-private.*.id}"]
+  api_allowed_ips              = ["${var.gds_external_cidrs}"]
   controller_target_group_arns = ["${aws_lb_target_group.controllers.arn}"]
 
   worker_target_group_arns = [
