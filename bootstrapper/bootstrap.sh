@@ -12,7 +12,7 @@ aws-vault exec "${aws_vault_profile}" -- terraform apply -auto-approve -var "rem
 
 echo "Waiting for kubernetes..."
 
-until [ -n "$(aws-vault exec "${aws_vault_profile}" -- kubectl --kubeconfig kubeconfig -n kube-system get pods | grep kube-apiserver | grep -v bootstrap)" ]
+until aws-vault exec "${aws_vault_profile}" -- kubectl --kubeconfig kubeconfig -n kube-system get pods | grep kube-apiserver | grep -v bootstrap
 do
     echo -n "."
     sleep 10s
