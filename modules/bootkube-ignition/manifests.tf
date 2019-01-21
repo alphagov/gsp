@@ -2,9 +2,9 @@ data "template_file" "aws-iam-authenticator-cfg" {
   template = "${file("${path.module}/data/manifests/aws-iam-authenticator-cfg.yaml")}"
 
   vars {
-    cluster_id        = "${var.cluster_id}"
+    cluster_id              = "${var.cluster_id}"
     iam_admin_role_mappings = "${join("\n", formatlist(var.admin_role_arn_mapping_template, var.admin_role_arns))}"
-    iam_dev_role_mappings = "${join("\n", formatlist(var.dev_role_arn_mapping_template, var.dev_role_arns))}"
+    iam_dev_role_mappings   = "${join("\n", formatlist(var.dev_role_arn_mapping_template, var.dev_role_arns))}"
   }
 }
 

@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "grant-iam-dev" {
     actions = ["sts:AssumeRole"]
 
     principals = {
-      type = "AWS"
+      type        = "AWS"
       identifiers = ["${var.dev_user_arns}"]
     }
 

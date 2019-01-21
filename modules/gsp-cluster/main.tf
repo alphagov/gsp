@@ -82,6 +82,7 @@ module "monitoring-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+
   values = <<EOF
     fluentd-cloudwatch:
       logGroupName: "${var.cluster_name}.${var.dns_zone}"
@@ -116,7 +117,7 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
 
   bucket = "registry-${var.cluster_name}-${replace(var.dns_zone, ".", "-")}"
   acl    = "private"
-  
+
   force_destroy = true # NEED TO VALIDATE!!!
 
   tags = {
@@ -134,7 +135,8 @@ module "ci-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
-  values         = <<EOF
+
+  values = <<EOF
     concourse:
       concourse:
         web:

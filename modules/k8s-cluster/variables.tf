@@ -97,8 +97,7 @@ variable "worker_count" {
 
 variable "api_allowed_ips" {
   description = "Office IPs that are allowed to talk to the k8s API, taken from the GDS wiki"
-  type = "list"
-
+  type        = "list"
 }
 
 variable "nat_gateway_ips" {

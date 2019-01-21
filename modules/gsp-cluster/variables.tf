@@ -79,7 +79,8 @@ variable "addons" {
 
 variable "gds_external_cidrs" {
   description = "External GDS CIDRs that are allowed to talk to the clusters, taken from the GDS wiki"
-  type = "list"
+  type        = "list"
+
   default = [
     "213.86.153.212/32",
     "213.86.153.213/32",
@@ -92,6 +93,6 @@ variable "gds_external_cidrs" {
 }
 
 variable "dev_namespaces" {
-  type = "list"
+  type    = "list"
   default = []
 }
