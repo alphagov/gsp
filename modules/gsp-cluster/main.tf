@@ -110,7 +110,7 @@ module "secrets-system" {
 }
 
 resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
-  count = "${var.addons["ci"]}"
+  count = "${var.addons["ci"] ? 1 : 0}"
 
   bucket = "registry-${var.cluster_name}-${replace(var.dns_zone, ".", "-")}"
   acl    = "private"
@@ -146,9 +146,9 @@ module "ci-system" {
         imageChartStorage:
           type: s3
           s3:
-            bucket: ${aws_s3_bucket.ci-system-harbor-registry-storage.id}
-            region: ${aws_s3_bucket.ci-system-harbor-registry-storage.region}
-            regionendpoint: s3.${aws_s3_bucket.ci-system-harbor-registry-storage.region}.amazonaws.com
+            bucket: ${var.addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.id, list("")), 0) : ""}
+            region: ${var.addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.region, list("")), 0) : ""}
+            regionendpoint: s3.${var.addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.region, list("")), 0) : ""}.amazonaws.com
       expose:
         tls:
           secretName: harbor-registry-certificates
