@@ -25,6 +25,7 @@ module "bootkube-assets" {
   etcd_client_private_key_pem = "${module.etcd-cluster.client_private_key_pem}"
   etcd_client_cert_pem        = "${module.etcd-cluster.client_cert_pem}"
   admin_role_arns             = ["${var.admin_role_arns}"]
+  dev_role_arns               = ["${aws_iam_role.dev.arn}"]
 }
 
 module "k8s-cluster" {
@@ -36,6 +37,7 @@ module "k8s-cluster" {
   user_data_bucket_region      = "${var.user_data_bucket_region}"
   vpc_id                       = "${aws_vpc.network.id}"
   subnet_ids                   = ["${aws_subnet.cluster-private.*.id}"]
+  api_allowed_ips              = ["${var.gds_external_cidrs}"]
   controller_target_group_arns = ["${aws_lb_target_group.controllers.arn}"]
 
   worker_target_group_arns = [
@@ -80,6 +82,7 @@ module "monitoring-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+
   values = <<EOF
     fluentd-cloudwatch:
       logGroupName: "${var.cluster_name}.${var.dns_zone}"
@@ -114,7 +117,7 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
 
   bucket = "registry-${var.cluster_name}-${replace(var.dns_zone, ".", "-")}"
   acl    = "private"
-  
+
   force_destroy = true # NEED TO VALIDATE!!!
 
   tags = {
@@ -132,7 +135,8 @@ module "ci-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
-  values         = <<EOF
+
+  values = <<EOF
     concourse:
       concourse:
         web:
@@ -192,4 +196,12 @@ module "canary-system" {
     updater:
       helmChartRepoUrl: ${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}
 EOF
+}
+
+module "group-role-bindings" {
+  source = "../group-role-bindings"
+
+  namespaces = ["${var.dev_namespaces}"]
+  addons_dir = "addons/${var.cluster_name}"
+  group_name = "dev"
 }

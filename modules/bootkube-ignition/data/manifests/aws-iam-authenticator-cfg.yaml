@@ -17,4 +17,5 @@ data:
       #  1) "{{AccountID}}" is the 12 digit AWS ID.
       #  2) "{{SessionName}}" is the role session name.
       mapRoles:
-${iam_role_mappings}
+${iam_admin_role_mappings}
+${iam_dev_role_mappings}
