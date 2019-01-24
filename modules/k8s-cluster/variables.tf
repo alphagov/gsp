@@ -102,6 +102,6 @@ variable "api_allowed_ips" {
 }
 
 variable "nat_gateway_ips" {
-  type = "list"
-  default     = []
+  type    = "list"
+  default = []
 }
