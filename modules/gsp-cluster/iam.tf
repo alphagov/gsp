@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "grant-iam-dev" {
 
     principals = {
       type        = "AWS"
-      identifiers = ["${var.dev_user_arns}"]
+      identifiers = ["${concat(var.admin_role_arns, var.dev_user_arns)}"]
     }
 
     condition {
