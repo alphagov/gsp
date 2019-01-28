@@ -7,6 +7,12 @@ variable "namespace" {
   type        = "string"
 }
 
+variable "release_name" {
+  description = "helm release name, defaults to namespace if left empty"
+  type        = "string"
+  default     = ""
+}
+
 variable "chart_git" {
   description = "git repository containing helm chart to watch/deploy"
   type        = "string"
