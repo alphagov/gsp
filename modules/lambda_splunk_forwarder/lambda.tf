@@ -1,20 +1,37 @@
-resource "null_resource" "create_lambda_zip_file" {
-  provisioner "local-exec" {
-    command = "cd ${path.module}; rm -f *.zip; zip -q -r lambda_log_forwarder.zip lib index.js"
+data "local_file" "index" {
+  filename = "${path.module}/index.js"
+}
+
+data "local_file" "logger" {
+  filename = "${path.module}/lib/mysplunklogger.js"
+}
+
+data "archive_file" "lambda_log_forwarder" {
+  type        = "zip"
+  output_path = "${path.module}/.terraform/archive_files/lambda_log_forwarder.zip"
+
+  source {
+    content  = "${data.local_file.index.content}"
+    filename = "index.js"
+  }
+
+  source {
+    content  = "${data.local_file.logger.content}"
+    filename = "lib/mysplunklogger.js"
   }
 }
 
 resource "aws_lambda_function" "lambda_log_forwarder" {
-  count         = "${var.enabled == 0 ? 0 : 1}"
-  depends_on    = ["null_resource.create_lambda_zip_file"]
-  filename      = "${path.module}/lambda_log_forwarder.zip"
-  function_name = "${var.cluster_name}_log_forwarder"
-  role          = "${aws_iam_role.lambda_log_forwarder.arn}"
-  handler       = "index.handler"
-  runtime       = "nodejs6.10"
-  timeout       = "10"
-  memory_size   = "128"
-  description   = "A function to forward logs from AWS to a Splunk HEC"
+  count            = "${var.enabled == 0 ? 0 : 1}"
+  filename         = "${data.archive_file.lambda_log_forwarder.output_path}"
+  source_code_hash = "${data.archive_file.lambda_log_forwarder.output_base64sha256}"
+  function_name    = "${var.cluster_name}_log_forwarder"
+  role             = "${aws_iam_role.lambda_log_forwarder.arn}"
+  handler          = "index.handler"
+  runtime          = "nodejs6.10"
+  timeout          = "10"
+  memory_size      = "128"
+  description      = "A function to forward logs from AWS to a Splunk HEC"
 
   environment {
     variables = {
