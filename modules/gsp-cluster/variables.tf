@@ -74,6 +74,7 @@ variable "addons" {
     monitoring = 1
     secrets    = 1
     ci         = 0
+    splunk     = 0
   }
 }
 
@@ -95,4 +96,16 @@ variable "gds_external_cidrs" {
 variable "dev_namespaces" {
   type    = "list"
   default = []
+}
+
+variable "splunk_hec_token" {
+  description = "Splunk HTTP event collector token for authentication"
+  type        = "string"
+  default     = ""
+}
+
+variable "splunk_hec_url" {
+  description = "Splunk HTTP event collector URL to send logs to"
+  type        = "string"
+  default     = ""
 }
