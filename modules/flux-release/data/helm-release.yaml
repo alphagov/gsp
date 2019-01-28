@@ -1,10 +1,10 @@
 apiVersion: flux.weave.works/v1beta1
 kind: HelmRelease
 metadata:
-  name: "${namespace}"
+  name: "${release_name}"
   namespace: "${namespace}"
 spec:
-  releaseName: "${namespace}"
+  releaseName: "${release_name}"
   chart:
     git: "${chart_git}"
     ref: "${chart_ref}"

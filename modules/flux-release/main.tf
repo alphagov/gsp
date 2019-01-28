@@ -31,6 +31,7 @@ data "template_file" "helm-release" {
 
   vars {
     namespace        = "${var.namespace}"
+    release_name     = "${coalesce(var.release_name, var.namespace)}"
     chart_git        = "${var.chart_git}"
     chart_ref        = "${var.chart_ref}"
     chart_path       = "${var.chart_path}"
