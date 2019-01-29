@@ -68,14 +68,7 @@ variable "worker_instance_type" {
 variable "addons" {
   type = "map"
 
-  default = {
-    ingress    = 1
-    canary     = 1
-    monitoring = 1
-    secrets    = 1
-    ci         = 0
-    splunk     = 0
-  }
+  default = {}
 }
 
 variable "gds_external_cidrs" {

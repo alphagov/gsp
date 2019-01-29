@@ -60,8 +60,21 @@ module "k8s-cluster" {
   )}"]
 }
 
+locals {
+  default_addons = {
+    ingress    = 1
+    canary     = 1
+    monitoring = 1
+    secrets    = 1
+    ci         = 0
+    splunk     = 0
+  }
+
+  enabled_addons = "${merge(local.default_addons, var.addons)}",
+}
+
 module "ingress-system" {
-  enabled = "${var.addons["ingress"]}"
+  enabled = "${local.enabled_addons["ingress"]}"
   source  = "../flux-release"
 
   namespace      = "ingress-system"
@@ -75,7 +88,7 @@ module "ingress-system" {
 module "monitoring-system" {
   source = "../flux-release"
 
-  enabled        = "${var.addons["monitoring"]}"
+  enabled        = "${local.enabled_addons["monitoring"]}"
   namespace      = "monitoring-system"
   chart_git      = "https://github.com/alphagov/gsp-monitoring-system.git"
   chart_ref      = "master"
@@ -95,7 +108,7 @@ EOF
 }
 
 resource "aws_cloudwatch_log_group" "logs" {
-  count             = "${var.addons["monitoring"] ? 1 : 0}"
+  count             = "${local.enabled_addons["monitoring"] ? 1 : 0}"
   name              = "${var.cluster_name}.${var.dns_zone}"
   retention_in_days = 30
 }
@@ -103,7 +116,7 @@ resource "aws_cloudwatch_log_group" "logs" {
 module "lambda_splunk_forwarder" {
   source = "../lambda_splunk_forwarder"
 
-  enabled                   = "${var.addons["splunk"]}"
+  enabled                   = "${local.enabled_addons["splunk"]}"
   cloudwatch_log_group_arn  = "${aws_cloudwatch_log_group.logs.arn}"
   cloudwatch_log_group_name = "${aws_cloudwatch_log_group.logs.name}"
   cluster_name              = "${var.cluster_name}"
@@ -114,7 +127,7 @@ module "lambda_splunk_forwarder" {
 module "secrets-system" {
   source = "../flux-release"
 
-  enabled        = "${var.addons["secrets"]}"
+  enabled        = "${local.enabled_addons["secrets"]}"
   namespace      = "secrets-system"
   chart_git      = "https://github.com/alphagov/gsp-secrets-system.git"
   chart_ref      = "master"
@@ -124,7 +137,7 @@ module "secrets-system" {
 }
 
 resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
-  count = "${var.addons["ci"] ? 1 : 0}"
+  count = "${local.enabled_addons["ci"] ? 1 : 0}"
 
   bucket = "registry-${var.cluster_name}-${replace(var.dns_zone, ".", "-")}"
   acl    = "private"
@@ -139,7 +152,7 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
 module "ci-system" {
   source = "..//flux-release"
 
-  enabled        = "${var.addons["ci"]}"
+  enabled        = "${local.enabled_addons["ci"]}"
   namespace      = "ci-system"
   chart_git      = "https://github.com/alphagov/gsp-ci-system.git"
   chart_ref      = "master"
@@ -161,9 +174,9 @@ module "ci-system" {
         imageChartStorage:
           type: s3
           s3:
-            bucket: ${var.addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.id, list("")), 0) : ""}
-            region: ${var.addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.region, list("")), 0) : ""}
-            regionendpoint: s3.${var.addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.region, list("")), 0) : ""}.amazonaws.com
+            bucket: ${local.enabled_addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.id, list("")), 0) : ""}
+            region: ${local.enabled_addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.region, list("")), 0) : ""}
+            regionendpoint: s3.${local.enabled_addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.region, list("")), 0) : ""}.amazonaws.com
       expose:
         tls:
           secretName: harbor-registry-certificates
@@ -178,7 +191,7 @@ EOF
 }
 
 resource "aws_codecommit_repository" "canary" {
-  count           = "${var.addons["canary"] ? 1 : 0}"
+  count           = "${local.enabled_addons["canary"] ? 1 : 0}"
   repository_name = "canary.${var.cluster_name}.${var.dns_zone}"
 
   provisioner "local-exec" {
@@ -194,9 +207,9 @@ resource "aws_codecommit_repository" "canary" {
 module "canary-system" {
   source = "../flux-release"
 
-  enabled        = "${var.addons["canary"]}"
+  enabled        = "${local.enabled_addons["canary"]}"
   namespace      = "gsp-canary"
-  chart_git      = "${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}"
+  chart_git      = "${local.enabled_addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}"
   chart_ref      = "master"
   chart_path     = "charts/gsp-canary"
   cluster_name   = ""
@@ -205,7 +218,7 @@ module "canary-system" {
 
   values = <<EOF
     updater:
-      helmChartRepoUrl: ${var.addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}
+      helmChartRepoUrl: ${local.enabled_addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}
 EOF
 }
 
