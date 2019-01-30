@@ -22,10 +22,6 @@ variable "user_data_bucket_name" {
   type = "string"
 }
 
-variable "user_data_bucket_region" {
-  type = "string"
-}
-
 variable "s3_user_data_policy_arn" {
   type = "string"
 }
