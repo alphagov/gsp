@@ -69,6 +69,21 @@ locals {
   enabled_addons = "${merge(local.default_addons, var.addons)}"
 }
 
+data "template_file" "flux" {
+  template = "${file("${path.module}/data/flux.yaml")}"
+
+  vars {
+    namespace = "flux-system"
+    aws_role_name = "${module.gsp-canary.canary_role_name}"
+    permitted_roles_regex = "^${module.gsp-canary.canary_role_name}$"
+  }
+}
+
+resource "local_file" "flux" {
+  filename = "addons/${var.cluster_name}/flux.yaml"
+  content  = "${data.template_file.flux.rendered}"
+}
+
 module "ingress-system" {
   enabled = "${local.enabled_addons["ingress"]}"
   source  = "../flux-release"
