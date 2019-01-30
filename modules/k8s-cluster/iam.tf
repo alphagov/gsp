@@ -142,7 +142,6 @@ data "aws_iam_policy_document" "worker_policy_doc" {
       "ec2:DescribeInstances",
       "ec2:DescribeRegions",
       "ecr:*",
-      "codecommit:*",
       "s3:*",
     ]
 

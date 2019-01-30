@@ -22,6 +22,7 @@ module "canary-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "${var.addons_dir}"
+  permitted_roles_regex = "^${aws_iam_role.canary_role.name}$"
 
   values = <<EOF
     updater:

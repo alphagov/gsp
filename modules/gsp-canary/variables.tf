@@ -11,3 +11,8 @@ variable "addons_dir" {
   type        = "string"
   default     = "addons"
 }
+
+variable "canary_role_assumer_arn" {
+  description = "ARN of the role assuming the canary role, e.g. kiam-server-role"
+  type        = "string"
+}

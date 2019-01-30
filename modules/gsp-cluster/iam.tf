@@ -62,12 +62,15 @@ data "aws_iam_policy_document" "kiam_server_role" {
 }
 
 data "aws_iam_policy_document" "kiam_server_policy" {
-    statement {
-      effect = "Allow"
-      actions = ["sts:AssumeRole"]
+  statement {
+    effect = "Allow"
+    actions = ["sts:AssumeRole"]
 
-      resources = ["${aws_iam_role.cloudwatch_log_shipping_role.arn}"]
-    }
+    resources = [
+      "${aws_iam_role.cloudwatch_log_shipping_role.arn}",
+      "${module.gsp-canary.canary_role_arn}",
+    ]
+  }
 }
 
 data "aws_iam_policy_document" "cloudwatch_log_shipping_role" {
