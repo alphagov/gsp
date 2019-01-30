@@ -90,3 +90,7 @@ output "notary-targets-passphrase" {
 output "harbor-password" {
   value = "${base64encode(random_string.harbor_password.result)}"
 }
+
+output "github-deployment-public-key" {
+  value = "${tls_private_key.github_deployment_key.public_key_openssh}"
+}
