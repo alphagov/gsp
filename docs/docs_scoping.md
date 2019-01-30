@@ -71,7 +71,7 @@ Alerting and monitoring:
 - How to set up alerting
 - How to set up monitoring
 - How do I view app metrics
-- How to access prometheus / alert manager / grafana
+- How to access prometheus / alert manager / grafana - 1
 - Cyber / Splunk
 - How to add, edit and deploy an alert
 
