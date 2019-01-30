@@ -8,7 +8,6 @@ module "etcd-cluster" {
   dns_zone_id             = "${data.aws_route53_zone.zone.zone_id}"
   node_count              = "${var.etcd_node_count}"
   user_data_bucket_name   = "${var.user_data_bucket_name}"
-  user_data_bucket_region = "${var.user_data_bucket_region}"
   instance_type           = "${var.etcd_instance_type}"
   s3_user_data_policy_arn = "${aws_iam_policy.s3-user-data-policy.arn}"
 }
@@ -34,10 +33,8 @@ module "k8s-cluster" {
   kubelet_kubeconfig           = "${module.bootkube-assets.kubelet-kubeconfig}"
   kube_ca_crt                  = "${module.bootkube-assets.kube-ca-crt}"
   user_data_bucket_name        = "${var.user_data_bucket_name}"
-  user_data_bucket_region      = "${var.user_data_bucket_region}"
   vpc_id                       = "${aws_vpc.network.id}"
   subnet_ids                   = ["${aws_subnet.cluster-private.*.id}"]
-  api_allowed_ips              = ["${var.gds_external_cidrs}"]
   controller_target_group_arns = ["${aws_lb_target_group.controllers.arn}"]
 
   worker_target_group_arns = [

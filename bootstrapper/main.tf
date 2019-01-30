@@ -31,7 +31,6 @@ module "k8s-bootstrap" {
   bootstrap_base_userdata_source       = "${data.terraform_remote_state.cluster.bootstrap-base-userdata-source}"
   bootstrap_base_userdata_verification = "${data.terraform_remote_state.cluster.bootstrap-base-userdata-verification}"
   user_data_bucket_name                = "${data.terraform_remote_state.cluster.user-data-bucket-name}"
-  user_data_bucket_region              = "${data.terraform_remote_state.cluster.user-data-bucket-region}"
   cluster_name                         = "${data.terraform_remote_state.cluster.cluster-name}"
   security_group_ids                   = ["${data.terraform_remote_state.cluster.controller-security-group-ids}"]
   subnet_id                            = "${data.terraform_remote_state.cluster.bootstrap-subnet-id}"

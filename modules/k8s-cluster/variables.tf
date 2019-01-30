@@ -14,10 +14,6 @@ variable "user_data_bucket_name" {
   type = "string"
 }
 
-variable "user_data_bucket_region" {
-  type = "string"
-}
-
 variable "vpc_id" {
   type = "string"
 }
@@ -93,15 +89,4 @@ variable "controller_count" {
 variable "worker_count" {
   type    = "string"
   default = "2"
-}
-
-variable "api_allowed_ips" {
-  description = "Office IPs that are allowed to talk to the k8s API, taken from the GDS wiki"
-  type        = "list"
-  default     = []
-}
-
-variable "nat_gateway_ips" {
-  type    = "list"
-  default = []
 }
