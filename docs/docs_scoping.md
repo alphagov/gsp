@@ -1,4 +1,4 @@
-Category:
+Ingress:
 
 - Exposing an app to Ingress
 - Ingress
@@ -20,7 +20,7 @@ Deploy apps:
 Docker:
 
 - Write a Docker file for my app
-- Best practice for dockerisng an app
+- Best practice for dockerising an app
 
 Access & permissions:
 
@@ -61,8 +61,8 @@ How to troubleshoot deployment errors
 
 Helm charts:
 
-- Write a heml chat for my deployment
-- How to bring my own "brexing" store
+- Write a helm chat for my deployment
+- How to bring my own backing store
 
 How do Devs sign things
 
