@@ -17,7 +17,7 @@ module "canary-system" {
   enabled        = 1
   namespace      = "gsp-canary"
   chart_git      = "${aws_codecommit_repository.canary.clone_url_http}"
-  chart_ref      = "master"
+  chart_ref      = "kiam-fix"
   chart_path     = "charts/gsp-canary"
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
@@ -25,6 +25,8 @@ module "canary-system" {
   permitted_roles_regex = "^${aws_iam_role.canary_role.name}$"
 
   values = <<EOF
+    annotations:
+      iam.amazonaws.com/role: "${aws_iam_role.canary_role.name}"
     updater:
       helmChartRepoUrl: ${aws_codecommit_repository.canary.clone_url_http}
 EOF
