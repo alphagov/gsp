@@ -188,7 +188,6 @@ EOF
 }
 
 resource "tls_private_key" "github_deployment_key" {
-  count     = "${local.enabled_addons["ci"]}"
   algorithm = "RSA"
   rsa_bits  = "4096"
 }
