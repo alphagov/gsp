@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "controller_policy_doc" {
       "sts:AssumeRole",
     ]
 
-    resources = ["*"]  # This allows kiam to assume any role. We rely on trust relationships from the other side to ensure that it can't assume everything.
+    resources = ["*"] # This allows kiam to assume any role. We rely on trust relationships from the other side to ensure that it can't assume everything.
   }
 
   statement {

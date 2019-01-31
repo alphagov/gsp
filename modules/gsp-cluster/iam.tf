@@ -50,20 +50,20 @@ data "aws_iam_policy_document" "grant-iam-dev" {
 }
 
 data "aws_iam_policy_document" "kiam_server_role" {
-    statement {
-      effect = "Allow"
-      actions = ["sts:AssumeRole"]
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
 
-      principals = {
-        type = "AWS"
-        identifiers = ["${module.k8s-cluster.controller-role-arn}"]
-      }
+    principals = {
+      type        = "AWS"
+      identifiers = ["${module.k8s-cluster.controller-role-arn}"]
     }
+  }
 }
 
 data "aws_iam_policy_document" "kiam_server_policy" {
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = ["sts:AssumeRole"]
 
     resources = [
@@ -74,30 +74,31 @@ data "aws_iam_policy_document" "kiam_server_policy" {
 }
 
 data "aws_iam_policy_document" "cloudwatch_log_shipping_role" {
-    statement {
-      effect = "Allow"
-      actions = ["sts:AssumeRole"]
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
 
-      principals = {
-        type = "AWS"
-        identifiers = ["${aws_iam_role.kiam_server_role.arn}"]
-      }
+    principals = {
+      type        = "AWS"
+      identifiers = ["${aws_iam_role.kiam_server_role.arn}"]
     }
+  }
 }
 
 data "aws_iam_policy_document" "cloudwatch_log_shipping_policy" {
-    statement {
-      effect = "Allow"
-      actions = [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:DescribeLogGroups",
-        "logs:DescribeLogStreams",
-        "logs:PutLogEvents",
-      ]
+  statement {
+    effect = "Allow"
 
-      resources = ["*"]
-    }
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role" "kiam_server_role" {

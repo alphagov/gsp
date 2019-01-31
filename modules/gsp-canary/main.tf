@@ -14,14 +14,14 @@ resource "aws_codecommit_repository" "canary" {
 module "canary-system" {
   source = "../flux-release"
 
-  enabled        = 1
-  namespace      = "gsp-canary"
-  chart_git      = "${aws_codecommit_repository.canary.clone_url_http}"
-  chart_ref      = "master"
-  chart_path     = "charts/gsp-canary"
-  cluster_name   = "${var.cluster_name}"
-  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
-  addons_dir     = "${var.addons_dir}"
+  enabled               = 1
+  namespace             = "gsp-canary"
+  chart_git             = "${aws_codecommit_repository.canary.clone_url_http}"
+  chart_ref             = "master"
+  chart_path            = "charts/gsp-canary"
+  cluster_name          = "${var.cluster_name}"
+  cluster_domain        = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir            = "${var.addons_dir}"
   permitted_roles_regex = "^${aws_iam_role.canary_role.name}$"
 
   values = <<EOF

@@ -3,7 +3,7 @@ data "template_file" "namespace" {
 
   vars {
     permitted_roles_regex = "${var.permitted_roles_regex}"
-    namespace = "${var.namespace}"
+    namespace             = "${var.namespace}"
   }
 }
 

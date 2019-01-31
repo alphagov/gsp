@@ -59,6 +59,6 @@ variable "cluster_domain" {
 }
 
 variable "permitted_roles_regex" {
-  type = "string"
+  type    = "string"
   default = ""
 }

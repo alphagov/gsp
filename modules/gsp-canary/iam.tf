@@ -13,15 +13,15 @@ resource "aws_iam_policy" "canary_code_commit" {
 }
 
 data "aws_iam_policy_document" "assume_canary_role" {
-    statement {
-      effect = "Allow"
-      actions = ["sts:AssumeRole"]
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
 
-      principals = {
-        type = "AWS"
-        identifiers = ["${var.canary_role_assumer_arn}"]
-      }
+    principals = {
+      type        = "AWS"
+      identifiers = ["${var.canary_role_assumer_arn}"]
     }
+  }
 }
 
 data "aws_iam_policy_document" "canary_code_commit" {
@@ -39,11 +39,3 @@ resource "aws_iam_policy_attachment" "canary_code_commit" {
   roles      = ["${aws_iam_role.canary_role.name}"]
   policy_arn = "${aws_iam_policy.canary_code_commit.arn}"
 }
-
-
-
-
-
-
-
-

@@ -73,8 +73,8 @@ data "template_file" "flux" {
   template = "${file("${path.module}/data/flux.yaml")}"
 
   vars {
-    namespace = "flux-system"
-    aws_role_name = "${module.gsp-canary.canary_role_name}"
+    namespace             = "flux-system"
+    aws_role_name         = "${module.gsp-canary.canary_role_name}"
     permitted_roles_regex = "^${module.gsp-canary.canary_role_name}$"
   }
 }
@@ -99,13 +99,13 @@ module "ingress-system" {
 module "monitoring-system" {
   source = "../flux-release"
 
-  enabled        = "${local.enabled_addons["monitoring"]}"
-  namespace      = "monitoring-system"
-  chart_git      = "https://github.com/alphagov/gsp-monitoring-system.git"
-  chart_ref      = "master"
-  cluster_name   = "${var.cluster_name}"
-  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
-  addons_dir     = "addons/${var.cluster_name}"
+  enabled               = "${local.enabled_addons["monitoring"]}"
+  namespace             = "monitoring-system"
+  chart_git             = "https://github.com/alphagov/gsp-monitoring-system.git"
+  chart_ref             = "master"
+  cluster_name          = "${var.cluster_name}"
+  cluster_domain        = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir            = "addons/${var.cluster_name}"
   permitted_roles_regex = "^${aws_iam_role.cloudwatch_log_shipping_role.name}$"
 
   values = <<EOF
@@ -172,6 +172,7 @@ module "kiam-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+
   values = <<EOF
     kiam:
       server:
@@ -250,9 +251,9 @@ module "group-role-bindings" {
 }
 
 module "gsp-canary" {
-  source = "../gsp-canary"
-  cluster_name   = "${var.cluster_name}"
-  dns_zone = "${var.dns_zone}"
-  addons_dir     = "addons/${var.cluster_name}"
+  source                  = "../gsp-canary"
+  cluster_name            = "${var.cluster_name}"
+  dns_zone                = "${var.dns_zone}"
+  addons_dir              = "addons/${var.cluster_name}"
   canary_role_assumer_arn = "${aws_iam_role.kiam_server_role.arn}"
 }
