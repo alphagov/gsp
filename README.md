@@ -22,8 +22,10 @@ module "gsp-cluster" {
     user_data_bucket_region = "eu-west-2"
     k8s_tag = "v1.12.2"
     admin_role_arns = ["arn:aws:iam::111111111111:role/admin"]
+
+    ...
 }
 
 ```
 
-In order to use this cluster with the [bootstrapper] several values will need to be output by the root into the state file. See [example] for a more complete example.
+In order to use this cluster with the bootstrapper several values will need to be output by the root into the state file (see `bootstrapper/main.tf`).
