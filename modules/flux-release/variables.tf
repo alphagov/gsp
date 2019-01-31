@@ -57,3 +57,8 @@ variable "cluster_domain" {
   description = "domain mapped to this cluster/environment (accessible as .Values.cluster.name in charts)"
   type        = "string"
 }
+
+variable "permitted_roles_regex" {
+  type    = "string"
+  default = ""
+}

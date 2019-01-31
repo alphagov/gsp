@@ -60,7 +60,6 @@ module "k8s-cluster" {
 locals {
   default_addons = {
     ingress    = 1
-    canary     = 1
     monitoring = 1
     secrets    = 1
     ci         = 0
@@ -68,6 +67,21 @@ locals {
   }
 
   enabled_addons = "${merge(local.default_addons, var.addons)}"
+}
+
+data "template_file" "flux" {
+  template = "${file("${path.module}/data/flux.yaml")}"
+
+  vars {
+    namespace             = "flux-system"
+    aws_role_name         = "${module.gsp-canary.canary_role_name}"
+    permitted_roles_regex = "^${module.gsp-canary.canary_role_name}$"
+  }
+}
+
+resource "local_file" "flux" {
+  filename = "addons/${var.cluster_name}/flux.yaml"
+  content  = "${data.template_file.flux.rendered}"
 }
 
 module "ingress-system" {
@@ -85,17 +99,19 @@ module "ingress-system" {
 module "monitoring-system" {
   source = "../flux-release"
 
-  enabled        = "${local.enabled_addons["monitoring"]}"
-  namespace      = "monitoring-system"
-  chart_git      = "https://github.com/alphagov/gsp-monitoring-system.git"
-  chart_ref      = "master"
-  cluster_name   = "${var.cluster_name}"
-  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
-  addons_dir     = "addons/${var.cluster_name}"
+  enabled               = "${local.enabled_addons["monitoring"]}"
+  namespace             = "monitoring-system"
+  chart_git             = "https://github.com/alphagov/gsp-monitoring-system.git"
+  chart_ref             = "master"
+  cluster_name          = "${var.cluster_name}"
+  cluster_domain        = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir            = "addons/${var.cluster_name}"
+  permitted_roles_regex = "^${aws_iam_role.cloudwatch_log_shipping_role.name}$"
 
   values = <<EOF
     fluentd-cloudwatch:
       logGroupName: "${var.cluster_name}.${var.dns_zone}"
+      awsRole: "${aws_iam_role.cloudwatch_log_shipping_role.name}"
     prometheus-operator:
       prometheus:
         prometheusSpec:
@@ -144,6 +160,24 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
   tags = {
     Name = "Harbor registry and chartmuseum storage"
   }
+}
+
+module "kiam-system" {
+  source = "../flux-release"
+
+  enabled        = 1
+  namespace      = "kiam-system"
+  chart_git      = "https://github.com/alphagov/gsp-kiam-system"
+  chart_ref      = "master"
+  cluster_name   = "${var.cluster_name}"
+  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+  addons_dir     = "addons/${var.cluster_name}"
+
+  values = <<EOF
+    kiam:
+      server:
+        assumeRoleArn: "${aws_iam_role.kiam_server_role.arn}"
+EOF
 }
 
 module "ci-system" {
@@ -208,42 +242,18 @@ data "template_file" "ci-secrets" {
   }
 }
 
-resource "aws_codecommit_repository" "canary" {
-  count           = "${local.enabled_addons["canary"] ? 1 : 0}"
-  repository_name = "canary.${var.cluster_name}.${var.dns_zone}"
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/initialise_canary_helm_codecommit.sh"
-
-    environment {
-      SOURCE_REPO_URL     = "https://github.com/alphagov/gsp-canary-chart"
-      CODECOMMIT_REPO_URL = "${aws_codecommit_repository.canary.clone_url_http}"
-    }
-  }
-}
-
-module "canary-system" {
-  source = "../flux-release"
-
-  enabled        = "${local.enabled_addons["canary"]}"
-  namespace      = "gsp-canary"
-  chart_git      = "${local.enabled_addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}"
-  chart_ref      = "master"
-  chart_path     = "charts/gsp-canary"
-  cluster_name   = ""
-  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
-  addons_dir     = "addons/${var.cluster_name}"
-
-  values = <<EOF
-    updater:
-      helmChartRepoUrl: ${local.enabled_addons["canary"] ? element(concat(aws_codecommit_repository.canary.*.clone_url_http, list("")), 0) : ""}
-EOF
-}
-
 module "group-role-bindings" {
   source = "../group-role-bindings"
 
   namespaces = ["${var.dev_namespaces}"]
   addons_dir = "addons/${var.cluster_name}"
   group_name = "dev"
+}
+
+module "gsp-canary" {
+  source                  = "../gsp-canary"
+  cluster_name            = "${var.cluster_name}"
+  dns_zone                = "${var.dns_zone}"
+  addons_dir              = "addons/${var.cluster_name}"
+  canary_role_assumer_arn = "${aws_iam_role.kiam_server_role.arn}"
 }

@@ -1,22 +1,9 @@
-data "template_file" "flux" {
-  template = "${file("${path.module}/data/flux.yaml")}"
-
-  vars {
-    namespace = "flux-system"
-  }
-}
-
-resource "local_file" "flux" {
-  count    = "${var.enabled == 0 ? 0 : 1}"
-  filename = "${var.addons_dir}/flux.yaml"
-  content  = "${data.template_file.flux.rendered}"
-}
-
 data "template_file" "namespace" {
   template = "${file("${path.module}/data/namespace.yaml")}"
 
   vars {
-    namespace = "${var.namespace}"
+    permitted_roles_regex = "${var.permitted_roles_regex}"
+    namespace             = "${var.namespace}"
   }
 }
 
@@ -65,5 +52,5 @@ resource "local_file" "values" {
 }
 
 output "release-name" {
-  value = "${var.namespace}"
+  value = "${var.release_name}"
 }

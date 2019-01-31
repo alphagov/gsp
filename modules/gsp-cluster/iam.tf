@@ -48,3 +48,94 @@ data "aws_iam_policy_document" "grant-iam-dev" {
     }
   }
 }
+
+data "aws_iam_policy_document" "kiam_server_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals = {
+      type        = "AWS"
+      identifiers = ["${module.k8s-cluster.controller-role-arn}"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "kiam_server_policy" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    resources = [
+      "${aws_iam_role.cloudwatch_log_shipping_role.arn}",
+      "${module.gsp-canary.canary_role_arn}",
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "cloudwatch_log_shipping_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals = {
+      type        = "AWS"
+      identifiers = ["${aws_iam_role.kiam_server_role.arn}"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "cloudwatch_log_shipping_policy" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role" "kiam_server_role" {
+  name        = "${var.cluster_name}_kiam_server"
+  description = "Role the Kiam Server process assumes"
+
+  assume_role_policy = "${data.aws_iam_policy_document.kiam_server_role.json}"
+}
+
+resource "aws_iam_policy" "kiam_server_policy" {
+  name        = "${var.cluster_name}_kiam_server_policy"
+  description = "Policy for the Kiam Server process"
+
+  policy = "${data.aws_iam_policy_document.kiam_server_policy.json}"
+}
+
+resource "aws_iam_policy_attachment" "kiam_server_policy_attach" {
+  name       = "${var.cluster_name}_kiam-server-attachment"
+  roles      = ["${aws_iam_role.kiam_server_role.name}"]
+  policy_arn = "${aws_iam_policy.kiam_server_policy.arn}"
+}
+
+resource "aws_iam_role" "cloudwatch_log_shipping_role" {
+  name = "${var.cluster_name}_cloudwatch_log_shipping_role"
+
+  assume_role_policy = "${data.aws_iam_policy_document.cloudwatch_log_shipping_role.json}"
+}
+
+resource "aws_iam_policy" "cloudwatch_log_shipping_policy" {
+  name        = "${var.cluster_name}_cloudwatch_log_shipping_policy"
+  description = "Send logs to Clouwatch"
+
+  policy = "${data.aws_iam_policy_document.cloudwatch_log_shipping_policy.json}"
+}
+
+resource "aws_iam_policy_attachment" "cloudwatch_log_shipping_policy" {
+  name       = "${var.cluster_name}_cloudwatch_log_shipping_role_policy_attachement"
+  roles      = ["${aws_iam_role.cloudwatch_log_shipping_role.name}"]
+  policy_arn = "${aws_iam_policy.cloudwatch_log_shipping_policy.arn}"
+}
