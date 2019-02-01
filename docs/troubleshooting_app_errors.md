@@ -27,7 +27,7 @@ Kubeconfig files contain configuration information for kubectl, including your c
 
 You can use one kubeconfig file for multiple clusters, or one kubeconfig file per cluster. It is your choice as to how you set up your kubeconfig file(s).
 
-The GSP team will provide you with a kubeconfig file after assigning you to your account. Contact us at [re-GSP-team@digital.cabinet-office.gov.uk](mailto:re-GSP-team@digital.cabinet-office.gov.uk) if you have any questions.
+The GDS Supported Platform team will provide you with a kubeconfig file after assigning you to your account. Contact us by emailing [re-GSP-team@digital.cabinet-office.gov.uk](mailto:re-GSP-team@digital.cabinet-office.gov.uk) or on [Slack](https://gds.slack.com/messages/CDA7YSP0D) if you have any questions.
 
 Refer to the [Kubernetes documentation on accessing clusters with kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) for more information.
 
