@@ -112,4 +112,4 @@ For more information, refer to the following documentation:
 - how to [install kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - configuring [access to multiple clusters](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
 - the kubectl [cheat sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
-- the kubectl [reference documentation](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands)  for information on other commands that you can run [external links]
+- the kubectl [reference documentation](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands) for information on other commands that you can run [external links]
