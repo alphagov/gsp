@@ -1,89 +1,115 @@
 # Troubleshooting app errors
 
-Notes from scoping session:
+When troubleshooting your app, you should use [Kubectl](https://kubernetes.io/docs/reference/kubectl/kubectl/) [external link] to access your Kubernetes cluster and find out more information.
 
-- How to access my cluster using Kubectl
-- Learn how to use Kubectl effectively
-- Repurpose some of the diagnostics and debugging firebreak content
+## Access your cluster using kubectl
 
-## How to access my cluster using Kubectl
+To use kubectl, you must:
 
-when troubleshooting your app, accessing your cluster using Kubectl is a standard first step
+- have a [GDS users AWS account](https://reliability-engineering.cloudapps.digital/iaas.html#amazon-web-services-aws)
+- install kubectl
+- set up a kubeconfig file for the cluster you need to access
+- install the AWS IAM Authenticator
 
-Kubectl is a standard tool for interacting with kubernetes, so there is existing documentation
+### Install kubectl
 
-to use Kubectl you need to:
+For MacOS, run the following command to install kubectl:
 
-1. install Kubectl binary
-1. install AWS IAM authenticator
-1. create Kubectl kubeconfig file that is set up for the cluster (either locally or remotely TBC)
+```
+brew install kubernetes-cli
+```
 
-you can use one kubeconfig file to multiple clusters, or one kubeconfig file for one cluster. it's up to the user, we don't mandate - we might make a recommendation but don't know yet.
+Refer to the [Kubernetes documentation on installing kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) [external link] for other operating systems.
 
-kubeconfig files contain API endpoint for cluster, user profile, public key and other information.
+### Set up a kubeconfig file
 
-### AWS IAM authenticator
+Kubeconfig files contain configuration information for kubectl, including your cluster's API endpoint, the user profile, and the public key.
 
-AWS IAM is our authentication method for our clusters.
+You can use one kubeconfig file for multiple clusters, or one kubeconfig file per cluster. It is your choice as to how you set up your kubeconfig file(s).
 
-assumption - every member of the service team who needs to access kubernetes has been given access to kubernetes, we'll need to know their IAM details (pre-requisite)
+The GSP team will provide you with a kubeconfig file after assigning you to your account. Contact us at [re-GSP-team@digital.cabinet-office.gov.uk](mailto:re-GSP-team@digital.cabinet-office.gov.uk) if you have any questions.
 
-in order for kubectl to use IAM to authenticate a user to perform any action on the cluster, the user also needs AWS IAM authenticator installed on their local machine.
+Refer to the [Kubernetes documentation on accessing clusters with kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) for more information.
 
-prerequisite: kubectl installed (macOS `brew install kubernetes-cli`)
+### Install the AWS IAM Authenticator
 
-prerequisite: kubeconfig file provided to user __QP: how will team provide users with kubeconfig files? TBC__
+The AWS IAM Authenticator authenticates users for our Kubernetes clusters.
 
-to install AWS IAM authenticator, go to https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
+1. You must install the AWS IAM Authenticator on your local machine so kubectl can authenticate your access to a cluster.
 
-when you run kubectl, you need to be in an authenticated aws iam session. there are mutliple ways to achieve this, for example using `aws-vault` - https://github.com/99designs/aws-vault.
+    Refer to the [AWS IAM authenticator installation documentation](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html) for more information.
 
-### namespace
+1. Once you have installed the authenticator, sign into the authenticated AWS IAM session to access your cluster.  You can do this in multiple ways, for example by using [`aws-vault`](https://github.com/99designs/aws-vault) [external link].
 
-You must always specify the namespace when you run a command `kubectl -n NAMESPACE`
+## Use kubectl to get information on your cluster
 
-### get description of everything
+When you are signed into an authenticated AWS IAM session, you can run different commands to get information on your cluster. The most common commands are summarised in this section.
 
-`kubectl -n NAMESPACE get all`
+These commands are specified by [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) and [pod](https://kubernetes.io/docs/concepts/workloads/pods/pod/) [external links].
 
-Summary get information on all objects within a namespace for example pods, services,
+### Get information about a namespace
 
-### Get pods
+Run the following in the command line to get a summary of information about the specified namespace:
 
-A pod is a thing that executes.
+```
+kubectl -n NAMESPACE get all
+```
 
-List the pods in a namespace: `kubectl -n NAMESPACE get pods`
+### Get information about pods within a namespace
 
-Get information about a specific pod: `kubectl -n NAMESPACE get pods PODNAME`
+Run the following in the command line to list all pods within a namespace:
 
-You can get information on multiple pods: `kubectl -n NAMESPACE get pods PODNAME1 PODNAME_N`
+```
+kubectl -n NAMESPACE get pods
+```
 
-### Events
+Run the following to get information about a specific pod within a namespace:
 
-You can run `kubectl -n NAMESPACE describe pod PODNAME` to detailed information on a pod, e.g. for ports and probes. It also includes events, which might be useful for troubleshooting.
+```
+kubectl -n NAMESPACE get pods PODNAME
+```
 
-You can get detailed event information for a namespace: `kubectl -n NAMESPACE get events` - information overload
+Run the following to get information about multiple pods within a namespace:
 
-### Logs
+```
+kubectl -n NAMESPACE get pods PODNAME_1:PODNAME_2:...:PODNAME_N
+```
 
-To get logs for a pod within a namespace: `kubectl -n NAMESPACE logs PODNAME`
+### Get information about events for a namespace
 
-Note that this command will get the logs that are being written to `STDOUT` and `STDERR`. If you are writing your logs to another destination or file, this command will not pick those logs up.
+Run the following in the command line to get information for all events for a namespace:
 
-To get logs for a pod within a namespace and for this to get an updating window as more logs come in: `kubectl -n NAMESPACE logs PODNAME --follow`
+```
+kubectl -n NAMESPACE get events
+```
 
-### equivalents
+Run the following to get detailed information on a pod:
 
-equivalent gets and describes and other for ingress, services, deployments and so on
+```
+kubectl -n NAMESPACE describe pod PODNAME
+```
 
-https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+### Get logs for a pod within a namespace
 
-https://kubernetes.io/docs/reference/kubectl/cheatsheet/#viewing-finding-resources
+Run the following in the command line to get all logs for a pod within a namespace at that point in time:
 
-might be useful, take a look
+```
+kubectl -n NAMESPACE logs PODNAME
+```
+
+This command picks up logs that are written to `STDOUT` and `STDERR`. If you write your logs to another destination or file, this command will not pick up those logs.
+
+Run the following to get a continually updating view of all logs for a pod within a namespace:
+
+```
+kubectl -n NAMESPACE logs PODNAME --follow
+```
 
 ## Further information
 
-How to install Kubectl - https://kubernetes.io/docs/tasks/tools/install-kubectl/
+For more information, refer to the following documentation:
 
-Configure Access to Multiple Clusters - https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/
+- how to [install kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- configuring [access to multiple clusters](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
+- the kubectl [cheat sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+- the kubectl [reference documentation](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands)  for information on other commands that you can run [external links]
