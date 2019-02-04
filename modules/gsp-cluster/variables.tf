@@ -103,6 +103,12 @@ variable "splunk_hec_url" {
   default     = ""
 }
 
+variable "splunk_index" {
+  description = "Name of index to be added as metadata to logs for use in splunk"
+  type        = "string"
+  default     = ""
+}
+
 variable "codecommit_init_role_arn" {
   type    = "string"
   default = ""

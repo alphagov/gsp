@@ -1,42 +1,20 @@
-data "local_file" "index" {
-  filename = "${path.module}/index.js"
-}
-
-data "local_file" "logger" {
-  filename = "${path.module}/lib/mysplunklogger.js"
-}
-
-data "archive_file" "lambda_log_forwarder" {
-  type        = "zip"
-  output_path = "${path.module}/.terraform/archive_files/lambda_log_forwarder.zip"
-
-  source {
-    content  = "${data.local_file.index.content}"
-    filename = "index.js"
-  }
-
-  source {
-    content  = "${data.local_file.logger.content}"
-    filename = "lib/mysplunklogger.js"
-  }
-}
-
 resource "aws_lambda_function" "lambda_log_forwarder" {
   count            = "${var.enabled == 0 ? 0 : 1}"
-  filename         = "${data.archive_file.lambda_log_forwarder.output_path}"
-  source_code_hash = "${data.archive_file.lambda_log_forwarder.output_base64sha256}"
+  filename         = "${path.module}/cyber-cloudwatch-fluentd-to-hec.zip"
+  source_code_hash = "${base64sha256(file("${path.module}/cyber-cloudwatch-fluentd-to-hec.zip"))}"
   function_name    = "${var.cluster_name}_log_forwarder"
   role             = "${aws_iam_role.lambda_log_forwarder.arn}"
-  handler          = "index.handler"
-  runtime          = "nodejs6.10"
+  handler          = "lambda_function.lambda_handler"
+  runtime          = "python3.7"
   timeout          = "10"
   memory_size      = "128"
-  description      = "A function to forward logs from AWS to a Splunk HEC"
+  description      = "A function to forward logs from AWS to a Splunk HEC using a manual zip of https://github.com/alphagov/cyber-cloudwatch-fluentd-to-hec"
 
   environment {
     variables = {
       SPLUNK_HEC_TOKEN = "${var.splunk_hec_token}"
       SPLUNK_HEC_URL   = "${var.splunk_hec_url}"
+      SPLUNK_INDEX     = "${var.splunk_index}"
     }
   }
 }
