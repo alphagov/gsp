@@ -14,6 +14,10 @@ output "bootstrap-subnet-id" {
   value = "${element(aws_subnet.cluster-private.*.id, 0)}"
 }
 
+output "private-subnet-ids" {
+  value = ["${aws_subnet.cluster-private.*.id}"]
+}
+
 output "controller-instance-profile-name" {
   value = "${module.k8s-cluster.controller-instance-profile-name}"
 }
