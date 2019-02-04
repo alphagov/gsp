@@ -52,5 +52,5 @@ resource "local_file" "values" {
 }
 
 output "release-name" {
-  value = "${var.release_name}"
+  value = "${coalesce(var.release_name, var.namespace)}"
 }
