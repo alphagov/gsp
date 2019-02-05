@@ -102,3 +102,8 @@ variable "splunk_hec_url" {
   type        = "string"
   default     = ""
 }
+
+variable "codecommit_init_role_arn" {
+  type    = "string"
+  default = ""
+}

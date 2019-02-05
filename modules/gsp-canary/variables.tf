@@ -16,3 +16,8 @@ variable "canary_role_assumer_arn" {
   description = "ARN of the role assuming the canary role, e.g. kiam-server-role"
   type        = "string"
 }
+
+variable "codecommit_init_role_arn" {
+  type    = "string"
+  default = ""
+}

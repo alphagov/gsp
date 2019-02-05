@@ -251,9 +251,10 @@ module "group-role-bindings" {
 }
 
 module "gsp-canary" {
-  source                  = "../gsp-canary"
-  cluster_name            = "${var.cluster_name}"
-  dns_zone                = "${var.dns_zone}"
-  addons_dir              = "addons/${var.cluster_name}"
-  canary_role_assumer_arn = "${aws_iam_role.kiam_server_role.arn}"
+  source                   = "../gsp-canary"
+  cluster_name             = "${var.cluster_name}"
+  dns_zone                 = "${var.dns_zone}"
+  addons_dir               = "addons/${var.cluster_name}"
+  canary_role_assumer_arn  = "${aws_iam_role.kiam_server_role.arn}"
+  codecommit_init_role_arn = "${var.codecommit_init_role_arn}"
 }

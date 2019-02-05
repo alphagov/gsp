@@ -5,8 +5,9 @@ resource "aws_codecommit_repository" "canary" {
     command = "${path.module}/scripts/initialise_canary_helm_codecommit.sh"
 
     environment {
-      SOURCE_REPO_URL     = "https://github.com/alphagov/gsp-canary-chart"
-      CODECOMMIT_REPO_URL = "${aws_codecommit_repository.canary.clone_url_http}"
+      SOURCE_REPO_URL          = "https://github.com/alphagov/gsp-canary-chart"
+      CODECOMMIT_REPO_URL      = "${aws_codecommit_repository.canary.clone_url_http}"
+      CODECOMMIT_INIT_ROLE_ARN = "${var.codecommit_init_role_arn}"
     }
   }
 }
