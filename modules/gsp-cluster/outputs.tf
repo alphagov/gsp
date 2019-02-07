@@ -68,31 +68,31 @@ output "ci-system-release-name" {
 }
 
 output "notary-ci-private-key" {
-  value = "${base64encode(tls_private_key.notary_ci_key.private_key_pem)}"
+  value = "${module.ci-system.notary-ci-private-key}"
 }
 
 output "notary-root-private-key" {
-  value = "${base64encode(tls_private_key.notary_root_key.private_key_pem)}"
+  value = "${module.ci-system.notary-root-private-key}"
 }
 
 output "notary-delegation-passphrase" {
-  value = "${base64encode(random_string.notary_passphrase_delegation.result)}"
+  value = "${module.ci-system.notary-delegation-passphrase}"
 }
 
 output "notary-root-passphrase" {
-  value = "${base64encode(random_string.notary_passphrase_root.result)}"
+  value = "${module.ci-system.notary-root-passphrase}"
 }
 
 output "notary-snapshot-passphrase" {
-  value = "${base64encode(random_string.notary_passphrase_snapshot.result)}"
+  value = "${module.ci-system.notary-snapshot-passphrase}"
 }
 
 output "notary-targets-passphrase" {
-  value = "${base64encode(random_string.notary_passphrase_targets.result)}"
+  value = "${module.ci-system.notary-targets-passphrase}"
 }
 
 output "harbor-password" {
-  value = "${base64encode(random_string.harbor_password.result)}"
+  value = "${module.ci-system.harbor-password}"
 }
 
 output "github-deployment-public-key" {

@@ -149,19 +149,6 @@ module "secrets-system" {
   addons_dir     = "addons/${var.cluster_name}"
 }
 
-resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
-  count = "${local.enabled_addons["ci"] ? 1 : 0}"
-
-  bucket = "registry-${var.cluster_name}-${replace(var.dns_zone, ".", "-")}"
-  acl    = "private"
-
-  force_destroy = true # NEED TO VALIDATE!!!
-
-  tags = {
-    Name = "Harbor registry and chartmuseum storage"
-  }
-}
-
 module "kiam-system" {
   source = "../flux-release"
 
@@ -177,47 +164,6 @@ module "kiam-system" {
     kiam:
       server:
         assumeRoleArn: "${aws_iam_role.kiam_server_role.arn}"
-EOF
-}
-
-module "ci-system" {
-  source = "..//flux-release"
-
-  enabled        = "${local.enabled_addons["ci"]}"
-  namespace      = "ci-system"
-  chart_git      = "https://github.com/alphagov/gsp-ci-system.git"
-  chart_ref      = "master"
-  cluster_name   = "${var.cluster_name}"
-  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
-  addons_dir     = "addons/${var.cluster_name}"
-
-  values = <<EOF
-    concourse:
-      concourse:
-        web:
-          kubernetes:
-            namespacePrefix: "${module.ci-system.release-name}-"
-    harbor:
-      harborAdminPassword: "${random_string.harbor_password.result}"
-      secretKey: "${random_string.harbor_secret_key.result}"
-      externalURL: "https://registry.${var.cluster_name}.${var.dns_zone}"
-      persistence:
-        imageChartStorage:
-          type: s3
-          s3:
-            bucket: ${local.enabled_addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.id, list("")), 0) : ""}
-            region: ${local.enabled_addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.region, list("")), 0) : ""}
-            regionendpoint: s3.${local.enabled_addons["ci"] ? element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.region, list("")), 0) : ""}.amazonaws.com
-      expose:
-        tls:
-          secretName: harbor-registry-certificates
-          notarySecretName: harbor-notary-certificates
-        ingress:
-          annotations:
-            kubernetes.io/tls-acme: "true"
-          hosts:
-            core: "registry.${var.cluster_name}.${var.dns_zone}"
-            notary: "notary.${var.cluster_name}.${var.dns_zone}"
 EOF
 }
 
@@ -256,4 +202,12 @@ module "gsp-canary" {
   dns_zone                = "${var.dns_zone}"
   addons_dir              = "addons/${var.cluster_name}"
   canary_role_assumer_arn = "${aws_iam_role.kiam_server_role.arn}"
+}
+
+module "ci-system" {
+  source                 = "../gsp-ci"
+  enabled                = "${local.enabled_addons["ci"]}"
+  cluster_name           = "${var.cluster_name}"
+  dns_zone               = "${var.dns_zone}"
+  harbor_role_asumer_arn = "${aws_iam_role.kiam_server_role.arn}"
 }
