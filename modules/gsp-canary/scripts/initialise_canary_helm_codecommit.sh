@@ -14,6 +14,18 @@ cleanup() {
 }
 trap cleanup EXIT
 
+if [ -n "${CODECOMMIT_INIT_ROLE_ARN}" ]
+then
+    echo "Assuming role ${CODECOMMIT_INIT_ROLE_ARN}..."
+	temp_role="$(aws sts assume-role --role-arn "${CODECOMMIT_INIT_ROLE_ARN}" --role-session-name "terraform-init-codecommit" | jq .Credentials)"
+	export AWS_ACCESS_KEY_ID="$(echo $temp_role | jq -r .AccessKeyId)"
+	export AWS_SECRET_ACCESS_KEY="$(echo $temp_role | jq -r .SecretAccessKey)"
+	export AWS_SESSION_TOKEN="$(echo $temp_role | jq -r .SessionToken)"
+
+	# Looks like aws-vault sets this env variable and it screws with the client somehow
+	unset AWS_SECURITY_TOKEN
+fi
+
 git init
 git config --local credential.helper '!aws codecommit credential-helper $@'
 git config --local credential.UseHttpPath true
