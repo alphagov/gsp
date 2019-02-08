@@ -77,12 +77,20 @@ Before you can run these commands, you must run the following:
 export KUBECONFIG=<PATH_TO_KUBECONFIG_FILE>
 ```
 
+### Get namespaces
+
+Run the following in the command line to get a list of all namespaces in your cluster:
+
+```
+kubectl get namespaces
+```
+
 ### Get information about a namespace
 
 Run the following in the command line to get a summary of information about the specified namespace:
 
 ```
-kubectl -n NAMESPACE get all
+kubectl -n <NAMESPACE> get all
 ```
 
 ### Get information about pods within a namespace
@@ -90,19 +98,19 @@ kubectl -n NAMESPACE get all
 Run the following in the command line to list all pods within a namespace:
 
 ```
-kubectl -n NAMESPACE get pods
+kubectl -n <NAMESPACE> get pods
 ```
 
 Run the following to get information about a specific pod within a namespace:
 
 ```
-kubectl -n NAMESPACE get pods PODNAME
+kubectl -n <NAMESPACE> get pods <PODNAME>
 ```
 
 Run the following to get information about multiple pods within a namespace:
 
 ```
-kubectl -n NAMESPACE get pods PODNAME_1:PODNAME_2:...:PODNAME_N
+kubectl -n <NAMESPACE> get pods <PODNAME_1:PODNAME_2:...:PODNAME_N>
 ```
 
 ### Get information about events for a namespace
@@ -110,7 +118,7 @@ kubectl -n NAMESPACE get pods PODNAME_1:PODNAME_2:...:PODNAME_N
 Run the following in the command line to get information for all events for a namespace:
 
 ```
-kubectl -n NAMESPACE get events
+kubectl -n <NAMESPACE> get events
 ```
 
 Run the following to get detailed information on a pod:
@@ -124,7 +132,7 @@ kubectl -n NAMESPACE describe pod PODNAME
 Run the following in the command line to get all logs for a pod within a namespace at that point in time:
 
 ```
-kubectl -n NAMESPACE logs PODNAME
+kubectl -n <NAMESPACE> logs <PODNAME>
 ```
 
 This command picks up logs that are written to `STDOUT` and `STDERR`. If you write your logs to another destination or file, this command will not pick up those logs.
@@ -132,14 +140,14 @@ This command picks up logs that are written to `STDOUT` and `STDERR`. If you wri
 Run the following to get a continually updating view of all logs for a pod within a namespace:
 
 ```
-kubectl -n NAMESPACE logs PODNAME --follow
+kubectl -n <NAMESPACE> logs <PODNAME> --follow
 ```
 
 This command only gets logs from one source at a time.
 
 ### Get logs from multiple sources at the same time
 
-You can use the [Kail plugin](https://github.com/boz/kail) [external link] to get logs from multiple sources at the same time.
+You can use [Kail](https://github.com/boz/kail) [external link] to get logs from multiple sources at the same time.
 
 1. Run the following in the command line to tell Homebrew where the Kail code is located:
 
@@ -156,7 +164,7 @@ You can use the [Kail plugin](https://github.com/boz/kail) [external link] to ge
 1. Run the following to make Kail ready to receive log parameters:
 
     ```
-    aws-vault exec run-sandbox -- /usr/local/bin/kail
+    aws-vault exec <AWS_PROFILE_NAME> -- /usr/local/bin/kail
     ```
 
     Refer to the [Kail documentation](https://github.com/boz/kail/blob/master/README.md) for more information on the log parameters.
@@ -182,12 +190,12 @@ We recommend that you use [`aws-vault`](https://github.com/99designs/aws-vault#i
     kubectl proxy
     ```
 
-    where `KUBECONFIG_FILE` is the location of your kubeconfig file.
+    where `PATH_TO_KUBECONFIG_FILE` is the location of your kubeconfig file.
 
 1. Get an authentication token by running:
 
     ```
-    aws-vault exec run-sandbox -- aws-iam-authenticator token -i <CLUSTER_ID> | jq -r .status.token | pbcopy
+    aws-vault exec <AWS_PROFILE_NAME> -- aws-iam-authenticator token -i <CLUSTER_ID> | jq -r .status.token | pbcopy
     ```
 
     The `CLUSTER_ID` is in the kubeconfig file. In the following kubeconfig file example, the cluster ID is `johnsmith.run-sandbox.aws.ext.govsandbox.uk`.
