@@ -28,7 +28,7 @@ Refer to the following documentation for information on creating and editing ale
 - [Prometheus](https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/alerting.md) [external link]
 - [Grafana](http://docs.grafana.org/alerting/rules) [external link]
 
-### Access Prometheus using kubectl
+### Access Prometheus or Grafana using kubectl
 
 You must have:
 
