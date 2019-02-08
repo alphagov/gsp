@@ -26,8 +26,8 @@ data "aws_iam_policy_document" "harbor-s3" {
     ]
 
     resources = [
-      "${element(aws_s3_bucket.ci-system-harbor-registry-storage.*.arn, 0)}",
-      "${element(aws_s3_bucket.ci-system-harbor-registry-storage.*.arn, 0)}/*",
+      "${element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.arn, list("")), 0)}",
+      "${element(concat(aws_s3_bucket.ci-system-harbor-registry-storage.*.arn, list("")), 0)}/*",
     ]
   }
 }
