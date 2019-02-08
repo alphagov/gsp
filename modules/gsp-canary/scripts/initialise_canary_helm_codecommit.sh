@@ -46,7 +46,7 @@ fi
 git branch -u source/master
 
 # update the embedded timestamp
-sed -i "" -E -e "s/(chartCommitTimestamp: )\"[0-9]+\"/\1\"$(date +%s)\"/g" charts/gsp-canary/values.yaml
+sed -i.bak -E -e "s/(chartCommitTimestamp: )\"[0-9]+\"/\1\"$(date +%s)\"/g" charts/gsp-canary/values.yaml
 git add charts/gsp-canary/values.yaml
 git commit -m "Initial timestamp update."
 git push --force destination master
