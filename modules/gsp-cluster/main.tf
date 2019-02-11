@@ -135,6 +135,7 @@ module "lambda_splunk_forwarder" {
   cluster_name              = "${var.cluster_name}"
   splunk_hec_token          = "${var.splunk_hec_token}"
   splunk_hec_url            = "${var.splunk_hec_url}"
+  splunk_index              = "${var.splunk_index}"
 }
 
 module "secrets-system" {

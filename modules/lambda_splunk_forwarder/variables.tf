@@ -25,3 +25,8 @@ variable "splunk_hec_url" {
   description = "Splunk HTTP event collector URL to send logs to"
   type        = "string"
 }
+
+variable "splunk_index" {
+  description = "Name of index to be added as metadata to logs for use in splunk"
+  type        = "string"
+}
