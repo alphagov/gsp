@@ -26,8 +26,7 @@ install minikube and dependencies using [homebrew](https://brew.sh/)
 
 ```
 brew cask install virtualbox  # if it fails, go to system preferences > security and allow Oracle access at the bottom
-brew cask install minikube
-brew install kubernetes-cli
+brew cask install minikube    # install minishift and kubernetes-cli
 brew install kubernetes-helm
 brew install jq
 ```
