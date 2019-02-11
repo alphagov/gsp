@@ -55,7 +55,6 @@ kubectl get nodes
 check out minikube using the kubernetes web dashboard
 
 ```
-minikube dashboard  --url     # get the web address of the dashboard
 minikube dashboard            # launch dashboad in default browser
 ```
 
