@@ -27,9 +27,9 @@ Refer to the [Kubernetes documentation on installing kubectl](https://kubernetes
 
 The AWS IAM Authenticator authenticates users for our Kubernetes clusters.
 
-1. You must install the AWS IAM Authenticator on your local machine so kubectl can authenticate your access to a cluster.
+You must install the AWS IAM Authenticator on your local machine so kubectl can authenticate your access to a cluster.
 
-    Refer to the [AWS IAM authenticator installation documentation](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html) for more information.
+Refer to the [AWS IAM authenticator installation documentation](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html) for more information.
 
 ### Sign into an authenticated AWS IAM session
 
@@ -49,7 +49,9 @@ Once you have installed the authenticator, you must sign into the authenticated 
     aws-vault add gds-users
     ```
 
-1. Add your Access Key ID and your Secret Access Key to a new keychain. You can find `aws_access_key_id` and `aws_secret_access_key` by signing into the GDS AWS account using the AWS console.
+1. Add your Access Key ID and your Secret Access Key to a new keychain.
+
+    You can find `aws_access_key_id` and `aws_secret_access_key` by signing into the GDS AWS account using the AWS console.
 
     You will see the message `Added credentials to profile "gds-users" in vault` in your command line when this is complete.
 
@@ -63,7 +65,7 @@ The GDS Supported Platform team will provide you with a secure kubeconfig file a
 
 Contact us at [re-GSP-team@digital.cabinet-office.gov.uk](mailto:re-GSP-team@digital.cabinet-office.gov.uk) if you have any questions.
 
-Refer to the [Kubernetes documentation on accessing clusters with kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) for more information.
+Refer to the [Kubernetes documentation on accessing clusters with kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) [external link] for more information.
 
 ## Use kubectl to get information on your cluster
 
@@ -179,7 +181,7 @@ Before you start, you must have:
 
 - installed kubectl
 - a configured kubeconfig file
-- installed the AWS IAM authenticator and signed into a authenticated AWS IAM session
+- installed the AWS IAM authenticator and signed into an authenticated AWS IAM session
 
 We recommend that you use [`aws-vault`](https://github.com/99designs/aws-vault#installing) [external link] to sign into the authenticated AWS IAM session to access your cluster.
 
