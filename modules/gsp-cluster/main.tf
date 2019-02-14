@@ -148,6 +148,12 @@ module "secrets-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+
+  values = <<EOF
+  encryption:
+    public_certificate: ${base64encode(tls_self_signed_cert.sealed-secrets-certificate.cert_pem)}
+    private_key: ${base64encode(tls_private_key.sealed-secrets-key.private_key_pem)}
+EOF
 }
 
 module "kiam-system" {

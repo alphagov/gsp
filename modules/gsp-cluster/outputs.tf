@@ -98,3 +98,7 @@ output "harbor-password" {
 output "github-deployment-public-key" {
   value = "${tls_private_key.github_deployment_key.public_key_openssh}"
 }
+
+output "sealed-secrets-certificate" {
+  value = "${tls_self_signed_cert.sealed-secrets-certificate.cert_pem}"
+}
