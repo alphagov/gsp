@@ -1,6 +1,6 @@
 resource "tls_private_key" "etcd-ca" {
   algorithm = "RSA"
-  rsa_bits  = "2048"
+  rsa_bits  = 4096
 }
 
 resource "tls_self_signed_cert" "etcd-ca" {
@@ -84,7 +84,7 @@ data "ignition_file" "etcd-etcd-peer-ca-crt" {
 
 resource "tls_private_key" "etcd-client" {
   algorithm = "RSA"
-  rsa_bits  = "2048"
+  rsa_bits  = 4096
 }
 
 data "ignition_file" "etcd-client-key" {
@@ -164,7 +164,7 @@ data "ignition_file" "etcd-etcd-client-crt" {
 
 resource "tls_private_key" "etcd-server" {
   algorithm = "RSA"
-  rsa_bits  = "2048"
+  rsa_bits  = 4096
 }
 
 data "ignition_file" "etcd-server-key" {
@@ -244,7 +244,7 @@ data "ignition_file" "etcd-etcd-server-crt" {
 
 resource "tls_private_key" "etcd-peer" {
   algorithm = "RSA"
-  rsa_bits  = "2048"
+  rsa_bits  = 4096
 }
 
 data "ignition_file" "etcd-peer-key" {

@@ -1,6 +1,6 @@
 resource "tls_private_key" "kube-ca" {
   algorithm = "RSA"
-  rsa_bits  = "2048"
+  rsa_bits  = 4096
 }
 
 data "ignition_file" "ca-key" {
@@ -44,7 +44,7 @@ data "ignition_file" "ca-crt" {
 
 resource "tls_private_key" "apiserver" {
   algorithm = "${tls_private_key.kube-ca.algorithm}"
-  rsa_bits  = "2048"
+  rsa_bits  = 4096
 }
 
 data "ignition_file" "apiserver-key" {
@@ -106,7 +106,7 @@ data "ignition_file" "apiserver-crt" {
 
 resource "tls_private_key" "service-account" {
   algorithm = "RSA"
-  rsa_bits  = 2048
+  rsa_bits  = 4096
 }
 
 data "ignition_file" "service-account-key" {
@@ -131,7 +131,7 @@ data "ignition_file" "service-account-pub" {
 
 resource "tls_private_key" "kubelet" {
   algorithm = "RSA"
-  rsa_bits  = 2048
+  rsa_bits  = 4096
 }
 
 data "ignition_file" "admin-key" {

@@ -1,6 +1,6 @@
 resource "tls_private_key" "iam-authenticator" {
   algorithm = "RSA"
-  rsa_bits  = "2048"
+  rsa_bits  = 4096
 }
 
 resource "tls_cert_request" "iam-authenticator" {
