@@ -86,5 +86,5 @@ For more information on creating and editing alerts, refer to the [Prometheus Op
 
 Refer to the following documentation for more information on:
 
-- [how alerting works in Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) [external link]
-- [writing an expression in PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) for your alerting rules
+- [how alerting works in Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) 
+- [writing an expression in PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) for your alerting rules [external links]
