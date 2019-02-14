@@ -2,7 +2,7 @@
 
 You can use Prometheus and Grafana for monitoring and alerting for your apps on the GDS Supported Platform.
 
-### Access Prometheus or Grafana using kubectl
+## Access Prometheus or Grafana using kubectl
 
 You must have:
 
@@ -51,7 +51,7 @@ Neither Prometheus nor Grafana are publicly accessible to everyone through the i
     - username: admin
     - password: password
 
-### Set up your app for monitoring
+## Set up monitoring for your app
 
 To set up your app for monitoring, you must:
 - ensure that your app exposes metrics on the `/metrics` endpoint
@@ -70,10 +70,10 @@ To set up your app for monitoring, you must:
 
 Refer to the following documentation:
 
-- the [Helm documentation on charts](https://docs.helm.sh/developing_charts/) [external link] for more information on deployment charts
+- the [Helm documentation on charts](https://docs.helm.sh/developing_charts/) [external link] for more information on charts
 - the [`ServiceMonitor` design document](https://github.com/coreos/prometheus-operator/blob/master/Documentation/design.md#servicemonitor) for more information on this type of resource
 
-### Create and edit alerts
+## Create and edit alerts
 
 Decide which alerts you want to receive by:
 
@@ -82,7 +82,7 @@ Decide which alerts you want to receive by:
 
 For more information on creating and editing alerts, refer to the [Prometheus Operator for Kubernetes documentation on alerting](https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/alerting.md) [external link].
 
-### Further information
+## Further information
 
 Refer to the following documentation for more information on:
 
