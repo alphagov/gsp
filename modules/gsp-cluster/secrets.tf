@@ -3,7 +3,7 @@ resource "tls_private_key" "sealed-secrets-key" {
   rsa_bits  = 4096
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = "${var.prevent_sealed_secret_destroy}"
   }
 }
 
