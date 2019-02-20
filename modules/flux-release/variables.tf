@@ -62,3 +62,8 @@ variable "permitted_roles_regex" {
   type    = "string"
   default = ""
 }
+
+variable "extra_namespace_configuration" {
+  type    = "string"
+  default = ""
+}
