@@ -1,10 +1,7 @@
+## TODO: Persist that key some other way than `prevent_destroy`
 resource "tls_private_key" "sealed-secrets-key" {
   algorithm = "RSA"
   rsa_bits  = 4096
-
-  lifecycle {
-    prevent_destroy = "${var.prevent_sealed_secret_destroy}"
-  }
 }
 
 resource "tls_self_signed_cert" "sealed-secrets-certificate" {

@@ -113,8 +113,3 @@ variable "codecommit_init_role_arn" {
   type    = "string"
   default = ""
 }
-
-variable "prevent_sealed_secret_destroy" {
-  description = "Prevent the `terraform destroy` action to take affect when protecting sealed secret key resource"
-  default     = true
-}
