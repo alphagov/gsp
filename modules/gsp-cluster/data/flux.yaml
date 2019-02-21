@@ -173,6 +173,7 @@ spec:
         imagePullPolicy: IfNotPresent
         args:
         - --charts-sync-interval=1m
+        - --update-chart-deps=false
         resources:
           requests:
             cpu: 50m
