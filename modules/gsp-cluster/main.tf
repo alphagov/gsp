@@ -94,6 +94,22 @@ module "ingress-system" {
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
+
+  extra_namespace_configuration = <<EOF
+  labels:
+    certmanager.k8s.io/disable-validation: "true"
+EOF
+
+  values = <<EOF
+    webhook:
+      enabled: false
+EOF
+}
+
+resource "local_file" "cert-manager-crds" {
+  count    = "${local.enabled_addons["ingress"]}"
+  filename = "addons/${var.cluster_name}/cert-manager-crds.yaml"
+  content  = "${file("${path.module}/data/cert-manager-crds.yaml")}"
 }
 
 module "monitoring-system" {
