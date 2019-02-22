@@ -15,3 +15,5 @@
 - [ADR #011 - Build Artifacts](/adr/ADR011-build-artifacts.md)
 - [ADR #012 - Docker image repositories](/adr/ADR012-docker-image-repositories.md)
 - [ADR #013 - CI & CD Tool Selection](/adr/ADR013-ci-cd-tool.md)
+- [ADR #014 - Sealed Secrets](/adr/ADR014-sealed-secrets-keys.md)
+- [ADR #015 - AWS IAM Authentication (for admins)](/adr/ADR015-aws-iam-authentication.md)
