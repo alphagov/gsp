@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-We need to provider a way to authenticate users who will interact with our Kubernetes clusters.
+We need to provide a way to authenticate users who will interact with our Kubernetes clusters.
 
 We do not have a organisation-wide identity provider. Virtually everyone will have a Google account. Many people will have a GitHub account.
 
