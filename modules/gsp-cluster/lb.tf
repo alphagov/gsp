@@ -2,13 +2,13 @@ resource "aws_lb" "lb" {
   name                             = "${var.cluster_name}-lb"
   internal                         = "false"
   load_balancer_type               = "network"
-  subnets                          = ["${aws_subnet.cluster-public.*.id}"]
+  subnets                          = ["${var.public_subnet_ids}"]
   enable_cross_zone_load_balancing = "true"
 }
 
 resource "aws_lb_target_group" "controllers" {
   name        = "${var.cluster_name}-controllers"
-  vpc_id      = "${aws_vpc.network.id}"
+  vpc_id      = "${var.network_id}"
   target_type = "instance"
 
   protocol = "TCP"
@@ -38,7 +38,7 @@ resource "aws_lb_listener" "apiserver-https" {
 
 resource "aws_lb_target_group" "workers-http" {
   name        = "${var.cluster_name}-workers-http"
-  vpc_id      = "${aws_vpc.network.id}"
+  vpc_id      = "${var.network_id}"
   target_type = "instance"
 
   protocol = "TCP"
@@ -68,7 +68,7 @@ resource "aws_lb_listener" "ingress-http" {
 
 resource "aws_lb_target_group" "workers-https" {
   name        = "${var.cluster_name}-workers-https"
-  vpc_id      = "${aws_vpc.network.id}"
+  vpc_id      = "${var.network_id}"
   target_type = "instance"
 
   protocol = "TCP"

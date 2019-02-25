@@ -15,11 +15,11 @@ output "worker-security-group-ids" {
 }
 
 output "bootstrap-subnet-id" {
-  value = "${element(aws_subnet.cluster-private.*.id, 0)}"
+  value = "${element(var.public_subnet_ids, 0)}"
 }
 
 output "private-subnet-ids" {
-  value = ["${aws_subnet.cluster-private.*.id}"]
+  value = ["${var.private_subnet_ids}"]
 }
 
 output "controller-instance-profile-name" {
