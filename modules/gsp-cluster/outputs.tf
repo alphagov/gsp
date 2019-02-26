@@ -10,6 +10,10 @@ output "controller-security-group-ids" {
   value = ["${module.k8s-cluster.controller-security-group-ids}"]
 }
 
+output "worker-security-group-ids" {
+  value = ["${module.k8s-cluster.worker-security-group-ids}"]
+}
+
 output "bootstrap-subnet-id" {
   value = "${element(aws_subnet.cluster-private.*.id, 0)}"
 }
