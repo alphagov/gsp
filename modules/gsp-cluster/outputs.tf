@@ -104,5 +104,5 @@ output "github-deployment-public-key" {
 }
 
 output "sealed-secrets-certificate" {
-  value = "${tls_self_signed_cert.sealed-secrets-certificate.cert_pem}"
+  value = "${var.sealed_secrets_cert_pem}"
 }
