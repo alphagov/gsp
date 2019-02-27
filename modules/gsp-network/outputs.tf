@@ -10,7 +10,7 @@ output "public_subnet_ids" {
   value = ["${aws_subnet.cluster-public.*.id}"]
 }
 
-output "network_id" {
+output "vpc_id" {
   value = "${aws_vpc.network.id}"
 }
 

@@ -113,7 +113,7 @@ variable "codecommit_init_role_arn" {
   default = ""
 }
 
-variable "network_id" {
+variable "vpc_id" {
   type = "string"
 }
 
@@ -129,12 +129,12 @@ variable "nat_gateway_public_ips" {
   type = "list"
 }
 
-variable "cert_pem" {
+variable "sealed_secrets_cert_pem" {
   description = "Sealed secrets cert"
   type        = "string"
 }
 
-variable "private_key_pem" {
+variable "sealed_secrets_private_key_pem" {
   description = "Sealed secrets private key"
   type        = "string"
 }

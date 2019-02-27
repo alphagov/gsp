@@ -15,7 +15,7 @@ output "worker-security-group-ids" {
 }
 
 output "bootstrap-subnet-id" {
-  value = "${element(var.public_subnet_ids, 0)}"
+  value = "${element(var.private_subnet_ids, 0)}"
 }
 
 output "private-subnet-ids" {

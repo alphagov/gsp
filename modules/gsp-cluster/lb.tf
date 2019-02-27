@@ -8,7 +8,7 @@ resource "aws_lb" "lb" {
 
 resource "aws_lb_target_group" "controllers" {
   name        = "${var.cluster_name}-controllers"
-  vpc_id      = "${var.network_id}"
+  vpc_id      = "${var.vpc_id}"
   target_type = "instance"
 
   protocol = "TCP"
@@ -38,7 +38,7 @@ resource "aws_lb_listener" "apiserver-https" {
 
 resource "aws_lb_target_group" "workers-http" {
   name        = "${var.cluster_name}-workers-http"
-  vpc_id      = "${var.network_id}"
+  vpc_id      = "${var.vpc_id}"
   target_type = "instance"
 
   protocol = "TCP"
@@ -68,7 +68,7 @@ resource "aws_lb_listener" "ingress-http" {
 
 resource "aws_lb_target_group" "workers-https" {
   name        = "${var.cluster_name}-workers-https"
-  vpc_id      = "${var.network_id}"
+  vpc_id      = "${var.vpc_id}"
   target_type = "instance"
 
   protocol = "TCP"
