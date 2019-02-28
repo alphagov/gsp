@@ -2,6 +2,11 @@ variable "enabled" {
   default = 1
 }
 
+variable "name" {
+  description = "A unique (within the cluster) name"
+  type = "string"
+}
+
 variable "cloudwatch_log_group_arn" {
   description = "The ARN of the cloudwatch log group to ship to Splunk"
   type        = "string"
