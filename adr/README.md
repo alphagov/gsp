@@ -17,4 +17,4 @@
 - [ADR #013 - CI & CD Tool Selection](/adr/ADR013-ci-cd-tool.md)
 - [ADR #014 - Sealed Secrets](/adr/ADR014-sealed-secrets-keys.md)
 - [ADR #015 - AWS IAM Authentication (for admins)](/adr/ADR015-aws-iam-authentication.md)
-- [ADR #-16 - Verifying two-eyes on code changes(/adr/ADR016-two-eyes-git-verification.md)
+- [ADR #-16 - Verifying two-eyes on code changes](/adr/ADR016-two-eyes-git-verification.md)
