@@ -45,5 +45,5 @@ We implement solution (3).
 ## Consequences
 
 * Developer workflow is largely unaffected across GDS by taking advantage of
-  Github features team are already familer
+  Github features team are already familiar
 * Compromise of multiple developer laptops could mitigate "two-eyes" process
