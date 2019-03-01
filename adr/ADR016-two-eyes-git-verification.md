@@ -1,4 +1,4 @@
-# ADR015: Verifing two-eyes on code changes
+# ADR016: Verifying two-eyes on code changes
 
 ## Status
 
