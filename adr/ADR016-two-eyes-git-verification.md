@@ -20,7 +20,7 @@ owners without adversely affecting developer workflow.
 Some potential solutions involve:
 
 1. Enforcing that two unique developers each an add empty signed commit at the
-   tip of the branch for PRs before being merged, and verifying the existance
+   tip of the branch for PRs before being merged, and verifying the existence
    of these empty signed commits as part of the delivery pipeline.
 2. Enforcing that two unique developers each sign the commmit at the tip of the
    branch for PRs using
