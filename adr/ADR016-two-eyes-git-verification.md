@@ -14,7 +14,7 @@ Code changes should not be able to make it out to a production environment
 without being exposed to at least two authorised code owners.
 
 Our aim is to improve on process-based appoval methods by being able to
-digitally verify that code has been exposed to at least two authorized code
+digitally verify that code has been exposed to at least two authorised code
 owners without adversely affecting developer workflow.
 
 Some potential solutions involve:
