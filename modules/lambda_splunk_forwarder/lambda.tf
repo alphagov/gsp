@@ -2,7 +2,7 @@ resource "aws_lambda_function" "lambda_log_forwarder" {
   count            = "${var.enabled == 0 ? 0 : 1}"
   filename         = "${path.module}/cyber-cloudwatch-fluentd-to-hec.zip"
   source_code_hash = "${base64sha256(file("${path.module}/cyber-cloudwatch-fluentd-to-hec.zip"))}"
-  function_name    = "${var.cluster_name}_log_forwarder"
+  function_name    = "${var.cluster_name}_${var.name}_log_forwarder"
   role             = "${aws_iam_role.lambda_log_forwarder.arn}"
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.7"
@@ -37,7 +37,7 @@ resource "aws_lambda_permission" "cloudwatch_splunk_logs" {
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_splunk_logs" {
   count           = "${var.enabled == 0 ? 0 : 1}"
   depends_on      = ["aws_lambda_permission.cloudwatch_splunk_logs"]
-  name            = "${var.cluster_name}_cloudwatch_splunk_logs_subscription_filter"
+  name            = "${var.cluster_name}_${var.name}_cloudwatch_splunk_logs_subscription_filter"
   destination_arn = "${aws_lambda_function.lambda_log_forwarder.arn}"
   filter_pattern  = ""
   log_group_name  = "${var.cloudwatch_log_group_name}"
