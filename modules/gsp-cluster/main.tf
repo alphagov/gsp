@@ -84,6 +84,20 @@ resource "local_file" "flux" {
   content  = "${data.template_file.flux.rendered}"
 }
 
+data "template_file" "flux-reporter" {
+  template = "${file("${path.module}/data/flux-reporter.yaml")}"
+
+  vars {
+    namespace      = "flux-system"
+    cluster_domain = "${var.cluster_name}.${var.dns_zone}"
+  }
+}
+
+resource "local_file" "flux-reporter" {
+  filename = "addons/${var.cluster_name}/flux-reporter.yaml"
+  content  = "${data.template_file.flux-reporter.rendered}"
+}
+
 module "ingress-system" {
   enabled = "${local.enabled_addons["ingress"]}"
   source  = "../flux-release"
