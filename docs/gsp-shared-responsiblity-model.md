@@ -2,7 +2,7 @@
 
 TechOps (including Reliability Engineering, Cyber Security and User Support) uses a [shared responsibility model](https://aws.amazon.com/compliance/shared-responsibility-model/) to provide a supported platform to GDS product teams. Broadly, TechOps builds, runs and maintains the infrastructure and supporting services, while the product teams maintain the applications that they wish to run on the platform.
 
-TechOps is only responsible for internal GDS product teams who host their service on the [GDS Supported Platform](https://github.com/alphagov/gsp-team-manual) and the [GOV.UK Platform as a Service (PaaS)](https://www.cloud.service.gov.uk/).
+TechOps is only responsible for internal GDS product teams who host their service on the [GDS Supported Platform](https://github.com/alphagov/gsp-team-manual) and the [GOV.UK Platform as a Service (PaaS)](https://www.cloud.service.gov.uk/) and its tenants.
 
 ## Summary of responsibilities
 
@@ -33,7 +33,7 @@ Contact Cyber Security using the [#cyber-security-help](https://gds.slack.com/me
 
 ### Provisioning Amazon Web Services (AWS) accounts and infrastructure
 
-When a team has decided to use the GDS Supported Platform for hosting their application or service, Reliability Engineering (RE) will create an AWS account for the team (unless one exists for their wider programme, for example, GOV.UK or GOV.UK Verify) and provision the underlying infrastructure for teams to deploy their app.
+When a team has decided to use the GDS Supported Platform for hosting their application or service, Reliability Engineering (RE) will create an [AWS account for the team](https://reliability-engineering.cloudapps.digital/iaas.html#create-aws-accounts) (unless one exists for their wider programme, for example, GOV.UK or GOV.UK Verify) and provision the underlying infrastructure for teams to deploy their app.
 
 ### Updates and upgrades
 
@@ -51,11 +51,11 @@ RE is also responsible for providing tooling to monitor the pipeline, for exampl
 
 ### Logging, monitoring and alerting
 
-TechOps will provide logging, monitoring and alerting for the GDS Supported Platform. We will work with teams to ensure that it is set up in the most useful way for teams. Specifically:
+TechOps will provide logging, monitoring and alerting for the GDS Supported Platform. We will work with teams to ensure that it is set up in the most useful way for teams.
 
 RE will ship logs to CloudWatch for further distribution (for example, to Splunk).
 
-Cyber Security will then work with teams to establish use cases for their protective monitoring using Splunk. Splunk will alert service teams when their use cases are triggered. Playbooks will include helpful information as to how the service team should deal with a given situation.
+Cyber Security will then work with teams to establish use cases for teams' protective monitoring using Splunk. Splunk will alert service teams when those use cases are triggered. Playbooks will include helpful information as to how the service team should deal with a given situation.
 
 If the service team is unable to respond to the situation themselves or if it is categorised as a security incident, they should contact the Cyber Security team either on Slack or through the out-of-hours procedure, if necessary.
 
@@ -70,7 +70,7 @@ TechOps will provide:
 - health and reliability monitoring using [Prometheus](https://prometheus.io/)
 - alerting using [Prometheus' AlertManager](https://prometheus.io/docs/alerting/alertmanager/) and [PagerDuty](https://www.pagerduty.com/).
 
-TechOps will work with teams to identify the most valuable things to monitor and alert on (including the above protective monitoring offering) and then work together to implement the correct logging, monitoring and alerting to facilitate this.
+TechOps will work with teams to identify the most valuable things to monitor and alert on (including the protective monitoring offering) and then work together to implement the correct logging, monitoring and alerting to facilitate this.
 
 TechOps will set up health and reliability monitoring and alerting to ensure that we provide reliable and secure infrastructure, in line with our service level objectives (SLOs).
 
@@ -114,9 +114,9 @@ TechOps will, however, make this as easy as possible to implement, as changes su
 
 ### Setting up and maintaining a build/deploy pipeline
 
-Product teams will need to work with TechOps to set up the initial pipeline, including learning (through documentation that TechOps provide and through working together) how to do so themselves.
+Product teams will need to work with TechOps to set up the initial pipeline, including learning (through documentation that TechOps provides and through working together) how to do so themselves.
 
-Once the initial pipeline is established, the product team will be responsible for making sure that tests and so forth are maintained as the application(s) develop(s).
+Once the initial pipeline is established, the product team will be responsible for making sure that tests and specific procedures (for example. linting, formatting, promoting) are maintained as the application(s) develop(s).
 
 Product teams are responsible for monitoring their pipelines for successful or failing jobs and acting upon that information.
 
@@ -132,11 +132,11 @@ Similarly, product teams must name their containers sensibly and logically for c
 
 ### Monitoring and responding to alerts
 
-It is the product team's responsibility to monitor their product/service (using tooling provided by TechOps - see above) and to respond to both monitoring and alerts as required. If the product team is unable to respond to the situation themselves or if it is categorised as a security incident, they should contact the Cyber Security team either on Slack or through the out-of-hours procedure, if necessary.
+It is the product team's responsibility to monitor their product/service (using tooling provided by TechOps) and to respond to both monitoring and alerts as required. If the product team is unable to respond to the situation themselves or if it is categorised as a security incident, they should contact the Cyber Security team either on Slack or through the out-of-hours procedure, if necessary.
 
 Product teams are responsible for the development, maintenance and engineering of their use cases in Splunk. As their products develop, they should ensure their protective monitoring stays effective and relevant. Cyber Security will support teams where required.
 
-The product team is also expected to allocate time to defining service level indicators (SLIs) and objectives (SLOs), in order that we can collectively set up the correct monitoring and alerting.
+The product team is also expected to allocate time to defining service level indicators (SLIs) and objectives (SLOs), so that we can collectively set up the correct monitoring and alerting.
 
 ### User management
 
