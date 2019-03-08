@@ -18,4 +18,5 @@ data:
       #  2) "{{SessionName}}" is the role session name.
       mapRoles:
 ${iam_admin_role_mappings}
+${iam_sre_role_mappings}
 ${iam_dev_role_mappings}

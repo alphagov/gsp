@@ -25,6 +25,37 @@ resource "aws_iam_role" "dev" {
   assume_role_policy = "${data.aws_iam_policy_document.grant-iam-dev.json}"
 }
 
+resource "aws_iam_role" "sre" {
+  name = "${var.cluster_name}-sre"
+
+  assume_role_policy = "${data.aws_iam_policy_document.grant-iam-sre-policy.json}"
+}
+
+data "aws_iam_policy_document" "grant-iam-sre-policy" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals = {
+      type = "AWS"
+
+      identifiers = "${var.sre_user_arns}"
+    }
+
+    condition {
+      test     = "Bool"
+      variable = "aws:MultiFactorAuthPresent"
+      values   = ["true"]
+    }
+
+    condition {
+      test     = "IpAddress"
+      variable = "aws:SourceIp"
+      values   = ["${var.gds_external_cidrs}"]
+    }
+  }
+}
+
 data "aws_iam_policy_document" "grant-iam-dev" {
   statement {
     effect  = "Allow"
