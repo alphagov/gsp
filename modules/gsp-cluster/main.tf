@@ -24,6 +24,7 @@ module "bootkube-assets" {
   etcd_client_private_key_pem = "${module.etcd-cluster.client_private_key_pem}"
   etcd_client_cert_pem        = "${module.etcd-cluster.client_cert_pem}"
   admin_role_arns             = ["${var.admin_role_arns}"]
+  sre_role_arns               = ["${aws_iam_role.sre.arn}"]
   dev_role_arns               = ["${aws_iam_role.dev.arn}"]
 }
 
@@ -249,4 +250,9 @@ module "ci-system" {
   cluster_name           = "${var.cluster_name}"
   dns_zone               = "${var.dns_zone}"
   harbor_role_asumer_arn = "${aws_iam_role.kiam_server_role.arn}"
+}
+
+resource "local_file" "role" {
+  filename = "addons/${var.cluster_name}/sre-cluster-role.yaml"
+  content  = "${file("${path.module}/data/sre-cluster-role.yaml")}"
 }

@@ -39,6 +39,11 @@ variable "admin_role_arns" {
   type        = "list"
 }
 
+variable "sre_role_arns" {
+  description = "A list of ARNs that will be mapped to cluster sre sre-administrators"
+  type        = "list"
+}
+
 variable "admin_role_arn_mapping_template" {
   description = "The template that renders into yaml for the aws iam authenticator. Whitespace is important here."
   type        = "string"
@@ -48,6 +53,18 @@ variable "admin_role_arn_mapping_template" {
         username: admin
         groups:
         - system:masters
+TEMPLATE
+}
+
+variable "sre_role_arn_mapping_template" {
+  description = "The template that renders into yaml for the aws iam authenticator. Whitespace is important here."
+  type        = "string"
+
+  default = <<TEMPLATE
+      - roleARN: %s
+        username: sre
+        groups:
+        - sre
 TEMPLATE
 }
 

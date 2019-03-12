@@ -24,6 +24,12 @@ variable "dev_user_arns" {
   default     = []
 }
 
+variable "sre_user_arns" {
+  description = "A list of user ARNs that will be mapped to the cluster sre role"
+  type        = "list"
+  default     = []
+}
+
 variable "host_cidr" {
   description = "CIDR IPv4 range to assign to EC2 nodes"
   type        = "string"
