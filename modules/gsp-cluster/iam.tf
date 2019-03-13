@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "grant-iam-sre-policy" {
     principals = {
       type = "AWS"
 
-      identifiers = "${var.sre_user_arns}"
+      identifiers = ["${concat(var.admin_role_arns, var.sre_user_arns)}"]
     }
 
     condition {
