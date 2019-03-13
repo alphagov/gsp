@@ -26,3 +26,8 @@ output "host_cidr" {
   description = "CIDR IPv4 range to assign to EC2 nodes"
   value       = "${var.host_cidr}"
 }
+
+// Workaround for https://github.com/hashicorp/terraform/issues/12570
+output "private-subnet-count" {
+  value = "${length(data.aws_availability_zones.all.names)}"
+}
