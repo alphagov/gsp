@@ -22,11 +22,6 @@ output "private-subnet-ids" {
   value = ["${var.private_subnet_ids}"]
 }
 
-// Workaround for https://github.com/hashicorp/terraform/issues/12570
-output "private-subnet-count" {
-  value = "${length(data.aws_availability_zones.all.names)}"
-}
-
 output "controller-instance-profile-name" {
   value = "${module.k8s-cluster.controller-instance-profile-name}"
 }
