@@ -33,7 +33,6 @@ variable "sre_user_arns" {
 variable "host_cidr" {
   description = "CIDR IPv4 range to assign to EC2 nodes"
   type        = "string"
-  default     = "10.0.0.0/16"
 }
 
 variable "etcd_node_count" {
@@ -118,4 +117,30 @@ variable "splunk_index" {
 variable "codecommit_init_role_arn" {
   type    = "string"
   default = ""
+}
+
+variable "vpc_id" {
+  type = "string"
+}
+
+variable "private_subnet_ids" {
+  type = "list"
+}
+
+variable "public_subnet_ids" {
+  type = "list"
+}
+
+variable "nat_gateway_public_ips" {
+  type = "list"
+}
+
+variable "sealed_secrets_cert_pem" {
+  description = "Sealed secrets cert"
+  type        = "string"
+}
+
+variable "sealed_secrets_private_key_pem" {
+  description = "Sealed secrets private key"
+  type        = "string"
 }

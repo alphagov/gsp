@@ -1,4 +1,3 @@
-## TODO: Persist that key some other way than `prevent_destroy`
 resource "tls_private_key" "sealed-secrets-key" {
   algorithm = "RSA"
   rsa_bits  = 4096

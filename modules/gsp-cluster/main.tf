@@ -3,8 +3,8 @@ module "etcd-cluster" {
 
   cluster_name            = "${var.cluster_name}"
   dns_zone                = "${var.dns_zone}"
-  subnet_ids              = "${aws_subnet.cluster-private.*.id}"
-  vpc_id                  = "${aws_vpc.network.id}"
+  subnet_ids              = "${var.private_subnet_ids}"
+  vpc_id                  = "${var.vpc_id}"
   dns_zone_id             = "${data.aws_route53_zone.zone.zone_id}"
   node_count              = "${var.etcd_node_count}"
   user_data_bucket_name   = "${var.user_data_bucket_name}"
@@ -34,8 +34,8 @@ module "k8s-cluster" {
   kubelet_kubeconfig           = "${module.bootkube-assets.kubelet-kubeconfig}"
   kube_ca_crt                  = "${module.bootkube-assets.kube-ca-crt}"
   user_data_bucket_name        = "${var.user_data_bucket_name}"
-  vpc_id                       = "${aws_vpc.network.id}"
-  subnet_ids                   = ["${aws_subnet.cluster-private.*.id}"]
+  vpc_id                       = "${var.vpc_id}"
+  subnet_ids                   = ["${var.private_subnet_ids}"]
   controller_target_group_arns = ["${aws_lb_target_group.controllers.arn}"]
 
   worker_target_group_arns = [
@@ -52,8 +52,8 @@ module "k8s-cluster" {
   s3_user_data_policy_arn  = "${aws_iam_policy.s3-user-data-policy.arn}"
 
   apiserver_allowed_cidrs = ["${concat(
-      list(aws_vpc.network.cidr_block),
-      formatlist("%s/32", aws_nat_gateway.cluster.*.public_ip),
+      list(var.host_cidr),
+      formatlist("%s/32", var.nat_gateway_public_ips),
       var.gds_external_cidrs,
   )}"]
 }
@@ -183,8 +183,8 @@ module "secrets-system" {
 
   values = <<EOF
     encryption:
-      public_certificate: ${base64encode(tls_self_signed_cert.sealed-secrets-certificate.cert_pem)}
-      private_key: ${base64encode(tls_private_key.sealed-secrets-key.private_key_pem)}
+      public_certificate: ${base64encode(var.sealed_secrets_cert_pem)}
+      private_key: ${base64encode(var.sealed_secrets_private_key_pem)}
 EOF
 }
 

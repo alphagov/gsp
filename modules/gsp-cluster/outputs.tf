@@ -15,11 +15,11 @@ output "worker-security-group-ids" {
 }
 
 output "bootstrap-subnet-id" {
-  value = "${element(aws_subnet.cluster-private.*.id, 0)}"
+  value = "${element(var.private_subnet_ids, 0)}"
 }
 
 output "private-subnet-ids" {
-  value = ["${aws_subnet.cluster-private.*.id}"]
+  value = ["${var.private_subnet_ids}"]
 }
 
 // Workaround for https://github.com/hashicorp/terraform/issues/12570
@@ -109,5 +109,5 @@ output "github-deployment-public-key" {
 }
 
 output "sealed-secrets-certificate" {
-  value = "${tls_self_signed_cert.sealed-secrets-certificate.cert_pem}"
+  value = "${var.sealed_secrets_cert_pem}"
 }
