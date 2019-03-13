@@ -13,7 +13,7 @@
 
 ### How users were affected 
 
-* Verify has been unable to run
+* Verify unable to run build pipelines
 * The Pen-testers were unable to run their test against application
 
 ### Timeline
