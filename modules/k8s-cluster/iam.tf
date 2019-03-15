@@ -17,20 +17,6 @@ resource "aws_iam_role" "controller_role" {
 data "aws_iam_policy_document" "controller_policy_doc" {
   statement {
     actions = [
-      "ecr:GetAuthorizationToken",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:GetRepositoryPolicy",
-      "ecr:DescribeRepositories",
-      "ecr:ListImages",
-      "ecr:BatchGetImage",
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    actions = [
       "ec2:*",
     ]
 
@@ -43,55 +29,6 @@ data "aws_iam_policy_document" "controller_policy_doc" {
     ]
 
     resources = ["*"] # This allows kiam to assume any role. We rely on trust relationships from the other side to ensure that it can't assume everything.
-  }
-
-  statement {
-    actions = [
-      "elasticloadbalancing:*",
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    actions = [
-      "autoscaling:DescribeAutoScalingGroups",
-      "autoscaling:DescribeAutoScalingInstances",
-      "autoscaling:SetDesiredCapacity",
-      "autoscaling:TerminateInstanceInAutoScalingGroup",
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    actions = [
-      "route53:ChangeResourceRecordSets",
-      "route53:ListResourceRecordSets",
-      "route53:GetHostedZone",
-    ]
-
-    resources = [
-      "arn:aws:route53:::hostedzone/Z3IKKBW5GMZJOI",
-    ]
-  }
-
-  statement {
-    actions = [
-      "route53:GetChange",
-    ]
-
-    resources = [
-      "arn:aws:route53:::change/*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "route53:ListHostedZones",
-    ]
-
-    resources = ["*"]
   }
 }
 
@@ -141,8 +78,6 @@ data "aws_iam_policy_document" "worker_policy_doc" {
     actions = [
       "ec2:DescribeInstances",
       "ec2:DescribeRegions",
-      "ecr:*",
-      "s3:*",
     ]
 
     resources = ["*"]
