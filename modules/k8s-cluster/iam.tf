@@ -17,6 +17,13 @@ resource "aws_iam_role" "controller_role" {
 data "aws_iam_policy_document" "controller_policy_doc" {
   statement {
     actions = [
+      "elasticloadbalancing:DescribeLoadBalancers" # https://github.com/kubernetes/kubernetes/issues/47733
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    actions = [
       "ec2:*",
     ]
 
