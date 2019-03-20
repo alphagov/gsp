@@ -17,23 +17,8 @@ resource "aws_iam_role" "controller_role" {
 data "aws_iam_policy_document" "controller_policy_doc" {
   statement {
     actions = [
-      "ecr:GetAuthorizationToken",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:GetRepositoryPolicy",
-      "ecr:DescribeRepositories",
-      "ecr:ListImages",
-      "ecr:BatchGetImage",
+      "elasticloadbalancing:DescribeLoadBalancers" # https://github.com/kubernetes/kubernetes/issues/47733
     ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    actions = [
-      "ec2:*",
-    ]
-
     resources = ["*"]
   }
 
@@ -44,55 +29,11 @@ data "aws_iam_policy_document" "controller_policy_doc" {
 
     resources = ["*"] # This allows kiam to assume any role. We rely on trust relationships from the other side to ensure that it can't assume everything.
   }
+}
 
-  statement {
-    actions = [
-      "elasticloadbalancing:*",
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    actions = [
-      "autoscaling:DescribeAutoScalingGroups",
-      "autoscaling:DescribeAutoScalingInstances",
-      "autoscaling:SetDesiredCapacity",
-      "autoscaling:TerminateInstanceInAutoScalingGroup",
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    actions = [
-      "route53:ChangeResourceRecordSets",
-      "route53:ListResourceRecordSets",
-      "route53:GetHostedZone",
-    ]
-
-    resources = [
-      "arn:aws:route53:::hostedzone/Z3IKKBW5GMZJOI",
-    ]
-  }
-
-  statement {
-    actions = [
-      "route53:GetChange",
-    ]
-
-    resources = [
-      "arn:aws:route53:::change/*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "route53:ListHostedZones",
-    ]
-
-    resources = ["*"]
-  }
+resource "aws_iam_role_policy_attachment" "controller-policy-attachment" {
+  role       = "${aws_iam_role.controller_role.id}"
+  policy_arn = "${aws_iam_policy.controller-policy.arn}"
 }
 
 resource "aws_iam_policy" "controller-policy" {
@@ -100,9 +41,69 @@ resource "aws_iam_policy" "controller-policy" {
   policy = "${data.aws_iam_policy_document.controller_policy_doc.json}"
 }
 
-resource "aws_iam_role_policy_attachment" "controller-policy-attachment" {
+data "aws_iam_policy_document" "controller_persistent_volume_claim" {
+  # https://docs.docker.com/ee/ucp/kubernetes/storage/configure-aws-storage/
+  statement {
+    actions = [
+      "ec2:DescribeInstances",
+      "ec2:DescribeVolumes",
+      "ec2:CreateVolume",
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    actions = [
+      "ec2:CreateTags",
+    ]
+
+    resources = ["arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:volume/*"]
+
+    condition {
+      "test" = "StringEquals"
+      "variable" = "aws:RequestTag/KubernetesCluster"
+      "values" = [
+        "${var.cluster_name}",
+      ]
+    }
+
+    condition {
+      test = "ForAnyValue:StringEquals"
+      variable = "aws:TagKeys"
+      values = [
+        "KubernetesCluster"
+      ]
+    }
+  }
+
+  statement {
+    actions = [
+      "ec2:DetachVolume",
+      "ec2:AttachVolume",
+      "ec2:DeleteVolume",
+    ]
+
+    resources = ["*"]
+
+    condition {
+      "test" = "StringEquals"
+      "variable" = "ec2:ResourceTag/KubernetesCluster"
+      "values" = [
+        "${var.cluster_name}",
+      ]
+    }
+  }
+}
+
+resource "aws_iam_policy" "controller-persistent-volume-claim-policy" {
+  name   = "${var.cluster_name}-controller-persistent-volume-claim-policy"
+  policy = "${data.aws_iam_policy_document.controller_persistent_volume_claim.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "controller_persistent_volume_claim_attachement" {
   role       = "${aws_iam_role.controller_role.id}"
-  policy_arn = "${aws_iam_policy.controller-policy.arn}"
+  policy_arn = "${aws_iam_policy.controller-persistent-volume-claim-policy.arn}"
 }
 
 resource "aws_iam_role_policy_attachment" "controller-ssm-policy-attachment" {
@@ -141,8 +142,6 @@ data "aws_iam_policy_document" "worker_policy_doc" {
     actions = [
       "ec2:DescribeInstances",
       "ec2:DescribeRegions",
-      "ecr:*",
-      "s3:*",
     ]
 
     resources = ["*"]

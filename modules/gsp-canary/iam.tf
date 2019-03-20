@@ -27,10 +27,11 @@ data "aws_iam_policy_document" "assume_canary_role" {
 data "aws_iam_policy_document" "canary_code_commit" {
   statement {
     actions = [
-      "codecommit:*",
+      "codecommit:GitPull",
+      "codecommit:GitPush",
     ]
 
-    resources = ["*"]
+    resources = ["${aws_codecommit_repository.canary.arn}"]
   }
 }
 
