@@ -9,6 +9,7 @@ spec:
     git: "${chart_git}"
     ref: "${chart_ref}"
     path: "${chart_path}"
+    verificationKeys: ${verification_keys}
   valueFileSecrets: ${valueFileSecrets}
   values:
     cluster:
