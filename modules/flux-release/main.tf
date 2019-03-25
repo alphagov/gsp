@@ -27,6 +27,7 @@ data "template_file" "helm-release" {
     cluster_domain   = "${var.cluster_domain}"
     values           = "${var.values}"
     valueFileSecrets = "[${join(",",formatlist("{\"name\":\"%s\"}", var.valueFileSecrets))}]"
+    verification_keys = "[${join(",",formatlist("%#v", var.verification_keys))}]"
   }
 }
 

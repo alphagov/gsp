@@ -48,6 +48,12 @@ variable "valueFileSecrets" {
   default     = []
 }
 
+variable "verification_keys" {
+  description = "List of public GPG keys to verify commits against"
+  type        = "list"
+  default     = []
+}
+
 variable "cluster_name" {
   description = "name of this cluster/environment (accessible as .Values.cluster.name in charts)"
   type        = "string"
