@@ -206,27 +206,6 @@ module "kiam-system" {
 EOF
 }
 
-resource "tls_private_key" "github_deployment_key" {
-  algorithm = "RSA"
-  rsa_bits  = "4096"
-}
-
-resource "local_file" "ci-secrets" {
-  count    = "${local.enabled_addons["ci"]}"
-  filename = "addons/${var.cluster_name}/ci-secrets.yaml"
-  content  = "${data.template_file.ci-secrets.rendered}"
-}
-
-data "template_file" "ci-secrets" {
-  count    = "${local.enabled_addons["ci"]}"
-  template = "${file("${path.module}/data/ci-secrets.yaml")}"
-
-  vars = {
-    namespace   = "ci-system-main"
-    private_key = "${base64encode(tls_private_key.github_deployment_key.private_key_pem)}"
-  }
-}
-
 module "group-role-bindings" {
   source = "../group-role-bindings"
 

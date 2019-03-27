@@ -99,10 +99,6 @@ output "harbor-password" {
   value = "${module.ci-system.harbor-password}"
 }
 
-output "github-deployment-public-key" {
-  value = "${tls_private_key.github_deployment_key.public_key_openssh}"
-}
-
 output "sealed-secrets-certificate" {
   value = "${var.sealed_secrets_cert_pem}"
 }
