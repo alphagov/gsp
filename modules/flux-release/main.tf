@@ -53,6 +53,28 @@ resource "local_file" "values" {
   content  = "${data.template_file.values.*.rendered[count.index]}"
 }
 
+resource "tls_private_key" "github_deployment_key" {
+  algorithm = "RSA"
+  rsa_bits  = "4096"
+}
+
+resource "local_file" "ci-secrets" {
+  filename = "addons/${var.cluster_name}/${var.namespace}-deploy-keys.yaml"
+  content  = "${data.template_file.ci-secrets.rendered}"
+}
+
+data "template_file" "ci-secrets" {
+  template = "${file("${path.module}/data/ci-deploy-keys.yaml")}"
+
+  vars = {
+    ci_namespace = "ci-system-main" # The namespace for the secrets to be read by concourse. Should be `ci-system-[TEAM_NAME]`.
+    namespace    = "${var.namespace}" # The namespace of the actual team's release deployment.
+    private_key  = "${base64encode(tls_private_key.github_deployment_key.private_key_pem)}"
+    public_key   = "${tls_private_key.github_deployment_key.public_key_openssh}"
+    secret_name  = "${var.namespace}"
+  }
+}
+
 output "release-name" {
   value = "${coalesce(var.release_name, var.namespace)}"
 }
