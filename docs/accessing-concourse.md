@@ -103,3 +103,72 @@ concourse:
         mainTeam:
           localUser: admin
 ```
+
+## Accessing for Testing (e.g. Verify concourse pipeline)
+It is critical that your local version of 'fly' matches the destination.
+
+Download fly (cli apple icon)
+From concourse website:
+
+https://cd.gds-reliability.engineering/teams/gsp/pipelines/verify
+
+```
+sudo mv fly /usr/local/bin
+sudo chmod +x /usr/local/bin/fly
+```
+
+Login
+
+`note:` token will be downloaded automatically, if not, you've got something wrong. You should get a browser uri with a redirect link in the query string. You should be redirected back to the command line session and see `target saved`.
+
+fly -t gsp login -c https://cd.gds-reliability.engineering/ -n gsp
+
+`reponse from site:`
+
+```
+logging in to team 'gsp'
+
+navigate to the following URL in your browser (cmd+click on Mac):
+
+https://cd.gds-reliability.engineering/sky/login?redirect_uri=http://127.0.0.1:57517/auth/callback
+
+```
+Create a github token with no permissions.
+
+Go to github.com/<your username> -> Settings -> Developer settings -> Personal access tokens -> Create new token with no privileges. Let's call the value "my-secret-value". This will be used for the concourse variable: github-api-token
+
+Get the value of --key-id in the following from the info pipeline (click on the button in https://cd.gds-reliability.engineering/teams/gsp/pipelines/info).
+
+Token created is: "`secret token here`". Note: this is a secret token so must not be publicised, just in case, even though it has no privileges.
+
+```
+fly --target gsp hijack --job info/show-available-pipeline-variables sh
+
+aws ssm put-parameter \
+   --name "/cd/concourse/pipelines/gsp/my-pipeline-name/my_secret_name" \
+   --value "my-secret-value" \
+   --type SecureString \
+   --key-id "xxx" \
+   --overwrite \
+   --region eu-west-2
+   ```
+
+   This secret will be available in all your pipelines using the syntax: ((github-api-token)).
+
+   Update the pipeline
+
+   ```
+  fly -t gsp set-pipeline -p $ACCOUNT_NAME \
+    --config tools-staging-prod-infra.yaml \
+    --var account-name=$ACCOUNT_NAME \
+    --var account-role-arn=$DEPLOYER_ROLE_ARN \
+    --var public-gpg-keys=$(yq . ../users/*.yaml | jq -s '[.[] | select(.teams[] | IN("re-gsp")) | .pub]') \
+    --check-creds
+     ```
+
+Prompts with y/n to accept changes. After accepting, change can be verified with:
+     
+  fly -t gsp get-pipeline -p verify
+
+See https://docs.aws.amazon.com/cli/latest/reference/ssm/put-parameter.html
+
