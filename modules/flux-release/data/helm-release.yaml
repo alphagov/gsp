@@ -15,4 +15,8 @@ spec:
     cluster:
       name: ${cluster_name}
       domain: ${cluster_domain}
+    global:
+      cluster:
+        name: ${cluster_name}
+        domain: ${cluster_domain}
 ${values}
