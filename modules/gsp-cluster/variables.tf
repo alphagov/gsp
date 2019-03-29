@@ -1,3 +1,9 @@
+variable "account_name" {
+  type        = "string"
+  default     = "gds"
+  description = "descriptive label of account, programme department who owns this cluster"
+}
+
 variable "cluster_name" {
   type = "string"
 }
