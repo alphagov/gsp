@@ -13,6 +13,12 @@ variable "dns_zone" {
 variable "harbor_role_asumer_arn" {
   type = "string"
 }
+
+variable "concourse_teams" {
+  default     = []
+  description = "the list of teams to be created in concourse"
+}
+
 variable "github_teams" {
   default     = ["alphagov:re-gsp"]
   description = "the list of github teams allowed to be authenticated into concourse"

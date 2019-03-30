@@ -234,6 +234,7 @@ module "ci-system" {
   github_client_id     = "${var.github_client_id}"
   github_client_secret = "${var.github_client_secret}"
   github_ca_cert       = "${var.github_ca_cert}"
+  concourse_teams      = "${var.concourse_teams}"
 }
 
 resource "local_file" "role" {

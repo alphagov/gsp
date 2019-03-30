@@ -66,6 +66,7 @@ module "ci-system" {
           kubernetes:
             namespacePrefix: "${module.ci-system.release-name}-"
             createTeamNamespaces: false
+            teams: ["${join(",", concat(list("main"), var.concourse_teams))}"]
     pipelineOperator:
       concourseUsername: "pipeline-operator"
       concoursePassword: "${random_string.concourse_password.result}"

@@ -164,3 +164,8 @@ variable "github_ca_cert" {
   default     = ""
   description = "the github application ca_cert ID to allow oauth"
 }
+
+variable "concourse_teams" {
+  default     = []
+  description = "the list of teams to be created in concourse"
+}
