@@ -25,11 +25,19 @@ module "ci-system" {
 
   values = <<EOF
     concourse:
+      secrets:
+        localUsers: "pipeline-operator:${random_string.concourse_password.result}"
       concourse:
         web:
+          auth:
+            mainTeam:
+              localUser: "pipeline-operator"
           kubernetes:
             namespacePrefix: "${module.ci-system.release-name}-"
             createTeamNamespaces: false
+    pipelineOperator:
+      concourseUsername: "pipeline-operator"
+      concoursePassword: "${random_string.concourse_password.result}"
     harbor:
       harborAdminPassword: "${random_string.harbor_password.result}"
       secretKey: "${random_string.harbor_secret_key.result}"
