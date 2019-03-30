@@ -229,6 +229,11 @@ module "ci-system" {
   cluster_name           = "${var.cluster_name}"
   dns_zone               = "${var.dns_zone}"
   harbor_role_asumer_arn = "${aws_iam_role.kiam_server_role.arn}"
+
+  github_teams         = "${var.github_teams}"
+  github_client_id     = "${var.github_client_id}"
+  github_client_secret = "${var.github_client_secret}"
+  github_ca_cert       = "${var.github_ca_cert}"
 }
 
 resource "local_file" "role" {

@@ -11,6 +11,23 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
   }
 }
 
+resource "local_file" "concourse-web-configmap" {
+  count    = "${var.enabled == 0 ? 0 : 1}"
+  filename = "addons/${var.cluster_name}/${module.ci-system.release-name}-web-configmap.yaml"
+  content  = "${data.template_file.concourse-web-configmap.rendered}"
+}
+
+data "template_file" "concourse-web-configmap" {
+  count    = "${var.enabled == 0 ? 0 : 1}"
+  template = "${file("${path.module}/data/web-configmap.yaml")}"
+
+  vars = {
+    namespace    = "ci-system"
+    release_name = "${module.ci-system.release-name}"
+    teams        = "${jsonencode(var.github_teams)}"
+  }
+}
+
 module "ci-system" {
   source = "..//flux-release"
 
@@ -27,11 +44,25 @@ module "ci-system" {
     concourse:
       secrets:
         localUsers: "pipeline-operator:${random_string.concourse_password.result}"
+        githubClientId: "${var.github_client_id}"
+        githubClientSecret: "${var.github_client_secret}"
+        githubCaCert: "${var.github_ca_cert}"
+      web:
+        additionalVolumes:
+        - name: "${module.ci-system.release-name}-web-configuration"
+          configMap:
+            name: "${module.ci-system.release-name}-web-configuration"
+        additionalVolumeMounts:
+        - name: "${module.ci-system.release-name}-web-configuration"
+          mountPath: /web-configuration
       concourse:
         web:
           auth:
+            github:
+              enabled: true
             mainTeam:
               localUser: "pipeline-operator"
+              config: /web-configuration/config.yaml
           kubernetes:
             namespacePrefix: "${module.ci-system.release-name}-"
             createTeamNamespaces: false
