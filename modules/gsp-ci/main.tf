@@ -55,8 +55,19 @@ module "ci-system" {
         additionalVolumeMounts:
         - name: "${module.ci-system.release-name}-web-configuration"
           mountPath: /web-configuration
+        ingress:
+          enabled: true
+          annotations:
+            kubernetes.io/tls-acme: "true"
+          hosts:
+          - "ci.${var.cluster_name}.${var.dns_zone}"
+          tls:
+          - secretName: concourse-web-tls
+            hosts:
+            - "ci.${var.cluster_name}.${var.dns_zone}"
       concourse:
         web:
+          externalUrl: "https://ci.${var.cluster_name}.${var.dns_zone}"
           auth:
             github:
               enabled: true
