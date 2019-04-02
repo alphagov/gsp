@@ -6,7 +6,12 @@ metadata:
   namespace: "${namespace}"
 data:
   config.yaml: |
+    # It is difficult to find, therefore:
+    # https://concourse-ci.org/managing-teams.html#setting-roles
     roles:
+    - name: owner
+      local:
+        users: ["pipeline-operator"]
     - name: viewer
       github:
         teams: ${teams}
