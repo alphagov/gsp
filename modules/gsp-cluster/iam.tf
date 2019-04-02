@@ -1,24 +1,3 @@
-data "aws_iam_policy_document" "user_data_policy_document" {
-  statement {
-    actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "${data.aws_s3_bucket.user_data.arn}/user_data/${var.cluster_name}-*",
-    ]
-  }
-}
-
-data "aws_s3_bucket" "user_data" {
-  bucket = "${var.user_data_bucket_name}"
-}
-
-resource "aws_iam_policy" "s3-user-data-policy" {
-  name   = "${var.cluster_name}-s3-user-data-policy"
-  policy = "${data.aws_iam_policy_document.user_data_policy_document.json}"
-}
-
 resource "aws_iam_role" "dev" {
   name = "${var.cluster_name}-dev"
 
@@ -97,7 +76,7 @@ data "aws_iam_policy_document" "kiam_server_role" {
 
     principals = {
       type        = "AWS"
-      identifiers = ["${module.k8s-cluster.controller-role-arn}"]
+      identifiers = ["${module.k8s-cluster.kiam-server-node-instance-role-arn}"]
     }
   }
 }
@@ -109,7 +88,9 @@ data "aws_iam_policy_document" "kiam_server_policy" {
 
     resources = [
       "${aws_iam_role.cloudwatch_log_shipping_role.arn}",
-      "${module.gsp-canary.canary_role_arn}",
+      "${module.gsp-canary.canary-role-arn}",
+      "${aws_iam_role.external-dns.arn}",
+      "${aws_iam_role.flux-helm-operator.arn}",
     ]
   }
 }

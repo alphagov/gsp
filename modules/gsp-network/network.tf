@@ -5,7 +5,10 @@ resource "aws_vpc" "network" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = "${map("Name", "${var.cluster_name}")}"
+  tags = "${map(
+    "Name", "${var.cluster_name}",
+    "kubernetes.io/cluster/${var.cluster_name}", "shared",
+  )}"
 }
 
 resource "aws_internet_gateway" "gateway" {
@@ -45,7 +48,11 @@ resource "aws_subnet" "cluster-private" {
   cidr_block              = "${cidrsubnet(var.host_cidr, 4, count.index)}"
   map_public_ip_on_launch = false
 
-  tags = "${map("Name", "${var.cluster_name}-cluster-${count.index}")}"
+  tags = "${map(
+    "Name", "${var.cluster_name}-cluster-${count.index}",
+    "kubernetes.io/cluster/${var.cluster_name}", "shared",
+    "kubernetes.io/role/internal-elb", "1",
+  )}"
 }
 
 resource "aws_subnet" "cluster-public" {
@@ -57,7 +64,11 @@ resource "aws_subnet" "cluster-public" {
   cidr_block              = "${cidrsubnet(var.host_cidr, 4, count.index + length(data.aws_availability_zones.all.names))}"
   map_public_ip_on_launch = false
 
-  tags = "${map("Name", "${var.cluster_name}-cluster-${count.index}")}"
+  tags = "${map(
+    "Name", "${var.cluster_name}-cluster-${count.index}",
+    "kubernetes.io/cluster/${var.cluster_name}", "shared",
+    "kubernetes.io/role/elb", "1",
+  )}"
 }
 
 resource "aws_route_table_association" "cluster-private" {

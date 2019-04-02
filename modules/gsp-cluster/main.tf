@@ -1,61 +1,22 @@
-module "etcd-cluster" {
-  source = "../etcd-cluster"
-
-  cluster_name            = "${var.cluster_name}"
-  dns_zone                = "${var.dns_zone}"
-  subnet_ids              = "${var.private_subnet_ids}"
-  vpc_id                  = "${var.vpc_id}"
-  dns_zone_id             = "${data.aws_route53_zone.zone.zone_id}"
-  node_count              = "${var.etcd_node_count}"
-  user_data_bucket_name   = "${var.user_data_bucket_name}"
-  instance_type           = "${var.etcd_instance_type}"
-  s3_user_data_policy_arn = "${aws_iam_policy.s3-user-data-policy.arn}"
-}
-
-module "bootkube-assets" {
-  source                      = "../bootkube-ignition"
-  apiserver_address           = "${aws_route53_record.apiserver.fqdn}"
-  cluster_domain_suffix       = "cluster.local"
-  etcd_servers                = ["${module.etcd-cluster.etcd_servers}"]
-  k8s_tag                     = "${var.k8s_tag}"
-  cluster_name                = "${var.cluster_name}"
-  cluster_id                  = "${var.cluster_name}.${var.dns_zone}"
-  etcd_ca_cert_pem            = "${module.etcd-cluster.ca_cert_pem}"
-  etcd_client_private_key_pem = "${module.etcd-cluster.client_private_key_pem}"
-  etcd_client_cert_pem        = "${module.etcd-cluster.client_cert_pem}"
-  admin_role_arns             = ["${var.admin_role_arns}"]
-  sre_role_arns               = ["${aws_iam_role.sre.arn}"]
-  dev_role_arns               = ["${aws_iam_role.dev.arn}"]
-}
-
 module "k8s-cluster" {
-  source                       = "../k8s-cluster"
-  cluster_domain_suffix        = "cluster.local"
-  kubelet_kubeconfig           = "${module.bootkube-assets.kubelet-kubeconfig}"
-  kube_ca_crt                  = "${module.bootkube-assets.kube-ca-crt}"
-  user_data_bucket_name        = "${var.user_data_bucket_name}"
-  vpc_id                       = "${var.vpc_id}"
-  subnet_ids                   = ["${var.private_subnet_ids}"]
-  controller_target_group_arns = ["${aws_lb_target_group.controllers.arn}"]
-
-  worker_target_group_arns = [
-    "${aws_lb_target_group.workers-http.arn}",
-    "${aws_lb_target_group.workers-https.arn}",
-  ]
-
-  cluster_name             = "${var.cluster_name}"
-  k8s_tag                  = "${var.k8s_tag}"
-  controller_count         = "${var.controller_count}"
-  worker_count             = "${var.worker_count}"
-  controller_instance_type = "${var.controller_instance_type}"
-  worker_instance_type     = "${var.worker_instance_type}"
-  s3_user_data_policy_arn  = "${aws_iam_policy.s3-user-data-policy.arn}"
+  source               = "../k8s-cluster"
+  vpc_id               = "${var.vpc_id}"
+  subnet_ids           = ["${concat(var.private_subnet_ids, var.public_subnet_ids)}"]
+  cluster_name         = "${var.cluster_name}"
+  worker_count         = "${var.worker_count}"
+  worker_instance_type = "${var.worker_instance_type}"
+  admin_role_arns      = "${var.admin_role_arns}"
+  sre_role_arns        = "${var.sre_user_arns}"
 
   apiserver_allowed_cidrs = ["${concat(
-      list(var.host_cidr),
       formatlist("%s/32", var.nat_gateway_public_ips),
       var.gds_external_cidrs,
   )}"]
+}
+
+resource "local_file" "aws-auth" {
+  filename = "addons/${var.cluster_name}/aws-auth.yaml"
+  content  = "${module.k8s-cluster.aws-auth}"
 }
 
 locals {
@@ -70,21 +31,6 @@ locals {
   enabled_addons = "${merge(local.default_addons, var.addons)}"
 }
 
-data "template_file" "flux" {
-  template = "${file("${path.module}/data/flux.yaml")}"
-
-  vars {
-    namespace             = "flux-system"
-    aws_role_name         = "${module.gsp-canary.canary_role_name}"
-    permitted_roles_regex = "^${module.gsp-canary.canary_role_name}$"
-  }
-}
-
-resource "local_file" "flux" {
-  filename = "addons/${var.cluster_name}/flux.yaml"
-  content  = "${data.template_file.flux.rendered}"
-}
-
 data "template_file" "flux-reporter" {
   template = "${file("${path.module}/data/flux-reporter.yaml")}"
 
@@ -97,27 +43,6 @@ data "template_file" "flux-reporter" {
 resource "local_file" "flux-reporter" {
   filename = "addons/${var.cluster_name}/flux-reporter.yaml"
   content  = "${data.template_file.flux-reporter.rendered}"
-}
-
-module "ingress-system" {
-  enabled = "${local.enabled_addons["ingress"]}"
-  source  = "../flux-release"
-
-  namespace      = "ingress-system"
-  chart_git      = "https://github.com/alphagov/gsp-ingress-system.git"
-  chart_ref      = "563316c9b94105d2304883725a703a926669ac2e"
-  cluster_name   = "${var.cluster_name}"
-  cluster_domain = "${var.cluster_name}.${var.dns_zone}"
-  addons_dir     = "addons/${var.cluster_name}"
-
-  extra_namespace_labels = <<EOF
-    certmanager.k8s.io/disable-validation: "true"
-EOF
-
-  values = <<EOF
-    webhook:
-      enabled: false
-EOF
 }
 
 resource "local_file" "cert-manager-crds" {
@@ -195,7 +120,7 @@ module "kiam-system" {
   enabled        = 1
   namespace      = "kiam-system"
   chart_git      = "https://github.com/alphagov/gsp-kiam-system"
-  chart_ref      = "31309e21c75c92a79faff5593b958c357ee4ef4c"
+  chart_ref      = "master"
   cluster_name   = "${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
@@ -204,6 +129,9 @@ module "kiam-system" {
     kiam:
       server:
         assumeRoleArn: "${aws_iam_role.kiam_server_role.arn}"
+      agent:
+        host:
+          interface: "eni+"
 EOF
 }
 

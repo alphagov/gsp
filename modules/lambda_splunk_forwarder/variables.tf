@@ -4,7 +4,7 @@ variable "enabled" {
 
 variable "name" {
   description = "A unique (within the cluster) name"
-  type = "string"
+  type        = "string"
 }
 
 variable "cloudwatch_log_group_arn" {
