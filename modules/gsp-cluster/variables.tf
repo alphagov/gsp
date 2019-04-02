@@ -144,3 +144,28 @@ variable "sealed_secrets_private_key_pem" {
   description = "Sealed secrets private key"
   type        = "string"
 }
+
+variable "github_teams" {
+  default     = ["alphagov:re-gsp"]
+  description = "the list of github teams allowed to be authenticated into concourse"
+}
+
+variable "github_client_id" {
+  default     = ""
+  description = "the github application client_id ID to allow oauth"
+}
+
+variable "github_client_secret" {
+  default     = ""
+  description = "the github application client_secret ID to allow oauth"
+}
+
+variable "github_ca_cert" {
+  default     = ""
+  description = "the github application ca_cert ID to allow oauth"
+}
+
+variable "concourse_teams" {
+  default     = []
+  description = "the list of teams to be created in concourse"
+}

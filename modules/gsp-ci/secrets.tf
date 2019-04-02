@@ -1,3 +1,7 @@
+resource "random_string" "concourse_password" {
+  length = 64
+}
+
 resource "random_string" "notary_passphrase_root" {
   length = 64
 }
