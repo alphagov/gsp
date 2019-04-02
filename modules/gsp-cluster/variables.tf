@@ -151,12 +151,10 @@ variable "github_teams" {
 }
 
 variable "github_client_id" {
-  default     = ""
   description = "the github application client_id ID to allow oauth"
 }
 
 variable "github_client_secret" {
-  default     = ""
   description = "the github application client_secret ID to allow oauth"
 }
 
