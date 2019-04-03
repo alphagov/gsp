@@ -148,6 +148,8 @@ module "monitoring-system" {
         prometheusSpec:
           externalLabels:
             clustername: "${var.cluster_name}.${var.dns_zone}"
+            product: "${var.account_name}"
+            deployment: gsp
 EOF
 }
 
