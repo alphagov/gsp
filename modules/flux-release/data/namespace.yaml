@@ -3,6 +3,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: ${namespace}
+  labels:
+    namespace: ${namespace}
   annotations:
     iam.amazonaws.com/permitted: "${permitted_roles_regex}"
 ${extra_namespace_configuration}
