@@ -5,6 +5,8 @@ module "k8s-cluster" {
   cluster_name         = "${var.cluster_name}"
   worker_count         = "${var.worker_count}"
   worker_instance_type = "${var.worker_instance_type}"
+  ci_worker_count         = "${var.ci_worker_count}"
+  ci_worker_instance_type = "${var.ci_worker_instance_type}"
   admin_role_arns      = "${var.admin_role_arns}"
   sre_role_arns        = "${var.sre_user_arns}"
 

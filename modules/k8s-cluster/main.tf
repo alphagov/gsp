@@ -71,6 +71,31 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
   depends_on = ["aws_eks_cluster.eks-cluster"]
 }
 
+
+resource "aws_cloudformation_stack" "ci-nodes" {
+  name         = "${var.cluster_name}-ci-nodes"
+  template_url = "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"
+  capabilities = ["CAPABILITY_IAM"]
+
+  parameters = {
+    ClusterName                         = "${var.cluster_name}"
+    ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
+    NodeGroupName                       = "${var.cluster_name}-ci-nodes"
+    NodeAutoScalingGroupMinSize         = "${var.ci_worker_count}"
+    NodeAutoScalingGroupDesiredCapacity = "${var.ci_worker_count}"
+    NodeAutoScalingGroupMaxSize         = "${var.ci_worker_count}"
+    NodeInstanceType                    = "${var.ci_worker_instance_type}"
+    NodeImageId                         = "ami-0c7388116d474ee10"
+    NodeVolumeSize                      = "40"
+    KeyName                             = "${aws_key_pair.eks.key_name}"
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule\""
+    VpcId                               = "${var.vpc_id}"
+    Subnets                             = "${join(",", var.subnet_ids)}"
+  }
+
+  depends_on = ["aws_eks_cluster.eks-cluster"]
+}
+
 data "template_file" "kubeconfig" {
   template = "${file("${path.module}/data/kubeconfig")}"
 
@@ -86,7 +111,7 @@ data "template_file" "aws-auth" {
   template = "${file("${path.module}/data/aws-auth.yaml")}"
 
   vars {
-    bootstrapper_role_mappings = "${join("\n", formatlist(var.bootstrapper_role_arn_mapping_template, list(aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"])))}"
+    bootstrapper_role_mappings = "${join("\n", formatlist(var.bootstrapper_role_arn_mapping_template, list(aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.ci-nodes.outputs["NodeInstanceRole"])))}"
     iam_admin_role_mappings    = "${join("\n", formatlist(var.admin_role_arn_mapping_template, var.admin_role_arns))}"
     iam_sre_role_mappings      = "${join("\n", formatlist(var.sre_role_arn_mapping_template, var.sre_role_arns))}"
     iam_dev_role_mappings      = "${join("\n", formatlist(var.dev_role_arn_mapping_template, var.dev_role_arns))}"

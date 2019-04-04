@@ -38,6 +38,16 @@ variable "worker_instance_type" {
   default = "t2.small"
 }
 
+variable "ci_worker_count" {
+  type    = "string"
+  default = "2"
+}
+
+variable "ci_worker_instance_type" {
+  type    = "string"
+  default = "m5d.large"
+}
+
 variable "addons" {
   type = "map"
 

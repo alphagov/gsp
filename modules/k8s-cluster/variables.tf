@@ -24,6 +24,16 @@ variable "worker_count" {
   default = "2"
 }
 
+variable "ci_worker_instance_type" {
+  type    = "string"
+  default = "m5d.large"
+}
+
+variable "ci_worker_count" {
+  type    = "string"
+  default = "2"
+}
+
 variable "admin_role_arns" {
   description = "A list of ARNs that will be mapped to cluster administrators"
   type        = "list"
