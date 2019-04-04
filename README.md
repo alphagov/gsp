@@ -6,7 +6,7 @@ The GDS Supported Platform is the strategic container platform for hosting servi
 The platform manages the infrastructure that your application runs on and provides tooling for teams to build, deploy and manage their applications on that infrastructure.
 
 
-The platform is operated by [GDS Reliability Engineering](https://reliability-engineering.cloudapps.digital/) according to the [TechOps shared responsibility model](https://github.com/alphagov/gsp-team-manual/blob/master/docs/gsp-shared-responsiblity-model.md)
+The platform is operated by [GDS Reliability Engineering](https://reliability-engineering.cloudapps.digital/) according to the [Technology & Operations Shared Responsibility Model](https://reliability-engineering.cloudapps.digital/documentation/strategy-and-principles/techops-shared-responsibility-model.html)
 
 ## Who is the platform for?
 
