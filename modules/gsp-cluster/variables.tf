@@ -45,7 +45,7 @@ variable "ci_worker_count" {
 
 variable "ci_worker_instance_type" {
   type    = "string"
-  default = "m5d.large"
+  default = "m5.large"
 }
 
 variable "addons" {

@@ -21,17 +21,17 @@ variable "worker_instance_type" {
 
 variable "worker_count" {
   type    = "string"
-  default = "2"
+  default = "3"
 }
 
 variable "ci_worker_instance_type" {
   type    = "string"
-  default = "m5d.large"
+  default = "m5.large"
 }
 
 variable "ci_worker_count" {
   type    = "string"
-  default = "2"
+  default = "3"
 }
 
 variable "admin_role_arns" {
