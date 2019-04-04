@@ -10,9 +10,22 @@ A collection of terraform modules that comprise the fundamental components of a 
 The main entrypoint of this repo is the `gsp-cluster` terraform module. An example might look like:
 
 ```
+data "aws_caller_identity" "current" {}
+
+module "gsp-network" {
+  source       = "git::https://github.com/alphagov/gsp-terraform-ignition//modules/gsp-network"
+  cluster_name = "rafalp"
+}
+
+module "gsp-persistent" {
+  source       = "git::https://github.com/alphagov/gsp-terraform-ignition//modules/gsp-persistent"
+  cluster_name = "${module.gsp-network.cluster-name}"
+  dns_zone     = "run-sandbox.aws.ext.govsvc.uk"
+}
+
 module "gsp-cluster" {
     source = "git::https://github.com/alphagov/gsp-terraform-ignition//modules/gsp-cluster"
-    cluster_name = "danielblair"
+    cluster_name = "rafalp"
     dns_zone = "run-sandbox.aws.ext.govsandbox.uk"
     admin_role_arns = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/admin"]
     worker_instance_type = "m5.large"
@@ -29,6 +42,14 @@ module "gsp-cluster" {
     public_subnet_ids              = "${module.gsp-network.public_subnet_ids}"
     nat_gateway_public_ips         = "${module.gsp-network.nat_gateway_public_ips}"
 
-    sre_user_arns = ["arn:aws:iam::622626885786:user/daniel.blair@digital.cabinet-office.gov.uk"]
+    sre_user_arns = ["arn:aws:iam::622626885786:user/rafal.proszowski@digital.cabinet-office.gov.uk"]
+
+    github_client_id = "1234567890"
+    github_client_secret = "qwertyuiop"
 }
+
+output "kubeconfig" {
+    value = "${module.gsp-cluster.kubeconfig}"
+}
+
 ```
