@@ -20,3 +20,4 @@ We document our decisions using [Architectural Decision Records](https://github.
 - [ADR #014 - Sealed Secrets](/adr/ADR014-sealed-secrets-keys.md)
 - [ADR #015 - AWS IAM Authentication (for admins)](/adr/ADR015-aws-iam-authentication.md)
 - [ADR #016 - Verifying two-eyes on code changes](/adr/ADR016-two-eyes-git-verification.md)
+- [ADR #017 - Vendor provided container-orchestration](/adr/ADR017-vendor-provided-container-orchestration.md)
