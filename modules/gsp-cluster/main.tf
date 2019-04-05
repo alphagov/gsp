@@ -110,8 +110,7 @@ module "ingress-system" {
   cluster_domain = "${var.cluster_name}.${var.dns_zone}"
   addons_dir     = "addons/${var.cluster_name}"
 
-  extra_namespace_configuration = <<EOF
-  labels:
+  extra_namespace_labels = <<EOF
     certmanager.k8s.io/disable-validation: "true"
 EOF
 

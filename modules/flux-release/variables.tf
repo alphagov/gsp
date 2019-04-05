@@ -69,7 +69,7 @@ variable "permitted_roles_regex" {
   default = ""
 }
 
-variable "extra_namespace_configuration" {
+variable "extra_namespace_labels" {
   type    = "string"
   default = ""
 }
