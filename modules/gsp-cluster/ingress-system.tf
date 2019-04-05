@@ -61,8 +61,7 @@ module "ingress-system" {
   addons_dir            = "addons/${var.cluster_name}"
   permitted_roles_regex = "^${aws_iam_role.external-dns.name}$"
 
-  extra_namespace_configuration = <<EOF
-  labels:
+  extra_namespace_labels = <<EOF
     certmanager.k8s.io/disable-validation: "true"
 EOF
 
