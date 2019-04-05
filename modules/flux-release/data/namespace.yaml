@@ -5,6 +5,6 @@ metadata:
   name: ${namespace}
   labels:
     namespace: ${namespace}
+${extra_namespace_labels}
   annotations:
     iam.amazonaws.com/permitted: "${permitted_roles_regex}"
-${extra_namespace_configuration}
