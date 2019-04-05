@@ -34,7 +34,7 @@ module "ci-system" {
   enabled               = "${var.enabled == 0 ? 0 : 1}"
   namespace             = "ci-system"
   chart_git             = "https://github.com/alphagov/gsp-ci-system.git"
-  chart_ref             = "master"
+  chart_ref             = "8dde966d3795fe04d42ed969d126822c5134dfb2"
   cluster_name          = "${var.cluster_name}"
   cluster_domain        = "${var.cluster_name}.${var.dns_zone}"
   addons_dir            = "addons/${var.cluster_name}"
