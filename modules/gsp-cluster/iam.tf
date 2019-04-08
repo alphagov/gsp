@@ -34,7 +34,17 @@ resource "aws_iam_role" "sre" {
 data "aws_iam_policy_document" "grant-iam-sre-policy" {
   statement {
     effect  = "Allow"
-    actions = ["sts:AssumeRole"]
+    actions = [
+      "sts:AssumeRole",
+      "autoscaling:Describe*",
+      "cloudwatch:Describe*",
+      "cloudwatch:Get*",
+      "cloudwatch:List*",
+      "logs:Get*",
+      "logs:Describe*",
+      "sns:Get*",
+      "sns:List*"
+    ]
 
     principals = {
       type = "AWS"
