@@ -26,7 +26,7 @@ locals {
     ingress    = 1
     monitoring = 1
     secrets    = 1
-    ci         = 0
+    ci         = 1
     splunk     = 0
   }
 

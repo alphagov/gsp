@@ -26,7 +26,7 @@ variable "worker_count" {
 
 variable "ci_worker_instance_type" {
   type    = "string"
-  default = "m5.large"
+  default = "t2.small"
 }
 
 variable "ci_worker_count" {
