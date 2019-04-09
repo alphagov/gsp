@@ -1,3 +1,5 @@
+provider "null" {}
+
 resource "local_file" "auth-delegator" {
     content  = "${file("${path.module}/data/metrics-server/auth-delegator.yaml")}"
     filename = "addons/${var.cluster_name}/metrics-server/auth-delegator.yaml"
