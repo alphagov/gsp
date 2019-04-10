@@ -172,3 +172,8 @@ resource "local_file" "role" {
   filename = "addons/${var.cluster_name}/sre-cluster-role.yaml"
   content  = "${file("${path.module}/data/sre-cluster-role.yaml")}"
 }
+
+resource "local_file" "aws-ssm-agent-daemonset" {
+  filename = "addons/${var.cluster_name}/aws-ssm-agent-daemonset.yaml"
+  content  = "${file("${path.module}/data/aws-ssm-agent-daemonset.yaml")}"
+}
