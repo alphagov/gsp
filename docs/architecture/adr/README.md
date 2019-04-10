@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-We document our decisions using [Architectural Decision Records](https://github.com/alphagov/gsp-team-manual/tree/master/adr) as recommended by the [GDS Way](https://gds-way.cloudapps.digital/standards/architecture-decisions.html)
+We document our decisions using [Architecture Decision Records](https://github.com/alphagov/gsp-team-manual/tree/master/adr) as recommended by the [GDS Way](https://gds-way.cloudapps.digital/standards/architecture-decisions.html)
 
 ## Index
 
