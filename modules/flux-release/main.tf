@@ -18,15 +18,15 @@ data "template_file" "helm-release" {
   template = "${file("${path.module}/data/helm-release.yaml")}"
 
   vars {
-    namespace        = "${var.namespace}"
-    release_name     = "${coalesce(var.release_name, var.namespace)}"
-    chart_git        = "${var.chart_git}"
-    chart_ref        = "${var.chart_ref}"
-    chart_path       = "${var.chart_path}"
-    cluster_name     = "${var.cluster_name}"
-    cluster_domain   = "${var.cluster_domain}"
-    values           = "${var.values}"
-    valueFileSecrets = "[${join(",",formatlist("{\"name\":\"%s\"}", var.valueFileSecrets))}]"
+    namespace         = "${var.namespace}"
+    release_name      = "${coalesce(var.release_name, var.namespace)}"
+    chart_git         = "${var.chart_git}"
+    chart_ref         = "${var.chart_ref}"
+    chart_path        = "${var.chart_path}"
+    cluster_name      = "${var.cluster_name}"
+    cluster_domain    = "${var.cluster_domain}"
+    values            = "${var.values}"
+    valueFileSecrets  = "[${join(",",formatlist("{\"name\":\"%s\"}", var.valueFileSecrets))}]"
     verification_keys = "[${join(",",formatlist("%#v", var.verification_keys))}]"
   }
 }
@@ -70,8 +70,8 @@ data "template_file" "ci-secrets" {
   template = "${file("${path.module}/data/ci-deploy-keys.yaml")}"
 
   vars = {
-    ci_namespace = "ci-system-main" # The namespace for the secrets to be read by concourse. Should be `ci-system-[TEAM_NAME]`.
-    namespace    = "${var.namespace}" # The namespace of the actual team's release deployment.
+    ci_namespace = "ci-system-main"                                                                                                   # The namespace for the secrets to be read by concourse. Should be `ci-system-[TEAM_NAME]`.
+    namespace    = "${var.namespace}"                                                                                                 # The namespace of the actual team's release deployment.
     private_key  = "${base64encode(element(concat(tls_private_key.github_deployment_key.*.private_key_pem, list("")), count.index))}"
     public_key   = "${element(concat(tls_private_key.github_deployment_key.*.public_key_openssh, list("")), count.index)}"
     secret_name  = "${var.namespace}"

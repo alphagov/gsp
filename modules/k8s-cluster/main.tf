@@ -2,157 +2,118 @@ data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {}
 
-module "common" {
-  source = "../common-ignition"
-}
+resource "aws_eks_cluster" "eks-cluster" {
+  name     = "${var.cluster_name}"
+  role_arn = "${aws_iam_role.eks-cluster.arn}"
 
-data "aws_ami" "coreos" {
-  most_recent = true
-  owners      = ["595879546273"]
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
+  vpc_config {
+    security_group_ids = ["${aws_security_group.controller.id}"]
+    subnet_ids         = ["${var.subnet_ids}"]
   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["CoreOS-stable-*"]
-  }
-}
-
-resource "aws_launch_configuration" "controller" {
-  name_prefix       = "${var.cluster_name}-controller-"
-  image_id          = "${data.aws_ami.coreos.image_id}"
-  instance_type     = "${var.controller_instance_type}"
-  enable_monitoring = false
-
-  user_data = "${data.ignition_config.controller-actual.rendered}"
-
-  root_block_device {
-    volume_type = "gp2"
-    volume_size = "40"
-  }
-
-  security_groups = ["${aws_security_group.controller.id}"]
-
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = ["image_id"]
-  }
-
-  iam_instance_profile = "${aws_iam_instance_profile.controller_profile.name}"
-}
-
-resource "aws_autoscaling_group" "controllers" {
-  name = "${var.cluster_name}-controller"
-
-  desired_capacity          = "${var.controller_count}"
-  min_size                  = "${var.controller_count}"
-  max_size                  = "${var.controller_count}"
-  default_cooldown          = 30
-  health_check_grace_period = 30
-
-  vpc_zone_identifier = ["${var.subnet_ids}"]
-
-  launch_configuration = "${aws_launch_configuration.controller.name}"
-
-  target_group_arns = ["${var.controller_target_group_arns}"]
-
-  # Waiting for instance creation delays adding the ASG to state. If instances
-  # can't be created (e.g. spot price too low), the ASG will be orphaned.
-  # Orphaned ASGs escape cleanup, can't be updated, and keep bidding if spot is
-  # used. Disable wait to avoid issues and align with other clouds.
-  wait_for_capacity_timeout = "0"
-
-  tags = [
-    {
-      key                 = "Name"
-      value               = "${var.cluster_name}-controller"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "KubernetesCluster"
-      value               = "${var.cluster_name}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "kubernetes.io/cluster/${var.cluster_name}"
-      value               = "1"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "kubernetes.io/role/master"
-      value               = "1"
-      propagate_at_launch = true
-    },
+  depends_on = [
+    "aws_iam_role_policy_attachment.eks-cluster-policy",
+    "aws_iam_role_policy_attachment.eks-service-policy",
   ]
 }
 
-resource "aws_launch_configuration" "worker" {
-  name_prefix       = "${var.cluster_name}-worker-"
-  image_id          = "${data.aws_ami.coreos.image_id}"
-  instance_type     = "${var.worker_instance_type}"
-  enable_monitoring = false
-
-  user_data = "${data.ignition_config.worker-actual.rendered}"
-
-  root_block_device {
-    volume_type = "gp2"
-    volume_size = "40"
-  }
-
-  security_groups = ["${aws_security_group.worker.id}"]
-
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = ["image_id"]
-  }
-
-  iam_instance_profile = "${aws_iam_instance_profile.worker_profile.name}"
+resource "aws_key_pair" "eks" {
+  key_name   = "${var.cluster_name}"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDP1p65o186ezp0tpDid1qaIbNUg3QZmHqRtDiGOuzndebqK50uMKJ9KUGCPGXVEK+S1ztzMuRy/NB/U59UKxOyx/M6/oKclRH58+YRVg+ftp4hDNE9HW5o3mWvGmgOLtlaCfrpwXbOgtrT0pRH1R0qqeX0J3hY6m8JQlH+cHYdj7e/HjJQSpKaKmyBakQU8wHjvX4yjtxBRLdoLcOVQapHZPs2iFU8sqYT3FIGHSf3lyF/j+I9gNxe/B1KsTZpp+FrQ9mve7uSruK4fS0FvjTVZ/eemMm4niuAn4KGdFzmbHU3bBV1MpS04d4xrVQzhI/tXXVS8ZXF9Xekg2xtDmLWvl4hn43nfJa+8RSUVoeBv1XQRasafkgmF+ysTJhgsNZC8jziiEk7YqZh+uqkNRNIpveZU3bU+6aOzisM9VCA/HSoIEHLYUswXAXRbi75JMIhAT0l/RBTYpqnboOdb+MXM2jbcbJ2xbUJcFfDrpMHt1wE1Y+sp0P0zGEx9LubWQhplYYgMmW56NcYyHQTSS+V3EXaoEki17Qgg3MSMIdrWgH0c9EBnVj0L0dIvDzdYzUpbav0DAKu9ElYXcjnbDzZLmEyfZf5pnSC+NMCW2CF6E8C+FvcJ9akP+C3IU+tn5cc4u8eG5XuXh2vChXAs7B6slzvLPjpgbofuwVdErCrbw== daniel.blair@digital.cabinet-office.gov.uk"
 }
 
-resource "aws_autoscaling_group" "workers" {
-  name = "${var.cluster_name}-worker"
+# As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
+resource "aws_cloudformation_stack" "worker-nodes" {
+  name         = "${var.cluster_name}-worker-nodes"
+  template_url = "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"
+  capabilities = ["CAPABILITY_IAM"]
 
-  desired_capacity          = "${var.worker_count}"
-  min_size                  = "${var.worker_count}"
-  max_size                  = "${var.worker_count}"
-  default_cooldown          = 30
-  health_check_grace_period = 30
+  parameters = {
+    ClusterName                         = "${var.cluster_name}"
+    ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
+    NodeGroupName                       = "${var.cluster_name}-worker-nodes"
+    NodeAutoScalingGroupMinSize         = "${var.worker_count}"
+    NodeAutoScalingGroupDesiredCapacity = "${var.worker_count}"
+    NodeAutoScalingGroupMaxSize         = "${var.worker_count + 1}"
+    NodeInstanceType                    = "${var.worker_instance_type}"
+    NodeImageId                         = "ami-0c7388116d474ee10"
+    NodeVolumeSize                      = "40"
+    KeyName                             = "${aws_key_pair.eks.key_name}"
+    BootstrapArguments                  = ""
+    VpcId                               = "${var.vpc_id}"
+    Subnets                             = "${join(",", var.subnet_ids)}"
+  }
 
-  vpc_zone_identifier = ["${var.subnet_ids}"]
+  depends_on = ["aws_eks_cluster.eks-cluster"]
+}
 
-  launch_configuration = "${aws_launch_configuration.worker.name}"
+resource "aws_cloudformation_stack" "kiam-server-nodes" {
+  name         = "${var.cluster_name}-kiam-server-nodes"
+  template_url = "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"
+  capabilities = ["CAPABILITY_IAM"]
 
-  target_group_arns = ["${var.worker_target_group_arns}"]
+  parameters = {
+    ClusterName                         = "${var.cluster_name}"
+    ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
+    NodeGroupName                       = "${var.cluster_name}-kiam-server-nodes"
+    NodeAutoScalingGroupMinSize         = "2"
+    NodeAutoScalingGroupDesiredCapacity = "2"
+    NodeAutoScalingGroupMaxSize         = "3"
+    NodeInstanceType                    = "t2.small"
+    NodeImageId                         = "ami-0c7388116d474ee10"
+    NodeVolumeSize                      = "40"
+    KeyName                             = "${aws_key_pair.eks.key_name}"
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/cluster-management --register-with-taints=node-role.kubernetes.io/cluster-management=:NoSchedule\""
+    VpcId                               = "${var.vpc_id}"
+    Subnets                             = "${join(",", var.subnet_ids)}"
+  }
 
-  # Waiting for instance creation delays adding the ASG to state. If instances
-  # can't be created (e.g. spot price too low), the ASG will be orphaned.
-  # Orphaned ASGs escape cleanup, can't be updated, and keep bidding if spot is
-  # used. Disable wait to avoid issues and align with other clouds.
-  wait_for_capacity_timeout = "0"
+  depends_on = ["aws_eks_cluster.eks-cluster"]
+}
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "${var.cluster_name}-worker"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "KubernetesCluster"
-      value               = "${var.cluster_name}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "kubernetes.io/cluster/${var.cluster_name}"
-      value               = "1"
-      propagate_at_launch = true
-    },
-  ]
+
+resource "aws_cloudformation_stack" "ci-nodes" {
+  name         = "${var.cluster_name}-ci-nodes"
+  template_url = "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"
+  capabilities = ["CAPABILITY_IAM"]
+
+  parameters = {
+    ClusterName                         = "${var.cluster_name}"
+    ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
+    NodeGroupName                       = "${var.cluster_name}-ci-nodes"
+    NodeAutoScalingGroupMinSize         = "${var.ci_worker_count}"
+    NodeAutoScalingGroupDesiredCapacity = "${var.ci_worker_count}"
+    NodeAutoScalingGroupMaxSize         = "${var.ci_worker_count + 1}"
+    NodeInstanceType                    = "${var.ci_worker_instance_type}"
+    NodeImageId                         = "ami-0c7388116d474ee10"
+    NodeVolumeSize                      = "40"
+    KeyName                             = "${aws_key_pair.eks.key_name}"
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule\""
+    VpcId                               = "${var.vpc_id}"
+    Subnets                             = "${join(",", var.subnet_ids)}"
+  }
+
+  depends_on = ["aws_eks_cluster.eks-cluster"]
+}
+
+data "template_file" "kubeconfig" {
+  template = "${file("${path.module}/data/kubeconfig")}"
+
+  vars {
+    apiserver_endpoint = "${aws_eks_cluster.eks-cluster.endpoint}"
+    ca_cert            = "${aws_eks_cluster.eks-cluster.certificate_authority.0.data}"
+    name               = "${var.cluster_name}"
+    cluster_id         = "${var.cluster_name}"
+  }
+}
+
+data "template_file" "aws-auth" {
+  template = "${file("${path.module}/data/aws-auth.yaml")}"
+
+  vars {
+    bootstrapper_role_mappings = "${join("\n", formatlist(var.bootstrapper_role_arn_mapping_template, list(aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.ci-nodes.outputs["NodeInstanceRole"])))}"
+    iam_admin_role_mappings    = "${join("\n", formatlist(var.admin_role_arn_mapping_template, var.admin_role_arns))}"
+    iam_sre_role_mappings      = "${join("\n", formatlist(var.sre_role_arn_mapping_template, var.sre_role_arns))}"
+    iam_dev_role_mappings      = "${join("\n", formatlist(var.dev_role_arn_mapping_template, var.dev_role_arns))}"
+  }
 }

@@ -1,3 +1,7 @@
+data "aws_vpc" "private" {
+  id = "${var.vpc_id}"
+}
+
 resource "aws_security_group" "controller" {
   name        = "${var.cluster_name}-controller"
   description = "${var.cluster_name} controller security group"
@@ -12,119 +16,9 @@ resource "aws_security_group_rule" "controller-apiserver-cidrs" {
 
   type        = "ingress"
   protocol    = "tcp"
-  from_port   = 6443
-  to_port     = 6443
+  from_port   = 443
+  to_port     = 443
   cidr_blocks = ["${var.apiserver_allowed_cidrs}"]
-}
-
-resource "aws_security_group_rule" "controller-flannel" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = "udp"
-  from_port                = 8472
-  to_port                  = 8472
-  source_security_group_id = "${aws_security_group.worker.id}"
-}
-
-resource "aws_security_group_rule" "controller-flannel-self" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type      = "ingress"
-  protocol  = "udp"
-  from_port = 8472
-  to_port   = 8472
-  self      = true
-}
-
-resource "aws_security_group_rule" "controller-node-exporter" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 9100
-  to_port                  = 9100
-  source_security_group_id = "${aws_security_group.worker.id}"
-}
-
-resource "aws_security_group_rule" "controller-kubelet" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 10250
-  to_port                  = 10250
-  source_security_group_id = "${aws_security_group.worker.id}"
-}
-
-resource "aws_security_group_rule" "controller-kubelet-self" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type      = "ingress"
-  protocol  = "tcp"
-  from_port = 10250
-  to_port   = 10250
-  self      = true
-}
-
-resource "aws_security_group_rule" "controller-bgp" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 179
-  to_port                  = 179
-  source_security_group_id = "${aws_security_group.worker.id}"
-}
-
-resource "aws_security_group_rule" "controller-bgp-self" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type      = "ingress"
-  protocol  = "tcp"
-  from_port = 179
-  to_port   = 179
-  self      = true
-}
-
-resource "aws_security_group_rule" "controller-ipip" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = 4
-  from_port                = 0
-  to_port                  = 0
-  source_security_group_id = "${aws_security_group.worker.id}"
-}
-
-resource "aws_security_group_rule" "controller-ipip-self" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type      = "ingress"
-  protocol  = 4
-  from_port = 0
-  to_port   = 0
-  self      = true
-}
-
-resource "aws_security_group_rule" "controller-ipip-legacy" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type                     = "ingress"
-  protocol                 = 94
-  from_port                = 0
-  to_port                  = 0
-  source_security_group_id = "${aws_security_group.worker.id}"
-}
-
-resource "aws_security_group_rule" "controller-ipip-legacy-self" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type      = "ingress"
-  protocol  = 94
-  from_port = 0
-  to_port   = 0
-  self      = true
 }
 
 resource "aws_security_group_rule" "controller-egress" {
@@ -137,151 +31,32 @@ resource "aws_security_group_rule" "controller-egress" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group" "worker" {
-  name        = "${var.cluster_name}-worker"
-  description = "${var.cluster_name} worker security group"
-
-  vpc_id = "${var.vpc_id}"
-
-  tags = "${map("Name", "${var.cluster_name}-worker")}"
-}
-
-resource "aws_security_group_rule" "worker-http" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type        = "ingress"
-  protocol    = "tcp"
-  from_port   = 80
-  to_port     = 80
-  cidr_blocks = ["0.0.0.0/0"]
-}
-
-resource "aws_security_group_rule" "worker-https" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type        = "ingress"
-  protocol    = "tcp"
-  from_port   = 443
-  to_port     = 443
-  cidr_blocks = ["0.0.0.0/0"]
-}
-
-resource "aws_security_group_rule" "worker-flannel" {
-  security_group_id = "${aws_security_group.worker.id}"
+resource "aws_security_group_rule" "worker-nodes-from-vpc" {
+  security_group_id = "${aws_cloudformation_stack.kiam-server-nodes.outputs["NodeSecurityGroup"]}"
 
   type                     = "ingress"
-  protocol                 = "udp"
-  from_port                = 8472
-  to_port                  = 8472
-  source_security_group_id = "${aws_security_group.controller.id}"
-}
-
-resource "aws_security_group_rule" "worker-flannel-self" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type      = "ingress"
-  protocol  = "udp"
-  from_port = 8472
-  to_port   = 8472
-  self      = true
-}
-
-resource "aws_security_group_rule" "worker-node-exporter" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type      = "ingress"
-  protocol  = "tcp"
-  from_port = 9100
-  to_port   = 9100
-  self      = true
-}
-
-resource "aws_security_group_rule" "worker-kubelet" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 10250
-  to_port                  = 10250
-  source_security_group_id = "${aws_security_group.controller.id}"
-}
-
-resource "aws_security_group_rule" "worker-kubelet-self" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type      = "ingress"
-  protocol  = "tcp"
-  from_port = 10250
-  to_port   = 10250
-  self      = true
-}
-
-resource "aws_security_group_rule" "worker-bgp" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 179
-  to_port                  = 179
-  source_security_group_id = "${aws_security_group.controller.id}"
-}
-
-resource "aws_security_group_rule" "worker-bgp-self" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type      = "ingress"
-  protocol  = "tcp"
-  from_port = 179
-  to_port   = 179
-  self      = true
-}
-
-resource "aws_security_group_rule" "worker-ipip" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type                     = "ingress"
-  protocol                 = 4
+  protocol                 = "-1"
   from_port                = 0
   to_port                  = 0
-  source_security_group_id = "${aws_security_group.controller.id}"
+  cidr_blocks              = ["${data.aws_vpc.private.cidr_block}"]
 }
 
-resource "aws_security_group_rule" "worker-ipip-self" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type      = "ingress"
-  protocol  = 4
-  from_port = 0
-  to_port   = 0
-  self      = true
-}
-
-resource "aws_security_group_rule" "worker-ipip-legacy" {
-  security_group_id = "${aws_security_group.worker.id}"
+resource "aws_security_group_rule" "kiam-server-from-vpc" {
+  security_group_id = "${aws_cloudformation_stack.worker-nodes.outputs["NodeSecurityGroup"]}"
 
   type                     = "ingress"
-  protocol                 = 94
+  protocol                 = "-1"
   from_port                = 0
   to_port                  = 0
-  source_security_group_id = "${aws_security_group.controller.id}"
+  cidr_blocks              = ["${data.aws_vpc.private.cidr_block}"]
 }
 
-resource "aws_security_group_rule" "worker-ipip-legacy-self" {
-  security_group_id = "${aws_security_group.worker.id}"
+resource "aws_security_group_rule" "ci-nodes-from-vpc" {
+  security_group_id = "${aws_cloudformation_stack.ci-nodes.outputs["NodeSecurityGroup"]}"
 
-  type      = "ingress"
-  protocol  = 94
-  from_port = 0
-  to_port   = 0
-  self      = true
-}
-
-resource "aws_security_group_rule" "worker-egress" {
-  security_group_id = "${aws_security_group.worker.id}"
-
-  type        = "egress"
-  protocol    = "-1"
-  from_port   = 0
-  to_port     = 0
-  cidr_blocks = ["0.0.0.0/0"]
+  type                     = "ingress"
+  protocol                 = "-1"
+  from_port                = 0
+  to_port                  = 0
+  cidr_blocks              = ["${data.aws_vpc.private.cidr_block}"]
 }

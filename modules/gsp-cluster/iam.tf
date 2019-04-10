@@ -1,24 +1,3 @@
-data "aws_iam_policy_document" "user_data_policy_document" {
-  statement {
-    actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "${data.aws_s3_bucket.user_data.arn}/user_data/${var.cluster_name}-*",
-    ]
-  }
-}
-
-data "aws_s3_bucket" "user_data" {
-  bucket = "${var.user_data_bucket_name}"
-}
-
-resource "aws_iam_policy" "s3-user-data-policy" {
-  name   = "${var.cluster_name}-s3-user-data-policy"
-  policy = "${data.aws_iam_policy_document.user_data_policy_document.json}"
-}
-
 resource "aws_iam_role" "dev" {
   name = "${var.cluster_name}-dev"
 
@@ -34,17 +13,7 @@ resource "aws_iam_role" "sre" {
 data "aws_iam_policy_document" "grant-iam-sre-policy" {
   statement {
     effect  = "Allow"
-    actions = [
-      "sts:AssumeRole",
-      "autoscaling:Describe*",
-      "cloudwatch:Describe*",
-      "cloudwatch:Get*",
-      "cloudwatch:List*",
-      "logs:Get*",
-      "logs:Describe*",
-      "sns:Get*",
-      "sns:List*"
-    ]
+    actions = ["sts:AssumeRole"]
 
     principals = {
       type = "AWS"
@@ -63,6 +32,36 @@ data "aws_iam_policy_document" "grant-iam-sre-policy" {
       variable = "aws:SourceIp"
       values   = ["${var.gds_external_cidrs}"]
     }
+  }
+}
+
+resource "aws_iam_policy_attachment" "cloudwatch-readonly" {
+  name       = "${var.cluster_name}-cloudwatch-readonly-attachment"
+  roles      = ["${aws_iam_role.sre.name}"]
+  policy_arn = "${aws_iam_policy.cloudwatch-readonly.arn}"
+}
+
+resource "aws_iam_policy" "cloudwatch-readonly" {
+  name        = "${var.cluster_name}-cloudwatch-readonly"
+
+  policy = "${data.aws_iam_policy_document.cloudwatch-readonly.json}"
+}
+
+data "aws_iam_policy_document" "cloudwatch-readonly" {
+  statement {
+    effect  = "Allow"
+    actions = [
+      "autoscaling:Describe*",
+      "cloudwatch:Describe*",
+      "cloudwatch:Get*",
+      "cloudwatch:List*",
+      "logs:Get*",
+      "logs:Describe*",
+      "sns:Get*",
+      "sns:List*"
+    ]
+
+    resources = ["*"]
   }
 }
 
@@ -97,7 +96,7 @@ data "aws_iam_policy_document" "kiam_server_role" {
 
     principals = {
       type        = "AWS"
-      identifiers = ["${module.k8s-cluster.controller-role-arn}"]
+      identifiers = ["${module.k8s-cluster.kiam-server-node-instance-role-arn}"]
     }
   }
 }
@@ -109,7 +108,9 @@ data "aws_iam_policy_document" "kiam_server_policy" {
 
     resources = [
       "${aws_iam_role.cloudwatch_log_shipping_role.arn}",
-      "${module.gsp-canary.canary_role_arn}",
+      "${module.gsp-canary.canary-role-arn}",
+      "${aws_iam_role.external-dns.arn}",
+      "${aws_iam_role.flux-helm-operator.arn}",
     ]
   }
 }
