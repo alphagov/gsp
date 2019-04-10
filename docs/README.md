@@ -12,4 +12,4 @@
 - [Sealing Secrets](gds-supported-platform/sealing-secrets.md)
 - [Set up monitoring and alerting with Prometheus and Alertmanager](gds-supported-platform/prometheus_alert_manager_grafana.md)
 - [Troubleshooting App Errors](gds-supported-platform/troubleshooting_app_errors.md)
-- [Writing deployment charts](writing-deployment-charts.md)
+- [Writing deployment charts](gds-supported-platform/writing-deployment-charts.md)
