@@ -26,11 +26,11 @@ The platform is for teams working in the [Government Digital Service](https://ww
 - Ingress management with [nginx ingress controller](https://kubernetes.github.io/ingress-nginx/)
 - Protective monitoring provided by GDS TechOps CyberSecurity with [Splunk](https://www.splunk.com/)
 - Cloud infrastructure hosted on [AWS](https://aws.amazom.com) in three availability zones in the London region managed with [Terraform](https://www.terraform.io/)
+- Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
 
 
 ## Help and support
 For help or support:
-- message the team on the GDS Supported Platform slack channel [#re-gsp](https://gds.slack.com/messages/CDA7YSP0D)
-- raise an issue on[ gsp-team-manual](https://github.com/alphagov/gsp-team-manual/issues)
-- email the GDS supported platform team re-GSP-team@digital.cabinet-office.gov.uk
 - read our [documentation](/docs)
+- raise an [issue](https://github.com/alphagov/gsp-terraform-ignition/issues)
+- message the team on the Reliability [Engineering Slack channel](https://gds.slack.com/messages/CAD6NP598) [#reliability-eng](https://gds.slack.com/messages/CAD6NP598)
