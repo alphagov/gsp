@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "external-dns-route-53" {
       "route53:ChangeResourceRecordSets",
     ]
 
-    resources = ["arn:aws:route53:::hostedzone/${data.aws_route53_zone.zone.zone_id}"]
+    resources = ["arn:aws:route53:::hostedzone/${var.cluster_domain_id}"]
   }
 
   statement {
@@ -49,34 +49,30 @@ resource "aws_iam_policy_attachment" "external-dns-route-53" {
   policy_arn = "${aws_iam_policy.external-dns-route-53.arn}"
 }
 
-module "ingress-system" {
-  enabled = 1
-  source  = "../flux-release"
+/* module "ingress-system" { */
+/*   namespace             = "ingress-system" */
+/*   chart_git             = "https://github.com/alphagov/gsp-ingress-system.git" */
+/*   chart_ref             = "master" */
+/*   cluster_name          = "${var.cluster_name}" */
+/*   cluster_domain        = "${var.cluster_domain}" */
+/*   addons_dir            = "addons/${var.cluster_name}" */
+/*   permitted_roles_regex = "^${aws_iam_role.external-dns.name}$" */
+/*   extra_namespace_labels = <<EOF */
+/*     certmanager.k8s.io/disable-validation: "true" */
+/* EOF */
+/*   values = <<EOF */
+/*     webhook: */
+/*       enabled: false */
+/*     nginx-ingress: */
+/*       controller: */
+/*         service: */
+/*           annotations: */
+/*             external-dns.alpha.kubernetes.io/hostname: "${var.cluster_domain}.,*.${var.cluster_domain}." */
+/*             service.beta.kubernetes.io/aws-load-balancer-type: nlb */
+/*     external-dns: */
+/*       podAnnotations: */
+/*         iam.amazonaws.com/role: "${aws_iam_role.external-dns.name}" */
+/*       txtOwnerId: "${data.aws_route53_zone.zone.zone_id}" */
+/* EOF */
+/* } */
 
-  namespace             = "ingress-system"
-  chart_git             = "https://github.com/alphagov/gsp-ingress-system.git"
-  chart_ref             = "master"
-  cluster_name          = "${var.cluster_name}"
-  cluster_domain        = "${var.cluster_name}.${var.dns_zone}"
-  addons_dir            = "addons/${var.cluster_name}"
-  permitted_roles_regex = "^${aws_iam_role.external-dns.name}$"
-
-  extra_namespace_labels = <<EOF
-    certmanager.k8s.io/disable-validation: "true"
-EOF
-
-  values = <<EOF
-    webhook:
-      enabled: false
-    nginx-ingress:
-      controller:
-        service:
-          annotations:
-            external-dns.alpha.kubernetes.io/hostname: "${var.cluster_name}.${var.dns_zone}.,*.${var.cluster_name}.${var.dns_zone}."
-            service.beta.kubernetes.io/aws-load-balancer-type: nlb
-    external-dns:
-      podAnnotations:
-        iam.amazonaws.com/role: "${aws_iam_role.external-dns.name}"
-      txtOwnerId: "${data.aws_route53_zone.zone.zone_id}"
-EOF
-}

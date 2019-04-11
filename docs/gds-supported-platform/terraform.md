@@ -20,13 +20,13 @@ module "gsp-network" {
 module "gsp-persistent" {
   source       = "git::https://github.com/alphagov/gsp-terraform-ignition//modules/gsp-persistent"
   cluster_name = "${module.gsp-network.cluster-name}"
-  dns_zone     = "run-sandbox.aws.ext.govsvc.uk"
+  cluster_domain     = "run-sandbox.aws.ext.govsvc.uk"
 }
 
 module "gsp-cluster" {
     source = "git::https://github.com/alphagov/gsp-terraform-ignition//modules/gsp-cluster"
     cluster_name = "rafalp"
-    dns_zone = "run-sandbox.aws.ext.govsandbox.uk"
+    cluster_domain = "run-sandbox.aws.ext.govsandbox.uk"
     admin_role_arns = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/admin"]
     worker_instance_type = "m5.large"
     worker_count = "2"

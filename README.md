@@ -31,7 +31,6 @@ The platform is for teams working in the [Government Digital Service](https://ww
 - Cloud infrastructure hosted on [AWS](https://aws.amazom.com) in three availability zones in the London region managed with [Terraform](https://www.terraform.io/)
 - Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
 
-
 ## Help and support
 For help or support:
 - read our [documentation](/docs)

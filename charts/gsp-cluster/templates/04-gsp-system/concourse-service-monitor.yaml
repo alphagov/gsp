@@ -1,0 +1,12 @@
+{{- if .Values.concourse.monitor.create }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Namespace }}-concourse-monitor
+spec:
+  selector:
+    matchLabels:
+      release: {{ .Release.Name }}
+  endpoints:
+  - port: prometheus
+{{- end }}
