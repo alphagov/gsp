@@ -1,6 +1,9 @@
+> This repository (gsp-terraform-ignition) will eventually become the main repository for the GDS Supported Platform. It will be renamed to something more sensible (e.g. gds-supported-platform, gsp, to de decided) however at the moment there are dependencies on this so it has to keep the same name.
+
 # What is the GDS Supported Platform?
 
 ## Overview
+
 The GDS Supported Platform is the strategic container platform for hosting services developed for the [Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service).
 
 The platform manages the infrastructure that your application runs on and provides tooling for teams to build, deploy and manage their applications on that infrastructure.
