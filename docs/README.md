@@ -9,6 +9,7 @@
 - [GSP Architecture Continuous Deployment](/docs/architecture/gsp-architecture-continuous-deployment.md)
 - [GSP Architecture Infrastructure](/docs/architecture/gsp-architecture-infrastructure.md)
 - [GSP Architecture Overview](/docs/architecture/gsp-architecture-overview.md)
+- [GSP Terraform](gds-supported-platform/terraform.md)
 - [Incident Reports](incident-reports)
 - [Sealing Secrets](gds-supported-platform/sealing-secrets.md)
 - [Set up monitoring and alerting with Prometheus and Alertmanager](gds-supported-platform/prometheus_alert_manager_grafana.md)
