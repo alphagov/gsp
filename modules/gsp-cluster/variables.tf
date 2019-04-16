@@ -16,6 +16,10 @@ variable "admin_role_arns" {
   type = "list"
 }
 
+variable "eks_version" {
+  type = "string"
+}
+
 variable "dev_user_arns" {
   description = "A list of user ARNs that will be mapped to the cluster dev role"
   type        = "list"

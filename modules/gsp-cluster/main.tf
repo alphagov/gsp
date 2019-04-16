@@ -1,14 +1,15 @@
 module "k8s-cluster" {
-  source               = "../k8s-cluster"
-  vpc_id               = "${var.vpc_id}"
-  subnet_ids           = ["${concat(var.private_subnet_ids, var.public_subnet_ids)}"]
-  cluster_name         = "${var.cluster_name}"
-  worker_count         = "${var.worker_count}"
-  worker_instance_type = "${var.worker_instance_type}"
+  source                  = "../k8s-cluster"
+  vpc_id                  = "${var.vpc_id}"
+  subnet_ids              = ["${concat(var.private_subnet_ids, var.public_subnet_ids)}"]
+  cluster_name            = "${var.cluster_name}"
+  worker_count            = "${var.worker_count}"
+  worker_instance_type    = "${var.worker_instance_type}"
   ci_worker_count         = "${var.ci_worker_count}"
   ci_worker_instance_type = "${var.ci_worker_instance_type}"
-  admin_role_arns      = "${var.admin_role_arns}"
-  sre_role_arns        = "${var.sre_user_arns}"
+  admin_role_arns         = "${var.admin_role_arns}"
+  sre_role_arns           = "${var.sre_user_arns}"
+  eks_version             = "${var.eks_version}"
 
   apiserver_allowed_cidrs = ["${concat(
       formatlist("%s/32", var.nat_gateway_public_ips),

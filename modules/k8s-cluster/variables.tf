@@ -14,6 +14,10 @@ variable "apiserver_allowed_cidrs" {
   type = "list"
 }
 
+variable "eks_version" {
+  type = "string"
+}
+
 variable "worker_instance_type" {
   type    = "string"
   default = "t2.small"
