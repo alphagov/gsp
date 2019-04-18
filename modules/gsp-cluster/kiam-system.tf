@@ -43,16 +43,3 @@ resource "aws_iam_policy_attachment" "kiam_server_policy_attach" {
   roles      = ["${aws_iam_role.kiam_server_role.name}"]
   policy_arn = "${aws_iam_policy.kiam_server_policy.arn}"
 }
-
-/* module "kiam-system" { */
-/*   namespace      = "kiam-system" */
-/*   chart_git      = "https://github.com/alphagov/gsp-kiam-system" */
-/*   chart_ref      = "master" */
-/*   cluster_name   = "${var.cluster_name}" */
-/*   cluster_domain = "${var.cluster_domain}" */
-/*   addons_dir     = "addons/${var.cluster_name}" */
-/*   values = <<EOF */
-/*     kiam: */
-/* EOF */
-/* } */
-
