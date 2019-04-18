@@ -1,0 +1,384 @@
+global:
+  cluster:
+    name: "my-cluster"
+    domain: "example.com"
+    domain_id: ""
+  account:
+    name: ""
+  roles:
+    canary: ""
+  # move these to gsp-namespace terraform output
+  canary:
+    repository: ""
+    verificationKeys: []
+  ci:
+    privateKey: ""
+    publicKey: ""
+
+adminRoleARNs: []
+adminUserARNs: []
+sreRoleARNs: []
+sreUserARNs: []
+
+kiam:
+  nameOverride:
+  fullnameOverride:
+  server:
+    tlsSecret: kiam-server-tls
+    tlsCerts:
+      certFileName: server.pem
+      keyFileName: server-key.pem
+      caFileName: ca.pem
+    nodeSelector:
+      node-role.kubernetes.io/cluster-management: ""
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/cluster-management
+    log:
+      level: debug
+    probes:
+      serverAddress: 127.0.0.1
+    extraHostPathMounts:
+      - name: ssl-certs
+        mountPath: /etc/ssl/certs/ca-certificates.crt
+        hostPath: /etc/pki/tls/certs/ca-bundle.crt
+        readOnly: true
+  agent:
+    gatewayTimeoutCreation: 30s
+    host:
+      iptables: true
+    tlsSecret: kiam-agent-tls
+    tlsCerts:
+      certFileName: agent.pem
+      keyFileName: agent-key.pem
+      caFileName: ca.pem
+    log:
+      level: debug
+    tolerations:
+    - key: node-role.kubernetes.io/ci
+      effect: NoSchedule
+      operator: Exists
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - effect: NoExecute
+      operator: Exists
+prometheus-operator:
+  defaultRules:
+    rules:
+      general: false # see templates/general.rules.yaml for replacement
+      alertmanager: false
+  prometheus:
+    prometheusSpec:
+      externalLabels:
+        deployment: gsp
+        product: local
+      retention: "60d"
+      ruleSelectorNilUsesHelmValues: false
+      ruleSelector: {}
+      serviceMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelector: {}
+      additionalScrapeConfigs:
+      - job_name: 'istio-mesh'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-telemetry;prometheus
+      # Scrape config for envoy stats
+      - job_name: 'envoy-stats'
+        metrics_path: /stats/prometheus
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_container_port_name]
+          action: keep
+          regex: '.*-envoy-prom'
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:15090
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod_name
+        metric_relabel_configs:
+        # Exclude some of the envoy metrics that have massive cardinality
+        # This list may need to be pruned further moving forward, as informed
+        # by performance and scalability testing.
+        - source_labels: [ cluster_name ]
+          regex: '(outbound|inbound|prometheus_stats).*'
+          action: drop
+        - source_labels: [ tcp_prefix ]
+          regex: '(outbound|inbound|prometheus_stats).*'
+          action: drop
+        - source_labels: [ listener_address ]
+          regex: '(.+)'
+          action: drop
+        - source_labels: [ http_conn_manager_listener_prefix ]
+          regex: '(.+)'
+          action: drop
+        - source_labels: [ http_conn_manager_prefix ]
+          regex: '(.+)'
+          action: drop
+        - source_labels: [ __name__ ]
+          regex: 'envoy_tls.*'
+          action: drop
+        - source_labels: [ __name__ ]
+          regex: 'envoy_tcp_downstream.*'
+          action: drop
+        - source_labels: [ __name__ ]
+          regex: 'envoy_http_(stats|admin).*'
+          action: drop
+        - source_labels: [ __name__ ]
+          regex: 'envoy_cluster_(lb|retry|bind|internal|max|original).*'
+          action: drop
+      - job_name: 'istio-policy'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-policy;http-monitoring
+      - job_name: 'istio-telemetry'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-telemetry;http-monitoring
+      - job_name: 'pilot'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-pilot;http-monitoring
+      - job_name: 'galley'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-galley;http-monitoring
+      - job_name: 'citadel'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-citadel;http-monitoring
+      - job_name: 'kubernetes-pods-istio-secure'
+        scheme: https
+        tls_config:
+          ca_file: /etc/istio-certs/root-cert.pem
+          cert_file: /etc/istio-certs/cert-chain.pem
+          key_file: /etc/istio-certs/key.pem
+          insecure_skip_verify: true  # prometheus does not support secure naming.
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        # sidecar status annotation is added by sidecar injector and
+        # istio_workload_mtls_ability can be specifically placed on a pod to indicate its ability to receive mtls traffic.
+        - source_labels: [__meta_kubernetes_pod_annotation_sidecar_istio_io_status, __meta_kubernetes_pod_annotation_istio_mtls]
+          action: keep
+          regex: (([^;]+);([^;]*))|(([^;]*);(true))
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scheme]
+          action: drop
+          regex: (http)
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__]  # Only keep address that is host:port
+          action: keep    # otherwise an extra target with ':443' is added for https scheme
+          regex: ([^:]+):(\d+)
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod_name
+      additionalAlertManagerConfigs:
+      - static_configs:
+        - targets:
+          - "alerts-1.monitoring.gds-reliability.engineering"
+          - "alerts-2.monitoring.gds-reliability.engineering"
+          - "alerts-3.monitoring.gds-reliability.engineering"
+        scheme: https
+  grafana:
+    adminPassword: "password"
+  kubelet:
+     serviceMonitor:
+       https: true
+  alertmanager:
+    enabled: false
+
+fluentd-cloudwatch:
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 512Mi
+  image:
+    tag: v1.3.2-debian-cloudwatch  # More recent image needed for fluentd-kubernetes-daemonset to avoid utf-8 encoding errors
+  rbac:
+    create: true
+  awsRegion: eu-west-2
+  extraVars:
+    - "{ name: FLUENT_UID, value: '0' }"  # run fluentd as root as instructed by https://github.com/helm/charts/tree/master/incubator/fluentd-cloudwatch
+  tolerations:
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+
+concourse:
+  web:
+    nameOverride: concourse-web
+    additionalVolumes:
+    - name: ci-web-configuration
+      configMap:
+        name: gsp-concourse
+    additionalVolumeMounts:
+    - name: ci-web-configuration
+      mountPath: /web-configuration
+  monitor:
+    create: true
+  worker:
+    nameOverride: concourse-worker
+    replicas: 2
+    ephemeral: true
+    hardAntiAffinity: true
+    resources: {}
+    nodeSelector:
+      node-role.kubernetes.io/ci: ""
+    tolerations:
+      - key: "node-role.kubernetes.io/ci"
+        operator: Exists
+        effect: NoSchedule
+    env:
+    - name: CONCOURSE_GARDEN_DNS_PROXY_ENABLE
+      value: "false"
+    - name: CONCOURSE_WORKER_GARDEN_DNS_PROXY_ENABLE
+      value: "false"
+  secrets:
+    localUsers: admin:password
+  concourse:
+    web:
+      auth:
+        mainTeam:
+          localUser: admin
+      kubernetes:
+        createTeamNamespaces: false
+      service:
+        type: ClusterIP
+      prometheus:
+        enabled: true
+  persistence:
+    worker:
+      size: 64Gi
+
+pipelineOperator:
+  service:
+    port: 443
+  serviceAccountName: pipeline-operator-service-account
+  image:
+    repository: "govsvc/gsp-concourse-pipeline-controller"
+    tag: "0.0.1554228115"
+  concourseUsername: admin
+  concoursePassword: password
+  concourseInsecureSkipVerify: "false"
+
+harbor:
+  logLevel: warn
+  expose:
+    tls:
+      secretName: harbor-registry-certificates
+      notarySecretName: harbor-notary-certificates
+    ingress:
+      annotations:
+        kubernetes.io/tls-acme: "true"
+  nginx:
+    image:
+      tag: v1.7.1
+  portal:
+    image:
+      tag: v1.7.1
+  core:
+    image:
+      tag: v1.7.1
+  adminserver:
+    image:
+      tag: v1.7.1
+  jobservice:
+    image:
+      tag: v1.7.1
+  registry:
+    registry:
+      image:
+        tag: v2.6.2-v1.7.1
+    controller:
+      image:
+        tag: v1.7.1
+  chartmuseum:
+    image:
+      tag: v0.7.1-v1.7.1
+  clair:
+    image:
+      tag: v2.0.7-v1.7.1
+  notary:
+    server:
+      image:
+        tag: v0.6.1-v1.7.1
+    signer:
+      image:
+        tag: v0.6.1-v1.7.1
+  database:
+    internal:
+      image:
+        tag: v1.7.1
+  redis:
+    internal:
+      image:
+        tag: v1.7.1
+
+secrets:
+  public_certificate: ""
+  private_key: ""
+
+flux:
+  namespace: flux-system
+  helmOperatorRole: ""
+

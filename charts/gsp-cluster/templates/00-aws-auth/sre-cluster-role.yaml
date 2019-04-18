@@ -1,0 +1,51 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  labels:
+    name: sre
+  name: sre
+rules:
+  - apiGroups:
+    - ''
+    resources:
+    - pods
+    verbs:
+    - delete
+  - apiGroups:
+    - ''
+    resources:
+    - pods/portforward
+    verbs:
+    - create
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    name: sre
+  name: sre
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sre
+subjects:
+- kind: Group
+  name: sre
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    name: sre-view
+  name: sre-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- kind: Group
+  name: sre
+  apiGroup: rbac.authorization.k8s.io

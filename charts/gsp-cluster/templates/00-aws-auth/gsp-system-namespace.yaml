@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gsp-system
+  labels:
+    namespace: gsp-system
+    istio-injection: disabled
+  annotations:
+    iam.amazonaws.com/permitted: {{ .Values.permittedRolesRegex | quote }}

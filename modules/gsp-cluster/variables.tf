@@ -8,8 +8,14 @@ variable "cluster_name" {
   type = "string"
 }
 
-variable "dns_zone" {
-  type = "string"
+variable "cluster_domain" {
+  description = "The FQDN of the DNS zone allocated to this cluster"
+  type        = "string"
+}
+
+variable "cluster_domain_id" {
+  description = "The zone id of DNS zone allocated to this cluster"
+  type        = "string"
 }
 
 variable "admin_role_arns" {
@@ -22,6 +28,18 @@ variable "eks_version" {
 
 variable "dev_user_arns" {
   description = "A list of user ARNs that will be mapped to the cluster dev role"
+  type        = "list"
+  default     = []
+}
+
+variable "admin_user_arns" {
+  description = "A list of user ARNs that will be mapped to the cluster admin role"
+  type        = "list"
+  default     = []
+}
+
+variable "sre_role_arns" {
+  description = "A list of role ARNs that will be mapped to the cluster sre role"
   type        = "list"
   default     = []
 }
@@ -78,6 +96,12 @@ variable "dev_namespaces" {
   default = []
 }
 
+variable "splunk_enabled" {
+  description = "Enable splunk log shipping"
+  type        = "string"
+  default     = "0"
+}
+
 variable "splunk_hec_token" {
   description = "Splunk HTTP event collector token for authentication"
   type        = "string"
@@ -117,16 +141,6 @@ variable "nat_gateway_public_ips" {
   type = "list"
 }
 
-variable "sealed_secrets_cert_pem" {
-  description = "Sealed secrets cert"
-  type        = "string"
-}
-
-variable "sealed_secrets_private_key_pem" {
-  description = "Sealed secrets private key"
-  type        = "string"
-}
-
 variable "github_teams" {
   default     = ["alphagov:re-gsp"]
   description = "the list of github teams allowed to be authenticated into concourse"
@@ -148,4 +162,9 @@ variable "github_ca_cert" {
 variable "concourse_teams" {
   default     = []
   description = "the list of teams to be created in concourse"
+}
+
+variable "concourse_main_team_github_teams" {
+  default     = ["alphagov:re-gsp"]
+  description = "the list of github teams authorized to view the concourse 'main' team"
 }

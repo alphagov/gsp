@@ -1,0 +1,15 @@
+---
+apiVersion: gov.uk
+kind: Cluster
+metdata:
+  name: sandbox
+spec:
+  account_name: x
+  splunk_hec_token: x
+  splunk_hec_url: x
+  github_client_secret: x
+  github_client_id: x
+  cluster_name: x
+  cluster_domain: x
+  aws_account_role_arn: x
+  eks_version: x

@@ -1,0 +1,129 @@
+global:
+  cluster:
+    name: ${cluster_name}
+    domain: ${cluster_domain}
+    domain_id: ${cluster_domain_id}
+  account:
+    name: ${account_name}
+  roles:
+    canary: ${canary_role}
+    harbor: ${harbor_iam_role_name}
+    flux: ${flux_helm_operator_role}
+  # move these to gsp-namespace terraform output
+  canary:
+    repository: ${canary_code_commit_url}
+    verificationKeys: []
+  ci:
+    privateKey: "FIXME"
+    publicKey: "FIXME"
+    
+adminRoleARNs: ${admin_role_arns}
+adminUserARNs: ${admin_user_arns}
+sreRoleARNs: ${sre_role_arns}
+sreUserARNs: ${sre_user_arns}
+devRoleARNs: []
+bootstrapRoleARNs: ${bootstrap_role_arns}
+
+permittedRolesRegex: ${permitted_roles_regex}
+
+notary:
+  rootPassphrase: ${notary_root_passphrase}
+  rootKey: ${notary_root_key}
+  targetsPassphrase: ${notary_targets_passphrase}
+  snapshotPassphrase: ${notary_snapshot_passphrase}
+  delegationPassphrase: ${notary_delegation_passphrase}
+  delegationKey: ${notary_delegation_key}
+
+concourseMainTeamGithubTeams: ${concourse_main_team_github_teams}
+concourse:
+  secrets:
+    localUsers: pipeline-operator:${concourse_admin_password}
+    githubClientId: ${github_client_id}
+    githubClientSecret: ${github_client_secret}
+    githubCaCert: ${github_ca_cert}
+  web:
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/tls-acme: "true"
+      hosts:
+      - ci.${cluster_domain}
+      tls:
+      - secretName: concourse-web-tls
+        hosts:
+        - ci.${cluster_domain}
+  worker:
+    replicas: ${concourse_worker_count}
+  concourse:
+    web:
+      externalUrl: https://ci.${cluster_domain}
+      auth:
+        github:
+          enabled: true
+        mainTeam:
+          localUser: pipeline-operator
+          config: /web-configuration/config.yaml
+      kubernetes:
+        namespacePrefix: ${account_name}-
+        createTeamNamespaces: false
+        teams: ${concourse_teams}
+
+pipelineOperator:
+  concourseUsername: pipeline-operator
+  concoursePassword: ${concourse_admin_password}
+
+harbor:
+  harborAdminPassword: ${harbor_admin_password}
+  secretKey: ${harbor_secret_key}
+  externalURL: https://registry.${cluster_domain}
+  persistence:
+    imageChartStorage:
+      type: s3
+      s3:
+        bucket: ${harbor_bucket_id}
+        region: ${harbor_bucket_region}
+        regionendpoint: s3.${harbor_bucket_region}.amazonaws.com
+  expose:
+    tls:
+      secretName: harbor-registry-certificates
+      notarySecretName: harbor-notary-certificates
+    ingress:
+      annotations:
+        kubernetes.io/tls-acme: "true"
+      hosts:
+        core: registry.${cluster_domain}
+        notary: notary.${cluster_domain}
+  registry:
+    podAnnotations:
+      iam.amazonaws.com/role: ${harbor_iam_role_name}
+  chartmuseum:
+    podAnnotations:
+      iam.amazonaws.com/role: ${harbor_iam_role_name}
+
+secrets:
+  public_certificate: ${sealed_secrets_public_cert}
+  private_key: ${sealed_secrets_private_key}
+
+flux:
+  namespace: ${flux_namespace}
+  helmOperatorRole: ${flux_helm_operator_role}
+
+kiam:
+  server:
+    assumeRoleArn: ${kiam_server_role_arn}
+  agent:
+    host:
+      interface: "eni+"
+
+fluentd-cloudwatch:
+  logGroupName: ${cloudwatch_log_group_name}
+  awsRole: ${cloudwatch_log_shipping_role}
+
+prometheus-operator:
+  prometheus:
+    prometheusSpec:
+      externalLabels:
+        clustername: ${cluster_domain}
+        product: ${account_name}
+        deployment: gsp
+

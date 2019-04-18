@@ -1,0 +1,15 @@
+dependencies:
+- name: prometheus-operator
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 5.0.11
+- name: fluentd-cloudwatch
+  repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+  version: 0.6.4
+- name: concourse
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 5.0.1
+- name: kiam
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 2.2.0
+digest: sha256:ae55e47d6eafcbff667e52044f6458658b07a2df12d14d44c3138247c5a1b9f3
+generated: 2019-04-17T14:31:24.99133+01:00

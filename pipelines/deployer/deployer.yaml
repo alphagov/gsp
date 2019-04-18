@@ -1,0 +1,298 @@
+
+terraform_source: &terraform_source
+  env_name: ((account-name))
+  backend_type: s3
+  backend_config: &terraform_backend_config
+    bucket: cd-gsp-private-qndvvc
+    region: eu-west-2
+  vars:
+    account_name: ((account-name))
+    cluster_name: ((cluster-name))
+    cluster_domain: ((cluster-name)).((account-name)).govsvc.uk
+    aws_account_role_arn: ((account-role-arn))
+    promotion_signing_key: ((ci-system-gpg-private))
+    promotion_verification_key: ((ci-system-gpg-public))
+    github_client_id: ((github-client-id))
+    github_client_secret: ((github-client-secret))
+    splunk_enabled: ((splunk-enabled))
+    splunk_hec_token: ((splunk-hec-token))
+    splunk_hec_url: ((splunk-hec-url))
+    eks_version: ((eks-version))
+
+task_image_resource: &task_image_resource
+  type: docker-image
+  source: {repository: "govsvc/task-toolbox", tag: "1.0.1"}
+
+apply_addons_task: &apply_addons_task
+  platform: linux
+  image_resource: *task_image_resource
+  params:
+    ACCOUNT_ROLE_ARN: ((account-role-arn))
+    ACCOUNT_NAME: ((account-name))
+    CLUSTER_NAME: ((cluster-name))
+    AWS_REGION: eu-west-2
+    AWS_DEFAULT_REGION: eu-west-2
+    CHART_NAME: gsp-cluster
+    DEFAULT_NAMESPACE: gsp-system
+    CHART_RELEASE_NAME: gsp
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      echo "assuming aws deployer role..."
+      eval $(aws-assume-role $ACCOUNT_ROLE_ARN)
+
+      echo "fetching kubeconfig from aws..."
+      aws eks update-kubeconfig \
+        --name "${CLUSTER_NAME}" \
+        --kubeconfig ./kubeconfig
+      export KUBECONFIG=$(pwd)/kubeconfig
+
+      echo "setting default namespace to ${DEFAULT_NAMESPACE}"
+      kubectl config set-context $(kubectl config get-contexts -o name) \
+        --namespace "${DEFAULT_NAMESPACE}"
+
+      echo "fetching values file from state..."
+      jq -r '.values' cluster/metadata > values.yaml
+
+      echo "rendering ${CHART_NAME} chart..."
+      mkdir -p manifests
+      helm template \
+        --name "${CHART_RELEASE_NAME}" \
+        --namespace "${DEFAULT_NAMESPACE}" \
+        --values values.yaml \
+        --output-dir manifests \
+        "gsp-platform/charts/${CHART_NAME}"
+
+      function apply() {
+        echo "applying ${1} from ${CHART_NAME} chart..."
+        until kubectl apply -R -f $1; do
+          echo "apply failed retrying..."
+          sleep 5
+        done
+        sleep 5 # FIXME: we should do something smarter than sleep and check for success
+        echo "OK!"
+      }
+
+      apply manifests/${CHART_NAME}/templates/00-aws-auth/
+      apply manifests/${CHART_NAME}/templates/01-cni/
+      apply manifests/${CHART_NAME}/templates/02-istio/
+      apply manifests/${CHART_NAME}/templates/03-aws-system/
+      apply manifests/
+
+  inputs:
+  - name: cluster
+  - name: gsp-platform
+
+
+apply_namespaces_task: &apply_namespaces_task
+  platform: linux
+  image_resource: *task_image_resource
+  params:
+    ACCOUNT_ROLE_ARN: ((account-role-arn))
+    ACCOUNT_NAME: ((account-name))
+    CLUSTER_NAME: ((cluster-name))
+    AWS_REGION: eu-west-2
+    AWS_DEFAULT_REGION: eu-west-2
+    DEFAULT_NAMESPACE: default
+    PATH_TO_NAMESPACES:
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      echo "assuming aws deployer role..."
+      eval $(aws-assume-role $ACCOUNT_ROLE_ARN)
+
+      echo "fetching kubeconfig from aws..."
+      aws eks update-kubeconfig \
+        --name "${CLUSTER_NAME}" \
+        --kubeconfig ./kubeconfig
+      export KUBECONFIG=$(pwd)/kubeconfig
+
+      echo "setting default namespace to ${DEFAULT_NAMESPACE}"
+      kubectl config set-context $(kubectl config get-contexts -o name) \
+        --namespace "${DEFAULT_NAMESPACE}"
+
+      echo "fetching gsp-cluster values.yaml file from state..."
+      echo "TODO: I'm pretty sure this should NOT use the full values.yaml from gsp-cluster, we only want the global bits"
+      jq -r '.values' cluster/metadata > values.yaml
+
+      # works out namespace name base on $1 filename as $name
+      # copies gsp-namespace chart and adds the custom yaml from the namespace definition in
+      # renders out the default gsp-namespace config chart
+      # copies the yaml at $1 into the rendered output
+      # applies it with -n $name
+      function apply_namespace_config {
+        name=$(basename "${1}" | cut -d '.' -f 1)
+        nschart="charts/${name}"
+        mkdir -p charts
+        cp -r "gsp-platform/charts/gsp-namespace" "${nschart}"
+        cp "${1}" "${nschart}/templates/custom-config.yaml"
+        echo "applying ${name} configuration..."
+        mkdir -p "manifests/${name}"
+        helm template \
+          --name "${name}" \
+          --namespace "${name}" \
+          --values values.yaml \
+          --output-dir "manifests/${name}" \
+          "${nschart}"
+        until kubectl apply -R -f "manifests/${name}" -n "${name}"; do
+          echo "appling namespace configuration for ${name} failed, retrying in 3s..."
+          sleep 3
+        done
+      }
+
+      for cfg in gsp-platform/${PATH_TO_NAMESPACES}/* ; do
+        apply_namespace_config "${cfg}"
+      done
+
+  inputs:
+  - name: cluster
+  - name: gsp-platform
+
+
+drain_cluster_task: &drain_cluster_task
+  platform: linux
+  image_resource: *task_image_resource
+  params:
+    ACCOUNT_ROLE_ARN: ((account-role-arn))
+    AWS_REGION: eu-west-2
+    AWS_DEFAULT_REGION: eu-west-2
+    CLUSTER_NAME: ((cluster-name))
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      echo "assuming aws deployer role..."
+      eval $(aws-assume-role $ACCOUNT_ROLE_ARN)
+
+      echo "fetching kubeconfig from aws..."
+      aws eks update-kubeconfig --name "${CLUSTER_NAME}" --kubeconfig ./kubeconfig
+      export KUBECONFIG=$(pwd)/kubeconfig
+
+      echo "fetching cluster VPC ID..."
+      CLUSTER_VPC_ID=$(aws eks describe-cluster --name "${CLUSTER_NAME}" | jq .cluster.resourcesVpcConfig.vpcId -r)
+
+      echo "deleting any LoadBalancer services..."
+      kubectl get svc -o json --all-namespaces | jq '.items[] | select(.spec.type == "LoadBalancer")' | kubectl delete -f - --wait
+      echo "waiting for any ELBs that belong to cluster to shutdown..."
+      ELB_ARNS_JSON=$(aws elbv2 describe-load-balancers | jq "{LoadBalancerArns: [ .LoadBalancers[] | select(.VpcId == \"${CLUSTER_VPC_ID}\") | .LoadBalancerArn ]}" -c)
+      if [[ "$(echo $ELB_ARNS_JSON | jq '.LoadBalancerArns | length')" != "0" ]]; then
+        aws elbv2 wait load-balancers-deleted --cli-input-json "${ELB_ARNS_JSON}"
+      fi
+
+      echo "checking for ASGs that belong to this cluster..."
+      CLUSTER_ASGS=$(aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | select( .Tags[].Key == \"kubernetes.io/cluster/${CLUSTER_NAME}\")" | jq -r .AutoScalingGroupName)
+      for ASG_NAME in $CLUSTER_ASGS; do
+        echo "scaling ${ASG_NAME} to zero..."
+        aws autoscaling update-auto-scaling-group --auto-scaling-group-name "${ASG_NAME}" --min-size 0 --max-size 0 --desired-capacity 0
+      done
+
+      echo "checking if any nodes are still running ..."
+      for ASG_NAME in $CLUSTER_ASGS; do
+        echo "checking number of instances remaining in ${ASG_NAME}..."
+        INSTANCES=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "${ASG_NAME}" --query "AutoScalingGroups[0].Instances[*].InstanceId" --output text)
+        if [ ! -z "$INSTANCES" ]; then
+          echo "waiting for following instances to terminate in ${ASG_NAME}: ${INSTANCES}..."
+          aws ec2 wait instance-terminated --instance-ids $INSTANCES
+        fi
+      done
+  inputs:
+  - name: cluster
+  - name: gsp-platform
+
+resource_types:
+- name: terraform
+  type: registry-image
+  source:
+    repository: "govsvc/terraform-resource"
+    tag: "0.13.0-beta.2"
+- name: github
+  type: registry-image
+  source:
+    repository: "govsvc/concourse-github-resource"
+    tag: "0.0.1551114195"
+
+resources:
+- name: gsp-platform
+  type: git # FIXME: should be github-resource
+  source:
+    uri: https://github.com/alphagov/gsp-terraform-ignition.git
+    organization: alphagov
+    repository: gsp-terraform-ignition
+    github_api_token: "((github-api-token))"
+    approvers:
+      - "samcrang"
+      - "paroxp"
+      - "chrisfarms"
+      - "tlwr"
+      - "blairboy362"
+    required_approval_count: 2
+    branch: refactor-the-world
+    commit_verification_keys: ((trusted-developer-keys))
+- name: cluster
+  type: terraform
+  source:
+    <<: *terraform_source
+    backend_config:
+      <<: *terraform_backend_config
+      key: cluster-((cluster-name)).tfstate
+
+jobs:
+- name: create-cluster
+  serial: true
+  plan:
+  - get: gsp-platform
+    trigger: true
+  - put: cluster
+    params:
+      env_name: ((account-name))
+      terraform_source: gsp-platform/pipelines/deployer/
+- name: apply-addons
+  serial: true
+  plan:
+  - get: gsp-platform
+    trigger: true
+    passed: ["create-cluster"]
+  - get: cluster
+    trigger: true
+    passed: ["create-cluster"]
+  - task: gsp-cluster
+    timeout: 10m
+    config: *apply_addons_task
+- name: configure-namespaces
+  serial: true
+  plan:
+  - get: gsp-platform
+    trigger: true
+    passed: ["apply-addons"]
+  - get: cluster
+    trigger: true
+    passed: ["apply-addons"]
+  - task: gsp-cluster
+    timeout: 10m
+    config: *apply_namespaces_task
+    params:
+      PATH_TO_NAMESPACES: pipelines/examples/namespaces
+- name: destroy-cluster
+  serial: true
+  plan:
+  - get: gsp-platform
+  - get: cluster
+    passed: ["create-cluster"]
+  - task: drain-cluster
+    timeout: 30m
+    config: *drain_cluster_task
+  - put: cluster
+    params:
+      env_name: ((account-name))
+      terraform_source: gsp-platform/pipelines/deployer/
+      action: destroy
+    get_params:
+      action: destroy
