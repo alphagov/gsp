@@ -7,6 +7,8 @@ global:
     name: ${account_name}
   roles:
     canary: ${canary_role}
+    harbor: ${harbor_iam_role_name}
+    flux: ${flux_helm_operator_role}
   # move these to gsp-namespace terraform output
   canary:
     repository: ${canary_code_commit_url}

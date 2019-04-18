@@ -133,11 +133,16 @@ apply_namespaces_task: &apply_namespaces_task
       jq -r '.values' cluster/metadata > values.yaml
 
       # works out namespace name base on $1 filename as $name
+      # copies gsp-namespace chart and adds the custom yaml from the namespace definition in
       # renders out the default gsp-namespace config chart
       # copies the yaml at $1 into the rendered output
       # applies it with -n $name
       function apply_namespace_config {
         name=$(basename "${1}" | cut -d '.' -f 1)
+        nschart="charts/${name}"
+        mkdir -p charts
+        cp -r "gsp-platform/charts/gsp-namespace" "${nschart}"
+        cp "${1}" "${nschart}/templates/custom-config.yaml"
         echo "applying ${name} configuration..."
         mkdir -p "manifests/${name}"
         helm template \
@@ -145,8 +150,7 @@ apply_namespaces_task: &apply_namespaces_task
           --namespace "${name}" \
           --values values.yaml \
           --output-dir "manifests/${name}" \
-          "gsp-platform/charts/gsp-namespace"
-        cp "${1}" "manifests/${name}/custom-config.yaml"
+          "${nschart}"
         until kubectl apply -R -f "manifests/${name}" -n "${name}"; do
           echo "appling namespace configuration for ${name} failed, retrying in 3s..."
           sleep 3
