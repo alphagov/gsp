@@ -152,20 +152,20 @@ module "gsp-cluster" {
 #   chart_git      = "https://github.com/alphagov/gsp-govuk-prototype-kit.git"
 #   chart_ref      = "gsp"
 #   chart_path     = "charts/govuk-prototype-kit"
-#   cluster_name   = "${module.gsp-cluster.cluster-name}"
-#   cluster_domain = "${module.gsp-cluster.cluster-domain-suffix}"
-#   addons_dir     = "addons/${module.gsp-cluster.cluster-name}"
+#   cluster_name   = "${var.cluster_domain}"
+#   cluster_domain = "${var.cluster_domain}"
+#   addons_dir     = "addons/${var.cluster_domain}"
 
 #   values = <<EOF
 #     ingress:
 #       hosts:
-#         - pk.${module.gsp-cluster.cluster-domain-suffix}
-#         - prototype-kit.${module.gsp-cluster.cluster-domain-suffix}
+#         - pk.${var.cluster_domain}
+#         - prototype-kit.${var.cluster_domain}
 #       tls:
 #         - secretName: prototype-kit-tls
 #           hosts:
-#             - pk.${module.gsp-cluster.cluster-domain-suffix}
-#             - prototype-kit.${module.gsp-cluster.cluster-domain-suffix}
+#             - pk.${var.cluster_domain}
+#             - prototype-kit.${var.cluster_domain}
 # EOF
 # }
 

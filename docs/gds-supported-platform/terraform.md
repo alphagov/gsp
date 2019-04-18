@@ -19,7 +19,7 @@ module "gsp-network" {
 
 module "gsp-persistent" {
   source       = "git::https://github.com/alphagov/gsp-terraform-ignition//modules/gsp-persistent"
-  cluster_name = "${module.gsp-network.cluster-name}"
+  cluster_name = "rafalp"
   cluster_domain     = "run-sandbox.aws.ext.govsvc.uk"
 }
 
