@@ -17,8 +17,20 @@ fly -t gsp set-pipeline -p $ACCOUNT_NAME \
 
 ## How to create or update a deployer pipeline
 
-This example will push a pipeline for a cluster in the "sandbox" account called "gsp"
+This example will push a pipeline for a cluster in the "sandbox" account called "farms" with a pipeline called "farms".
 
 ```
-fly -t cd-gsp set-pipeline -p sandbox --config pipelines/deployer.yaml --var account-name=sandbox --var account-role-arn=arn:aws:iam::011571571136:role/deployer --var cluster-name=gsp --yaml-var trusted-developer-keys="$(yq . ./users/*.yaml | jq -s '[ .[].pub ]')" --var splunk_hec_token="NOTATOKEN" --var github-client-secret=NOTASECRET --var github-client-id=NOTID --check-creds
+fly -t deployer set-pipeline -p farms --config pipelines/deployer/deployer.yaml \
+  --var account-name=sandbox \
+  --var account-role-arn=arn:aws:iam::011571571136:role/deployer \
+  --var cluster-name=farms \
+  --yaml-var trusted-developer-keys="[]" \
+  --var splunk_hec_token="NOTATOKEN" \
+  --var github-client-secret=NOTASECRET \
+  --var github-client-id=NOTID \
+  --var eks-version=1.12 \
+  --var splunk-enabled=0 \
+  --var splunk-hec-token=NOTOKEN \
+  --var splunk-hec-url=whataver \
+  --check-creds
 ```

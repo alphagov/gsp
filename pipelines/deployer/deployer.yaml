@@ -234,7 +234,7 @@ resources:
       - "tlwr"
       - "blairboy362"
     required_approval_count: 2
-    branch: refactor-the-world
+    branch: master
     commit_verification_keys: ((trusted-developer-keys))
 - name: cluster
   type: terraform
