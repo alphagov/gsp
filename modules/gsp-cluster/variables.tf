@@ -96,6 +96,12 @@ variable "dev_namespaces" {
   default = []
 }
 
+variable "splunk_enabled" {
+  description = "Enable splunk log shipping"
+  type        = "string"
+  default     = "0"
+}
+
 variable "splunk_hec_token" {
   description = "Splunk HTTP event collector token for authentication"
   type        = "string"

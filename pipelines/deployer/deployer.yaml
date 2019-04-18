@@ -14,6 +14,7 @@ terraform_source: &terraform_source
     promotion_verification_key: ((ci-system-gpg-public))
     github_client_id: ((github-client-id))
     github_client_secret: ((github-client-secret))
+    splunk_enabled: ((splunk-enabled))
     splunk_hec_token: ((splunk-hec-token))
     splunk_hec_url: ((splunk-hec-url))
     eks_version: ((eks-version))

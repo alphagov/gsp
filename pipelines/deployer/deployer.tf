@@ -26,6 +26,11 @@ variable "github_client_secret" {
   type = "string"
 }
 
+variable "splunk_enabled" {
+  type    = "string"
+  default = "0"
+}
+
 variable "splunk_hec_url" {
   type = "string"
 }
