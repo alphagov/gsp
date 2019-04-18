@@ -57,10 +57,6 @@ apply_addons_task: &apply_addons_task
       echo "fetching values file from state..."
       jq -r '.values' cluster/metadata > values.yaml
 
-      echo "dumping values FIXME REMOVE THIS IT IS SENSITITVE"
-      cat values.yaml
-      echo "-----"
-
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       helm template \
@@ -68,14 +64,6 @@ apply_addons_task: &apply_addons_task
         --namespace "${DEFAULT_NAMESPACE}" \
         --values values.yaml \
         --output-dir manifests \
-        "gsp-platform/charts/${CHART_NAME}"
-
-      echo "dumping rendered output and FIXME REMOVE THIS IT IS SENSITIVE!!!"
-      echo "------template------"
-      helm template \
-        --name "${CHART_RELEASE_NAME}" \
-        --namespace "${DEFAULT_NAMESPACE}" \
-        --values values.yaml \
         "gsp-platform/charts/${CHART_NAME}"
 
       function apply() {
