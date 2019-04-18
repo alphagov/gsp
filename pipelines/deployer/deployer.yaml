@@ -72,7 +72,7 @@ apply_addons_task: &apply_addons_task
           echo "apply failed retrying..."
           sleep 5
         done
-        sleep 5 # IMPROVE ME: wait
+        sleep 5 # FIXME: we should do something smarter than sleep and check for success
         echo "OK!"
       }
 
