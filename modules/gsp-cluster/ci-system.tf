@@ -37,8 +37,8 @@ resource "aws_iam_policy" "harbor-s3" {
 
 resource "aws_iam_policy_attachment" "harbor-s3" {
   name       = "${var.cluster_name}-harbor-s3"
-  roles      = ["${element(aws_iam_role.harbor.*.name, count.index)}"]
-  policy_arn = "${element(aws_iam_policy.harbor-s3.*.arn, count.index)}"
+  roles      = ["${aws_iam_role.harbor.name}"]
+  policy_arn = "${aws_iam_policy.harbor-s3.arn}"
 }
 
 resource "random_string" "concourse_password" {
