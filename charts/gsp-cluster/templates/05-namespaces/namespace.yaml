@@ -1,0 +1,43 @@
+{{- range .Values.namespaces }}
+{{- range .resources }}
+---
+{{ tpl (toYaml .) $ }}
+{{- end }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .name }}
+  labels:
+    namespace: {{ .name }}
+    istio-injection: disabled
+  annotations:
+    iam.amazonaws.com/permitted: "^{{ $.Values.global.roles.canary }}$"
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: {{ .name }}
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "pods/log", "services/proxy", "namespaces"]
+  verbs: ["get", "watch", "list", "describe"]
+- apiGroups: [""]
+  resources: ["pods/portforward"]
+  verbs: ["create"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dev-pod-reader
+  namespace: {{ .name }}
+subjects:
+- kind: Group
+  name: {{ .name }}-dev
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

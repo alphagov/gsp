@@ -20,6 +20,23 @@ adminUserARNs: []
 sreRoleARNs: []
 sreUserARNs: []
 
+
+# users:
+# - name: chris.farmiloe
+#   roleARN: xxx/user.chris.farmiloe
+#   groups:
+#   - sandbox-admin
+#   - sandbox-sre
+#   - sandbox-canary-dev
+# - name: sam.crang
+#   roleARN: xxx/user.sam.crang
+#   groups:
+#   - sandbox-canary-dev
+
+# namespaces:
+# - name: sandbox-example
+#   resources: [{...}, {...}]
+
 kiam:
   nameOverride:
   fullnameOverride:
