@@ -21,9 +21,9 @@ __[edit draw.io diagram](https://www.draw.io/?state=%7B%22ids%22:%5B%221hUinA_Be
 
 7. The cluster uses [kiam](https://github.com/uswitch/kiam) to allow cluster users to associate [AWS IAM](https://aws.amazon.com/iam) roles to kubernetes pods
 
-8. The cluster may contain an optional autoscaling group containing a continuous integration service.
+8. The cluster may contain an optional autoscaling group containing a continuous integration service based on [ConcourseCI](http://concourse.ci/)
 
-9. By default there are three worker nodes for the cluster split across the three availability zones
+9. By default there are three [kubernetes worker nodes](https://kubernetes.io/docs/concepts/architecture/nodes/) for the cluster split across the three availability zones
 
 10. All accounts benefit from [AWS Shield](https://aws.amazon.com/shield/) protection against distributed denial of service attacks
 
