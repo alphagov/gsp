@@ -8,7 +8,7 @@ You must have:
 - a Docker image of you app built in line with the [12 factor principles](/architecture.html#12-factor-application-principles)
 - access to a [Kubernetes cluster](https://github.com/alphagov/gsp-terraform-ignition/blob/master/docs/gds-supported-platform/troubleshooting_app_errors.md) created by Tech Ops
 
-## Create a Github repo
+## Create a GitHub repo
 
 You must create a repository on Github to store your Deployment configuration. The GDS Supported Platform only works with repos stored on Github.
 
