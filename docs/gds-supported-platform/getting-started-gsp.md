@@ -18,7 +18,7 @@ Your service team's Site Reliability Engineer (SRE) must [ask GDS Tech Ops](re-G
 
 * your [GitHub repository address](https://help.github.com/en/articles/about-remote-repositories)
 * the name of the [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) you want to create
-* the email addresses, Github names, and [GPG public keys](https://www.gnupg.org/gph/en/manual/c14.html) (if applicable) of the list of users who should get read-only access to the namespace
+* the email addresses, GitHub usernames, and [GPG public keys](https://www.gnupg.org/gph/en/manual/c14.html) (if applicable) of the list of users who should get read-only access to the namespace
 
 ## Create a Helm chart
 
