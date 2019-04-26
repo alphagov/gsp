@@ -1,3 +1,4 @@
+{{ if .Values.global.runningOnAws }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -99,3 +100,4 @@ spec:
       - effect: NoSchedule
         operator: Exists
       priorityClassName: system-node-critical
+{{ end }}
