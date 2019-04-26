@@ -5,7 +5,7 @@
 
 You must have:
 
-- a Docker image of you app built in line with the [12 factor principles](/architecture.html#12-factor-application-principles)
+- a Docker image of your app built in line with the [12 factor principles](https://docs.cloud.service.gov.uk/architecture.html#12-factor-application-principles)
 - access to a [Kubernetes cluster](https://github.com/alphagov/gsp-terraform-ignition/blob/master/docs/gds-supported-platform/troubleshooting_app_errors.md) created by Tech Ops
 
 ## Create a GitHub repo
