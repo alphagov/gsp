@@ -10,7 +10,7 @@ You must have:
 
 ## Create a GitHub repo
 
-You must create a repository on Github to store your Deployment configuration. The GDS Supported Platform only works with repos stored on Github.
+You must create a repository on GitHub to store your Deployment configuration. The GDS Supported Platform only works with repos stored on GitHub.
 
 ## Request namespace
 
