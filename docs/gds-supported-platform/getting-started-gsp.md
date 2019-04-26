@@ -26,7 +26,7 @@ The GDS Supported Platform uses a packaging format called [Helm charts](https://
 
 Charts are created as files laid out in a directory tree. These files are then packaged into versioned archives that users can deploy.
 
-1. Create a root directory in your Github repo. This directory will contain the chart.
+1. Create a root directory in your GitHub repo. This directory will contain the chart.
 
 1. Create a `Chart.yaml` file in the root directory with the following code:
 
