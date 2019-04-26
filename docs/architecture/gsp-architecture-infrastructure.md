@@ -11,14 +11,20 @@ __[edit draw.io diagram](https://www.draw.io/?state=%7B%22ids%22:%5B%221hUinA_Be
 
 2. The infrastructure is deployed across three availability zones (__eu-west-2a__, __eu-west-2b__, __eu-west-2c__)
 
-3. The [kubernetes control plane](https://kubernetes.io/docs/concepts/#kubernetes-control-plane) is managed by [AWS EKS](https://aws.amazon.com/eks)
+3. Load balancing is achieved through the use of a [network load balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html).
 
-4. By default there are three worker nodes for the cluster split across the three availability zones
+4. External egress access is via a [NAT gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html) in each availability zone.
 
-5. The cluster relies on [AWS IAM](https://aws.amazon.com/iam) for identity and authorisation
+5. The [kubernetes control plane](https://kubernetes.io/docs/concepts/#kubernetes-control-plane) is managed by [AWS EKS](https://aws.amazon.com/eks)
 
-6. The cluster uses [kiam](https://github.com/uswitch/kiam) to allow cluster users to associate [AWS IAM](https://aws.amazon.com/iam) roles to kubernetes pods
+6. The cluster relies on [AWS IAM](https://aws.amazon.com/iam) for identity and authorisation
 
-6. All accounts benefit from [AWS Shield](https://aws.amazon.com/shield/) protection against distributed denial of service attacks
+7. The cluster uses [kiam](https://github.com/uswitch/kiam) to allow cluster users to associate [AWS IAM](https://aws.amazon.com/iam) roles to kubernetes pods
 
-7. The cluster aggregates log events to CloudWatch for ongoing processing by the Cyber Security team
+8. The cluster may contain an optional autoscaling group containing a continuous integration service.
+
+9. By default there are three worker nodes for the cluster split across the three availability zones
+
+10. All accounts benefit from [AWS Shield](https://aws.amazon.com/shield/) protection against distributed denial of service attacks
+
+11. The cluster aggregates log events to [AWS CloudWatch](https://aws.amazon.com/cloudwatch/) for ongoing processing by the Cyber Security team
