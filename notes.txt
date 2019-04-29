@@ -1,9 +1,0 @@
-etcdctl --endpoint=https://danielblair-etcd0.run-sandbox.aws.ext.govsvc.uk:2379 --ca-file=/etc/ssl/certs/etcd/server-ca.crt --cert-file=/etc/ssl/certs/etcd/server.crt --key-file=/etc/ssl/certs/etcd/server.key cluster-health
-
-
-etcdctl --endpoint=https://danielblair-etcd0.run-sandbox.aws.ext.govsvc.uk:2379 --ca-file=/etc/kubernetes/bootstrap-secrets/etcd-client-ca.crt --cert-file=/etc/kubernetes/bootstrap-secrets/etcd-client.crt --key-file=/etc/kubernetes/bootstrap-secrets/etcd-client.key cluster-health
-
-
-aws ssm get-parameter --name //davidpye.re-run-sandbox.aws.ext.govsvc.uk/ssh-key --with-decryption | jq -r ".Parameter.Value" | ssh-add -
-
-aws-vault exec run-sandbox -- docker run -it --env AWS_DEFAULT_REGION --env AWS_REGION --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_SECURITY_TOKEN --env DOMAIN --volume=$(pwd)/../:/terraform -w /terraform/bootstrapper govsvc/terraform apply
