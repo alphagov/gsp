@@ -7,7 +7,9 @@ PLATFORM_REPO="https://github.com/alphagov/gsp-terraform-ignition.git"
 
 SANDBOX_ACCOUNT_ID="011571571136"
 
-fly4 -t cd-gsp set-pipeline -p farms --config pipelines/deployer/deployer.yaml \
+fly -t cd-gsp sync
+
+fly -t cd-gsp set-pipeline -p farms --config pipelines/deployer/deployer.yaml \
 	--var account-id=$SANDBOX_ACCOUNT_ID \
 	--var account-name=sandbox \
 	--var account-role-arn=arn:aws:iam::$SANDBOX_ACCOUNT_ID:role/deployer \
