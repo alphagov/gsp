@@ -85,6 +85,16 @@ trap 'cleanup' INT TERM EXIT
 template "${MANIFEST_DIR}"
 
 log "Applying local GSP configuration..."
+
+# HACK HACK HACK
+kubectl apply -R -f <(cat <<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: gsp-main
+EOF
+)
+
 apply "${MANIFEST_DIR}/gsp-cluster/templates/00-aws-auth/"
 apply "${MANIFEST_DIR}/gsp-cluster/templates/01-cni"
 apply "${MANIFEST_DIR}/gsp-cluster/templates/02-istio"
