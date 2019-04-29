@@ -1,32 +1,31 @@
-
 # Getting started with a GDS Supported Platform cluster
 
 ## Before you start
 
 You must have:
 
-- a Docker image of your app built in line with the [12 factor principles](https://docs.cloud.service.gov.uk/architecture.html#12-factor-application-principles)
+- a [Docker image](https://docs.docker.com/engine/reference/commandline/images/) of your app built in line with the [12 factor principles](https://docs.cloud.service.gov.uk/architecture.html#12-factor-application-principles)
 - access to a [Kubernetes cluster](https://github.com/alphagov/gsp-terraform-ignition/blob/master/docs/gds-supported-platform/troubleshooting_app_errors.md) created by Tech Ops
 
-## Create a GitHub repo
+## Create a GitHub repository
 
-You must create a repository on GitHub to store your Deployment configuration. The GDS Supported Platform only works with repos stored on GitHub.
+You must create a repository on GitHub to store your Deployment configuration. The GDS Supported Platform only works with repositories stored on GitHub.
 
 ## Request namespace
 
-Your service team's Site Reliability Engineer (SRE) must [ask GDS Tech Ops](re-GSP-team@digital.cabinet-office.gov.uk) for a new namespace. You must provide the following information (undefined):
+Your service team's Site Reliability Engineer (SRE) must [ask GDS Tech Ops](re-GSP-team@digital.cabinet-office.gov.uk) for a new namespace. You must provide the following information:
 
 * your [GitHub repository address](https://help.github.com/en/articles/about-remote-repositories)
 * the name of the [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) you want to create
-* the email addresses, GitHub usernames, and [GPG public keys](https://www.gnupg.org/gph/en/manual/c14.html) (if applicable) of the list of users who should get read-only access to the namespace
+* the email addresses, GitHub usernames, and [GPG public keys](https://www.gnupg.org/gph/en/manual/c14.html) (if applicable) of the users who should get read-only access to the namespace
 
 ## Create a Helm chart
 
 The GDS Supported Platform uses a packaging format called [Helm charts](https://helm.sh/docs/developing_charts/). A chart is a collection of files that describe a related set of Kubernetes resources.
 
-Charts are created as files laid out in a directory tree. These files are then packaged into versioned archives that users can deploy.
+You create Helm charts as files in a directory. These files are then packaged into versioned archives that users can deploy.
 
-1. Create a root directory in your GitHub repo. This directory will contain the chart.
+1. Create a root directory in your GitHub repository. This directory will contain the chart.
 
 1. Create a `Chart.yaml` file in the root directory with the following code:
 
@@ -42,13 +41,13 @@ Charts are created as files laid out in a directory tree. These files are then p
 
 1. Create a `templates` directory in the root directory. This directory contains all Kubernetes object definitions.
 
-1. Create a `values.yaml` file in the root directory. This file will set the default values for your desired chart variables.
+1. Create a `values.yaml` file in the root directory. This file sets the default values for your desired chart variables.
 
-## Create a Kubernetes Deployment object in the templates directory
+## Create a Kubernetes Deployment object
 
 You run an app by creating a [Kubernetes Deployment object](https://kubernetes.io/docs/concepts/#kubernetes-objects). This object defines your app and its routes, databases and all other relevant information. You describe a Deployment in a YAML file.
 
-1. Create a `deployment.yaml` file in the `templates` directory. The following example uses an nginx container image, `myapp`, in place of your app image:
+1. Create a `deployment.yaml` file in the `templates` directory. The following example uses an [nginx](https://hub.docker.com/_/nginx/) container image called `myapp`. Replace this nginx container image with your app image:
 
     ```
     apiVersion: apps/v1beta2
@@ -79,21 +78,21 @@ You run an app by creating a [Kubernetes Deployment object](https://kubernetes.i
                   protocol: TCP
     ```
 
-    The `{{ .Release.Name }}` and `{{ .Values.replicas }}` variables are populated automatically when you render the chart.
+    Helm automatically populates the `{{ .Release.Name }}` and `{{ .Values.replicas }}` variables when you render the chart.
 
-1. Run the following in the root directory to render the chart:
+1. Run the following command in the root directory to render the chart:
 
     ```
     helm template --name example .
     ```
 
-1. Check `stdout` to see if the chart rendered correct.
+1. Check `stdout` to see if the chart rendered correctly.
 
 ## Create a service
 
 By default, your apps are not accessible to the public. To expose them to the public, you must set up a [Service](https://kubernetes.io/docs/concepts/services-networking/service/) and an [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) into the Kubernetes cluster.
 
-Create a `service.yaml` file in the `templates` directory with the following code:
+Setting up a Service creates a stable endpoint to send public internet traffic to. To set up a service, create a `service.yaml` file in the `templates` directory with the following code:
 
 ```
 apiVersion: v1
@@ -106,7 +105,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 80 _ALWAYS PORT 80???_
+    - port: 80
       targetPort: http
       protocol: TCP
       name: http
@@ -114,13 +113,11 @@ spec:
     app.kubernetes.io/name: APP_NAME
     app.kubernetes.io/instance: {{ .Release.Name }}
 ```
-The `{{ .Release.Name }}` variable is populated automatically when we render the chart.
-
-You have created a stable endpoint to direct public internet traffic to.
+Helm automatically populates the `{{ .Release.Name }}` variable when you render the chart.
 
 ## Create an Ingress
 
-You must define an Ingress to route public internet traffic to the stable endpoint that you created when you defined the Service.
+You must define an [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) to route public internet traffic to the stable endpoint you created when you set up the Service.
 
 Create a `ingress.yaml` file in the `templates` directory with the following code:
 
@@ -157,7 +154,7 @@ Check that your app is live at {{ .Release.Name }}.{{ .Values.global.cluster.dom
 
 ## View your app in the dashboard
 
-You can view your app in the Dashboard without needing to go through the Service or Ingress that you set up. You do this by using a proxy to access your Kubernetes cluster.
+You can view your app in the [Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) without needing to go through the Service or Ingress that you set up. You do this by using a proxy to access your Kubernetes cluster.
 
 Run the following to use a proxy to access your Kubernetes cluster:
 
