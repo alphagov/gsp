@@ -2,29 +2,19 @@
 
 set -eu
 
-PLATFORM_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-PLATFORM_REPO="https://github.com/alphagov/gsp-terraform-ignition.git"
+# example of pushing a deployer pipeline for a cluster named CLUSTER_NAME
+# using the config at examples/cluster/sandbox.yaml
+# but overriding some of the vars
+# and setting the git resources to trigger from the current active git branch
 
-SANDBOX_ACCOUNT_ID="011571571136"
+PLATFORM_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 fly -t cd-gsp sync
 
-fly -t cd-gsp set-pipeline -p farms --config pipelines/deployer/deployer.yaml \
-	--var account-id=$SANDBOX_ACCOUNT_ID \
-	--var account-name=sandbox \
-	--var account-role-arn=arn:aws:iam::$SANDBOX_ACCOUNT_ID:role/deployer \
+fly -t cd-gsp set-pipeline -p "${CLUSTER_NAME}" --config pipelines/deployer/deployer.yaml \
+	--load-vars-from pipelines/examples/clusters/sandbox.yaml \
 	--var cluster-name=${CLUSTER_NAME} \
-	--yaml-var trusted-developer-keys="[]" \
-	--var splunk-enabled=0 \
-	--var splunk-hec-token="NOTATOKEN" \
-	--var splunk-hec-url=NOTAURL \
-	--var github-client-secret=NOTASECRET \
-	--var github-client-id=NOTID \
-	--var eks-version=1.12 \
-	--var platform-repository=${PLATFORM_REPO} \
 	--var platform-version=${PLATFORM_BRANCH} \
-	--var config-repository=${PLATFORM_REPO} \
 	--var config-version=${PLATFORM_BRANCH} \
-	--var config-path=pipelines/examples \
 	--check-creds
 
