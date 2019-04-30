@@ -1,0 +1,10 @@
+---
+name: stephen.ford
+email: stephen.ford@digital.cabinet-office.gov.uk
+ARN: arn:aws:iam::622626885786:user/stephen.ford@digital.cabinet-office.gov.uk
+roles:
+- farms-sre
+- farms-admin
+- sandbox-admin
+- sandbox-sre
+- sandbox-canary-dev

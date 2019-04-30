@@ -102,16 +102,7 @@ module "gsp-cluster" {
   cluster_domain_id = "${module.gsp-domain.zone_id}"
 
   admin_role_arns = [
-    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/admin",
     "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/deployer",
-  ]
-
-  admin_user_arns = [
-    "arn:aws:iam::622626885786:user/chris.farmiloe@digital.cabinet-office.gov.uk",
-  ]
-
-  sre_user_arns = [
-    "arn:aws:iam::622626885786:user/chris.farmiloe@digital.cabinet-office.gov.uk",
   ]
 
   gds_external_cidrs = [

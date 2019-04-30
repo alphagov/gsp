@@ -1,0 +1,16 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: canary
+spec:
+  releaseName: canary
+  chart:
+    git: "{{ .Values.global.canary.repository }}"
+    ref: "master"
+    path: "charts/gsp-canary"
+  values:
+    annotations:
+      iam.amazonaws.com/role: "{{ .Values.global.roles.canary }}"
+    updater:
+      helmChartRepoUrl: "{{ .Values.global.canary.repository }}"

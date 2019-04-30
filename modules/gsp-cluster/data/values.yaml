@@ -13,9 +13,6 @@ global:
   canary:
     repository: ${canary_code_commit_url}
     verificationKeys: []
-  ci:
-    privateKey: "FIXME"
-    publicKey: "FIXME"
     
 adminRoleARNs: ${admin_role_arns}
 adminUserARNs: ${admin_user_arns}

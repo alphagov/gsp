@@ -24,6 +24,14 @@ data:
       groups:
         - sre
   {{- end }}
+  {{- range .Values.users }}
+    - rolearn: {{ .roleARN | quote }}
+      username: {{ .name }}
+      groups:
+      {{- range .roles }}
+        - {{ . }}
+      {{- end }}
+  {{- end }}
   mapUsers: |
   {{- range .Values.adminUserARNs }}
     - userarn: {{ . | quote }}
