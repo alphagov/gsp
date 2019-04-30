@@ -2,7 +2,7 @@
 
 ## Before you start
 
-You must have:
+You should have:
 
 - a [Docker image](https://docs.docker.com/engine/reference/commandline/images/) of your app built in line with the [12 factor principles](https://docs.cloud.service.gov.uk/architecture.html#12-factor-application-principles)
 - access to a [Kubernetes cluster](https://github.com/alphagov/gsp-terraform-ignition/blob/master/docs/gds-supported-platform/troubleshooting_app_errors.md) created by Tech Ops
