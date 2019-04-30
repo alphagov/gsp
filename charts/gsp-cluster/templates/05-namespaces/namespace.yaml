@@ -4,16 +4,6 @@
 {{ tpl (toYaml .) $ }}
 {{- end }}
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ .name }}
-  labels:
-    namespace: {{ .name }}
-    istio-injection: disabled
-  annotations:
-    iam.amazonaws.com/permitted: "^{{ $.Values.global.roles.canary }}$"
----
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
