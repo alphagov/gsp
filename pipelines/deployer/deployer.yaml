@@ -303,18 +303,19 @@ jobs:
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
-  - task: generate-cluster-values
-    timeout: 10m
-    config: *generate_cluster_values
-  - task: generate-namespace-values
-    timeout: 10m
-    config: *generate_namespace_values
-  - task: generate-user-values
-    timeout: 10m
-    config: *generate_user_values
-  - task: generate-user-terraform
-    timeout: 10m
-    config: *generate_users_terraform
+  - aggregate:
+    - task: generate-cluster-values
+      timeout: 10m
+      config: *generate_cluster_values
+    - task: generate-namespace-values
+      timeout: 10m
+      config: *generate_namespace_values
+    - task: generate-user-values
+      timeout: 10m
+      config: *generate_user_values
+    - task: generate-user-terraform
+      timeout: 10m
+      config: *generate_users_terraform
   - put: user-state
     params:
       env_name: ((account-name))
