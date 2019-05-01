@@ -45,3 +45,11 @@ resource "aws_nat_gateway" "egress" {
     "Name", "${var.cluster_name}-egress-${var.availability_zone}",
   )}"
 }
+
+resource "aws_eip" "ingress" {
+  vpc = "true"
+
+  tags = "${map(
+    "Name", "${var.cluster_name}-ingress-${var.availability_zone}",
+  )}"
+}
