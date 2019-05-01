@@ -92,7 +92,7 @@ You run an app by creating a [Kubernetes Deployment object](https://kubernetes.i
 
 By default, your apps are not accessible to the public. To expose them to the public, you must set up a [Service](https://kubernetes.io/docs/concepts/services-networking/service/) and an [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) into the Kubernetes cluster.
 
-Setting up a Service creates a stable endpoint to send public internet traffic to. To set up a service, create a `service.yaml` file in the `templates` directory with the following code:
+Setting up a Service creates a stable endpoint that acts like an internal load balancer to send traffic to your Deployment's Pods. To set up a service, create a `service.yaml` file in the `templates` directory with the following code:
 
 ```
 apiVersion: v1
