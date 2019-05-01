@@ -51,6 +51,12 @@ concourse:
         - ci.${cluster_domain}
   worker:
     replicas: ${concourse_worker_count}
+    nodeSelector:
+      node-role.kubernetes.io/ci: ""
+    tolerations:
+      - key: "node-role.kubernetes.io/ci"
+        operator: Exists
+        effect: NoSchedule
   concourse:
     web:
       externalUrl: https://ci.${cluster_domain}
@@ -123,4 +129,10 @@ prometheus-operator:
         clustername: ${cluster_domain}
         product: ${account_name}
         deployment: gsp
-
+      additionalAlertManagerConfigs:
+      - static_configs:
+        - targets:
+          - "alerts-1.monitoring.gds-reliability.engineering"
+          - "alerts-2.monitoring.gds-reliability.engineering"
+          - "alerts-3.monitoring.gds-reliability.engineering"
+        scheme: https

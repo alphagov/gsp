@@ -1620,7 +1620,7 @@ data:
             - attributemanifests
             - circonuses
             - deniers
-            - fluentds
+            {{ if .Values.global.runningOnAws }}- fluentds {{ end }}
             - kubernetesenvs
             - listcheckers
             - memquotas

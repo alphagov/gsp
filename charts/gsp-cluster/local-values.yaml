@@ -1,0 +1,12 @@
+global:
+  account:
+    name: "local"
+
+concourse:
+  worker:
+    persistence:
+      enabled: false
+    replicas: 1
+  postgresql:
+    persistence:
+      enabled: false

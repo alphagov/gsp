@@ -1,4 +1,5 @@
 global:
+  runningOnAws: false
   cluster:
     name: "my-cluster"
     domain: "example.com"
@@ -19,6 +20,8 @@ adminRoleARNs: []
 adminUserARNs: []
 sreRoleARNs: []
 sreUserARNs: []
+permittedRolesRegex: ""
+
 
 
 # users:
@@ -249,13 +252,6 @@ prometheus-operator:
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
           target_label: pod_name
-      additionalAlertManagerConfigs:
-      - static_configs:
-        - targets:
-          - "alerts-1.monitoring.gds-reliability.engineering"
-          - "alerts-2.monitoring.gds-reliability.engineering"
-          - "alerts-3.monitoring.gds-reliability.engineering"
-        scheme: https
   grafana:
     adminPassword: "password"
   kubelet:
@@ -299,12 +295,6 @@ concourse:
     ephemeral: true
     hardAntiAffinity: true
     resources: {}
-    nodeSelector:
-      node-role.kubernetes.io/ci: ""
-    tolerations:
-      - key: "node-role.kubernetes.io/ci"
-        operator: Exists
-        effect: NoSchedule
     env:
     - name: CONCOURSE_GARDEN_DNS_PROXY_ENABLE
       value: "false"

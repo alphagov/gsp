@@ -31,6 +31,34 @@ The platform is for teams working in the [Government Digital Service](https://ww
 - Cloud infrastructure hosted on [AWS](https://aws.amazom.com) in three availability zones in the London region managed with [Terraform](https://www.terraform.io/)
 - Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
 
+## Running locally
+
+It is possible to run a GSP cluster locally using [kind](https://kind.sigs.k8s.io/). You will probably want to give your Docker daemon more RAM than the default (anecdotally 8GB works).
+
+To create a cluster run:
+
+```
+./scripts/gsp-local.sh create
+```
+
+You can then play with some of the services:
+
+```
+export KUBECONFIG="$(kind get kubeconfig-path --name="gsp-local")"
+
+kubectl port-forward service/gsp-concourse-web -n gsp-system 8080:8080
+# curl http://127.0.0.1:8080
+
+kubectl port-forward service/gsp-prometheus-operator-prometheus -n gsp-system 9090:9090
+# curl http://127.0.0.1:9090
+```
+
+When you're finished you should destroy it:
+
+```
+./scripts/gsp-local.sh destroy
+```
+
 ## Help and support
 For help or support:
 - read our [documentation](/docs)
