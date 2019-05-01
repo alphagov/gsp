@@ -1,4 +1,5 @@
 global:
+  runningOnAws: true
   cluster:
     name: ${cluster_name}
     domain: ${cluster_domain}
