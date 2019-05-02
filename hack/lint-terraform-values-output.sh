@@ -3,21 +3,20 @@
 set -eu
 
 # rough check for missing vars in terraform
-# (cd pipelines/templates/cluster \
-# 	&& terraform init --backend=false \
-# 	&& terraform validate \
-# 		--var account_name=x \
-# 		--var splunk_enabled=0 \
-# 		--var splunk_hec_token=x \
-# 		--var splunk_hec_url=x \
-# 		--var github_client_secret=x \
-# 		--var github_client_id=x \
-# 		--var cluster_name=x \
-# 		--var cluster_domain=x \
-# 		--var aws_account_role_arn=x \
-# 		--var eks_version=x \
-# )
-
+(cd pipelines/deployer \
+	&& terraform init --backend=false \
+	&& terraform validate \
+		--var account_name=x \
+		--var splunk_enabled=0 \
+		--var splunk_hec_token=x \
+		--var splunk_hec_url=x \
+		--var github_client_secret=x \
+		--var github_client_id=x \
+		--var cluster_name=x \
+		--var cluster_domain=x \
+		--var aws_account_role_arn=x \
+		--var eks_version=x \
+)
 
 
 # rough check for missing vars in values.yaml for gsp-cluster chart
