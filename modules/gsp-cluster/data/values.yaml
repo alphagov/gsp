@@ -115,9 +115,23 @@ flux:
 kiam:
   server:
     assumeRoleArn: ${kiam_server_role_arn}
+    # Hack to trigger a restart of Kiam server on each and every deploy. This
+    # is to workaround the agent and server using different sets of
+    # CAs/keys/certs because we are currently regenerating CAs/keys/certs on
+    # each and every deploy.
+    extraEnv:
+      restartAfterDeployHack: ${kiam_restart_after_deploy_hack_uuid}
+    updateStrategy: RollingUpdate
   agent:
     host:
       interface: "eni+"
+    # Hack to trigger a restart of Kiam agent on each and every deploy. This is
+    # to workaround the agent and server using different sets of CAs/keys/certs
+    # because we are currently regenerating CAs/keys/certs on each and every
+    # deploy.
+    extraEnv:
+      restartAfterDeployHack: ${kiam_restart_after_deploy_hack_uuid}
+    updateStrategy: RollingUpdate
 
 fluentd-cloudwatch:
   logGroupName: ${cloudwatch_log_group_name}
