@@ -34,7 +34,7 @@ output "ingress_ips" {
   ]
 }
 
-output "host_cidr" {
-  description = "CIDR IPv4 range to assign to EC2 nodes"
-  value       = "${var.host_cidr}"
+output "cidr_block" {
+  description = "CIDR IPv4 range of the VPC"
+  value       = "${aws_vpc.network.cidr_block}"
 }
