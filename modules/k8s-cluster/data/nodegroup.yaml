@@ -273,6 +273,22 @@ Resources:
       ToPort: 443
       FromPort: 443
 
+  HTTPTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${NodeGroupName}-http
+      Port: 40080
+      Protocol: TCP
+      VpcId: !Ref VpcId
+
+  HTTPSTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${NodeGroupName}-https
+      Port: 40443
+      Protocol: TCP
+      VpcId: !Ref VpcId
+
   NodeGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -281,6 +297,9 @@ Resources:
       MinSize: !Ref NodeAutoScalingGroupMinSize
       MaxSize: !Ref NodeAutoScalingGroupMaxSize
       VPCZoneIdentifier: !Ref Subnets
+      TargetGroupARNs:
+        - !Ref HTTPTargetGroup
+        - !Ref HTTPSTargetGroup
       Tags:
         - Key: Name
           Value: !Sub ${ClusterName}-${NodeGroupName}-Node
@@ -329,3 +348,11 @@ Outputs:
   NodeSecurityGroup:
     Description: The security group for the node group
     Value: !Ref NodeSecurityGroup
+
+  HTTPSTargetGroup:
+    Description: A target group to node port 40443
+    Value: !Ref HTTPSTargetGroup
+
+  HTTPTargetGroup:
+    Description: A target group to node port 40080
+    Value: !Ref HTTPTargetGroup
