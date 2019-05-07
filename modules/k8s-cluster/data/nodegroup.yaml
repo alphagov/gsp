@@ -4,10 +4,6 @@ Description: Amazon EKS - Node Group
 
 Parameters:
 
-  KeyName:
-    Description: The EC2 Key Pair to allow SSH access to the instances
-    Type: AWS::EC2::KeyPair::KeyName
-
   NodeImageId:
     Description: AMI id for the node instances.
     Type: AWS::EC2::Image::Id
@@ -164,7 +160,6 @@ Metadata:
           - NodeInstanceType
           - NodeImageId
           - NodeVolumeSize
-          - KeyName
           - BootstrapArguments
       - Label:
           default: Worker Network Configuration
@@ -300,7 +295,6 @@ Resources:
       IamInstanceProfile: !Ref NodeInstanceProfile
       ImageId: !Ref NodeImageId
       InstanceType: !Ref NodeInstanceType
-      KeyName: !Ref KeyName
       SecurityGroups:
         - !Ref NodeSecurityGroup
       BlockDeviceMappings:
