@@ -137,7 +137,7 @@ variable "public_subnet_ids" {
   type = "list"
 }
 
-variable "nat_gateway_public_ips" {
+variable "egress_ips" {
   type = "list"
 }
 

@@ -40,7 +40,7 @@ module "gsp-cluster" {
     vpc_id                         = "${module.gsp-network.vpc_id}"
     private_subnet_ids             = "${module.gsp-network.private_subnet_ids}"
     public_subnet_ids              = "${module.gsp-network.public_subnet_ids}"
-    nat_gateway_public_ips         = "${module.gsp-network.nat_gateway_public_ips}"
+    egress_ips                     = "${module.gsp-network.egress_ips}"
 
     sre_user_arns = ["arn:aws:iam::622626885786:user/rafal.proszowski@digital.cabinet-office.gov.uk"]
 

@@ -1,7 +1,5 @@
-data "aws_availability_zones" "all" {}
-
 resource "aws_vpc" "network" {
-  cidr_block           = "${var.host_cidr}"
+  cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
 
@@ -17,84 +15,45 @@ resource "aws_internet_gateway" "gateway" {
   tags = "${map("Name", "${var.cluster_name}")}"
 }
 
-resource "aws_route_table" "cluster-public" {
-  vpc_id = "${aws_vpc.network.id}"
+module "subnet-0" {
+  source              = "../gsp-subnet"
+  vpc_id              = "${aws_vpc.network.id}"
+  cluster_name        = "${var.cluster_name}"
+  availability_zone   = "eu-west-2a"
+  internet_gateway_id = "${aws_internet_gateway.gateway.id}"
+  private_cidr_block  = "10.0.0.0/19"
+  public_cidr_block   = "10.0.32.0/20"
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.gateway.id}"
-  }
-
-  tags = "${map("Name", "${var.cluster_name}")}"
+  # protected_cidr_block = "10.0.48.0/21"
+  # spare_cidr_block     = "10.0.56.0/21"
 }
 
-resource "aws_route_table" "cluster-private" {
-  vpc_id = "${aws_vpc.network.id}"
+module "subnet-1" {
+  source              = "../gsp-subnet"
+  vpc_id              = "${aws_vpc.network.id}"
+  cluster_name        = "${var.cluster_name}"
+  availability_zone   = "eu-west-2b"
+  internet_gateway_id = "${aws_internet_gateway.gateway.id}"
+  private_cidr_block  = "10.0.64.0/19"
+  public_cidr_block   = "10.0.96.0/20"
 
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = "${element(aws_nat_gateway.cluster.*.id, count.index)}"
-  }
-
-  tags = "${map("Name", "${var.cluster_name}")}"
+  # protected_cidr_block = "10.0.112.0/21"
+  # spare_cidr_block     = "10.0.120.0/21"
 }
 
-resource "aws_subnet" "cluster-private" {
-  count = "${length(data.aws_availability_zones.all.names)}"
+module "subnet-2" {
+  source              = "../gsp-subnet"
+  vpc_id              = "${aws_vpc.network.id}"
+  cluster_name        = "${var.cluster_name}"
+  availability_zone   = "eu-west-2c"
+  internet_gateway_id = "${aws_internet_gateway.gateway.id}"
+  private_cidr_block  = "10.0.128.0/19"
+  public_cidr_block   = "10.0.160.0/20"
 
-  vpc_id            = "${aws_vpc.network.id}"
-  availability_zone = "${data.aws_availability_zones.all.names[count.index]}"
-
-  cidr_block              = "${cidrsubnet(var.host_cidr, 4, count.index)}"
-  map_public_ip_on_launch = false
-
-  tags = "${map(
-    "Name", "${var.cluster_name}-cluster-${count.index}",
-    "kubernetes.io/cluster/${var.cluster_name}", "shared",
-    "kubernetes.io/role/internal-elb", "1",
-  )}"
+  # protected_cidr_block = "10.0.176.0/21"
+  # spare_cidr_block     = "10.0.184.0/21"
 }
 
-resource "aws_subnet" "cluster-public" {
-  count = "${length(data.aws_availability_zones.all.names)}"
+# following range is left over for future needs
+# spare_subnet_block = "10.0.192.0/18"
 
-  vpc_id            = "${aws_vpc.network.id}"
-  availability_zone = "${data.aws_availability_zones.all.names[count.index]}"
-
-  cidr_block              = "${cidrsubnet(var.host_cidr, 4, count.index + length(data.aws_availability_zones.all.names))}"
-  map_public_ip_on_launch = false
-
-  tags = "${map(
-    "Name", "${var.cluster_name}-cluster-${count.index}",
-    "kubernetes.io/cluster/${var.cluster_name}", "shared",
-    "kubernetes.io/role/elb", "1",
-  )}"
-}
-
-resource "aws_route_table_association" "cluster-private" {
-  count = "${length(data.aws_availability_zones.all.names)}"
-
-  route_table_id = "${element(aws_route_table.cluster-private.*.id, count.index)}"
-  subnet_id      = "${element(aws_subnet.cluster-private.*.id, count.index)}"
-}
-
-resource "aws_route_table_association" "cluster-public" {
-  count = "${length(data.aws_availability_zones.all.names)}"
-
-  route_table_id = "${element(aws_route_table.cluster-public.*.id, count.index)}"
-  subnet_id      = "${element(aws_subnet.cluster-public.*.id, count.index)}"
-}
-
-resource "aws_eip" "public" {
-  count = "${length(data.aws_availability_zones.all.names)}"
-
-  vpc = "true"
-}
-
-resource "aws_nat_gateway" "cluster" {
-  count = "${length(data.aws_availability_zones.all.names)}"
-
-  allocation_id = "${element(aws_eip.public.*.id, count.index)}"
-  subnet_id     = "${element(aws_subnet.cluster-public.*.id, count.index)}"
-  depends_on    = ["aws_internet_gateway.gateway"]
-}

@@ -18,3 +18,4 @@ fly -t cd-gsp set-pipeline -p "${CLUSTER_NAME}" --config pipelines/deployer/depl
 	--var config-version=${PLATFORM_BRANCH} \
 	--check-creds
 
+fly -t cd-gsp expose-pipeline -p "${CLUSTER_NAME}"
