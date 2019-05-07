@@ -141,6 +141,10 @@ variable "egress_ips" {
   type = "list"
 }
 
+variable "ingress_ips" {
+  type = "list"
+}
+
 variable "github_teams" {
   default     = ["alphagov:re-gsp"]
   description = "the list of github teams allowed to be authenticated into concourse"

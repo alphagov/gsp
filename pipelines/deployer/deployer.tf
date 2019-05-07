@@ -127,6 +127,7 @@ module "gsp-cluster" {
   private_subnet_ids = "${module.gsp-network.private_subnet_ids}"
   public_subnet_ids  = "${module.gsp-network.public_subnet_ids}"
   egress_ips         = "${module.gsp-network.egress_ips}"
+  ingress_ips        = "${module.gsp-network.ingress_ips}"
   splunk_hec_url     = "${var.splunk_hec_url}"
   splunk_hec_token   = "${var.splunk_hec_token}"
   splunk_index       = "${var.splunk_index}"
