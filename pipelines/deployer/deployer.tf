@@ -46,7 +46,7 @@ variable "splunk_index" {
 
 variable "worker_instance_type" {
   type    = "string"
-  default = "m5.large"
+  default = "m5d.large"
 }
 
 variable "worker_count" {
@@ -56,7 +56,7 @@ variable "worker_count" {
 
 variable "ci_worker_instance_type" {
   type    = "string"
-  default = "m5.large"
+  default = "m5d.large"
 }
 
 variable "ci_worker_count" {
