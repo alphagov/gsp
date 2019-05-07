@@ -33,9 +33,9 @@ resource "aws_key_pair" "eks" {
 
 # As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
 resource "aws_cloudformation_stack" "worker-nodes" {
-  name         = "${var.cluster_name}-worker-nodes"
-  template_url = "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"
-  capabilities = ["CAPABILITY_IAM"]
+  name          = "${var.cluster_name}-worker-nodes"
+  template_body = "${file("${path.module}/data/nodegroup.yaml")}"
+  capabilities  = ["CAPABILITY_IAM"]
 
   parameters = {
     ClusterName                         = "${var.cluster_name}"
@@ -57,9 +57,9 @@ resource "aws_cloudformation_stack" "worker-nodes" {
 }
 
 resource "aws_cloudformation_stack" "kiam-server-nodes" {
-  name         = "${var.cluster_name}-kiam-server-nodes"
-  template_url = "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"
-  capabilities = ["CAPABILITY_IAM"]
+  name          = "${var.cluster_name}-kiam-server-nodes"
+  template_body = "${file("${path.module}/data/nodegroup.yaml")}"
+  capabilities  = ["CAPABILITY_IAM"]
 
   parameters = {
     ClusterName                         = "${var.cluster_name}"
@@ -81,9 +81,9 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
 }
 
 resource "aws_cloudformation_stack" "ci-nodes" {
-  name         = "${var.cluster_name}-ci-nodes"
-  template_url = "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"
-  capabilities = ["CAPABILITY_IAM"]
+  name          = "${var.cluster_name}-ci-nodes"
+  template_body = "${file("${path.module}/data/nodegroup.yaml")}"
+  capabilities  = ["CAPABILITY_IAM"]
 
   parameters = {
     ClusterName                         = "${var.cluster_name}"
