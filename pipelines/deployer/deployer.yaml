@@ -237,9 +237,11 @@ drain_cluster_task: &drain_cluster_task
       CLUSTER_VPC_ID=$(aws eks describe-cluster --name "${CLUSTER_NAME}" | jq .cluster.resourcesVpcConfig.vpcId -r)
       echo "deleting any LoadBalancer services..."
       kubectl get svc -o json --all-namespaces | jq '.items[] | select(.spec.type == "LoadBalancer")' | kubectl delete -f - --wait
-      echo "waiting for any ELBs that belong to cluster to shutdown..."
-      ELB_ARNS_JSON=$(aws elbv2 describe-load-balancers | jq "{LoadBalancerArns: [ .LoadBalancers[] | select(.VpcId == \"${CLUSTER_VPC_ID}\") | .LoadBalancerArn ]}" -c)
-      if [[ "$(echo $ELB_ARNS_JSON | jq '.LoadBalancerArns | length')" != "0" ]]; then
+      echo "checking for any ELBs that belong to cluster..."
+      ELB_ARNS_JSON=$(aws elbv2 describe-load-balancers | jq "{LoadBalancerArns: [ .LoadBalancers[] | select(.VpcId == \"${CLUSTER_VPC_ID}\") | select(.LoadBalancerName != \"${CLUSTER_NAME}-ingress\") | .LoadBalancerArn ]}" -c)
+      ELB_ARNS_COUNT=$(echo $ELB_ARNS_JSON | jq '.LoadBalancerArns | length')
+      echo "waiting for ${ELB_ARNS_COUNT} ELBs to terminate..."
+      if [[ "${ELB_ARNS_COUNT}" != "0" ]]; then
         aws elbv2 wait load-balancers-deleted --cli-input-json "${ELB_ARNS_JSON}"
       fi
       echo "checking for ASGs that belong to this cluster..."
