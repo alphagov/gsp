@@ -300,7 +300,7 @@ Resources:
         - !Ref HTTPSTargetGroup
       Tags:
         - Key: Name
-          Value: !Sub ${ClusterName}-${NodeGroupName}-Node
+          Value: !Sub ${ClusterName}-${NodeGroupName}
           PropagateAtLaunch: true
         - Key: !Sub kubernetes.io/cluster/${ClusterName}
           Value: owned
