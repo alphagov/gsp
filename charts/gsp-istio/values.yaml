@@ -1,0 +1,75 @@
+istio-cni:
+  tag: master-20190410-09-16
+  excludeNamespaces:
+  - istio-system
+  - kube-system
+  - gsp-system
+istio-init:
+  certmanager:
+    enabled: true
+
+# https://github.com/helm/helm/issues/5135
+# affects anything with a conditional in the istio chart's
+# requirements.yaml.
+# presented here exhaustively in the same order as they appear in
+# the istio chart's requirements.yaml at the time of writing
+sidecarInjectorWebhook:
+  enabled: true
+security:
+  enabled: true
+gateways:
+  enabled: true
+mixer:
+  policy:
+    enabled: true
+  telemetry:
+    enabled: true
+nodeagent:
+  enabled: false
+pilot:
+  enabled: true
+grafana:
+  enabled: false
+prometheus:
+  enabled: false
+tracing:
+  enabled: true
+galley:
+  enabled: true
+kiali:
+  enabled: true
+istiocoredns:
+  enabled: false
+certmanager:
+  enabled: true
+
+# normal service can now resume
+istio:
+  certmanager:
+    enabled: true
+    email: daniel.blair@digital.cabinet-office.gov.uk
+    podAnnotations:
+      iam.amazonaws.com/role: ""
+  istio_cni:
+    enabled: true
+  tracing:
+    enabled: true
+  pilot:
+    traceSampling: "100.0"
+  prometheus:
+    enabled: false
+  global:
+    k8sIngress:
+      enabled: true
+  gateways:
+    istio-ingressgateway:
+      sds:
+        enabled: true
+      serviceAnnotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+  sidecarInjectorWebhook:
+    enableNamespacesByDefault: true
+  kiali:
+    enabled: true
+    createDemoSecret: true # FIXME: probably not a good idea for prod!
+    prometheusAddr: http://gsp-prometheus-operator-prometheus.gsp-system:9090

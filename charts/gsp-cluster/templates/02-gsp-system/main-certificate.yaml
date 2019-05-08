@@ -1,0 +1,24 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}
+  namespace: istio-system
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  secretName: {{ include "gsp-cluster.fullname" . }}-cert
+  issuerRef:
+    name: {{ .Release.Name }}-letsencrypt-staging
+    kind: ClusterIssuer
+  commonName: "*.{{ .Values.global.cluster.domain }}"
+  dnsNames:
+  - "*.{{ .Values.global.cluster.domain }}"
+  acme:
+    config:
+    - dns01:
+        provider: gsp
+      domains:
+        - "*.{{ .Values.global.cluster.domain }}"

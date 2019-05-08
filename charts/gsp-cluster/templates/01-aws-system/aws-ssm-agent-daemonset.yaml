@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: ssm-agent
+  namespace: kube-system
   labels:
     k8s-app: ssm-agent
 spec:

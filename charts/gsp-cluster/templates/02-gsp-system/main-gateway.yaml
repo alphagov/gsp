@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: {{ include "gsp-cluster.fullname" . }}-cert
+    hosts:
+    - "*.{{ .Values.global.cluster.domain }}"

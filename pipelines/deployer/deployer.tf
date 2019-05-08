@@ -168,3 +168,8 @@ output "values" {
   sensitive = true
   value     = "${module.gsp-cluster.values}"
 }
+
+output "istio_values" {
+  sensitive = true
+  value     = "${module.gsp-cluster.istio-values}"
+}

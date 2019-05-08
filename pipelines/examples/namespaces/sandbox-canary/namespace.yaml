@@ -5,6 +5,5 @@ metadata:
   name: sandbox-canary
   labels:
     namespace: sandbox-canary
-    istio-injection: disabled
   annotations:
     iam.amazonaws.com/permitted: "^{{ .Values.global.roles.canary }}$"
