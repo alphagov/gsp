@@ -35,7 +35,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
   parameters = {
     ClusterName                         = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
-    NodeGroupName                       = "${var.cluster_name}-worker-nodes"
+    NodeGroupName                       = "worker"
     NodeAutoScalingGroupMinSize         = "${var.worker_count}"
     NodeAutoScalingGroupDesiredCapacity = "${var.worker_count}"
     NodeAutoScalingGroupMaxSize         = "${var.worker_count + 1}"
@@ -58,7 +58,7 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
   parameters = {
     ClusterName                         = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
-    NodeGroupName                       = "${var.cluster_name}-kiam-server-nodes"
+    NodeGroupName                       = "kiam"
     NodeAutoScalingGroupMinSize         = "2"
     NodeAutoScalingGroupDesiredCapacity = "2"
     NodeAutoScalingGroupMaxSize         = "3"
@@ -81,7 +81,7 @@ resource "aws_cloudformation_stack" "ci-nodes" {
   parameters = {
     ClusterName                         = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
-    NodeGroupName                       = "${var.cluster_name}-ci-nodes"
+    NodeGroupName                       = "ci"
     NodeAutoScalingGroupMinSize         = "${var.ci_worker_count}"
     NodeAutoScalingGroupDesiredCapacity = "${var.ci_worker_count}"
     NodeAutoScalingGroupMaxSize         = "${var.ci_worker_count + 1}"
