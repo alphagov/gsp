@@ -32,31 +32,32 @@ resource "aws_security_group_rule" "controller-egress" {
 }
 
 resource "aws_security_group_rule" "worker-nodes-from-vpc" {
-  security_group_id = "${aws_cloudformation_stack.kiam-server-nodes.outputs["NodeSecurityGroup"]}"
+  security_group_id = "${aws_cloudformation_stack.worker-nodes.outputs["NodeSecurityGroup"]}"
 
-  type                     = "ingress"
-  protocol                 = "-1"
-  from_port                = 0
-  to_port                  = 0
-  cidr_blocks              = ["${data.aws_vpc.private.cidr_block}"]
+  type      = "ingress"
+  protocol  = "-1"
+  from_port = 0
+  to_port   = 0
+
+  cidr_blocks = ["${data.aws_vpc.private.cidr_block}"]
 }
 
 resource "aws_security_group_rule" "kiam-server-from-vpc" {
-  security_group_id = "${aws_cloudformation_stack.worker-nodes.outputs["NodeSecurityGroup"]}"
+  security_group_id = "${aws_cloudformation_stack.kiam-server-nodes.outputs["NodeSecurityGroup"]}"
 
-  type                     = "ingress"
-  protocol                 = "-1"
-  from_port                = 0
-  to_port                  = 0
-  cidr_blocks              = ["${data.aws_vpc.private.cidr_block}"]
+  type        = "ingress"
+  protocol    = "-1"
+  from_port   = 0
+  to_port     = 0
+  cidr_blocks = ["${data.aws_vpc.private.cidr_block}"]
 }
 
 resource "aws_security_group_rule" "ci-nodes-from-vpc" {
   security_group_id = "${aws_cloudformation_stack.ci-nodes.outputs["NodeSecurityGroup"]}"
 
-  type                     = "ingress"
-  protocol                 = "-1"
-  from_port                = 0
-  to_port                  = 0
-  cidr_blocks              = ["${data.aws_vpc.private.cidr_block}"]
+  type        = "ingress"
+  protocol    = "-1"
+  from_port   = 0
+  to_port     = 0
+  cidr_blocks = ["${data.aws_vpc.private.cidr_block}"]
 }
