@@ -54,3 +54,27 @@ resource "aws_lb_listener" "ingress-http" {
     target_group_arn = "${module.k8s-cluster.worker_http_target_group_arn}"
   }
 }
+
+resource "aws_route53_record" "ingress-root" {
+  zone_id = "${var.cluster_domain_id}"
+  name    = "${var.cluster_domain}."
+  type    = "A"
+
+  alias {
+    name                   = "${aws_lb.ingress.dns_name}"
+    zone_id                = "${aws_lb.ingress.zone_id}"
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "ingress-wildcard" {
+  zone_id = "${var.cluster_domain_id}"
+  name    = "*.${var.cluster_domain}."
+  type    = "A"
+
+  alias {
+    name                   = "${aws_lb.ingress.dns_name}"
+    zone_id                = "${aws_lb.ingress.zone_id}"
+    evaluate_target_health = true
+  }
+}
