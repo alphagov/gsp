@@ -276,7 +276,6 @@ Resources:
   HTTPTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub ${NodeGroupName}-http
       Port: 30080
       Protocol: TCP
       VpcId: !Ref VpcId
@@ -284,7 +283,6 @@ Resources:
   HTTPSTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub ${NodeGroupName}-https
       Port: 30443
       Protocol: TCP
       VpcId: !Ref VpcId
