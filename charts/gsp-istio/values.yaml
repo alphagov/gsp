@@ -6,7 +6,7 @@ istio-cni:
   - gsp-system
 istio-init:
   certmanager:
-    enabled: true
+    enabled: false
 
 # https://github.com/helm/helm/issues/5135
 # affects anything with a conditional in the istio chart's
@@ -41,15 +41,12 @@ kiali:
 istiocoredns:
   enabled: false
 certmanager:
-  enabled: true
+  enabled: false
 
 # normal service can now resume
 istio:
   certmanager:
-    enabled: true
-    email: daniel.blair@digital.cabinet-office.gov.uk
-    podAnnotations:
-      iam.amazonaws.com/role: ""
+    enabled: false
   istio_cni:
     enabled: true
   tracing:
