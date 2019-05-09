@@ -10,6 +10,7 @@ spec:
     ref: "master"
     path: "charts/gsp-canary"
   values:
+    fqdn: "gsp-canary.{{ .Values.global.cluster.domain }}"
     annotations:
       iam.amazonaws.com/role: "{{ .Values.global.roles.canary }}"
     updater:

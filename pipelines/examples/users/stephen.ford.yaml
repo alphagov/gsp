@@ -8,3 +8,5 @@ roles:
 - sandbox-admin
 - sandbox-sre
 - sandbox-canary-dev
+- drb-istio-test-admin
+- drb-istio-refactor-admin

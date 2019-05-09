@@ -1,0 +1,12 @@
+---
+name: daniel.blair
+email: daniel.blair@digital.cabinet-office.gov.uk
+ARN: arn:aws:iam::622626885786:user/daniel.blair@digital.cabinet-office.gov.uk
+roles:
+- farms-sre
+- farms-admin
+- sandbox-admin
+- sandbox-sre
+- sandbox-canary-dev
+- drb-istio-test-admin
+- drb-istio-refactor-admin

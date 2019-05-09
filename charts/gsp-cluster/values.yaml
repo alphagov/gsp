@@ -389,3 +389,19 @@ flux:
   namespace: flux-system
   helmOperatorRole: ""
 
+external-dns:
+  sources:
+    - ingress
+    - istio-gateway
+  provider: aws
+  aws:
+    region: "eu-west-2"
+  rbac:
+    create: true
+    apiVersion: v1
+
+istioSystem:
+  permittedRolesRegex: ""
+
+letsencrypt:
+  email: daniel.blair@digital.cabinet-office.gov.uk

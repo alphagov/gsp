@@ -42,6 +42,24 @@ generate_cluster_values: &generate_cluster_values
   outputs:
   - name: cluster-values
 
+generate_istio_values: &generate_istio_values
+  platform: linux
+  image_resource: *task_image_resource
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      mkdir -p istio-values
+      echo "fetching istio_values file from cluster-state..."
+      jq -r '.istio_values' ./cluster-state/metadata > ./istio-values/values.yaml
+      cat ./istio-values/values.yaml
+  inputs:
+  - name: cluster-state
+  outputs:
+  - name: istio-values
+
 generate_user_values: &generate_user_values
   platform: linux
   image_resource: *task_image_resource
@@ -163,6 +181,13 @@ apply_cluster_chart: &apply_cluster_chart
         --values namespace-values/values.yaml \
         --output-dir manifests \
         "platform/charts/${CHART_NAME}"
+      echo "rendering gsp-istio chart..."
+      helm template \
+        --name istio \
+        --namespace istio-system \
+        --values istio-values/values.yaml \
+        --output-dir manifests \
+        platform/charts/gsp-istio
       function apply() {
         echo "applying ${1} from ${CHART_NAME} chart..."
         until kubectl apply -R -f $1; do
@@ -173,12 +198,12 @@ apply_cluster_chart: &apply_cluster_chart
         echo "---> ${1} applied OK!"
       }
       apply manifests/${CHART_NAME}/templates/00-aws-auth/
-      apply manifests/${CHART_NAME}/templates/01-cni/
-      apply manifests/${CHART_NAME}/templates/02-istio/
-      apply manifests/${CHART_NAME}/templates/03-aws-system/
+      apply manifests/gsp-istio
+      apply manifests/${CHART_NAME}/templates/01-aws-system/
       apply manifests/
   inputs:
   - name: cluster-values
+  - name: istio-values
   - name: user-values
   - name: namespace-values
   - name: platform
@@ -310,6 +335,9 @@ jobs:
     - task: generate-cluster-values
       timeout: 10m
       config: *generate_cluster_values
+    - task: generate-istio-values
+      timeout: 10m
+      config: *generate_istio_values
     - task: generate-namespace-values
       timeout: 10m
       config: *generate_namespace_values

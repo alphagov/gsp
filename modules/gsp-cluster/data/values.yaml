@@ -151,3 +151,11 @@ prometheus-operator:
           - "alerts-2.monitoring.gds-reliability.engineering"
           - "alerts-3.monitoring.gds-reliability.engineering"
         scheme: https
+
+external-dns:
+  podAnnotations:
+    iam.amazonaws.com/role: "${external_dns_role_name}"
+  txtOwnerId: "${cluster_domain_id}"
+
+istioSystem:
+  permittedRolesRegex: "${istio_permitted_roles_regex}"

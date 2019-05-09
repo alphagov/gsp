@@ -4,3 +4,4 @@ email: sam.crang@digital.cabinet-office.gov.uk
 ARN: arn:aws:iam::622626885786:user/sam.crang@digital.cabinet-office.gov.uk
 roles:
 - sandbox-canary-dev
+- drb-istio-test-admin
