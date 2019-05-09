@@ -13,11 +13,11 @@ function log() {
 
 function template() {
 	helm template \
-		charts/gsp-cluster/ \
+		"charts/${1}/" \
 		--name=gsp \
 		--namespace=gsp-system \
-		--output-dir="${1}" \
-		--values=charts/gsp-cluster/local-values.yaml
+		--output-dir="${2}" \
+		--values="scripts/local-values.yaml"
 }
 
 OPTION=${1}
@@ -32,7 +32,8 @@ case ${OPTION} in
 	template)
 		template_dir=${2:-manifests}
 		mkdir -p "${template_dir}"
-		template "${template_dir}"
+		template gsp-cluster "${template_dir}"
+		template gsp-istio "${template_dir}"
 		exit 0
 		;;
 	create)
@@ -82,7 +83,8 @@ function cleanup() {
 	exit 0
 }
 trap 'cleanup' INT TERM EXIT
-template "${MANIFEST_DIR}"
+template gsp-cluster "${MANIFEST_DIR}"
+template gsp-istio "${MANIFEST_DIR}"
 
 log "Applying local GSP configuration..."
 
@@ -96,8 +98,7 @@ EOF
 )
 
 apply "${MANIFEST_DIR}/gsp-cluster/templates/00-aws-auth/"
-apply "${MANIFEST_DIR}/gsp-cluster/templates/01-cni"
-apply "${MANIFEST_DIR}/gsp-cluster/templates/02-istio"
+apply "${MANIFEST_DIR}/gsp-istio/"
 apply "${MANIFEST_DIR}/gsp-cluster/"
 
 kubectl cluster-info
