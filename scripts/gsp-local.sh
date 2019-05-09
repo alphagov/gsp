@@ -15,9 +15,14 @@ function template() {
 	helm template \
 		"charts/${1}/" \
 		--name=gsp \
-		--namespace=gsp-system \
-		--output-dir="${2}" \
+		--namespace="${2}"\
+		--output-dir="${3}" \
 		--values="scripts/local-values.yaml"
+}
+
+function template_all() {
+	template gsp-cluster gsp-system "${1}"
+	template gsp-istio istio-system "${1}"
 }
 
 OPTION=${1}
@@ -32,8 +37,7 @@ case ${OPTION} in
 	template)
 		template_dir=${2:-manifests}
 		mkdir -p "${template_dir}"
-		template gsp-cluster "${template_dir}"
-		template gsp-istio "${template_dir}"
+		template_all "${template_dir}"
 		exit 0
 		;;
 	create)
@@ -83,8 +87,7 @@ function cleanup() {
 	exit 0
 }
 trap 'cleanup' INT TERM EXIT
-template gsp-cluster "${MANIFEST_DIR}"
-template gsp-istio "${MANIFEST_DIR}"
+template_all "${MANIFEST_DIR}"
 
 log "Applying local GSP configuration..."
 
