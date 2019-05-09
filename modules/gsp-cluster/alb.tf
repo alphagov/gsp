@@ -56,25 +56,50 @@ resource "aws_lb" "ingress" {
   tags = "${map("Name", "${var.cluster_name}-ingress")}"
 }
 
+resource "aws_acm_certificate" "default" {
+  domain_name       = "*.${var.cluster_domain}"
+  validation_method = "DNS"
+}
+
+resource "aws_route53_record" "default" {
+  name    = "${aws_acm_certificate.default.domain_validation_options.0.resource_record_name}"
+  type    = "${aws_acm_certificate.default.domain_validation_options.0.resource_record_type}"
+  zone_id = "${var.cluster_domain_id}"
+  records = ["${aws_acm_certificate.default.domain_validation_options.0.resource_record_value}"]
+  ttl     = 60
+}
+
+resource "aws_acm_certificate_validation" "default" {
+  certificate_arn         = "${aws_acm_certificate.default.arn}"
+  validation_record_fqdns = ["${aws_route53_record.default.fqdn}"]
+}
+
 resource "aws_lb_listener" "ingress-https" {
   load_balancer_arn = "${aws_lb.ingress.arn}"
   port              = "443"
-  protocol          = "TCP"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "${aws_acm_certificate_validation.default.certificate_arn}"
 
   default_action {
     type             = "forward"
-    target_group_arn = "${module.k8s-cluster.worker_https_target_group_arn}"
+    target_group_arn = "${module.k8s-cluster.worker_http_target_group_arn}"
   }
 }
 
 resource "aws_lb_listener" "ingress-http" {
   load_balancer_arn = "${aws_lb.ingress.arn}"
   port              = "80"
-  protocol          = "TCP"
+  protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = "${module.k8s-cluster.worker_http_target_group_arn}"
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 
