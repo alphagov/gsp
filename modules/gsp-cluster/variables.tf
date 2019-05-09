@@ -67,7 +67,7 @@ variable "ci_worker_count" {
 
 variable "ci_worker_instance_type" {
   type    = "string"
-  default = "m5.large"
+  default = "m5d.large"
 }
 
 variable "addons" {
@@ -138,6 +138,10 @@ variable "public_subnet_ids" {
 }
 
 variable "egress_ips" {
+  type = "list"
+}
+
+variable "ingress_ips" {
   type = "list"
 }
 

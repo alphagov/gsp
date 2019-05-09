@@ -28,7 +28,7 @@ module "gsp-cluster" {
     cluster_name = "rafalp"
     cluster_domain = "run-sandbox.aws.ext.govsandbox.uk"
     admin_role_arns = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/admin"]
-    worker_instance_type = "m5.large"
+    worker_instance_type = "m5d.large"
     worker_count = "2"
 
     addons = {
