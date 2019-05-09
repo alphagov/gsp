@@ -1,3 +1,6 @@
+global:
+  k8sIngressSelector: ingressgateway
+
 istio-cni:
   tag: master-20190410-09-16
   excludeNamespaces:
@@ -6,7 +9,7 @@ istio-cni:
   - gsp-system
 istio-init:
   certmanager:
-    enabled: true
+    enabled: false
 
 # https://github.com/helm/helm/issues/5135
 # affects anything with a conditional in the istio chart's
@@ -41,15 +44,14 @@ kiali:
 istiocoredns:
   enabled: false
 certmanager:
-  enabled: true
+  enabled: false
 
 # normal service can now resume
 istio:
+  ingress:
+    enable: false
   certmanager:
-    enabled: true
-    email: daniel.blair@digital.cabinet-office.gov.uk
-    podAnnotations:
-      iam.amazonaws.com/role: ""
+    enabled: false
   istio_cni:
     enabled: true
   tracing:
@@ -58,15 +60,11 @@ istio:
     traceSampling: "100.0"
   prometheus:
     enabled: false
-  global:
-    k8sIngress:
-      enabled: true
   gateways:
     istio-ingressgateway:
+      type: NodePort
       sds:
         enabled: true
-      serviceAnnotations:
-        service.beta.kubernetes.io/aws-load-balancer-type: nlb
   sidecarInjectorWebhook:
     enableNamespacesByDefault: true
   kiali:

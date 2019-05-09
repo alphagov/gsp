@@ -39,14 +39,11 @@ data "template_file" "values" {
     cloudwatch_log_group_name           = "${aws_cloudwatch_log_group.logs.name}"
     canary_role                         = "${aws_iam_role.canary_role.name}"
     canary_code_commit_url              = "${aws_codecommit_repository.canary.clone_url_http}"
-    external_dns_role_name              = "${aws_iam_role.external-dns.name}"
-    istio_permitted_roles_regex         = "^${aws_iam_role.cert-manager.name}$"
 
     permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.harbor.name,
       aws_iam_role.flux-helm-operator.name,
       aws_iam_role.cloudwatch_log_shipping_role.name,
-      aws_iam_role.external-dns.name,
     ))})$"
   }
 }

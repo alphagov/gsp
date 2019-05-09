@@ -12,11 +12,8 @@ spec:
     istio: ingressgateway
   servers:
   - port:
-      number: 443
-      name: https
-      protocol: HTTPS
-    tls:
-      mode: SIMPLE
-      credentialName: {{ include "gsp-cluster.fullname" . }}-cert
+      number: 80
+      name: http
+      protocol: HTTP
     hosts:
-    - "*.{{ .Values.global.cluster.domain }}"
+    - "*"

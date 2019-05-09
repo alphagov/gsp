@@ -6,5 +6,3 @@ metadata:
   labels:
     namespace: istio-system
     istio-injection: disabled
-  annotations:
-    iam.amazonaws.com/permitted: {{ .Values.istioSystem.permittedRolesRegex | quote }}
