@@ -276,7 +276,7 @@ Resources:
   HTTPTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Port: 30080
+      Port: 31380
       Protocol: HTTP
       VpcId: !Ref VpcId
 
@@ -340,5 +340,5 @@ Outputs:
     Value: !Ref NodeSecurityGroup
 
   HTTPTargetGroup:
-    Description: A target group to node port 30080
+    Description: A target group to node port 31380
     Value: !Ref HTTPTargetGroup

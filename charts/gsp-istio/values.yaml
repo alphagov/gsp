@@ -1,3 +1,8 @@
+global:
+  k8sIngressSelector: ingressgateway
+  k8sIngress:
+    enabled: false
+
 istio-cni:
   tag: master-20190410-09-16
   excludeNamespaces:
@@ -45,6 +50,8 @@ certmanager:
 
 # normal service can now resume
 istio:
+  ingress:
+    enable: false
   certmanager:
     enabled: false
   istio_cni:
@@ -55,15 +62,11 @@ istio:
     traceSampling: "100.0"
   prometheus:
     enabled: false
-  global:
-    k8sIngress:
-      enabled: true
   gateways:
     istio-ingressgateway:
+      type: NodePort
       sds:
         enabled: true
-      serviceAnnotations:
-        service.beta.kubernetes.io/aws-load-balancer-type: nlb
   sidecarInjectorWebhook:
     enableNamespacesByDefault: true
   kiali:
