@@ -152,5 +152,3 @@ prometheus-operator:
           - "alerts-3.monitoring.gds-reliability.engineering"
         scheme: https
 
-istioSystem:
-  permittedRolesRegex: "${istio_permitted_roles_regex}"
