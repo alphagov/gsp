@@ -42,6 +42,28 @@ resource "aws_security_group_rule" "worker-nodes-from-vpc" {
   cidr_blocks = ["${data.aws_vpc.private.cidr_block}"]
 }
 
+resource "aws_security_group_rule" "worker-nodes-nodeport-30080" {
+  security_group_id = "${aws_cloudformation_stack.worker-nodes.outputs["NodeSecurityGroup"]}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 30080
+  to_port   = 30080
+
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "worker-nodes-nodeport-30443" {
+  security_group_id = "${aws_cloudformation_stack.worker-nodes.outputs["NodeSecurityGroup"]}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 30443
+  to_port   = 30443
+
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
 resource "aws_security_group_rule" "kiam-server-from-vpc" {
   security_group_id = "${aws_cloudformation_stack.kiam-server-nodes.outputs["NodeSecurityGroup"]}"
 
