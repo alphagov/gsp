@@ -1,7 +1,5 @@
 global:
   k8sIngressSelector: ingressgateway
-  k8sIngress:
-    enabled: false
 
 istio-cni:
   tag: master-20190410-09-16
