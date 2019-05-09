@@ -11,8 +11,5 @@ dependencies:
 - name: kiam
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.2.0
-- name: external-dns
-  repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 1.7.3
 digest: sha256:7b44bfbeb9cf218fbc9696502b81d96553144ee3c159df03bbd0e49949ef8629
 generated: 2019-05-02T09:40:01.003358+01:00

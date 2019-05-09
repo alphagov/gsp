@@ -13,6 +13,3 @@ dependencies:
     version: 2.2.0
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: global.runningOnAws
-  - name: external-dns
-    version: 1.7.3
-    repository: https://kubernetes-charts.storage.googleapis.com/
