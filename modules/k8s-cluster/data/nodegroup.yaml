@@ -277,14 +277,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Port: 30080
-      Protocol: TCP
-      VpcId: !Ref VpcId
-
-  HTTPSTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Port: 30443
-      Protocol: TCP
+      Protocol: HTTP
       VpcId: !Ref VpcId
 
   NodeGroup:
@@ -297,7 +290,6 @@ Resources:
       VPCZoneIdentifier: !Ref Subnets
       TargetGroupARNs:
         - !Ref HTTPTargetGroup
-        - !Ref HTTPSTargetGroup
       Tags:
         - Key: Name
           Value: !Sub ${ClusterName}-${NodeGroupName}
@@ -346,10 +338,6 @@ Outputs:
   NodeSecurityGroup:
     Description: The security group for the node group
     Value: !Ref NodeSecurityGroup
-
-  HTTPSTargetGroup:
-    Description: A target group to node port 30443
-    Value: !Ref HTTPSTargetGroup
 
   HTTPTargetGroup:
     Description: A target group to node port 30080
