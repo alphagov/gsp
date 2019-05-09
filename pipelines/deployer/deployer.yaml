@@ -42,24 +42,6 @@ generate_cluster_values: &generate_cluster_values
   outputs:
   - name: cluster-values
 
-generate_istio_values: &generate_istio_values
-  platform: linux
-  image_resource: *task_image_resource
-  run:
-    path: /bin/bash
-    args:
-    - -eu
-    - -c
-    - |
-      mkdir -p istio-values
-      echo "fetching istio_values file from cluster-state..."
-      jq -r '.istio_values' ./cluster-state/metadata > ./istio-values/values.yaml
-      cat ./istio-values/values.yaml
-  inputs:
-  - name: cluster-state
-  outputs:
-  - name: istio-values
-
 generate_user_values: &generate_user_values
   platform: linux
   image_resource: *task_image_resource
@@ -185,7 +167,6 @@ apply_cluster_chart: &apply_cluster_chart
       helm template \
         --name istio \
         --namespace istio-system \
-        --values istio-values/values.yaml \
         --output-dir manifests \
         platform/charts/gsp-istio
       function apply() {
@@ -203,7 +184,6 @@ apply_cluster_chart: &apply_cluster_chart
       apply manifests/
   inputs:
   - name: cluster-values
-  - name: istio-values
   - name: user-values
   - name: namespace-values
   - name: platform
@@ -337,9 +317,6 @@ jobs:
     - task: generate-cluster-values
       timeout: 10m
       config: *generate_cluster_values
-    - task: generate-istio-values
-      timeout: 10m
-      config: *generate_istio_values
     - task: generate-namespace-values
       timeout: 10m
       config: *generate_namespace_values
