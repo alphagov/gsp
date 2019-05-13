@@ -14,3 +14,4 @@ config-repository: "https://github.com/alphagov/gsp-terraform-ignition.git"
 config-version: "master"
 config-path: "pipelines/examples"
 trusted-developer-keys: []
+disable-destroy: false

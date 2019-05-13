@@ -343,6 +343,7 @@ jobs:
 - name: destroy
   serial: true
   serial_groups: [cluster-modification]
+  disable_manual_trigger: ((disable-destroy))
   plan:
   - get: config
   - get: platform
