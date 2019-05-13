@@ -1,3 +1,10 @@
+groups:
+- name: deploy
+  jobs:
+  - deploy
+- name: destroy
+  jobs:
+  - destroy
 
 terraform_source: &terraform_source
   env_name: ((account-name))
@@ -336,6 +343,7 @@ jobs:
 - name: destroy
   serial: true
   serial_groups: [cluster-modification]
+  disable_manual_trigger: ((disable-destroy))
   plan:
   - get: config
   - get: platform
