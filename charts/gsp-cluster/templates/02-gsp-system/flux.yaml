@@ -234,26 +234,19 @@ spec:
   selector:
     app.kubernetes.io/name: {{ .Release.Name }}-flux-reporter
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
 metadata:
   name: {{ .Release.Name }}-flux-reporter
   namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: {{ .Release.Name }}-flux-reporter
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    kubernetes.io/tls-acme: "true"
 spec:
-  tls:
-    - hosts:
-        - flux-reporter.{{ .Values.global.cluster.domain }}
-      secretName: {{ .Release.Name }}-flux-reporter-tls
-  rules:
-    - host: "flux-reporter.{{ .Values.global.cluster.domain }}"
-      http:
-        paths:
-          - path: "/"
-            backend:
-              serviceName: {{ .Release.Name }}-flux-reporter
-              servicePort: http
+  hosts:
+    - "flux-reporter.{{ .Values.global.cluster.domain }}"
+  gateways:
+    - "gsp-gsp-cluster.gsp-system"
+  http:
+    - route:
+      - destination:
+          host: {{ .Release.Name }}-flux-reporter
+          port:
+            number: 8080

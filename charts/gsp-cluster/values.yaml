@@ -331,12 +331,9 @@ pipelineOperator:
 harbor:
   logLevel: warn
   expose:
+    type: clusterIP
     tls:
-      secretName: harbor-registry-certificates
-      notarySecretName: harbor-notary-certificates
-    ingress:
-      annotations:
-        kubernetes.io/tls-acme: "true"
+      enabled: false
   nginx:
     image:
       tag: v1.7.1
