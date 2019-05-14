@@ -102,7 +102,7 @@ module "gsp-network" {
 
 module "hsm" {
   source           = "../../modules/hsm"
-  subnet_ids       = ["${module.gsp-network.private_subnet_ids}"]
+  subnet_cidr_map  = "${module.gsp-network.private_subnet_cidr_mapping}"
   cluster_name     = "${var.cluster_name}"
   splunk           = "${var.splunk_enabled}"
   splunk_hec_url   = "${var.splunk_hec_url}"

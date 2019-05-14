@@ -1,14 +1,9 @@
-variable "subnet_ids" {
-  type = "list"
+variable "subnet_cidr_map" {
+  type = "map"
 }
 
 variable "cluster_name" {
   type = "string"
-}
-
-data "aws_subnet" "vpc" {
-  count = "${length(var.subnet_ids)}"
-  id    = "${var.subnet_ids[count.index]}"
 }
 
 variable "splunk" {
@@ -32,7 +27,7 @@ data "aws_region" "current" {}
 
 resource "aws_cloudhsm_v2_cluster" "cluster" {
   hsm_type   = "hsm1.medium"
-  subnet_ids = ["${var.subnet_ids}"]
+  subnet_ids = ["${keys(var.subnet_cidr_map)}"]
 
   tags = {
     Name = "${var.cluster_name}-hsm-cluster"
@@ -45,7 +40,7 @@ resource "aws_security_group_rule" "hsm-worker-ingress" {
   from_port         = 2223
   to_port           = 2225
   protocol          = "tcp"
-  cidr_blocks       = ["${data.aws_subnet.vpc.*.cidr_block}"]
+  cidr_blocks       = ["${values(var.subnet_cidr_map)}"]
 }
 
 # We can only create one HSM in Terraform rather than the multiple we require for high availability as you must create
