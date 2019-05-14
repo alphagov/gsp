@@ -100,6 +100,17 @@ module "gsp-network" {
   netnum       = "${var.cluster_number}"
 }
 
+module "hsm" {
+  source           = "../../modules/hsm"
+  subnet_ids       = ["${module.gsp-network.private_subnet_ids}"]
+  subnet_count     = "${length(module.gsp-network.private_subnet_ids)}"
+  cluster_name     = "${var.cluster_name}"
+  splunk           = "1"
+  splunk_hec_url   = "${var.splunk_hec_url}"
+  splunk_hec_token = "${var.splunk_hec_token}"
+  splunk_index     = "${var.splunk_index}"
+}
+
 module "gsp-cluster" {
   source            = "../../modules/gsp-cluster"
   account_name      = "${var.account_name}"
@@ -174,4 +185,8 @@ output "kubeconfig" {
 output "values" {
   sensitive = true
   value     = "${module.gsp-cluster.values}"
+}
+
+output "hsm_ips" {
+  value = "${module.hsm.hsm_ips}"
 }

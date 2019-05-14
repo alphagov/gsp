@@ -12,7 +12,7 @@ variable "cluster_name" {
 
 data "aws_subnet" "vpc" {
   count = "${var.subnet_count}"
-  id = "${var.subnet_ids[count.index]}"
+  id    = "${var.subnet_ids[count.index]}"
 }
 
 variable "splunk" {
@@ -44,12 +44,12 @@ resource "aws_cloudhsm_v2_cluster" "cluster" {
 }
 
 resource "aws_security_group_rule" "hsm-worker-ingress" {
-  security_group_id        = "${aws_cloudhsm_v2_cluster.cluster.security_group_id}"
-  type                     = "ingress"
-  from_port                = 2223
-  to_port                  = 2225
-  protocol                 = "tcp"
-  cidr_blocks = ["${data.aws_subnet.vpc.*.cidr_block}"]
+  security_group_id = "${aws_cloudhsm_v2_cluster.cluster.security_group_id}"
+  type              = "ingress"
+  from_port         = 2223
+  to_port           = 2225
+  protocol          = "tcp"
+  cidr_blocks       = ["${data.aws_subnet.vpc.*.cidr_block}"]
 }
 
 # We can only create one HSM in Terraform rather than the multiple we require for high availability as you must create
@@ -73,4 +73,12 @@ module "lambda_splunk_forwarder" {
   splunk_hec_token          = "${var.splunk_hec_token}"
   splunk_hec_url            = "${var.splunk_hec_url}"
   splunk_index              = "${var.splunk_index}"
+}
+
+data "aws_network_interface" "hsm" {
+  id = "${aws_cloudhsm_v2_hsm.cloudhsm_v2_hsm.hsm_eni_id}"
+}
+
+output "hsm_ips" {
+  value = ["${data.aws_network_interface.hsm.private_ips}"]
 }
