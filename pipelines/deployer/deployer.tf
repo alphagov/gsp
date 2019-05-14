@@ -103,9 +103,8 @@ module "gsp-network" {
 module "hsm" {
   source           = "../../modules/hsm"
   subnet_ids       = ["${module.gsp-network.private_subnet_ids}"]
-  subnet_count     = "${length(module.gsp-network.private_subnet_ids)}"
   cluster_name     = "${var.cluster_name}"
-  splunk           = "1"
+  splunk           = "${var.splunk_enabled}"
   splunk_hec_url   = "${var.splunk_hec_url}"
   splunk_hec_token = "${var.splunk_hec_token}"
   splunk_index     = "${var.splunk_index}"
