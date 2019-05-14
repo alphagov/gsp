@@ -1,6 +1,8 @@
 global:
   account:
     name: "local"
+  cluster:
+    domain: "local.govsandbox.uk"
 
 concourse:
   worker:

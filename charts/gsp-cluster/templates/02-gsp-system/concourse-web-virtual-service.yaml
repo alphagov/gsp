@@ -1,0 +1,21 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-concourse-web
+  namespace: {{ .Release.Namespace }}
+  labels:
+    chart: {{ .Chart.Name }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  hosts:
+  - "ci.{{ .Values.global.cluster.domain }}"
+  gateways:
+  - "gsp-gsp-cluster.gsp-system"
+  http:
+  - route:
+    - destination:
+        host: gsp-concourse-web
+        port:
+          number: 8080

@@ -46,12 +46,14 @@ You can then play with some of the services:
 ```
 export KUBECONFIG="$(kind get kubeconfig-path --name="gsp-local")"
 
-kubectl port-forward service/gsp-concourse-web -n gsp-system 8080:8080
-# curl http://127.0.0.1:8080
-
-kubectl port-forward service/gsp-prometheus-operator-prometheus -n gsp-system 9090:9090
-# curl http://127.0.0.1:9090
+# Workaround the fact Istio doesn't let you have specify ports on
+# hosts with VirtualServices so we have to run it on a priviledged
+# port:
+https://github.com/istio/istio/issues/6469
+sudo --preserve-env kubectl port-forward service/istio-ingressgateway -n istio-system 80:80
 ```
+- Open a browser
+- Navigate to `http://registry.local.govsandbox.uk`
 
 When you're finished you should destroy it:
 

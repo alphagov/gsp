@@ -39,17 +39,6 @@ concourse:
     githubClientId: ${github_client_id}
     githubClientSecret: ${github_client_secret}
     githubCaCert: ${github_ca_cert}
-  web:
-    ingress:
-      enabled: true
-      annotations:
-        kubernetes.io/tls-acme: "true"
-      hosts:
-      - ci.${cluster_domain}
-      tls:
-      - secretName: concourse-web-tls
-        hosts:
-        - ci.${cluster_domain}
   worker:
     replicas: ${concourse_worker_count}
     nodeSelector:
@@ -87,16 +76,6 @@ harbor:
         bucket: ${harbor_bucket_id}
         region: ${harbor_bucket_region}
         regionendpoint: s3.${harbor_bucket_region}.amazonaws.com
-  expose:
-    tls:
-      secretName: harbor-registry-certificates
-      notarySecretName: harbor-notary-certificates
-    ingress:
-      annotations:
-        kubernetes.io/tls-acme: "true"
-      hosts:
-        core: registry.${cluster_domain}
-        notary: notary.${cluster_domain}
   registry:
     podAnnotations:
       iam.amazonaws.com/role: ${harbor_iam_role_name}

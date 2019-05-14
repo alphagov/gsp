@@ -1,0 +1,61 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-registry
+  namespace: {{ .Release.Namespace }}
+  labels:
+    chart: {{ .Chart.Name }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  hosts:
+  - "registry.{{ .Values.global.cluster.domain }}"
+  gateways:
+  - "gsp-gsp-cluster.gsp-system"
+  http:
+  - match:
+    - uri:
+        prefix: /api/
+    - uri:
+        prefix: /service/
+    - uri:
+        prefix: /v2/
+    - uri:
+        prefix: /chartrepo/
+    - uri:
+        prefix: /c/
+    route:
+    - destination:
+        host: gsp-harbor-core
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: gsp-harbor-portal
+        port:
+          number: 80
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-notary
+  namespace: {{ .Release.Namespace }}
+  labels:
+    chart: {{ .Chart.Name }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  hosts:
+  - "notary.{{ .Values.global.cluster.domain }}"
+  gateways:
+  - "gsp-gsp-cluster.gsp-system"
+  http:
+  - route:
+    - destination:
+        host: gsp-harbor-notary-server
+        port:
+          number: 4443
