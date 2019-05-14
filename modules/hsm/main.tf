@@ -2,16 +2,12 @@ variable "subnet_ids" {
   type = "list"
 }
 
-variable "subnet_count" {
-  type = "string"
-}
-
 variable "cluster_name" {
   type = "string"
 }
 
 data "aws_subnet" "vpc" {
-  count = "${var.subnet_count}"
+  count = "${length(var.subnet_ids)}"
   id    = "${var.subnet_ids[count.index]}"
 }
 
