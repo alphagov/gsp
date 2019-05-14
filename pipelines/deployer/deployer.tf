@@ -14,6 +14,11 @@ variable "cluster_name" {
   type = "string"
 }
 
+variable "cluster_number" {
+  description = "unique number (0-255) for this cluster, dictates the assigned network 10.x.0.0/16"
+  default     = "0"
+}
+
 variable "cluster_domain" {
   type = "string"
 }
@@ -92,6 +97,7 @@ module "gsp-domain" {
 module "gsp-network" {
   source       = "../../modules/gsp-network"
   cluster_name = "${var.cluster_name}"
+  netnum       = "${var.cluster_number}"
 }
 
 module "gsp-cluster" {
