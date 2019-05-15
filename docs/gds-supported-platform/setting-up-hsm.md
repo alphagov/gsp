@@ -32,15 +32,9 @@ documentation for the most part.
 ## Signing the HSM's CSR
 
 It's particularly tricky to sign with the use of the YubiKey. In the end, it
-worked on the Ubuntu 18.04 (bionic) with the following set:
+worked on Ubuntu 18.04 (bionic). A Vagrantfile is provided inside the `hack` directory to facilitate signing the CSR from the yubikey. From there, the following will sign the CSR:
 
 ```sh
-sudo apt install build-essential
-
-sudo apt install pcscd yubikey-manager yubico-piv-tool yubikey-personalization libpcsclite-dev
-
-sudo apt install libengine-pkcs11-openssl opensc opensc-pkcs11
-
 ## The following paths (SO_PATH and MODULE_PATH) are very fragile.
 openssl << EOF
 engine dynamic -pre SO_PATH:/usr/lib/x86_64-linux-gnu/engines-1.1/pkcs11.so -pre ID:pkcs11 -pre NO_VCHECK:1 -pre LIST_ADD:1 -pre LOAD -pre MODULE_PATH:/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so -pre VERBOSE
@@ -50,7 +44,7 @@ EOF
 
 The `openssl` command mentions several files:
 - `customerCA.crt` is basically the CA certificate exported from the key.
-  Easily obtainable from GUI or the `yubico-piv-tool`
+  Easily obtainable from GUI or the `yubico-piv-tool` (`yubico-piv-tool -a read-certificate -s 9c > customerCA.crt`). When yubico-piv-tool prompts for the PIN enter the default user PIN.
 - `cluster-rn3c7izgvya_ClusterCsr.csr` is the file we obtain from HSM itself,
   following [these instructions](https://docs.aws.amazon.com/cloudhsm/latest/userguide/initialize-cluster.html#get-csr)
 - `cluster-rn3c7izgvya_CustomerHsmCertificate.crt` will be generated upon
@@ -63,7 +57,9 @@ https://dennis.silvrback.com/openssl-ca-with-yubikey-neo
 
 After we have signed the certificate, we can continue with the initialisation
 and activation of the cluster. We should be following the AWS guide on any of
-this, except the certificate signing which we do our way.
+this, except the certificate signing which we do our way. The files to upload are
+`cluster-rn3c7izgvya_CustomerHsmCertificate.crt` and `customerCA.crt` to initialize
+the cluster.
 
 ### Push the customerCA.crt to AWS SSM
 
@@ -73,13 +69,13 @@ interacting with the HSM.
 We decided to store it along the passwords in HSM for easier access.
 
 ```sh
-aws ssm put-parameter --type SecureString --name /hsm/customerCA --value "$(cat customerCA.crt)"
+aws ssm put-parameter --type SecureString --name /CLUSTER_NAME/hsm/customerCA --value "$(cat customerCA.crt)"
 ```
 
 Obtainable with:
 
 ```sh
-aws ssm get-parameter --query Parameter.Value --output text --with-decryption --name /hsm/customerCA
+aws ssm get-parameter --query Parameter.Value --output text --with-decryption --name /CLUSTER_NAME/hsm/customerCA
 ```
 
 ## Activating the HSM
@@ -102,9 +98,9 @@ and client `help` should be sufficient to accomplish that.
 The passwords are generated on Programme's AWS SSM, with the use of:
 
 ```sh
-aws ssm put-parameter --type SecureString --name /hsm/users/co/password --value "$(pwgen --capitalize --numerals --secure --symbols -1 --ambiguous 32 1 | tr -d '\n')" ## For Crypto Officer
+aws ssm put-parameter --type SecureString --name /CLUSTER_NAME/hsm/users/co/password --value "$(pwgen --capitalize --numerals --secure --symbols -1 --ambiguous 32 1 | tr -d '\n')" ## For Crypto Officer
 
-aws ssm put-parameter --type SecureString --name /hsm/users/cu/1/password --value "$(pwgen --capitalize --numerals --secure --symbols -1 --ambiguous 32 1 | tr -d '\n')" ## For Crypto User - Increased by 1 for any next user.
+aws ssm put-parameter --type SecureString --name /CLUSTER_NAME/hsm/users/cu/1/password --value "$(pwgen --capitalize --numerals --secure --symbols -1 --ambiguous 32 1 | tr -d '\n')" ## For Crypto User - Increased by 1 for any next user.
 ```
 
 These passwords can be retrieved with:
