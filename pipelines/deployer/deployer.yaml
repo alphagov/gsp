@@ -107,6 +107,7 @@ generate_namespace_values: &generate_namespace_values
   image_resource: *task_image_resource
   params:
     PATH_TO_NAMESPACES: ((config-path))/namespaces/
+    CLUSTER_NAME: ((cluster-name))
   run:
     path: /bin/bash
     args:
@@ -120,7 +121,8 @@ generate_namespace_values: &generate_namespace_values
       cd config/${PATH_TO_NAMESPACES}
       echo "creating helm compatible values file from namespace data"
       echo 'namespaces:' > $namespace_values_file
-      for ns in *; do
+      for ns in gsp-* "${CLUSTER_NAME}-*"; do
+        [ ! -d "${ns}" ] && continue
         echo "--> ${ns}"
         echo "- name: ${ns}" >> $namespace_values_file
         set_namespace=".metadata.namespace=\"${ns}\""
