@@ -16,3 +16,7 @@ config-version: "master"
 config-path: "pipelines/examples"
 trusted-developer-keys: []
 disable-destroy: false
+worker_instance_type: t3.medium
+worker_count: 3
+ci_worker_instance_type: t3.micro
+ci_worker_count: 3
