@@ -156,7 +156,8 @@ apply_cluster_chart: &apply_cluster_chart
     - -c
     - |
       echo "assuming aws deployer role..."
-      eval $(aws-assume-role $ACCOUNT_ROLE_ARN)
+      AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+      eval "${AWS_CREDS}"
       echo "fetching kubeconfig from aws..."
       aws eks update-kubeconfig \
         --name "${CLUSTER_NAME}" \
@@ -216,7 +217,8 @@ drain_cluster_task: &drain_cluster_task
     - -c
     - |
       echo "assuming aws deployer role..."
-      eval $(aws-assume-role $ACCOUNT_ROLE_ARN)
+      AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+      eval "${AWS_CREDS}"
       echo "checking there is a cluster to drain"
       if ! (aws eks list-clusters 1>/dev/null && aws eks describe-cluster --name "${CLUSTER_NAME}" 2>/dev/null 1>/dev/null); then
         echo 'no eks cluster running: skipping drain'
