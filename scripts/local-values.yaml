@@ -5,6 +5,9 @@ global:
     domain: "local.govsandbox.uk"
 
 concourse:
+  concourse:
+    web:
+      externalUrl: "http://ci.local.govsandbox.uk"
   worker:
     persistence:
       enabled: false
