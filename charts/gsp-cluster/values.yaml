@@ -323,7 +323,7 @@ pipelineOperator:
   serviceAccountName: pipeline-operator-service-account
   image:
     repository: "govsvc/gsp-concourse-pipeline-controller"
-    tag: "0.0.1554228115"
+    tag: "1558032204"
   concourseUsername: admin
   concoursePassword: password
   concourseInsecureSkipVerify: "false"
