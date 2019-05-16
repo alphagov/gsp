@@ -9,7 +9,7 @@ resource "aws_eks_cluster" "eks-cluster" {
 
   vpc_config {
     security_group_ids = ["${aws_security_group.controller.id}"]
-    subnet_ids         = ["${var.subnet_ids}"]
+    subnet_ids         = ["${concat(var.private_subnet_ids, var.public_subnet_ids)}"]
   }
 
   enabled_cluster_log_types = [
@@ -44,7 +44,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker\""
     VpcId                               = "${var.vpc_id}"
-    Subnets                             = "${join(",", var.subnet_ids)}"
+    Subnets                             = "${join(",", var.private_subnet_ids)}"
   }
 
   depends_on = ["aws_eks_cluster.eks-cluster"]
@@ -67,7 +67,7 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/cluster-management --register-with-taints=node-role.kubernetes.io/cluster-management=:NoSchedule\""
     VpcId                               = "${var.vpc_id}"
-    Subnets                             = "${join(",", var.subnet_ids)}"
+    Subnets                             = "${join(",", var.private_subnet_ids)}"
   }
 
   depends_on = ["aws_eks_cluster.eks-cluster"]
@@ -90,7 +90,7 @@ resource "aws_cloudformation_stack" "ci-nodes" {
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule\""
     VpcId                               = "${var.vpc_id}"
-    Subnets                             = "${join(",", var.subnet_ids)}"
+    Subnets                             = "${join(",", var.private_subnet_ids)}"
   }
 
   depends_on = ["aws_eks_cluster.eks-cluster"]
