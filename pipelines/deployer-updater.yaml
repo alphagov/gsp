@@ -1,0 +1,116 @@
+resource_types:
+- name: github
+  type: registry-image
+  source:
+    repository: "govsvc/concourse-github-resource"
+    tag: "0.0.1551114195"
+
+resources:
+- name: platform
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp-terraform-ignition.git
+    paths:
+      - pipelines/**/*.yaml
+    organization: alphagov
+    repository: gsp-terraform-ignition
+    github_api_token: "((github-api-token))"
+    approvers: # TODO: Invest in better ways to fill that list.
+      - "blairboy362"
+      - "chrisfarms"
+      - "samcrang"
+      - "smford"
+      - "szd55gds"
+      - "tlwr"
+      - "paroxp"
+    required_approval_count: 1 # TODO: increase to two.
+- name: config
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp-teams.git
+    paths:
+      - clusters/**/*.yaml
+    organization: alphagov
+    repository: gsp-teams
+    github_api_token: "((github-api-token))"
+    approvers: # TODO: Invest in better ways to fill that list.
+      - "blairboy362"
+      - "chrisfarms"
+      - "samcrang"
+      - "smford"
+      - "szd55gds"
+      - "tlwr"
+      - "paroxp"
+    required_approval_count: 1 # TODO: increase to two.
+
+jobs:
+- name: update-deployers
+  serial: true
+  plan:
+  - get: config
+    trigger: true
+  - get: platform
+    trigger: true
+  - task: set-pipelines
+    params:
+      CONCOURSE_TEAM: gsp
+      CONCOURSE_PASSWORD: ((readonly_local_user_password))
+      PIPELINE_PATH: platform/pipelines/deployer/deployer.yaml
+      CONFIG_MATCHER: config/clusters/*.yaml
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: governmentpaas/curl-ssl
+      inputs:
+      - name: platform
+      - name: config
+      run:
+        path: sh
+        args:
+        - -uec
+        - |
+          : ${CONCOURSE_TEAM:?}
+          : ${CONCOURSE_PASSWORD:?}
+          : ${PIPELINE_PATH:?}
+          : ${CONFIG_MATCHER:?}
+
+          CONCOURSE_USERNAME="${CONCOURSE_USERNAME:-$CONCOURSE_TEAM}"
+          CONCOURSE_URL="${CONCOURSE_URL:-https://cd.gds-reliability.engineering}"
+
+          > fly \
+            curl -L --fail \
+            "${CONCOURSE_URL}/api/v1/cli?arch=amd64&platform=linux"
+
+          chmod +x fly
+
+          echo "Authenticating into concourse"
+          ./fly --target self \
+            login \
+            --concourse-url "${CONCOURSE_URL}" \
+            --username "${CONCOURSE_TEAM}" \
+            --password "${CONCOURSE_PASSWORD}" \
+            --team-name "${CONCOURSE_TEAM}"
+
+          for CLUSTER_CONFIG in ${CONFIG_MATCHER}; do
+            CLUSTER_NAME="$(awk '/cluster-name/ {print $2}' $CLUSTER_CONFIG)"
+            PIPELINE_NAME="${CLUSTER_NAME//\"}-deployer"
+
+            echo "Validating the pipeline"
+            ./fly --target self \
+              validate-pipeline \
+              --config "${PIPELINE_PATH}" \
+              --load-vars-from "${CLUSTER_CONFIG}"
+
+            echo "Updating Concourse pipeline"
+            ./fly --target self \
+              set-pipeline \
+              --check-creds \
+              --pipeline "${PIPELINE_NAME}" \
+              --config "${PIPELINE_PATH}" \
+              --load-vars-from "${CLUSTER_CONFIG}" \
+              --non-interactive
+          done
+
+          echo "All done!"
