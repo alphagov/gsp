@@ -29,6 +29,12 @@ function template() {
 function template_all() {
 	template gsp-cluster gsp-system "${1}"
 	template gsp-istio istio-system "${1}"
+	# Because we don't do Helm properly the special helm testing annotations
+	# don't work. This means the test resources aren't applied at the end of an
+	# install but rather immediately. This causes the test pods to error
+	# because the chart won't have finished installing by the time the test
+	# runs.
+	rm -rf "${1}/gsp-cluster/charts/prometheus-operator/charts/grafana/templates/tests/"
 }
 
 option=${1}
