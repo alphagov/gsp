@@ -14,6 +14,7 @@ fly -t cd-gsp sync
 fly -t cd-gsp set-pipeline -p "${CLUSTER_NAME}" --config pipelines/deployer/deployer.yaml \
 	--load-vars-from pipelines/examples/clusters/sandbox.yaml \
 	--var cluster-name=${CLUSTER_NAME} \
+	--var cluster-domain=london.${CLUSTER_NAME}.govsvc.uk \
 	--var platform-version=${PLATFORM_BRANCH} \
 	--var config-version=${PLATFORM_BRANCH} \
 	--check-creds

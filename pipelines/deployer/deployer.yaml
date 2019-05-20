@@ -16,7 +16,7 @@ terraform_source: &terraform_source
     account_id: ((account-id))
     account_name: ((account-name))
     cluster_name: ((cluster-name))
-    cluster_domain: ((cluster-name)).((account-name)).govsvc.uk
+    cluster_domain: ((cluster-domain))
     cluster_number: ((cluster-number))
     aws_account_role_arn: ((account-role-arn))
     promotion_signing_key: ((ci-system-gpg-private))
