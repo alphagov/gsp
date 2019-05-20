@@ -12,6 +12,6 @@ data:
     - name: owner
       local:
         users: ["pipeline-operator"]
-    - name: viewer
+    - name: pipeline-operator
       github:
         teams: {{ .Values.concourseMainTeamGithubTeams }}
