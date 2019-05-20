@@ -67,6 +67,8 @@ function apply() {
 	done
 	log "[Apply attempt #${apply_attempt}] Successfully applied ${1}."
 
+	sleep ${sleep_for}
+
 	local stabilize_attempt=1
 	log "[Stabilize attempt #${stabilize_attempt}] Waiting for ${1} to stabilize..."
 	until ! kubectl get pods --all-namespaces | tail -n "+2" | grep -v Completed | grep -v Running; do
