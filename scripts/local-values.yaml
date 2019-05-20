@@ -3,6 +3,8 @@ global:
     name: "local"
   cluster:
     domain: "local.govsandbox.uk"
+  mtls:
+    enabled: false
 
 concourse:
   concourse:
