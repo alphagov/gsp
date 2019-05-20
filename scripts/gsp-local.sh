@@ -82,7 +82,6 @@ log "Creating local GSP..."
 
 kind create cluster \
 	--name ${cluster_name} \
-	--image kindest/node:v1.12.5 \
 	|| (log "Local GSP cluster already exists." && exit 1)
 
 export KUBECONFIG="$(kind get kubeconfig-path --name="${cluster_name}")"
