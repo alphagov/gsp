@@ -98,20 +98,20 @@ template_all "${manifest_dir}"
 log "Applying local GSP configuration..."
 
 log "[HACK] Creating missing namespaces..."
-kubectl apply -f "${script_dir}/hack/create-gsp-main-namespace.yaml"
+apply "${script_dir}/hack/create-gsp-main-namespace.yaml"
 
 log "[HACK] Applying local DNS hack..."
-kubectl apply -f "${script_dir}/hack/make-coredns-resolve-local-to-istio-gateway.yaml"
+apply "${script_dir}/hack/make-coredns-resolve-local-to-istio-gateway.yaml"
 
 apply "${manifest_dir}/gsp-cluster/templates/00-aws-auth/"
 apply "${manifest_dir}/gsp-istio/"
 apply "${manifest_dir}/gsp-cluster/"
 
 log "[HACK] Creating Prometheus VirtualService..."
-kubectl apply -f "${script_dir}/hack/expose-prometheus.yaml"
+apply "${script_dir}/hack/expose-prometheus.yaml"
 
 log "[HACK] Creating Grafana VirtualService..."
-kubectl apply -f "${script_dir}/hack/expose-grafana.yaml"
+apply "${script_dir}/hack/expose-grafana.yaml"
 
 kubectl cluster-info
 log "Local GSP ready."
