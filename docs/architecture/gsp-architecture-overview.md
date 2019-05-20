@@ -11,7 +11,7 @@ This view shows the high level components that make up the GDS Supported Platfor
 
 |Component|Description|
 |---------|-----------|
-|`BUILD`| converts source code into deployable binary artefacts and stores it in a repository|
+|`BUILD`| converts source code into deployable binary artefacts and stores them in a repository|
 |`CLOUD HOSTING`| provides the underlying cloud infrastructure|
 |`DEPLOY`| controls how binary artefacts are deployed|
 |`GDS SERVICES`| services written by GDS service teams in a [GDS Way supported language](https://gds-way.cloudapps.digital/standards/programming-languages.html)|
@@ -29,8 +29,8 @@ This view shows the high level components that make up the GDS Supported Platfor
 
 |Component|Description|
 |---------|-----------|
-|`Alertmanager`| techops alerting |
-|`Amazon Web Services`| provides the underlying cloud infrastructure|
+|`Alertmanager`| The TechOps standard alerting tools is [AlertManager](https://prometheus.io/docs/alerting/alertmanager/) |
+|`Amazon Web Services`| [AWS](https://aws.amazon.com) provides the underlying cloud infrastructure|
 |`CloudWatch`| collects log infomation to allow inspection and diagnosis of a running application|
 |`ConcourseCI`| is the continuous integration tool that runs  the pipelines to convert source code into container images|
 |`Docker Notary`| signs and verifies docker image integrity |
@@ -40,8 +40,8 @@ This view shows the high level components that make up the GDS Supported Platfor
 |`GDS Services`| services written by GDS service teams in a [GDS Way supported language](https://gds-way.cloudapps.digital/standards/programming-languages.html)|
 |`Grafana`| display application metrics|
 |`Helm Charts`|Applications packaged for deployment using [Helm Charts](https://helm.sh/docs/developing_charts/) |
-|`Kubernetes`| schedules the containers to be run
-|`Prometheus`| techops monitoring |
+|`EKS`| [AWS Elastic Container Service for Kubernetes](https:/aws.amazon.com/eks) schedules the containers to be run
+|`Prometheus`| TechOps monitoring |
 |`Splunk`| ensures that your service is safe and manages the cyber security risk|
 |`Terraform` | manages the infrastructure as code |
 
