@@ -59,6 +59,10 @@ resource "aws_lb" "ingress" {
 resource "aws_acm_certificate" "default" {
   domain_name       = "*.${var.cluster_domain}"
   validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_route53_record" "default" {
@@ -84,6 +88,10 @@ resource "aws_lb_listener" "ingress-https" {
   default_action {
     type             = "forward"
     target_group_arn = "${module.k8s-cluster.worker_http_target_group_arn}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
