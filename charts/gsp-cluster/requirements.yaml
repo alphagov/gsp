@@ -7,7 +7,7 @@ dependencies:
     repository: https://kubernetes-charts-incubator.storage.googleapis.com/
     condition: global.runningOnAws
   - name: "concourse"
-    version: 5.0.1
+    version: 6.2.0
     repository: https://kubernetes-charts.storage.googleapis.com/
   - name: "kiam"
     version: 2.2.0
