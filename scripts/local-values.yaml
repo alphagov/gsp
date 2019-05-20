@@ -15,3 +15,8 @@ concourse:
   postgresql:
     persistence:
       enabled: false
+
+pipelineOperator:
+  image:
+    repository: "govsvc/gsp-concourse-pipeline-controller"
+    tag: "0.0.1554228115"
