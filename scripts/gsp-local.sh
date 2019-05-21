@@ -2,10 +2,16 @@
 
 set -eu
 
+script_dir=$(dirname $0)
+
 if [ $# -lt 1 ]; then
-	echo "Usage $0 [create|destroy|template]"
+	usage
 	exit 1
 fi
+
+function usage() {
+	echo "Usage: ${0} [create|destroy|template]"
+}
 
 function log() {
 	echo "☁️  ${1}" 1>&2
@@ -17,21 +23,27 @@ function template() {
 		--name=gsp \
 		--namespace="${2}"\
 		--output-dir="${3}" \
-		--values="scripts/local-values.yaml"
+		--values="${script_dir}/local-values.yaml"
 }
 
 function template_all() {
 	template gsp-cluster gsp-system "${1}"
 	template gsp-istio istio-system "${1}"
+	# Because we don't do Helm properly the special helm testing annotations
+	# don't work. This means the test resources aren't applied at the end of an
+	# install but rather immediately. This causes the test pods to error
+	# because the chart won't have finished installing by the time the test
+	# runs.
+	rm -rf "${1}/gsp-cluster/charts/prometheus-operator/charts/grafana/templates/tests/"
 }
 
-OPTION=${1}
-CLUSTER_NAME=gsp-local
+option=${1}
+cluster_name=gsp-local
 
-case ${OPTION} in
+case ${option} in
 	destroy|delete)
 		log "Destroying local GSP..."
-		kind delete cluster --name ${CLUSTER_NAME}
+		kind delete cluster --name ${cluster_name}
 		exit 0
 		;;
 	template)
@@ -43,7 +55,8 @@ case ${OPTION} in
 	create)
 		;;
 	*)
-		log "Unrecognised option '${OPTION}'."
+		usage
+		log "Unrecognised option '${option}'."
 		exit 1
 		;;
 esac
@@ -60,6 +73,8 @@ function apply() {
 	done
 	log "[Apply attempt #${apply_attempt}] Successfully applied ${1}."
 
+	sleep ${sleep_for}
+
 	local stabilize_attempt=1
 	log "[Stabilize attempt #${stabilize_attempt}] Waiting for ${1} to stabilize..."
 	until ! kubectl get pods --all-namespaces | tail -n "+2" | grep -v Completed | grep -v Running; do
@@ -74,36 +89,38 @@ function apply() {
 log "Creating local GSP..."
 
 kind create cluster \
-	--name ${CLUSTER_NAME} \
-	--image kindest/node:v1.12.5 \
+	--name ${cluster_name} \
 	|| (log "Local GSP cluster already exists." && exit 1)
 
-export KUBECONFIG="$(kind get kubeconfig-path --name="${CLUSTER_NAME}")"
-kubectl config set-context --current  --namespace gsp-system
+export KUBECONFIG="$(kind get kubeconfig-path --name="${cluster_name}")"
+kubectl config set-context --current --namespace gsp-system
 
-MANIFEST_DIR=$(mktemp -d)
+manifest_dir=$(mktemp -d)
 function cleanup() {
-	rm -rf "${MANIFEST_DIR}"
+	rm -rf "${manifest_dir}"
 	exit 0
 }
 trap 'cleanup' INT TERM EXIT
-template_all "${MANIFEST_DIR}"
+template_all "${manifest_dir}"
 
 log "Applying local GSP configuration..."
 
-# HACK HACK HACK
-kubectl apply -R -f <(cat <<EOF
-apiVersion: v1
-kind: Namespace
-metadata:
-    name: gsp-main
-EOF
-)
+log "[HACK] Creating missing namespaces..."
+apply "${script_dir}/hack/create-gsp-main-namespace.yaml"
 
-apply "${MANIFEST_DIR}/gsp-cluster/templates/00-aws-auth/"
-apply "${MANIFEST_DIR}/gsp-istio/"
-apply "${MANIFEST_DIR}/gsp-cluster/"
+log "[HACK] Applying local DNS hack..."
+apply "${script_dir}/hack/make-coredns-resolve-local-to-istio-gateway.yaml"
+
+apply "${manifest_dir}/gsp-cluster/templates/00-aws-auth/"
+apply "${manifest_dir}/gsp-istio/"
+apply "${manifest_dir}/gsp-cluster/"
+
+log "[HACK] Creating Prometheus VirtualService..."
+apply "${script_dir}/hack/expose-prometheus.yaml"
+
+log "[HACK] Creating Grafana VirtualService..."
+apply "${script_dir}/hack/expose-grafana.yaml"
 
 kubectl cluster-info
 log "Local GSP ready."
-echo "export KUBECONFIG=\"\$(kind get kubeconfig-path --name=\"${CLUSTER_NAME}\")\""
+echo "export KUBECONFIG=\"\$(kind get kubeconfig-path --name=\"${cluster_name}\")\""

@@ -1,0 +1,19 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: gsp-grafana
+  namespace: gsp-system
+  labels:
+    chart: gsp-cluster
+spec:
+  hosts:
+  - "grafana.local.govsandbox.uk"
+  gateways:
+  - "gsp-gsp-cluster.gsp-system"
+  http:
+  - route:
+    - destination:
+        host: gsp-grafana
+        port:
+          number: 80
