@@ -102,19 +102,31 @@ variable "splunk_enabled" {
   default     = "0"
 }
 
-variable "splunk_hec_token" {
-  description = "Splunk HTTP event collector token for authentication"
-  type        = "string"
-  default     = ""
-}
-
 variable "splunk_hec_url" {
   description = "Splunk HTTP event collector URL to send logs to"
   type        = "string"
   default     = ""
 }
 
-variable "splunk_index" {
+variable "k8s_splunk_hec_token" {
+  description = "Splunk HTTP event collector token for authentication"
+  type        = "string"
+  default     = ""
+}
+
+variable "k8s_splunk_index" {
+  description = "Name of index to be added as metadata to logs for use in splunk"
+  type        = "string"
+  default     = ""
+}
+
+variable "vpc_flow_log_splunk_hec_token" {
+  description = "Splunk HTTP event collector token for authentication"
+  type        = "string"
+  default     = ""
+}
+
+variable "vpc_flow_log_splunk_index" {
   description = "Name of index to be added as metadata to logs for use in splunk"
   type        = "string"
   default     = ""
