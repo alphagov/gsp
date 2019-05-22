@@ -18,6 +18,9 @@ concourse:
     persistence:
       enabled: false
 
+harbor:
+  externalURL: http://registry.local.govsandbox.uk
+
 pipelineOperator:
   image:
     repository: "govsvc/gsp-concourse-pipeline-controller"
