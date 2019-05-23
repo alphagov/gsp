@@ -13,3 +13,6 @@ dependencies:
     version: 2.2.0
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: global.runningOnAws
+  - name: "harbor"
+    version: 1.1.0
+    repository: https://helm.goharbor.io/
