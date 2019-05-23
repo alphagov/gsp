@@ -43,7 +43,7 @@ cluster_name=gsp-local
 case ${option} in
 	destroy|delete)
 		log "Destroying local GSP..."
-		kind delete cluster --name ${cluster_name}
+		minikube delete --profile ${cluster_name}
 		exit 0
 		;;
 	template)
@@ -87,12 +87,14 @@ function apply() {
 }
 
 log "Creating local GSP..."
+minikube start \
+	--memory 8192 \
+	--cpus 4 \
+	--disk-size 30g \
+	--vm-driver hyperkit \
+	--kubernetes-version v1.12.0 \
+	--profile ${cluster_name}
 
-kind create cluster \
-	--name ${cluster_name} \
-	|| (log "Local GSP cluster already exists." && exit 1)
-
-export KUBECONFIG="$(kind get kubeconfig-path --name="${cluster_name}")"
 kubectl config set-context --current --namespace gsp-system
 
 manifest_dir=$(mktemp -d)
@@ -123,4 +125,3 @@ apply "${script_dir}/hack/expose-grafana.yaml"
 
 kubectl cluster-info
 log "Local GSP ready."
-echo "export KUBECONFIG=\"\$(kind get kubeconfig-path --name=\"${cluster_name}\")\""
