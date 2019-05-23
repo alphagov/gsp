@@ -114,4 +114,12 @@ subjects:
 - kind: ServiceAccount
   name: {{ $.Release.Name }}-concourse-web
   namespace: {{ $.Release.Namespace }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github
+  namespace: {{ .name }}
+data:
+  api-token: {{ $.Values.githubAPIToken | b64enc }}
 {{- end }}

@@ -22,6 +22,7 @@ sreRoleARNs: []
 sreUserARNs: []
 permittedRolesRegex: ""
 
+githubAPIToken: ""
 
 
 # users:
