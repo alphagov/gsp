@@ -4,14 +4,14 @@ set -eu
 
 script_dir=$(dirname $0)
 
+function usage() {
+	echo "Usage: ${0} [create|destroy|template]"
+}
+
 if [ $# -lt 1 ]; then
 	usage
 	exit 1
 fi
-
-function usage() {
-	echo "Usage: ${0} [create|destroy|template]"
-}
 
 function log() {
 	echo "☁️  ${1}" 1>&2
