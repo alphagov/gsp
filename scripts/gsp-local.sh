@@ -93,6 +93,7 @@ minikube start \
 	--disk-size 30g \
 	--vm-driver hyperkit \
 	--kubernetes-version v1.12.0 \
+	--insecure-registry "registry.local.govsandbox.uk:80" \
 	--profile ${cluster_name}
 
 kubectl config set-context --current --namespace gsp-system

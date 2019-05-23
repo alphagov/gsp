@@ -19,6 +19,13 @@ concourse:
       enabled: false
 
 harbor:
+  expose:
+    type: ingress
+    tls:
+      enabled: false
+    ingress:
+      hosts:
+        core: registry.local.govsandbox.uk
   externalURL: http://registry.local.govsandbox.uk
 
 pipelineOperator:
