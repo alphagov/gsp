@@ -35,7 +35,8 @@ notary:
 concourseMainTeamGithubTeams: ${concourse_main_team_github_teams}
 concourse:
   secrets:
-    localUsers: pipeline-operator:${concourse_admin_password}
+    localUsers: >-
+      pipeline-operator:${concourse_admin_password}
     githubClientId: ${github_client_id}
     githubClientSecret: ${github_client_secret}
     githubCaCert: ${github_ca_cert}
@@ -63,7 +64,8 @@ concourse:
 
 pipelineOperator:
   concourseUsername: pipeline-operator
-  concoursePassword: ${concourse_admin_password}
+  concoursePassword: >-
+    ${concourse_admin_password}
 
 harbor:
   harborAdminPassword: ${harbor_admin_password}

@@ -11,7 +11,7 @@ data "template_file" "values" {
     sre_role_arns                       = "${jsonencode(var.sre_role_arns)}"
     sre_user_arns                       = "${jsonencode(var.sre_user_arns)}"
     bootstrap_role_arns                 = "${jsonencode(module.k8s-cluster.bootstrap_role_arns)}"
-    concourse_admin_password            = "${jsonencode(random_string.concourse_password.result)}"
+    concourse_admin_password            = "${random_string.concourse_password.result}"
     concourse_teams                     = "${jsonencode(concat(list("main"), var.concourse_teams))}"
     concourse_main_team_github_teams    = "${jsonencode(var.concourse_main_team_github_teams)}"
     concourse_worker_count              = "${var.ci_worker_count}"
