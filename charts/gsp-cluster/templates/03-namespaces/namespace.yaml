@@ -46,7 +46,7 @@ spec:
     local:
       users: ["pipeline-operator"]
   - name: pipeline-operator
-    local:
+    github:
       users:
       {{- range $.Values.users }}
         {{- $user := . }}
