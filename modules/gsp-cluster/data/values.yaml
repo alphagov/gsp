@@ -71,6 +71,11 @@ harbor:
   harborAdminPassword: ${harbor_admin_password}
   secretKey: ${harbor_secret_key}
   externalURL: https://registry.${cluster_domain}
+  expose:
+    ingress:
+      hosts:
+        core: registry.${cluster_domain}
+        notary: notary.${cluster_domain}
   persistence:
     imageChartStorage:
       type: s3
@@ -79,6 +84,7 @@ harbor:
         region: ${harbor_bucket_region}
         regionendpoint: s3.${harbor_bucket_region}.amazonaws.com
   registry:
+    secret: ${harbor_secret_key}
     podAnnotations:
       iam.amazonaws.com/role: ${harbor_iam_role_name}
   chartmuseum:

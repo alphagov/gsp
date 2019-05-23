@@ -330,11 +330,14 @@ pipelineOperator:
   concourseInsecureSkipVerify: "false"
 
 harbor:
-  logLevel: warn
+  chartmuseum:
+    enabled: false
+  logLevel: debug
   expose:
-    type: clusterIP
+    type: ingress
     tls:
       enabled: false
+
 
 secrets:
   public_certificate: ""

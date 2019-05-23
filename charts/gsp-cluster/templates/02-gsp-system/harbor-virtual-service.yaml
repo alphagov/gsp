@@ -30,6 +30,10 @@ spec:
         host: gsp-harbor-core
         port:
           number: 80
+      headers:
+        request:
+          set:
+            "x-forwarded-proto": "https"
   - match:
     - uri:
         prefix: /
@@ -38,6 +42,10 @@ spec:
         host: gsp-harbor-portal
         port:
           number: 80
+      headers:
+        request:
+          set:
+            "x-forwarded-proto": "https"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -59,3 +67,7 @@ spec:
         host: gsp-harbor-notary-server
         port:
           number: 4443
+      headers:
+        request:
+          set:
+            "x-forwarded-proto": "https"
