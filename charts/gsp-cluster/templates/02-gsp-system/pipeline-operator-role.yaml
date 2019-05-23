@@ -16,3 +16,23 @@ rules:
   - update
   - patch
   - delete
+- apiGroups:
+  - concourse.k8s.io
+  resources:
+  - team
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - concourse.k8s.io
+  resources:
+  - team/status
+  verbs:
+  - get
+  - update
+  - patch
