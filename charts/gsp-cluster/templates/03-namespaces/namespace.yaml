@@ -38,7 +38,7 @@ kind: Team
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"
-  name: {{ trimPrefix $clusterName .name }}
+  name: {{ trimPrefix (printf "%s-" $clusterName) .name }}
 spec:
   roles:
   - name: owner
