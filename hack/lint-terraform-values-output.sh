@@ -62,7 +62,8 @@ EOF
 
 helm template \
 	--output-dir ./output \
-	--namespace fake-system \
+	--name gsp \
+	--namespace gsp-system \
 	--values <(\
 		cat modules/gsp-cluster/data/values.yaml \
 		| sed 's/${admin_role_arns}/[]/' \
