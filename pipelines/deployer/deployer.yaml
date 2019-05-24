@@ -277,12 +277,16 @@ resources:
     uri: ((platform-repository))
     organization: alphagov
     github_api_token: "((github-api-token))"
-    approvers:
+    approvers: # TODO: Populate the list automagically...
       - "samcrang"
       - "paroxp"
       - "chrisfarms"
       - "tlwr"
       - "blairboy362"
+      - "whpearson"
+      - "vixus0"
+      - "sakisv"
+      - "schmie"
     required_approval_count: 2
     branch: ((platform-version))
     commit_verification_keys: ((trusted-developer-keys))
@@ -292,12 +296,16 @@ resources:
     uri: ((config-repository))
     organization: alphagov
     github_api_token: "((github-api-token))"
-    approvers:
+    approvers: # TODO: Populate the list automagically...
       - "samcrang"
       - "paroxp"
       - "chrisfarms"
       - "tlwr"
       - "blairboy362"
+      - "whpearson"
+      - "vixus0"
+      - "sakisv"
+      - "schmie"
     required_approval_count: 2
     branch: ((config-version))
     commit_verification_keys: ((trusted-developer-keys))
