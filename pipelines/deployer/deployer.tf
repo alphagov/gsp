@@ -40,11 +40,29 @@ variable "splunk_hec_url" {
   type = "string"
 }
 
-variable "splunk_hec_token" {
+variable "k8s_splunk_hec_token" {
   type = "string"
 }
 
-variable "splunk_index" {
+variable "k8s_splunk_index" {
+  type    = "string"
+  default = "run_sandbox_k8s"
+}
+
+variable "hsm_splunk_hec_token" {
+  type = "string"
+}
+
+variable "hsm_splunk_index" {
+  type    = "string"
+  default = "run_sandbox_k8s"
+}
+
+variable "vpc_flow_log_splunk_hec_token" {
+  type = "string"
+}
+
+variable "vpc_flow_log_splunk_index" {
   type    = "string"
   default = "run_sandbox_k8s"
 }
@@ -106,8 +124,8 @@ module "hsm" {
   cluster_name     = "${var.cluster_name}"
   splunk           = "${var.splunk_enabled}"
   splunk_hec_url   = "${var.splunk_hec_url}"
-  splunk_hec_token = "${var.splunk_hec_token}"
-  splunk_index     = "${var.splunk_index}"
+  splunk_hec_token = "${var.hsm_splunk_hec_token}"
+  splunk_index     = "${var.hsm_splunk_index}"
 }
 
 module "gsp-cluster" {
@@ -139,14 +157,16 @@ module "gsp-cluster" {
   ci_worker_instance_type = "${var.ci_worker_instance_type}"
   ci_worker_count         = "${var.ci_worker_count}"
 
-  vpc_id             = "${module.gsp-network.vpc_id}"
-  private_subnet_ids = "${module.gsp-network.private_subnet_ids}"
-  public_subnet_ids  = "${module.gsp-network.public_subnet_ids}"
-  egress_ips         = "${module.gsp-network.egress_ips}"
-  ingress_ips        = "${module.gsp-network.ingress_ips}"
-  splunk_hec_url     = "${var.splunk_hec_url}"
-  splunk_hec_token   = "${var.splunk_hec_token}"
-  splunk_index       = "${var.splunk_index}"
+  vpc_id                        = "${module.gsp-network.vpc_id}"
+  private_subnet_ids            = "${module.gsp-network.private_subnet_ids}"
+  public_subnet_ids             = "${module.gsp-network.public_subnet_ids}"
+  egress_ips                    = "${module.gsp-network.egress_ips}"
+  ingress_ips                   = "${module.gsp-network.ingress_ips}"
+  splunk_hec_url                = "${var.splunk_hec_url}"
+  k8s_splunk_hec_token          = "${var.k8s_splunk_hec_token}"
+  k8s_splunk_index              = "${var.k8s_splunk_index}"
+  vpc_flow_log_splunk_hec_token = "${var.vpc_flow_log_splunk_hec_token}"
+  vpc_flow_log_splunk_index     = "${var.vpc_flow_log_splunk_index}"
 
   codecommit_init_role_arn = "${var.aws_account_role_arn}"
   github_client_id         = "${var.github_client_id}"
