@@ -1,5 +1,5 @@
 resource "aws_flow_log" "vpc_flow_log" {
-  iam_role_arn         = "${var.cluster_name}_cloudwatch_vpc_flow_log_shipping"
+  iam_role_arn         = "${aws_iam_role.cloudwatch_vpc_flow_log_shipping.arn}"
   log_destination      = "${aws_cloudwatch_log_group.vpc_flow_log.arn}"
   log_destination_type = "cloud-watch-logs"
   traffic_type         = "ALL"
