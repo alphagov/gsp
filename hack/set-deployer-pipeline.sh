@@ -9,9 +9,9 @@ set -eu
 
 PLATFORM_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-fly -t cd-gsp sync
+fly -t gsp sync
 
-fly -t cd-gsp set-pipeline -p "${CLUSTER_NAME}" --config pipelines/deployer/deployer.yaml \
+fly -t gsp set-pipeline -p "${CLUSTER_NAME}" --config pipelines/deployer/deployer.yaml \
 	--load-vars-from pipelines/examples/clusters/sandbox.yaml \
 	--var cluster-name=${CLUSTER_NAME} \
 	--var cluster-domain=london.${CLUSTER_NAME}.govsvc.uk \
@@ -19,4 +19,4 @@ fly -t cd-gsp set-pipeline -p "${CLUSTER_NAME}" --config pipelines/deployer/depl
 	--var config-version=${PLATFORM_BRANCH} \
 	--check-creds
 
-fly -t cd-gsp expose-pipeline -p "${CLUSTER_NAME}"
+fly -t gsp expose-pipeline -p "${CLUSTER_NAME}"
