@@ -19,8 +19,6 @@ terraform_source: &terraform_source
     cluster_domain: ((cluster-domain))
     cluster_number: ((cluster-number))
     aws_account_role_arn: ((account-role-arn))
-    promotion_signing_key: ((ci-system-gpg-private))
-    promotion_verification_key: ((ci-system-gpg-public))
     github_client_id: ((github-client-id))
     github_client_secret: ((github-client-secret))
     splunk_enabled: ((splunk-enabled))
@@ -157,6 +155,8 @@ apply_cluster_chart: &apply_cluster_chart
     DEFAULT_NAMESPACE: gsp-system
     CHART_RELEASE_NAME: gsp
     GITHUB_API_TOKEN: ((github-api-token))
+    PROMOTION_SIGNING_KEY: ((ci-system-gpg-private))
+    PROMOTION_VERIFICATION_KEY: ((ci-system-gpg-public))
   run:
     path: /bin/bash
     args:
@@ -183,6 +183,8 @@ apply_cluster_chart: &apply_cluster_chart
         --values user-values/values.yaml \
         --values namespace-values/values.yaml \
         --set githubAPIToken=${GITHUB_API_TOKEN} \
+        --set "global.promotionSigningKey=${PROMOTION_SIGNING_KEY}" \
+        --set "global.promotionVerificationKey=${PROMOTION_VERIFICATION_KEY}" \
         --output-dir manifests \
         "platform/charts/${CHART_NAME}"
       echo "rendering gsp-istio chart..."

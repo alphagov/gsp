@@ -122,4 +122,13 @@ metadata:
   namespace: {{ .name }}
 data:
   api-token: {{ $.Values.githubAPIToken | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: promotion
+  namespace: {{ .name }}
+data:
+  signingKey: {{ $.Values.global.promotionSigningKey | b64enc }}
+  verificationKey: {{ $.Values.global.promotionVerificationKey | b64enc }}
 {{- end }}
