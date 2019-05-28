@@ -32,9 +32,7 @@ resource "aws_iam_policy_attachment" "cloudwatch_vpc_flow_log_shipping" {
 
 data "aws_iam_policy_document" "cloudwatch_vpc_flow_log_assume_role" {
   statement {
-    actions = [
-      "sts:AssumeRole",
-    ]
+    actions = ["sts:AssumeRole"]
 
     principals {
       type        = "Service"
