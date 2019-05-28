@@ -8,22 +8,19 @@ This process is resource-intensive and you must set the resource amount used by 
 
 ## Build a local GSP cluster
 
-1. Install and configure [Golang](https://golang.org/).
-
 1. Install [homebrew](https://brew.sh/):
 
-1. Run the following in the command line to install `kubectl` and `helm`:
+1. Install dependencies:
 
     ```
+    brew cask install minikube
     brew install kubernetes-cli
     brew install kubernetes-helm
+    brew install hyperkit
+    brew install docker-machine-driver-hyperkit
     ```
 
-1. Install [`kind`](https://kind.sigs.k8s.io/):
-
-    ```
-    GO111MODULE="on" go get -u sigs.k8s.io/kind@v0.3.0
-    ```
+    After installing `docker-machine-driver-hyperkit` follow instructions on how to grant driver superuser privileges to the hypervisor.
 
 1. Clone the GSP repo:
 
@@ -38,12 +35,6 @@ This process is resource-intensive and you must set the resource amount used by 
     ```
 
     If this script is still running after 15 minutes, contact the GSP team using the [re-GSP Slack channel](https://gds.slack.com/messages/CDA7YSP0D).
-
-1. Configure `kubectl` to use the local GSP cluster:
-
-    ```
-    export KUBECONFIG="$(kind get kubeconfig-path --name="gsp-local")"
-    ```
 
 1. Check that you can access your local GSP cluster using [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/):
 

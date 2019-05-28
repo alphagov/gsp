@@ -33,7 +33,7 @@ The platform is for teams working in the [Government Digital Service](https://ww
 
 ## Running locally
 
-It is possible to run a GSP cluster locally using [kind](https://kind.sigs.k8s.io/). You will probably want to give your Docker daemon more RAM than the default (anecdotally 8GB works).
+It is possible to run a GSP cluster locally using [Minikube](https://kubernetes.io/docs/setup/minikube/).
 
 To create a cluster run:
 
@@ -41,11 +41,15 @@ To create a cluster run:
 ./scripts/gsp-local.sh create
 ```
 
-You can then play with some of the services:
+After more than 5 minutes, but less than 10 the script should terminate and a cluster will be available:
 
 ```
-export KUBECONFIG="$(kind get kubeconfig-path --name="gsp-local")"
+kubectl cluster-info
+```
 
+You can then connect to some of the GSP-provided services:
+
+```
 # Workaround the fact Istio doesn't let you have specify ports on
 # hosts with VirtualServices so we have to run it on a priviledged
 # port:
