@@ -128,8 +128,7 @@ generate_namespace_values: &generate_namespace_values
       cd config/${PATH_TO_NAMESPACES}
       echo "creating helm compatible values file from namespace data"
       echo 'namespaces:' > $namespace_values_file
-      for ns in gsp-* "${CLUSTER_NAME}-*"; do
-        [ ! -d "${ns}" ] && continue
+      for ns in $(ls | grep -E "^(${CLUSTER_NAME}|gsp)-"); do
         echo "--> ${ns}"
         echo "- name: ${ns}" >> $namespace_values_file
         set_namespace=".metadata.namespace=\"${ns}\""
