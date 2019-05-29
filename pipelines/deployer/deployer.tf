@@ -38,12 +38,10 @@ variable "splunk_enabled" {
 
 variable "splunk_hec_url" {
   type = "string"
-  default = ""
 }
 
 variable "k8s_splunk_hec_token" {
   type = "string"
-  default = ""
 }
 
 variable "k8s_splunk_index" {
@@ -53,7 +51,6 @@ variable "k8s_splunk_index" {
 
 variable "hsm_splunk_hec_token" {
   type = "string"
-  default = ""
 }
 
 variable "hsm_splunk_index" {
@@ -63,7 +60,6 @@ variable "hsm_splunk_index" {
 
 variable "vpc_flow_log_splunk_hec_token" {
   type = "string"
-  default = ""
 }
 
 variable "vpc_flow_log_splunk_index" {
