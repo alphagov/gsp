@@ -46,7 +46,6 @@ variable "k8s_splunk_hec_token" {
 
 variable "k8s_splunk_index" {
   type    = "string"
-  default = "run_sandbox_k8s"
 }
 
 variable "hsm_splunk_hec_token" {
@@ -55,7 +54,6 @@ variable "hsm_splunk_hec_token" {
 
 variable "hsm_splunk_index" {
   type    = "string"
-  default = "run_sandbox_k8s"
 }
 
 variable "vpc_flow_log_splunk_hec_token" {
@@ -64,7 +62,6 @@ variable "vpc_flow_log_splunk_hec_token" {
 
 variable "vpc_flow_log_splunk_index" {
   type    = "string"
-  default = "run_sandbox_k8s"
 }
 
 variable "worker_instance_type" {
