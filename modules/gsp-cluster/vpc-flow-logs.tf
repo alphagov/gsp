@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "cloudwatch_vpc_flow_log_assume_role" {
 
     principals {
       type        = "Service"
-      identifiers = ["vpc-flow-log.amazonaws.com"]
+      identifiers = ["vpc-flow-logs.amazonaws.com"]
     }
   }
 }
