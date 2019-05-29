@@ -46,7 +46,6 @@ variable "k8s_splunk_hec_token" {
 
 variable "k8s_splunk_index" {
   type    = "string"
-  default = "run_sandbox_k8s"
 }
 
 variable "hsm_splunk_hec_token" {
@@ -55,7 +54,6 @@ variable "hsm_splunk_hec_token" {
 
 variable "hsm_splunk_index" {
   type    = "string"
-  default = "run_sandbox_k8s"
 }
 
 variable "vpc_flow_log_splunk_hec_token" {
@@ -64,7 +62,6 @@ variable "vpc_flow_log_splunk_hec_token" {
 
 variable "vpc_flow_log_splunk_index" {
   type    = "string"
-  default = "run_sandbox_k8s"
 }
 
 variable "worker_instance_type" {
@@ -162,6 +159,7 @@ module "gsp-cluster" {
   public_subnet_ids             = "${module.gsp-network.public_subnet_ids}"
   egress_ips                    = "${module.gsp-network.egress_ips}"
   ingress_ips                   = "${module.gsp-network.ingress_ips}"
+  splunk_enabled                = "${var.splunk_enabled}"
   splunk_hec_url                = "${var.splunk_hec_url}"
   k8s_splunk_hec_token          = "${var.k8s_splunk_hec_token}"
   k8s_splunk_index              = "${var.k8s_splunk_index}"
