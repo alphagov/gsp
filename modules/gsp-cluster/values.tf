@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "template_file" "values" {
   template = "${file("${path.module}/data/values.yaml")}"
 
@@ -6,6 +8,7 @@ data "template_file" "values" {
     cluster_domain                      = "${var.cluster_domain}"
     cluster_domain_id                   = "${var.cluster_domain_id}"
     account_name                        = "${var.account_name}"
+    account_id                          = "${data.aws_caller_identity.current.account_id}"
     admin_role_arns                     = "${jsonencode(var.admin_role_arns)}"
     admin_user_arns                     = "${jsonencode(var.admin_user_arns)}"
     sre_role_arns                       = "${jsonencode(var.sre_role_arns)}"

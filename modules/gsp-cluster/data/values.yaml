@@ -102,6 +102,7 @@ flux:
 kiam:
   server:
     assumeRoleArn: ${kiam_server_role_arn}
+    roleBaseArn: "arn:aws:iam::${account_id}:role/"
     # Hack to trigger a restart of Kiam server on each and every deploy. This
     # is to workaround the agent and server using different sets of
     # CAs/keys/certs because we are currently regenerating CAs/keys/certs on
