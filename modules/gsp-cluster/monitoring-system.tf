@@ -49,7 +49,10 @@ resource "aws_iam_policy" "cloudwatch_log_shipping_policy" {
 
 resource "aws_iam_policy_attachment" "cloudwatch_log_shipping_policy" {
   name       = "${var.cluster_name}_cloudwatch_log_shipping_role_policy_attachement"
-  roles      = ["${aws_iam_role.cloudwatch_log_shipping_role.name}"]
+  roles      = [
+    "${aws_iam_role.cloudwatch_log_shipping_role.name}",
+    "${module.k8s-cluster.kiam-server-node-instance-role-name}",
+  ]
   policy_arn = "${aws_iam_policy.cloudwatch_log_shipping_policy.arn}"
 }
 

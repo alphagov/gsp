@@ -6,6 +6,10 @@ output "kiam-server-node-instance-role-arn" {
   value = "${aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"]}"
 }
 
+output "kiam-server-node-instance-role-name" {
+  value = "${replace(data.aws_arn.kiam-server-nodes-role.resource, "role/", "")}"
+}
+
 output "bootstrap_role_arns" {
   value = "${list(aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.ci-nodes.outputs["NodeInstanceRole"])}"
 }

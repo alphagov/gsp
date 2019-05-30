@@ -9,6 +9,28 @@ data "aws_iam_policy_document" "eks-cluster-assume-role-policy" {
   }
 }
 
+data "aws_iam_policy_document" "ssm-minimal" {
+  statement {
+    actions = [
+      "ssm:UpdateInstanceInformation",
+      "ssmmessages:CreateControlChannel",
+      "ssmmessages:CreateDataChannel",
+      "ssmmessages:OpenControlChannel",
+      "ssmmessages:OpenDataChannel",
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    actions = [
+      "s3:GetEncryptionConfiguration",
+    ]
+
+    resources = ["*"]
+  }
+}
+
 resource "aws_iam_role" "eks-cluster" {
   name               = "${var.cluster_name}-cluster"
   assume_role_policy = "${data.aws_iam_policy_document.eks-cluster-assume-role-policy.json}"
@@ -28,25 +50,30 @@ data "aws_arn" "worker-nodes-role" {
   arn = "${aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"]}"
 }
 
-resource "aws_iam_role_policy_attachment" "worker-nodes-ssm" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-  role = "${replace(data.aws_arn.worker-nodes-role.resource, "role/", "")}"
-}
-
 data "aws_arn" "kiam-server-nodes-role" {
   arn = "${aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"]}"
-}
-
-resource "aws_iam_role_policy_attachment" "kiam-server-nodes-ssm" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-  role = "${replace(data.aws_arn.kiam-server-nodes-role.resource, "role/", "")}"
 }
 
 data "aws_arn" "ci-nodes-role" {
   arn = "${aws_cloudformation_stack.ci-nodes.outputs["NodeInstanceRole"]}"
 }
 
+resource "aws_iam_policy" "ssm-minimal" {
+  name = "${var.cluster_name}-ssm-minimal"
+  policy = "${data.aws_iam_policy_document.ssm-minimal.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "worker-nodes-ssm" {
+  policy_arn = "${aws_iam_policy.ssm-minimal.arn}"
+  role = "${replace(data.aws_arn.worker-nodes-role.resource, "role/", "")}"
+}
+
+resource "aws_iam_role_policy_attachment" "kiam-nodes-ssm" {
+  policy_arn = "${aws_iam_policy.ssm-minimal.arn}"
+  role = "${replace(data.aws_arn.kiam-server-nodes-role.resource, "role/", "")}"
+}
+
 resource "aws_iam_role_policy_attachment" "ci-nodes-ssm" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+  policy_arn = "${aws_iam_policy.ssm-minimal.arn}"
   role = "${replace(data.aws_arn.ci-nodes-role.resource, "role/", "")}"
 }
