@@ -71,6 +71,11 @@ harbor:
   harborAdminPassword: ${harbor_admin_password}
   secretKey: ${harbor_secret_key}
   externalURL: https://registry.${cluster_domain}
+  expose:
+    ingress:
+      hosts:
+        core: registry.${cluster_domain}
+        notary: notary.${cluster_domain}
   persistence:
     imageChartStorage:
       type: s3
@@ -79,6 +84,7 @@ harbor:
         region: ${harbor_bucket_region}
         regionendpoint: s3.${harbor_bucket_region}.amazonaws.com
   registry:
+    secret: ${harbor_secret_key}
     podAnnotations:
       iam.amazonaws.com/role: ${harbor_iam_role_name}
   chartmuseum:
@@ -96,6 +102,7 @@ flux:
 kiam:
   server:
     assumeRoleArn: ${kiam_server_role_arn}
+    roleBaseArn: "arn:aws:iam::${account_id}:role/"
     # Hack to trigger a restart of Kiam server on each and every deploy. This
     # is to workaround the agent and server using different sets of
     # CAs/keys/certs because we are currently regenerating CAs/keys/certs on
@@ -117,6 +124,9 @@ kiam:
 fluentd-cloudwatch:
   logGroupName: ${cloudwatch_log_group_name}
   awsRole: ${cloudwatch_log_shipping_role}
+  tolerations:
+  - operator: Exists
+    effect: NoSchedule
 
 prometheus-operator:
   prometheus:

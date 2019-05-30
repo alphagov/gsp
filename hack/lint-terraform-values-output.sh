@@ -41,6 +41,7 @@ users:
   - sandbox-admin
   roleARN: arn:aws:iam::000000072:role/chris.farmiloe
   github: "chrisfarms"
+  pub: BEGIN-FARMS-KEY
 - name: sam.crang
   email: sam.crang@digital.cabinet-office.gov.uk
   ARN: arn:aws:iam::000000072:user/sam.crang@digital.cabinet-office.gov.uk
@@ -48,6 +49,7 @@ users:
   - sandbox-sre
   roleARN: arn:aws:iam::000000072:role/sam.crang
   github: "samcrang"
+  pub: BEGIN-SAM-KEY
 - name: jeff.jefferson
   email: jeff.jefferson@digital.cabinet-office.gov.uk
   ARN: arn:aws:iam::000000072:user/jeff.jefferson@digital.cabinet-office.gov.uk
@@ -55,11 +57,13 @@ users:
   - jefferson-canary-dev
   roleARN: arn:aws:iam::000000072:role/jeff.jefferson
   github: "jefferz83"
+  pub: BEGIN-JEFF-KEY
 EOF
 
 helm template \
 	--output-dir ./output \
-	--namespace fake-system \
+	--name gsp \
+	--namespace gsp-system \
 	--values <(\
 		cat modules/gsp-cluster/data/values.yaml \
 		| sed 's/${admin_role_arns}/[]/' \

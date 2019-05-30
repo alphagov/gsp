@@ -22,6 +22,7 @@ sreRoleARNs: []
 sreUserARNs: []
 permittedRolesRegex: ""
 
+githubAPIToken: ""
 
 
 # users:
@@ -273,6 +274,8 @@ fluentd-cloudwatch:
   awsRegion: eu-west-2
   extraVars:
     - "{ name: FLUENT_UID, value: '0' }"  # run fluentd as root as instructed by https://github.com/helm/charts/tree/master/incubator/fluentd-cloudwatch
+  updateStrategy:
+    type: RollingUpdate
   tolerations:
     - key: node-role.kubernetes.io/master
       effect: NoSchedule
@@ -323,60 +326,20 @@ pipelineOperator:
   serviceAccountName: pipeline-operator-service-account
   image:
     repository: "govsvc/gsp-concourse-pipeline-controller"
-    tag: "1558032204"
+    tag: "1558635529"
   concourseUsername: admin
   concoursePassword: password
   concourseInsecureSkipVerify: "false"
 
 harbor:
+  chartmuseum:
+    enabled: false
   logLevel: warn
   expose:
-    type: clusterIP
+    type: ingress
     tls:
       enabled: false
-  nginx:
-    image:
-      tag: v1.7.1
-  portal:
-    image:
-      tag: v1.7.1
-  core:
-    image:
-      tag: v1.7.1
-  adminserver:
-    image:
-      tag: v1.7.1
-  jobservice:
-    image:
-      tag: v1.7.1
-  registry:
-    registry:
-      image:
-        tag: v2.6.2-v1.7.1
-    controller:
-      image:
-        tag: v1.7.1
-  chartmuseum:
-    image:
-      tag: v0.7.1-v1.7.1
-  clair:
-    image:
-      tag: v2.0.7-v1.7.1
-  notary:
-    server:
-      image:
-        tag: v0.6.1-v1.7.1
-    signer:
-      image:
-        tag: v0.6.1-v1.7.1
-  database:
-    internal:
-      image:
-        tag: v1.7.1
-  redis:
-    internal:
-      image:
-        tag: v1.7.1
+
 
 secrets:
   public_certificate: ""

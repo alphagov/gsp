@@ -19,8 +19,6 @@ terraform_source: &terraform_source
     cluster_domain: ((cluster-domain))
     cluster_number: ((cluster-number))
     aws_account_role_arn: ((account-role-arn))
-    promotion_signing_key: ((ci-system-gpg-private))
-    promotion_verification_key: ((ci-system-gpg-public))
     github_client_id: ((github-client-id))
     github_client_secret: ((github-client-secret))
     splunk_enabled: ((splunk-enabled))
@@ -130,8 +128,7 @@ generate_namespace_values: &generate_namespace_values
       cd config/${PATH_TO_NAMESPACES}
       echo "creating helm compatible values file from namespace data"
       echo 'namespaces:' > $namespace_values_file
-      for ns in gsp-* "${CLUSTER_NAME}-*"; do
-        [ ! -d "${ns}" ] && continue
+      for ns in $(ls | grep -E "^(${CLUSTER_NAME}|gsp)-"); do
         echo "--> ${ns}"
         echo "- name: ${ns}" >> $namespace_values_file
         set_namespace=".metadata.namespace=\"${ns}\""
@@ -156,6 +153,9 @@ apply_cluster_chart: &apply_cluster_chart
     CHART_NAME: gsp-cluster
     DEFAULT_NAMESPACE: gsp-system
     CHART_RELEASE_NAME: gsp
+    GITHUB_API_TOKEN: ((github-api-token))
+    PROMOTION_SIGNING_KEY: ((ci-system-gpg-private))
+    PROMOTION_VERIFICATION_KEY: ((ci-system-gpg-public))
   run:
     path: /bin/bash
     args:
@@ -181,6 +181,9 @@ apply_cluster_chart: &apply_cluster_chart
         --values cluster-values/values.yaml \
         --values user-values/values.yaml \
         --values namespace-values/values.yaml \
+        --set githubAPIToken=${GITHUB_API_TOKEN} \
+        --set "global.promotionSigningKey=${PROMOTION_SIGNING_KEY}" \
+        --set "global.promotionVerificationKey=${PROMOTION_VERIFICATION_KEY}" \
         --output-dir manifests \
         "platform/charts/${CHART_NAME}"
       echo "rendering gsp-istio chart..."
@@ -188,6 +191,7 @@ apply_cluster_chart: &apply_cluster_chart
         --name istio \
         --namespace istio-system \
         --output-dir manifests \
+        --set global.runningOnAws=true \
         platform/charts/gsp-istio
       function apply() {
         echo "applying ${1} from ${CHART_NAME} chart..."

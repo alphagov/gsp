@@ -1,6 +1,23 @@
 {{- $clusterName := .Values.global.cluster.name }}
 {{- range .Values.namespaces }}
 {{- $ns := . }}
+{{- $trustedGithubAccounts := list }}
+{{- $trustedGPGKeys := list }}
+{{- range $.Values.users }}
+  {{- $user := . }}
+  {{- range .roles }}
+    {{- if and (hasPrefix $clusterName .) (hasSuffix "-sre" .) }}
+      {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
+      {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
+    {{- else if and (hasPrefix $clusterName .) (hasSuffix "-admin" .) }}
+      {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
+      {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
+    {{- else if and (hasPrefix $ns.name .) (hasSuffix "-dev" .) }}
+      {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
+      {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
+    {{- end }}
+  {{- end }}
+{{- end }}
 {{- range .resources }}
 ---
 {{ tpl (toYaml .) $ }}
@@ -39,24 +56,79 @@ metadata:
   labels:
     controller-tools.k8s.io: "1.0"
   name: {{ trimPrefix (printf "%s-" $clusterName) .name }}
+  namespace: {{ .name }}
 spec:
   roles:
   - name: owner
     local:
       users: ["pipeline-operator"]
   - name: pipeline-operator
-    local:
-      users:
-      {{- range $.Values.users }}
-        {{- $user := . }}
-        {{- range .roles }}
-          {{- if and (hasPrefix $clusterName .) (hasSuffix "-sre" .) }}
-        - {{ $user.github }}
-          {{- else if and (hasPrefix $clusterName .) (hasSuffix "-admin" .) }}
-        - {{ $user.github }}
-          {{- else if and (hasPrefix $ns.name .) (hasSuffix "-dev" .) }}
-        - {{ $user.github }}
-          {{- end }}
-        {{- end }}
-      {{- end }}
+    github:
+      users: {{ (toJson (uniq $trustedGithubAccounts)) }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trusted-developers
+  namespace: {{ .name }}
+data:
+  github-accounts: {{ (toJson (uniq $trustedGithubAccounts)) | b64enc }}
+  gpg-keys: {{ (toJson (uniq $trustedGPGKeys)) | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: harbor
+  namespace: {{ .name }}
+data:
+  root_key: {{ $.Values.notary.rootKey | b64enc }}
+  ci_key: {{ $.Values.notary.delegationKey | b64enc }}
+  harbor_username: {{ "admin" | b64enc }}
+  harbor_password: {{ $.Values.harbor.harborAdminPassword | b64enc }}
+  harbor_url: {{ (printf "https://registry.%s" $.Values.global.cluster.domain) | b64enc }}
+  notary_root_passphrase: {{ $.Values.notary.rootPassphrase | b64enc }}
+  notary_targets_passphrase: {{ $.Values.notary.targetsPassphrase | b64enc }}
+  notary_snapshot_passphrase: {{ $.Values.notary.snapshotPassphrase | b64enc }}
+  notary_delegation_passphrase: {{ $.Values.notary.delegationPassphrase | b64enc }}
+  notary_url: {{ (printf "https://notary.%s" $.Values.global.cluster.domain) | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster
+  namespace: {{ .name }}
+data:
+  name: {{ $.Values.global.cluster.name | b64enc }}
+  domain: {{ $.Values.global.cluster.domain | b64enc }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: concourse
+  namespace: {{ .name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $.Release.Name }}-concourse-web
+subjects:
+- kind: ServiceAccount
+  name: {{ $.Release.Name }}-concourse-web
+  namespace: {{ $.Release.Namespace }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github
+  namespace: {{ .name }}
+data:
+  api-token: {{ $.Values.githubAPIToken | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: promotion
+  namespace: {{ .name }}
+data:
+  signingKey: {{ $.Values.global.promotionSigningKey | b64enc }}
+  verificationKey: {{ $.Values.global.promotionVerificationKey | b64enc }}
 {{- end }}
