@@ -274,6 +274,8 @@ fluentd-cloudwatch:
   awsRegion: eu-west-2
   extraVars:
     - "{ name: FLUENT_UID, value: '0' }"  # run fluentd as root as instructed by https://github.com/helm/charts/tree/master/incubator/fluentd-cloudwatch
+  updateStrategy:
+    type: RollingUpdate
   tolerations:
     - key: node-role.kubernetes.io/master
       effect: NoSchedule
