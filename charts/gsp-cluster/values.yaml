@@ -332,7 +332,7 @@ pipelineOperator:
 harbor:
   chartmuseum:
     enabled: false
-  logLevel: debug
+  logLevel: warn
   expose:
     type: ingress
     tls:
