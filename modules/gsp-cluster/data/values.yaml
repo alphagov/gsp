@@ -123,6 +123,9 @@ kiam:
 fluentd-cloudwatch:
   logGroupName: ${cloudwatch_log_group_name}
   awsRole: ${cloudwatch_log_shipping_role}
+  tolerations:
+  - operator: Exists
+    effect: NoSchedule
 
 prometheus-operator:
   prometheus:
