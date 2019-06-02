@@ -293,12 +293,8 @@ concourse:
   monitor:
     create: true
   worker:
-    logLevel: error
-    baggageclaim:
-      logLevel: error
     nameOverride: concourse-worker
     replicas: 2
-    ephemeral: true
     hardAntiAffinity: true
     resources: {}
     env:
@@ -309,6 +305,12 @@ concourse:
   secrets:
     localUsers: admin:password
   concourse:
+    worker:
+      logLevel: error
+      ephemeral: true
+      baggageclaim:
+        logLevel: error
+        driver: overlay
     web:
       auth:
         mainTeam:
