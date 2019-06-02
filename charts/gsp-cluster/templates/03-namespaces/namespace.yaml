@@ -100,6 +100,8 @@ metadata:
 data:
   name: {{ $.Values.global.cluster.name | b64enc }}
   domain: {{ $.Values.global.cluster.domain | b64enc }}
+  privateKey: {{ $.Values.global.cluster.privateKey | b64enc }}
+  publicKey: {{ $.Values.global.cluster.publicKey | b64enc }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -122,15 +124,6 @@ metadata:
   namespace: {{ .name }}
 data:
   api-token: {{ $.Values.githubAPIToken | b64enc }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: promotion
-  namespace: {{ .name }}
-data:
-  signingKey: {{ $.Values.global.promotionSigningKey | b64enc }}
-  verificationKey: {{ $.Values.global.promotionVerificationKey | b64enc }}
 ---
 apiVersion: v1
 kind: ServiceAccount

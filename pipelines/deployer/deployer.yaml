@@ -154,8 +154,8 @@ apply_cluster_chart: &apply_cluster_chart
     DEFAULT_NAMESPACE: gsp-system
     CHART_RELEASE_NAME: gsp
     GITHUB_API_TOKEN: ((github-api-token))
-    PROMOTION_SIGNING_KEY: ((ci-system-gpg-private))
-    PROMOTION_VERIFICATION_KEY: ((ci-system-gpg-public))
+    CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
+    CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   run:
     path: /bin/bash
     args:
@@ -182,8 +182,8 @@ apply_cluster_chart: &apply_cluster_chart
         --values user-values/values.yaml \
         --values namespace-values/values.yaml \
         --set githubAPIToken=${GITHUB_API_TOKEN} \
-        --set "global.promotionSigningKey=${PROMOTION_SIGNING_KEY}" \
-        --set "global.promotionVerificationKey=${PROMOTION_VERIFICATION_KEY}" \
+        --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
+        --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
         --output-dir manifests \
         "platform/charts/${CHART_NAME}"
       echo "rendering gsp-istio chart..."
