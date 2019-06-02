@@ -131,4 +131,74 @@ metadata:
 data:
   signingKey: {{ $.Values.global.promotionSigningKey | b64enc }}
   verificationKey: {{ $.Values.global.promotionVerificationKey | b64enc }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: namespace-deployer
+  namespace: {{ .name }}
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: {{ .name }}-namespace-deployer
+  namespace: {{ .name }}
+subjects:
+- kind: ServiceAccount
+  name: namespace-deployer
+  namespace: {{ .name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: {{ .name }}-cluster-viewer
+subjects:
+- kind: ServiceAccount
+  name: namespace-deployer
+  namespace: {{ .name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-viewer
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: namespace-deployer
+  namespace: {{ .name }}
+  annotations:
+    "kubernetes.io/service-account.name": namespace-deployer
+type: kubernetes.io/service-account-token
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cluster-deployer
+  namespace: {{ .name }}
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: {{ .name }}-cluster-deployer
+subjects:
+- kind: ServiceAccount
+  name: cluster-deployer
+  namespace: {{ .name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-deployer
+  namespace: {{ .name }}
+  annotations:
+    "kubernetes.io/service-account.name": cluster-deployer
+type: kubernetes.io/service-account-token
 {{- end }}
