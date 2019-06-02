@@ -321,6 +321,8 @@ concourse:
         type: ClusterIP
       prometheus:
         enabled: true
+      enablePipelineAuditing: true
+      enableTeamAuditing: true
   persistence:
     worker:
       size: 64Gi
