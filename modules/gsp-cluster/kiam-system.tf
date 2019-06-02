@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "kiam_server_policy" {
     resources = [
       "${aws_iam_role.cloudwatch_log_shipping_role.arn}",
       "${aws_iam_role.canary_role.arn}",
-      "${aws_iam_role.flux-helm-operator.arn}",
+      "${aws_iam_role.concourse.arn}",
     ]
   }
 }

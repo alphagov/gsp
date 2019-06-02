@@ -19,11 +19,10 @@ The platform is for teams working in the [Government Digital Service](https://ww
 
 - A declarative continuous delivery workflow - merging to master triggers deployment to production
 - A container platform based on industry standard [Docker](https://docs.docker.com/) and [Kubernetes](https://kubernetes.io)
-- Build tooling with [ConcourseCI](https://concourse-ci.org/)
+- Build and release automation with [ConcourseCI](https://concourse-ci.org/)
 - A private container registry with [Docker Registry](https://docs.docker.com/registry/)
 - Signing of docker image integrity with [Docker Notary](https://docs.docker.com/notary/)
 - Scanning of docker images for security vulnerabilities with [clair](https://github.com/coreos/clair)
-- Application deployment with [Flux](https://github.com/weaveworks/flux)
 - Monitoring and alerting with [Prometheus](https://prometheus.io/), [Alertmanager](https://prometheus.io/docs/alerting/alertmanager/) and [Grafana](https://grafana.com/)
 - Secure git-based secrets configuration with [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets)
 - Ingress management with [nginx ingress controller](https://kubernetes.github.io/ingress-nginx/)

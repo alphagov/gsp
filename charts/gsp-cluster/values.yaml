@@ -345,9 +345,5 @@ secrets:
   public_certificate: ""
   private_key: ""
 
-flux:
-  namespace: flux-system
-  helmOperatorRole: ""
-
 letsencrypt:
   email: daniel.blair@digital.cabinet-office.gov.uk

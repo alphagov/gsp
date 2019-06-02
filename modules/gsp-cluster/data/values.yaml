@@ -9,7 +9,7 @@ global:
   roles:
     canary: ${canary_role}
     harbor: ${harbor_iam_role_name}
-    flux: ${flux_helm_operator_role}
+    concourse: ${concourse_iam_role_name}
   # move these to gsp-namespace terraform output
   canary:
     repository: ${canary_code_commit_url}
@@ -44,6 +44,8 @@ concourse:
     replicas: ${concourse_worker_count}
     nodeSelector:
       node-role.kubernetes.io/ci: ""
+    annotations:
+      iam.amazonaws.com/role: ${concourse_iam_role_name}
     tolerations:
       - key: "node-role.kubernetes.io/ci"
         operator: Exists
@@ -94,10 +96,6 @@ harbor:
 secrets:
   public_certificate: ${sealed_secrets_public_cert}
   private_key: ${sealed_secrets_private_key}
-
-flux:
-  namespace: ${flux_namespace}
-  helmOperatorRole: ${flux_helm_operator_role}
 
 kiam:
   server:
