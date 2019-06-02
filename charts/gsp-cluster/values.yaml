@@ -312,6 +312,7 @@ concourse:
         logLevel: error
         driver: overlay
     web:
+      logLevel: error
       auth:
         mainTeam:
           localUser: admin
