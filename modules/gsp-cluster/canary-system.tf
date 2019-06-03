@@ -52,24 +52,3 @@ resource "aws_codecommit_repository" "canary" {
     }
   }
 }
-
-/* module "canary-system" { */
-/*   source = "../flux-release" */
-/*   namespace             = "gsp-canary" */
-/*   chart_git             = "${aws_codecommit_repository.canary.clone_url_http}" */
-/*   chart_ref             = "master" */
-/*   chart_path            = "charts/gsp-canary" */
-/*   permitted_roles_regex = "^${aws_iam_role.canary_role.name}$" */
-/*   values = <<EOF */
-/*     annotations: */
-/*       iam.amazonaws.com/role: "${aws_iam_role.canary_role.name}" */
-/*     updater: */
-/*       helmChartRepoUrl: ${aws_codecommit_repository.canary.clone_url_http} */
-/* EOF */
-/* } */
-/* module "gsp-canary" { */
-/*   addons_dir               = "addons/${var.cluster_name}" */
-/*   canary_role_assumer_arn  = "${aws_iam_role.kiam_server_role.arn}" */
-/*   codecommit_init_role_arn = "${var.codecommit_init_role_arn}" */
-/* } */
-

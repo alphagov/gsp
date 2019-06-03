@@ -18,6 +18,7 @@ data "template_file" "values" {
     concourse_teams                     = "${jsonencode(concat(list("main"), var.concourse_teams))}"
     concourse_main_team_github_teams    = "${jsonencode(var.concourse_main_team_github_teams)}"
     concourse_worker_count              = "${var.ci_worker_count}"
+    concourse_iam_role_name             = "${aws_iam_role.concourse.name}"
     github_client_id                    = "${jsonencode(var.github_client_id)}"
     github_client_secret                = "${jsonencode(var.github_client_secret)}"
     github_ca_cert                      = "${jsonencode(var.github_ca_cert)}"
@@ -34,8 +35,6 @@ data "template_file" "values" {
     notary_delegation_passphrase        = "${jsonencode(random_string.notary_passphrase_delegation.result)}"
     sealed_secrets_public_cert          = "${base64encode(tls_self_signed_cert.sealed-secrets-certificate.cert_pem)}"
     sealed_secrets_private_key          = "${base64encode(tls_private_key.sealed-secrets-key.private_key_pem)}"
-    flux_helm_operator_role             = "${aws_iam_role.flux-helm-operator.name}"
-    flux_namespace                      = "gsp-system"
     kiam_server_role_arn                = "${aws_iam_role.kiam_server_role.arn}"
     kiam_restart_after_deploy_hack_uuid = "${uuid()}"
     cloudwatch_log_shipping_role        = "${aws_iam_role.cloudwatch_log_shipping_role.name}"
@@ -45,7 +44,7 @@ data "template_file" "values" {
 
     permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.harbor.name,
-      aws_iam_role.flux-helm-operator.name,
+      aws_iam_role.concourse.name,
       aws_iam_role.cloudwatch_log_shipping_role.name,
     ))})$"
   }

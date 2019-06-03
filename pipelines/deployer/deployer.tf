@@ -45,7 +45,7 @@ variable "k8s_splunk_hec_token" {
 }
 
 variable "k8s_splunk_index" {
-  type    = "string"
+  type = "string"
 }
 
 variable "hsm_splunk_hec_token" {
@@ -53,7 +53,7 @@ variable "hsm_splunk_hec_token" {
 }
 
 variable "hsm_splunk_index" {
-  type    = "string"
+  type = "string"
 }
 
 variable "vpc_flow_log_splunk_hec_token" {
@@ -61,7 +61,7 @@ variable "vpc_flow_log_splunk_hec_token" {
 }
 
 variable "vpc_flow_log_splunk_index" {
-  type    = "string"
+  type = "string"
 }
 
 variable "worker_instance_type" {
@@ -170,30 +170,6 @@ module "gsp-cluster" {
   github_client_id         = "${var.github_client_id}"
   github_client_secret     = "${var.github_client_secret}"
 }
-
-# module "prototype-kit" {
-#   source = "git::https://github.com/alphagov/gsp-terraform-ignition//modules/flux-release"
-
-#   namespace      = "gsp-prototype-kit"
-#   chart_git      = "https://github.com/alphagov/gsp-govuk-prototype-kit.git"
-#   chart_ref      = "gsp"
-#   chart_path     = "charts/govuk-prototype-kit"
-#   cluster_name   = "${var.cluster_domain}"
-#   cluster_domain = "${var.cluster_domain}"
-#   addons_dir     = "addons/${var.cluster_domain}"
-
-#   values = <<EOF
-#     ingress:
-#       hosts:
-#         - pk.${var.cluster_domain}
-#         - prototype-kit.${var.cluster_domain}
-#       tls:
-#         - secretName: prototype-kit-tls
-#           hosts:
-#             - pk.${var.cluster_domain}
-#             - prototype-kit.${var.cluster_domain}
-# EOF
-# }
 
 output "kubeconfig" {
   value = "${module.gsp-cluster.kubeconfig}"

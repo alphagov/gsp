@@ -32,11 +32,10 @@ This view shows the high level components that make up the GDS Supported Platfor
 |`Alertmanager`| The TechOps standard alerting tools is [AlertManager](https://prometheus.io/docs/alerting/alertmanager/) |
 |`Amazon Web Services`| [AWS](https://aws.amazon.com) provides the underlying cloud infrastructure|
 |`CloudWatch`| collects log infomation to allow inspection and diagnosis of a running application|
-|`ConcourseCI`| is the continuous integration tool that runs  the pipelines to convert source code into container images|
+|`ConcourseCI`| is the release automation tool that runs build, test and deployment pipelines|
 |`Docker Notary`| signs and verifies docker image integrity |
 |`Docker Registry`| is the private container registry that stores the buid artefacts |
 |`Docker`| runs  containers |
-|`Flux`| deploys released software into the kubernetes cluster|
 |`GDS Services`| services written by GDS service teams in a [GDS Way supported language](https://gds-way.cloudapps.digital/standards/programming-languages.html)|
 |`Grafana`| display application metrics|
 |`Helm Charts`|Applications packaged for deployment using [Helm Charts](https://helm.sh/docs/developing_charts/) |

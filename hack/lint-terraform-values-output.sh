@@ -8,8 +8,13 @@ set -eu
 	&& terraform validate \
 		--var account_name=x \
 		--var splunk_enabled=0 \
-		--var splunk_hec_token=x \
 		--var splunk_hec_url=x \
+		--var k8s_splunk_hec_token=x \
+		--var k8s_splunk_index=x \
+		--var hsm_splunk_hec_token=x \
+		--var hsm_splunk_index=x \
+		--var vpc_flow_log_splunk_hec_token=x \
+		--var vpc_flow_log_splunk_index=x \
 		--var github_client_secret=x \
 		--var github_client_id=x \
 		--var cluster_name=x \
@@ -28,6 +33,8 @@ global:
   cluster:
     domain: fake.com
     name: sandbox
+    privateKey: BEGIN-PRIVATE
+    publicKey: BEGIN-PUBLIC
 namespaces:
 - name: sandbox-canary
   resources: [{"apiVersion":"v1","kind":"Secret","type":"Opaque","metadata":{"name":"ci-deploy-key"},"data":{"private_key":"RklYTUUK"}},{"apiVersion":"v1","kind":"ConfigMap","metadata":{"name":"ci-deploy-key"},"data":{"public_key":"RklYTUUK"}},{"apiVersion":"flux.weave.works/v1beta1","kind":"HelmRelease","metadata":{"name":"canary"},"spec":{"releaseName":"canary","chart":{"git":"{{ .Values.global.canary.repository }}","ref":"master","path":"charts/gsp-canary","verificationKeys":"{{ .Values.global.canary.verificationKeys }}"},"values":{"annotations":{"iam.amazonaws.com/role":"{{ .Values.global.roles.canary }}"},"updater":{"helmChartRepoUrl":"{{ .Values.global.canary.repository }}"}}}}]

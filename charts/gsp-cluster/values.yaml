@@ -56,7 +56,7 @@ kiam:
       - effect: NoSchedule
         key: node-role.kubernetes.io/cluster-management
     log:
-      level: debug
+      level: warn
     probes:
       serverAddress: 127.0.0.1
     extraHostPathMounts:
@@ -74,7 +74,7 @@ kiam:
       keyFileName: agent-key.pem
       caFileName: ca.pem
     log:
-      level: debug
+      level: warn
     tolerations:
     - key: node-role.kubernetes.io/ci
       effect: NoSchedule
@@ -295,7 +295,6 @@ concourse:
   worker:
     nameOverride: concourse-worker
     replicas: 2
-    ephemeral: true
     hardAntiAffinity: true
     resources: {}
     env:
@@ -306,7 +305,14 @@ concourse:
   secrets:
     localUsers: admin:password
   concourse:
+    worker:
+      logLevel: error
+      ephemeral: true
+      baggageclaim:
+        logLevel: error
+        driver: overlay
     web:
+      logLevel: error
       auth:
         mainTeam:
           localUser: admin
@@ -316,6 +322,8 @@ concourse:
         type: ClusterIP
       prometheus:
         enabled: true
+      enablePipelineAuditing: true
+      enableTeamAuditing: true
   persistence:
     worker:
       size: 64Gi
@@ -344,10 +352,6 @@ harbor:
 secrets:
   public_certificate: ""
   private_key: ""
-
-flux:
-  namespace: flux-system
-  helmOperatorRole: ""
 
 letsencrypt:
   email: daniel.blair@digital.cabinet-office.gov.uk
