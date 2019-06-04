@@ -127,9 +127,10 @@ generate_namespace_values: &generate_namespace_values
       mkdir ns-chart
       cd config/${PATH_TO_NAMESPACES}
       echo "creating helm compatible values file from namespace data"
+      echo "--> ${CLUSTER_NAME}-main"
       echo 'namespaces:' > $namespace_values_file
-      echo "- name: ${CLUSTER_NAME}-main"
-      echo "  resources: []"
+      echo "- name: ${CLUSTER_NAME}-main" >> $namespace_values_file
+      echo "  resources: []" >> $namespace_values_file
       for ns in $(ls | grep -E "^${CLUSTER_NAME}-"); do
         echo "--> ${ns}"
         echo "- name: ${ns}" >> $namespace_values_file
