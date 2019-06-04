@@ -13,7 +13,7 @@ endpoint with `fly`.
 ## Setting up the tunnel
 
 ```sh
-kubectl port-forward service/ci-system-web -n ci-system 8080:8080
+kubectl port-forward service/gsp-concourse-web -n gsp-system 8080:8080
 ```
 
 You should be able to visit [`http://127.0.0.1:8080/`](http://127.0.0.1:8080/)
