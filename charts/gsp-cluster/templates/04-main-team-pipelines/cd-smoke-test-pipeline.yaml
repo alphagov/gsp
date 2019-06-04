@@ -1,0 +1,176 @@
+---
+apiVersion: concourse.k8s.io/v1beta1
+kind: Pipeline
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: cd-smoke-test
+  namespace: {{ .Values.global.account.name }}-main
+spec:
+  exposed: true
+  pipelineString: |
+
+    harbor_source: &harbor_source
+      username: ((harbor.harbor_username))
+      password: ((harbor.harbor_password))
+      harbor:
+        url: ((harbor.harbor_url))
+        prevent_vul: "false"
+      notary:
+        url: ((harbor.notary_url))
+        root_key: ((harbor.root_key))
+        delegate_key: ((harbor.ci_key))
+        passphrase:
+          root: ((harbor.notary_root_passphrase))
+          snapshot: ((harbor.notary_snapshot_passphrase))
+          targets: ((harbor.notary_targets_passphrase))
+          delegation: ((harbor.notary_delegation_passphrase))
+
+    task_toolbox: &task_toolbox
+      type: docker-image
+      source:
+        repository: govsvc/task-toolbox
+        tag: "1.2.0"
+
+    resource_types:
+    - name: harbor
+      type: docker-image
+      privileged: true
+      source:
+        repository: govsvc/gsp-harbor-docker-image-resource
+        tag: "0.0.1553882420"
+
+    resources:
+    - name: timer
+      type: time
+      icon: update
+      source:
+        interval: 15m
+
+    - name: src
+      type: git
+      icon: github-circle
+      source:
+        uri: https://github.com/alphagov/gsp-canary.git
+
+    - name: image
+      type: harbor
+      icon: layers
+      source:
+        <<: *harbor_source
+        repository: registry.((cluster.domain))/gsp/canary
+
+    jobs:
+    - name: build
+      serial: true
+      plan:
+      - get: timer
+        trigger: true
+      - get: src
+      - put: image
+        params:
+          build: src
+          dockerfile: src/Dockerfile
+          tag_file: src/.git/short_ref
+          tag_as_latest: true
+          tag_prefix: v
+
+    - name: deploy
+      serial: true
+      plan:
+      - get: src
+      - get: image
+        passed: ["build"]
+        trigger: true
+
+      - task: generate-chart-values
+        config:
+          platform: linux
+          image_resource: *task_toolbox
+          inputs:
+          - name: timer
+          - name: src
+          - name: image
+          outputs:
+          - name: chart-values
+          run:
+            path: /bin/bash
+            args:
+              - -eu
+              - -c
+              - |
+                echo "generating helm values for latest image versions..."
+                mkdir -p chart-values
+                cat << EOF > ./overrides.yaml
+                canary:
+                  image:
+                    repository: $(cat image/repository)@$(cat image/digest | cut -d ':' -f 1)
+                    tag: $(cat image/digest | cut -d ':' -f 2)
+                  chartCommitTimestamp: $(date +%s)
+                EOF
+                echo "merging with chart values..."
+                spruce merge ./src/chart/values.yaml ./overrides.yaml | tee -a chart-values/values.yaml
+
+      - task: render-manifests
+        config:
+          platform: linux
+          image_resource: *task_toolbox
+          inputs:
+          - name: src
+          - name: chart-values
+          outputs:
+          - name: manifests
+          params:
+            CLUSTER_NAME: ((cluster.name))
+            CLUSTER_DOMAIN: ((cluster.domain))
+            RELEASE_NAME: ((cluster.name))
+            RELEASE_NAMESPACE: ((namespace-deployer.namespace))
+          run:
+            path: /bin/bash
+            args:
+            - -eu
+            - -c
+            - |
+              echo "rendering chart with release name '${RELEASE_NAME}' and namespace '${RELEASE_NAMESPACE}'..."
+              helm template \
+                --name "${RELEASE_NAME}" \
+                --namespace "${RELEASE_NAMESPACE}" \
+                --set "global.cluster.name=${CLUSTER_NAME}" \
+                --set "global.cluster.domain=${CLUSTER_DOMAIN}" \
+                --values chart-values/values.yaml \
+                --output-dir "./manifests/" \
+                ./release/*.tgz
+
+      - task: deploy-manifests
+        config:
+          platform: linux
+          image_resource: *task_toolbox
+          inputs:
+          - name: manifests
+          params:
+            KUBERNETES_SERVICE_ACCOUNT: ((namespace-deployer))
+            KUBERNETES_TOKEN: ((namespace-deployer.token))
+            KUBERNETES_API: kubernetes.default.svc
+            RELEASE_NAMESPACE: ((namespace-deployer.namespace))
+            APP_NAME: canary
+          run:
+            path: /bin/bash
+            args:
+            - -eu
+            - -c
+            - |
+              echo "configuring kubectl"
+              echo "${KUBERNETES_SERVICE_ACCOUNT}" | jq -r .["ca.crt"] > ca.crt
+              kubectl config set-cluster self --server=https://kubernetes.default --certificate-authority=ca.crt
+              kubectl config set-credentials deployer --token "${KUBERNETES_TOKEN}"
+              kubectl config set-context deployer --user deployer --cluster self
+              kubectl config use-context deployer
+
+              echo "applying chart to ${RELEASE_NAMESPACE} namespace..."
+              kapp deploy \
+                -y \
+                --namespace "${RELEASE_NAMESPACE}" \
+                --allow-ns "${RELEASE_NAMESPACE}" \
+                --app "${APP_NAME}" \
+                --diff-changes \
+                -f ./manifests/
