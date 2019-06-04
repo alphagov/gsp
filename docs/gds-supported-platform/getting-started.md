@@ -8,16 +8,12 @@ This process is resource-intensive and you must set the resource amount used by 
 
 ## Build a local GSP cluster
 
-1. Install [homebrew](https://brew.sh/):
+1. Install [Homebrew](https://brew.sh/)
 
-1. Install dependencies:
+1. Install dependencies from the Brewfile at the root of the repo:
 
     ```
-    brew cask install minikube
-    brew install kubernetes-cli
-    brew install kubernetes-helm
-    brew install hyperkit
-    brew install docker-machine-driver-hyperkit
+    brew bundle
     ```
 
     After installing `docker-machine-driver-hyperkit` follow instructions on how to grant driver superuser privileges to the hypervisor.
