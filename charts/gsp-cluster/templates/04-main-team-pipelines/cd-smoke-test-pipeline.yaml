@@ -79,6 +79,7 @@ spec:
       serial: true
       plan:
       - get: src
+        passed: ["build"]
       - get: image
         passed: ["build"]
         trigger: true
@@ -88,7 +89,6 @@ spec:
           platform: linux
           image_resource: *task_toolbox
           inputs:
-          - name: timer
           - name: src
           - name: image
           outputs:
