@@ -30,8 +30,8 @@ The platform is for teams working in the [Government Digital Service](https://ww
 - Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
 
 ## Getting started
-- [Host a GDS Supported Platform cluster in the AWS cloud](gds-supported-platform/getting-started-gsp-cluster.md)
-- [Host a GDS Supported Platform cluster locally](gds-supported-platform/getting-started-gsp-local.md)
+- [Host a GDS Supported Platform cluster in the AWS cloud](docs/gds-supported-platform/getting-started-gsp-cluster.md)
+- [Host a GDS Supported Platform cluster locally](docs/gds-supported-platform/getting-started-gsp-local.md)
 
 
 
