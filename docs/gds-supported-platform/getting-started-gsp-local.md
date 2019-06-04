@@ -1,4 +1,4 @@
-# Getting started
+# Getting started with a local GDS Supported Platform development cluster
 
 These instructions tell you how to set up a local GDS Supported Platform (GSP) cluster and host an app on that cluster.
 
