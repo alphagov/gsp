@@ -139,7 +139,7 @@ spec:
                 --set "global.cluster.domain=${CLUSTER_DOMAIN}" \
                 --values chart-values/values.yaml \
                 --output-dir "./manifests/" \
-                ./release/*.tgz
+                ./src/chart
 
       - task: deploy-manifests
         config:
@@ -174,3 +174,4 @@ spec:
                 --app "${APP_NAME}" \
                 --diff-changes \
                 -f ./manifests/
+
