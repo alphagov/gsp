@@ -281,7 +281,7 @@ resource_types:
   type: registry-image
   source:
     repository: "govsvc/concourse-github-resource"
-    tag: "0.0.1551114195"
+    tag: "v0.0.1"
 
 resources:
 - name: platform
