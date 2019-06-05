@@ -6,8 +6,8 @@ resource "aws_lambda_function" "lambda_log_forwarder" {
   role             = "${aws_iam_role.lambda_log_forwarder.arn}"
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.6"
-  timeout          = "180"
-  memory_size      = "512"
+  timeout          = "120"
+  memory_size      = "128"
   description      = "A function to forward logs from AWS to a Splunk HEC using a manual zip of https://github.com/alphagov/cyber-cloudwatch-fluentd-to-hec"
 
   environment {
