@@ -78,12 +78,17 @@ This process is resource-intensive and you must set the resource amount used by 
     ```
     This will create a local Docker container with the app running in that container.
 
-1. Copy the Docker image into the local GSP cluster:
 
+1. Build the Docker image in the GSP cluster (gsp-local):
+
+    Talk to cluster 'docker' (not the version you have locally installed)
     ```
-    kind load docker-image --name gsp-local prototype-kit:latest
+    eval $(minikube docker-env -p gsp-local)
+    docker ps (should yield screens full of containers)
+    docker build . -t prototype-kit:latest
     ```
     You have created a Docker image and copied it into your local GSP cluster.
+    
 
 ## Create a Helm chart
 
