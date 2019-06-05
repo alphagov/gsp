@@ -397,15 +397,19 @@ jobs:
             --load-vars-from "approvers.yaml" \
             --load-vars-from "trusted-developer-keys.yaml"
           echo "updating pipeline..."
-          ./fly --target self \
-            set-pipeline \
-            --check-creds \
-            --pipeline "${CONCOURSE_PIPELINE_NAME}" \
-            --config "${CONCOURSE_PIPELINE_PATH}" \
-            --load-vars-from "${CLUSTER_CONFIG_VARS}" \
-            --load-vars-from "approvers.yaml" \
-            --load-vars-from "trusted-developer-keys.yaml" \
-            --non-interactive
+          cat $CLUSTER_CONFIG_VARS
+          cat approvers.yaml
+          cat trusted-developer-keys.yaml
+          # ./fly --target self \
+          #   set-pipeline \
+          #   --check-creds \
+          #   --pipeline "${CONCOURSE_PIPELINE_NAME}" \
+          #   --config "${CONCOURSE_PIPELINE_PATH}" \
+          #   --load-vars-from "${CLUSTER_CONFIG_VARS}" \
+          #   --load-vars-from "approvers.yaml" \
+          #   --load-vars-from "trusted-developer-keys.yaml" \
+          #   --non-interactive
+          exit 1
           echo "OK!"
 
 - name: deploy
@@ -421,10 +425,10 @@ jobs:
   - get: users
     passed: ["update"]
     trigger: true
-  - put: cluster-state
-    params:
-      env_name: ((account-name))
-      terraform_source: platform/pipelines/deployer
+  # - put: cluster-state
+  #   params:
+  #     env_name: ((account-name))
+  #     terraform_source: platform/pipelines/deployer
   - aggregate:
     - task: generate-cluster-values
       timeout: 10m
@@ -438,10 +442,11 @@ jobs:
     - task: generate-user-terraform
       timeout: 10m
       config: *generate_users_terraform
-  - put: user-state
-    params:
-      env_name: ((account-name))
-      terraform_source: users-terraform
+  # FIXME
+  # - put: user-state
+  #   params:
+  #     env_name: ((account-name))
+  #     terraform_source: users-terraform
   - task: apply-cluster-chart
     timeout: 10m
     config: *apply_cluster_chart
