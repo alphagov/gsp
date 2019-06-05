@@ -1,6 +1,7 @@
 groups:
 - name: deploy
   jobs:
+  - update
   - deploy
 - name: destroy
   jobs:
@@ -37,7 +38,7 @@ terraform_source: &terraform_source
 
 task_image_resource: &task_image_resource
   type: docker-image
-  source: {repository: "govsvc/task-toolbox", tag: "1.1.0"}
+  source: {repository: "govsvc/task-toolbox", tag: "1.2.0"}
 
 generate_cluster_values: &generate_cluster_values
   platform: linux
@@ -63,7 +64,7 @@ generate_user_values: &generate_user_values
   params:
     ACCOUNT_ID: ((account-id))
     CLUSTER_NAME: ((cluster-name))
-    PATH_TO_USERS: ((config-path))/users/
+    PATH_TO_USERS: ((users-path))
   run:
     path: /bin/bash
     args:
@@ -80,7 +81,7 @@ generate_user_values: &generate_user_values
         > ../user-values/values.yaml
       cat ../user-values/values.yaml
   inputs:
-  - name: config
+  - name: users
   outputs:
   - name: user-values
 
@@ -284,45 +285,41 @@ resource_types:
 
 resources:
 - name: platform
-  type: git # FIXME: should be github-resource
+  type: github
   source:
-    uri: ((platform-repository))
-    organization: alphagov
-    github_api_token: "((github-api-token))"
-    approvers: # TODO: Populate the list automagically...
-      - "samcrang"
-      - "paroxp"
-      - "chrisfarms"
-      - "tlwr"
-      - "blairboy362"
-      - "whpearson"
-      - "vixus0"
-      - "sakisv"
-      - "schmie"
-      - "smford"
-    required_approval_count: 2
+    uri: ((platform-uri))
+    organization: ((platform-organization))
+    repository: ((platform-repository))
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 1
     branch: ((platform-version))
     commit_verification_keys: ((trusted-developer-keys))
 - name: config
-  type: git # FIXME: should be github-resource
+  type: github
   source:
-    uri: ((config-repository))
-    organization: alphagov
-    github_api_token: "((github-api-token))"
-    approvers: # TODO: Populate the list automagically...
-      - "samcrang"
-      - "paroxp"
-      - "chrisfarms"
-      - "tlwr"
-      - "blairboy362"
-      - "whpearson"
-      - "vixus0"
-      - "sakisv"
-      - "schmie"
-      - "smford"
-    required_approval_count: 2
+    uri: ((config-uri))
+    organization: ((config-organization))
+    repository: ((config-repository))
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 1
     branch: ((config-version))
     commit_verification_keys: ((trusted-developer-keys))
+- name: users
+  type: github
+  source:
+    uri: ((users-uri))
+    paths:
+    - ((users-path))/*
+    organization: ((users-organization))
+    repository: ((users-repository))
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 1
+    branch: ((users-version))
+    commit_verification_keys: ((trusted-developer-keys))
+    private_key: ((users-deployment-key))
 - name: cluster-state
   type: terraform
   source:
@@ -339,13 +336,90 @@ resources:
       key: users-((cluster-name)).tfstate
 
 jobs:
-- name: deploy
-  serial: true
+- name: update
   serial_groups: [cluster-modification]
   plan:
   - get: platform
     trigger: true
   - get: config
+    trigger: true
+  - get: users
+    trigger: true
+  - task: set-pipelines
+    params:
+      CONCOURSE_TEAM: ((concourse-team))
+      CONCOURSE_USERNAME: ((concourse-username))
+      CONCOURSE_PASSWORD: ((readonly_local_user_password))
+      CONCOURSE_URL: ((concourse-url))
+      CONCOURSE_PIPELINE_PATH: platform/pipelines/deployer/deployer.yaml
+      CONCOURSE_PIPELINE_NAME: ((concourse-pipeline-name))
+      CLUSTER_NAME: ((cluster-name))
+      CLUSTER_CONFIG_VARS: config/clusters/((cluster-name)).yaml
+    config:
+      platform: linux
+      image_resource: *task_image_resource
+      inputs:
+      - name: platform
+      - name: config
+      - name: users
+      run:
+        path: sh
+        args:
+        - -uec
+        - |
+          echo "generating list of pipeline approvers..."
+          echo -n "github-approvers: " > approvers.yaml
+          cat users/users/*.yaml \
+            | yq . \
+            | jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github]" \
+            >> approvers.yaml
+          echo "generating list of trusted-developer-keys for pipeline changes"
+          echo -n "trusted-developer-keys: " > trusted-developer-keys.yaml
+          cat users/users/*.yaml \
+            | yq . \
+            | jq -c -s '[ .[].pub ]' \
+            >> trusted-developer-keys.yaml
+          echo "downloading correct fly version..."
+          curl -L --fail "${CONCOURSE_URL}/api/v1/cli?arch=amd64&platform=linux" > fly
+          chmod +x fly
+          echo "configuring fly target..."
+          ./fly --target self \
+            login \
+            --concourse-url "${CONCOURSE_URL}" \
+            --username "${CONCOURSE_TEAM}" \
+            --password "${CONCOURSE_PASSWORD}" \
+            --team-name "${CONCOURSE_TEAM}"
+          echo "validating the pipeline..."
+          ./fly --target self \
+            validate-pipeline \
+            --config "${CONCOURSE_PIPELINE_PATH}" \
+            --load-vars-from "${CLUSTER_CONFIG_VARS}" \
+            --load-vars-from "approvers.yaml" \
+            --load-vars-from "trusted-developer-keys.yaml"
+          echo "updating pipeline..."
+          ./fly --target self \
+            set-pipeline \
+            --check-creds \
+            --pipeline "${CONCOURSE_PIPELINE_NAME}" \
+            --config "${CONCOURSE_PIPELINE_PATH}" \
+            --load-vars-from "${CLUSTER_CONFIG_VARS}" \
+            --load-vars-from "approvers.yaml" \
+            --load-vars-from "trusted-developer-keys.yaml" \
+            --non-interactive
+          echo "OK!"
+
+- name: deploy
+  serial: true
+  serial_groups: [cluster-modification]
+  plan:
+  - get: platform
+    passed: ["update"]
+    trigger: true
+  - get: config
+    passed: ["update"]
+    trigger: true
+  - get: users
+    passed: ["update"]
     trigger: true
   - put: cluster-state
     params:
