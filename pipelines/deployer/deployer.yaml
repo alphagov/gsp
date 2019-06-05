@@ -310,8 +310,8 @@ resources:
   type: github
   source:
     uri: ((users-uri))
-    paths:
-    - ((users-path))/*
+    # paths:
+    # - ((users-path))/*
     organization: ((users-organization))
     repository: ((users-repository))
     github_api_token: ((github-api-token))
