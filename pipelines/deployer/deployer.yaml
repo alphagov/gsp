@@ -71,7 +71,7 @@ generate_user_values: &generate_user_values
     - -eu
     - -c
     - |
-      cd config
+      cd users
       echo "creating helm compatible values file from user data"
       cat ${PATH_TO_USERS}/*.yaml \
         | yq . \
@@ -89,7 +89,7 @@ generate_users_terraform: &generate_users_terraform
   platform: linux
   image_resource: *task_image_resource
   params:
-    PATH_TO_USERS: ((config-path))/users/
+    PATH_TO_USERS: ((users-path))
   run:
     path: /bin/bash
     args:
@@ -97,7 +97,7 @@ generate_users_terraform: &generate_users_terraform
     - -c
     - |
       mkdir -p users-terraform
-      cd config
+      cd users
       echo "creating terraform for user roles from user data"
       cat ${PATH_TO_USERS}/*.yaml \
         | yq . \
@@ -106,7 +106,7 @@ generate_users_terraform: &generate_users_terraform
         > ../users-terraform/users.tf.json
       cat ../users-terraform/users.tf.json
   inputs:
-  - name: config
+  - name: users
   outputs:
   - name: users-terraform
 
