@@ -348,7 +348,7 @@ resource_types:
 
 resources:
 - name: platform
-  type: ((git-resource-type))
+  type: github
   source:
     uri: ((platform-uri))
     organization: ((platform-organization))
@@ -359,7 +359,7 @@ resources:
     branch: ((platform-version))
     commit_verification_keys: ((trusted-developer-keys))
 - name: config
-  type: ((git-resource-type))
+  type: github
   source:
     uri: ((config-uri))
     organization: ((config-organization))
@@ -370,7 +370,7 @@ resources:
     branch: ((config-version))
     commit_verification_keys: ((trusted-developer-keys))
 - name: users
-  type: ((git-resource-type))
+  type: github
   source:
     uri: ((users-uri))
     organization: ((users-organization))
