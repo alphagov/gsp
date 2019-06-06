@@ -506,9 +506,9 @@ jobs:
   - task: apply-cluster-chart
     timeout: 10m
     config: *apply_cluster_chart
-  - task: run-conformance-tests
-    timeout: 15m
-    config: *run_conformance_tests
+    #  - task: run-conformance-tests
+    #    timeout: 15m
+    #    config: *run_conformance_tests
 - name: destroy
   serial: true
   serial_groups: [cluster-modification]
