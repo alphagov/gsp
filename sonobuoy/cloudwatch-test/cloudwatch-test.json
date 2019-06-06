@@ -1,0 +1,22 @@
+---
+sonobuoy-config:
+  driver: Job
+  plugin-name: cloudwatch-test
+  result-type: cloudwatch-test 
+spec:
+  command:
+  - /run-cloudwatch-test.sh
+  env:
+  - name: ACCEPTANCE_TEST 
+    value: Logs to cloudwatch should be received
+  - name: TEST_DELAY
+    value: 20
+  - name: TEST_RETRIES
+    value: 10
+  image: gcr.io/heptio-images/kube-conformance:latest
+  imagePullPolicy: Always
+  name: plugin 
+  volumeMounts:
+  - mountPath: /tmp/results
+    name: results
+    readOnly: false
