@@ -324,9 +324,8 @@ run_cloudwatch_test: &run_cloudwatch_test
 	        mkdir results && \
 	        tar xzvf $results -C results
 	      cat results/plugins/cloudwatch-test/results/*/output
-	      passed=$(grep "Passed Tests:" results/plugins/cloudwatch-test/results/something)
-	      failed=$(passed=$(grep "Failed Tests:" results/plugins/cloudwatch-test/results/something)
-	      if [[ ${passed} == "Passed Tests: 1" && ${failed} == "Failed Tests: 0" ]]; then
+	      passed=$(grep "^PASS:" results/plugins/cloudwatch-test/results/something)
+	      if [[ ${passed} == "PASS: Logs have been reached cloudwatch" ]]; then
 	        echo "SUCCESS"
 	        exit 0
 	      fi
