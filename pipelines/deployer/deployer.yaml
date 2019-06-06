@@ -344,7 +344,7 @@ resource_types:
   type: registry-image
   source:
     repository: "govsvc/concourse-github-resource"
-    tag: "v0.0.1"
+    tag: "v0.0.2"
 
 resources:
 - name: platform
@@ -355,7 +355,7 @@ resources:
     repository: ((platform-repository))
     github_api_token: ((github-api-token))
     approvers: ((github-approvers))
-    required_approval_count: 1
+    required_approval_count: ((github-approval-count))
     branch: ((platform-version))
     commit_verification_keys: ((trusted-developer-keys))
 - name: config
@@ -366,7 +366,7 @@ resources:
     repository: ((config-repository))
     github_api_token: ((github-api-token))
     approvers: ((github-approvers))
-    required_approval_count: 1
+    required_approval_count: ((github-approval-count))
     branch: ((config-version))
     commit_verification_keys: ((trusted-developer-keys))
 - name: users
@@ -377,7 +377,7 @@ resources:
     repository: ((users-repository))
     github_api_token: ((github-api-token))
     approvers: ((github-approvers))
-    required_approval_count: 1
+    required_approval_count: ((github-approval-count))
     branch: ((users-version))
     commit_verification_keys: ((trusted-developer-keys))
     private_key: ((users-deployment-key))
