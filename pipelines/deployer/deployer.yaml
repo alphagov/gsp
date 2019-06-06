@@ -432,7 +432,7 @@ jobs:
           echo -n "github-approvers: " > approvers.yaml
           cat users/users/*.yaml \
             | yq . \
-            | jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github]" \
+            | jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github] | unique" \
             >> approvers.yaml
           echo "generating list of trusted-developer-keys for pipeline changes"
           echo -n "trusted-developer-keys: " > trusted-developer-keys.yaml
