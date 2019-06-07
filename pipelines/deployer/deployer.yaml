@@ -315,7 +315,6 @@ run_cloudwatch_test: &run_cloudwatch_test
 	        --sonobuoy-image "gcr.io/heptio-images/sonobuoy:v0.14.2" \
 	        --plugin cloudwatch-test \
 	        --plugin-env cloudwatch-test.TEST_LOGS_SINCE=$(date '+%s') \
-	        --plugin-env cloudwatch-test.TEST_LOG_GROUP=${CLUSTER_NAME}.${ACCOUNT_NAME} \
 	        --kube-conformance-image "govsvc/conformance-amd64:0.0.1559644071"
 	      sonoexitcode=$?
 	      echo "Sonobuoys exit code: $sonoexitcode"
