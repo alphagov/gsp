@@ -73,8 +73,7 @@ generate_user_values: &generate_user_values
     - |
       cd users
       echo "creating helm compatible values file from user data"
-      cat ${PATH_TO_USERS}/*.yaml \
-        | yq . \
+      yq . ${PATH_TO_USERS}/*.yaml \
         | jq ". + {roleARN: (\"arn:aws:iam::${ACCOUNT_ID}:role/${CLUSTER_NAME}-user-\" + .name)}" \
         | jq -s '{users: .}' \
         | yq --yaml-output .\
@@ -99,8 +98,7 @@ generate_users_terraform: &generate_users_terraform
       mkdir -p users-terraform
       cd users
       echo "creating terraform for user roles from user data"
-      cat ${PATH_TO_USERS}/*.yaml \
-        | yq . \
+      yq . ${PATH_TO_USERS}/*.yaml \
         | jq '[{key: (.name | gsub("[^a-z-A-Z0-9]"; "-")), value: {source: "../platform/modules/gsp-user", user_name: .name, user_arn: .ARN, cluster_name: "${var.cluster_name}"}}] | from_entries' \
         | jq -s '{module: . | add, variable: { aws_account_role_arn: { type: "string" }, cluster_name: { type: "string" } }, provider: { aws: { region: "eu-west-2", assume_role: { role_arn: "${var.aws_account_role_arn}" } } } }' \
         > ../users-terraform/users.tf.json
@@ -136,7 +134,7 @@ generate_namespace_values: &generate_namespace_values
         echo "--> ${ns}"
         echo "- name: ${ns}" >> $namespace_values_file
         set_namespace=".metadata.namespace=\"${ns}\""
-        combined_resources="$(cat ${ns}/*.yaml | yq . | jq $set_namespace | jq -s -c .)"
+        combined_resources="$(yq . ${ns}/*.yaml | jq $set_namespace | jq -s -c .)"
         echo "  resources: $combined_resources" >> $namespace_values_file
       done
       cat $namespace_values_file
@@ -430,14 +428,12 @@ jobs:
         - |
           echo "generating list of pipeline approvers..."
           echo -n "github-approvers: " > approvers.yaml
-          cat users/users/*.yaml \
-            | yq . \
+          yq . users/users/*.yaml \
             | jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github] | unique" \
             >> approvers.yaml
           echo "generating list of trusted-developer-keys for pipeline changes"
           echo -n "trusted-developer-keys: " > trusted-developer-keys.yaml
-          cat users/users/*.yaml \
-            | yq . \
+          yq . users/users/*.yaml \
             | jq -c -s '[ .[].pub ]' \
             >> trusted-developer-keys.yaml
           echo "downloading correct fly version..."
