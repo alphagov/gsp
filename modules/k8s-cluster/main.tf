@@ -42,7 +42,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     NodeInstanceType                    = "${var.worker_instance_type}"
     NodeImageId                         = "ami-0c7388116d474ee10"
     NodeVolumeSize                      = "40"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker\""
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
     VpcId                               = "${var.vpc_id}"
     Subnets                             = "${join(",", var.private_subnet_ids)}"
   }
@@ -65,7 +65,7 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
     NodeInstanceType                    = "t2.small"
     NodeImageId                         = "ami-0c7388116d474ee10"
     NodeVolumeSize                      = "40"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/cluster-management --register-with-taints=node-role.kubernetes.io/cluster-management=:NoSchedule\""
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/cluster-management --register-with-taints=node-role.kubernetes.io/cluster-management=:NoSchedule --event-qps=0\""
     VpcId                               = "${var.vpc_id}"
     Subnets                             = "${join(",", var.private_subnet_ids)}"
   }
@@ -88,7 +88,7 @@ resource "aws_cloudformation_stack" "ci-nodes" {
     NodeInstanceType                    = "${var.ci_worker_instance_type}"
     NodeImageId                         = "ami-0c7388116d474ee10"
     NodeVolumeSize                      = "40"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule\""
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule --event-qps=0\""
     VpcId                               = "${var.vpc_id}"
     Subnets                             = "${join(",", var.private_subnet_ids)}"
   }
