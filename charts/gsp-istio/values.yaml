@@ -67,6 +67,8 @@ istio:
       type: NodePort
       sds:
         enabled: true
+    istio-egressgateway:
+      enabled: true
   sidecarInjectorWebhook:
     enableNamespacesByDefault: true
   kiali:
