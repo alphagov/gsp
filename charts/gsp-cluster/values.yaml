@@ -8,6 +8,11 @@ global:
     name: ""
   roles:
     canary: ""
+  cloudHsm:
+    enabled: false
+    ip: "127.0.0.1"
+  kubeApiService:
+    endpointCidrs: []
   # move these to gsp-namespace terraform output
   canary:
     repository: ""
@@ -70,6 +75,8 @@ kiam:
         mountPath: /etc/ssl/certs/ca-certificates.crt
         hostPath: /etc/pki/tls/certs/ca-bundle.crt
         readOnly: true
+    serviceAnnotations:
+      networking.istio.io/exportTo: "."
   agent:
     gatewayTimeoutCreation: 30s
     host:

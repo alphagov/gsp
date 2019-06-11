@@ -33,7 +33,7 @@ spec:
         name: {{ .Chart.Name }}
         env:
         - name: CONCOURSE_NAMESPACE_PREFIX
-          value: {{ printf "%s-" .Values.global.cluster.name }}
+          value: {{ printf "%s-" .Values.global.account.name }}
         - name: CONCOURSE_ATC_ADDR
           value: https://ci.{{ .Values.global.cluster.domain }}
         - name: CONCOURSE_USERNAME

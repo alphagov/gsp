@@ -69,8 +69,26 @@ istio:
       type: NodePort
       sds:
         enabled: true
+    istio-egressgateway:
+      enabled: true
+      ports:
+      - port: 80
+        name: http2
+      - port: 443
+        name: https
+        # This is the port where sni routing happens
+      - port: 15443
+        targetPort: 15443
+        name: tls
+      - port: 2223
+        name: tcp-cloudhsm-2223
+      - port: 2224
+        name: tcp-cloudhsm-2224
+      - port: 2225
+        name: tcp-cloudhsm-2225
   sidecarInjectorWebhook:
     enableNamespacesByDefault: true
+    rewriteAppHTTPProbe: true
   kiali:
     enabled: true
     createDemoSecret: true # FIXME: probably not a good idea for prod!
