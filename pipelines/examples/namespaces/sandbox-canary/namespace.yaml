@@ -5,5 +5,3 @@ metadata:
   name: sandbox-canary
   labels:
     namespace: sandbox-canary
-  annotations:
-    iam.amazonaws.com/permitted: "^{{ .Values.global.roles.canary }}$"
