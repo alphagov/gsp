@@ -38,17 +38,3 @@ resource "aws_iam_policy_attachment" "canary_code_commit" {
   roles      = ["${aws_iam_role.canary_role.name}"]
   policy_arn = "${aws_iam_policy.canary_code_commit.arn}"
 }
-
-resource "aws_codecommit_repository" "canary" {
-  repository_name = "canary.${var.cluster_name}.${var.account_name}"
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/initialise_canary_helm_codecommit.sh"
-
-    environment {
-      SOURCE_REPO_URL          = "https://github.com/alphagov/gsp-canary"
-      CODECOMMIT_REPO_URL      = "${aws_codecommit_repository.canary.clone_url_http}"
-      CODECOMMIT_INIT_ROLE_ARN = "${var.codecommit_init_role_arn}"
-    }
-  }
-}
