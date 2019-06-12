@@ -1,7 +1,9 @@
 global:
   k8sIngressSelector: ingressgateway
   mtls:
-    enabled: false
+    enabled: true
+  proxy:
+    accessLogFile: "/dev/stdout"
 
 istio-cni:
   tag: master-20190410-09-16
