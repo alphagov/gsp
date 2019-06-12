@@ -6,3 +6,4 @@ metadata:
   labels:
     namespace: istio-system
     istio-injection: disabled
+    istio: system

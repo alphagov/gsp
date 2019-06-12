@@ -6,6 +6,13 @@ set -eu -o pipefail
 
 PIPELINE_NAME="release"
 
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [ "${CURRENT_BRANCH}" != "master" ]
+then
+	echo "${CURRENT_BRANCH} is not master!"
+	exit 1
+fi
+
 echo "generating initial list of trusted developers for releases..."
 
 approvers="/tmp/gsp-release-approvers.yaml"
@@ -27,7 +34,8 @@ fly -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--load-vars-from "${approvers}" \
 	--load-vars-from "${trusted}" \
 	--var "pipeline-name=${PIPELINE_NAME}" \
+	--var "branch=${CURRENT_BRANCH}" \
+	--var "github-release-tag-prefix=gsp-" \
 	--check-creds "$@"
 
 fly -t cd-gsp expose-pipeline -p "${PIPELINE_NAME}"
-

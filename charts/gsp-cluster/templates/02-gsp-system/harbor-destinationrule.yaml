@@ -1,0 +1,45 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-registry
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-registry
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  host: "gsp-harbor-core.gsp-system.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-registry-portal
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-registry
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  host: "gsp-harbor-portal.gsp-system.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-notary
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-notary
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  host: "gsp-harbor-notary-server.gsp-system.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE

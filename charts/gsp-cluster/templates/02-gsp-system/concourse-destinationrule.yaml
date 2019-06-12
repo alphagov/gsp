@@ -1,0 +1,15 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-concourse
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-concourse
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  host: "gsp-concourse-web.gsp-system.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE

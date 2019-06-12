@@ -6,3 +6,4 @@ metadata:
   labels:
     namespace: kube-system
     istio-injection: disabled
+    kube-system: "true"

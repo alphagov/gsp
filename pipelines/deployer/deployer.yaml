@@ -78,6 +78,34 @@ generate_user_values: &generate_user_values
   outputs:
   - name: user-values
 
+generate_kube_values: &generate_kube_values
+  platform: linux
+  params:
+    ACCOUNT_ROLE_ARN:
+    CLUSTER_NAME:
+    AWS_REGION:
+    AWS_DEFAULT_REGION:
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      mkdir -p kube-values
+      echo "assuming aws deployer role..."
+      AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+      eval "${AWS_CREDS}"
+      echo "fetching kubeconfig from aws..."
+      aws eks update-kubeconfig \
+        --name "${CLUSTER_NAME}" \
+        --kubeconfig ./kubeconfig
+      export KUBECONFIG=$(pwd)/kubeconfig
+      kubectl -n default get endpoints kubernetes -o json \
+        | jq '{"global": {"kubeApiService": {"endpointCidrs": [.subsets[].addresses[].ip + "/32"]}}}' | yq --yaml-output . \
+        > kube-values/values.yaml
+  outputs:
+  - name: kube-values
+
 generate_users_terraform: &generate_users_terraform
   platform: linux
   params:
@@ -152,6 +180,7 @@ apply_cluster_chart: &apply_cluster_chart
         --namespace "${DEFAULT_NAMESPACE}" \
         --values cluster-values/values.yaml \
         --values user-values/values.yaml \
+        --values kube-values/values.yaml \
         --values config/${CONFIG_VALUES_PATH} \
         --set "githubAPIToken=${GITHUB_API_TOKEN}" \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
@@ -184,6 +213,7 @@ apply_cluster_chart: &apply_cluster_chart
   - name: config
   - name: user-values
   - name: gsp
+  - name: kube-values
 
 generate_destroy_terraform: &generate_destroy_terraform
   platform: linux
@@ -459,6 +489,7 @@ resources:
     access_token: ((github-api-token))
     release: true
     pre_release: ((platform-pre-release))
+    tag_filter: ((github-release-tag-prefix))v?([^v].*)
 - name: config
   type: github
   source:
@@ -643,6 +674,15 @@ jobs:
         ACCOUNT_ID: ((account-id))
         CLUSTER_NAME: ((cluster-name))
         ACCOUNT_NAME: ((account-name))
+    - task: generate-kube-values
+      timeout: 10m
+      config: *generate_kube_values
+      image: task-toolbox
+      params:
+        ACCOUNT_ROLE_ARN: ((account-role-arn))
+        CLUSTER_NAME: ((cluster-name))
+        AWS_REGION: eu-west-2
+        AWS_DEFAULT_REGION: eu-west-2
   - task: apply-cluster-chart
     image: task-toolbox
     timeout: 10m
