@@ -279,6 +279,66 @@ run_conformance_tests: &run_conformance_tests
   - name: namespace-values
   - name: platform
 
+run_cloudwatch_test: &run_cloudwatch_test
+    platform: linux
+    image_resource: *task_image_resource
+    params:
+      ACCOUNT_ROLE_ARN: ((account-role-arn))
+      ACCOUNT_NAME: ((account-name))
+      CLUSTER_NAME: ((cluster-name))
+      DEFAULT_NAMESPACE: gsp-system
+      AWS_REGION: eu-west-2
+      AWS_DEFAULT_REGION: eu-west-2
+    run:
+      path: /bin/bash
+      args:
+      - -eu
+      - -c
+      - |
+        echo "assuming aws deployer role..."
+        AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+        eval "${AWS_CREDS}"
+        echo "fetching kubeconfig from aws..."
+        aws eks update-kubeconfig \
+          --name "${CLUSTER_NAME}" \
+          --kubeconfig ./kubeconfig
+        export KUBECONFIG=$(pwd)/kubeconfig
+        echo "setting default namespace to ${DEFAULT_NAMESPACE}"
+        kubectl config set-context $(kubectl config get-contexts -o name) \
+          --namespace "${DEFAULT_NAMESPACE}"
+        echo "beginning cloudwatch test..."
+        mkdir -p plugins/e2e/results
+        function cleanup() {
+          echo "cleaning up sonobuoy..."
+          sonobuoy delete --wait
+        }
+        trap 'cleanup' INT TERM EXIT
+        sonobuoy run \
+          --wait \
+          --sonobuoy-image "gcr.io/heptio-images/sonobuoy:v0.14.2" \
+          --plugin cloudwatch-test \
+          --plugin-env cloudwatch-test.TEST_LOGS_SINCE=$(date '+%s') \
+          --kube-conformance-image "govsvc/conformance-amd64:0.0.1559644071"
+        sonoexitcode=$?
+        echo "Sonobuoys exit code: $sonoexitcode"
+        sleep 10 # wait for results to be written
+        results=$(sonobuoy retrieve) && \
+          mkdir results && \
+          tar xzvf $results -C results
+        cat results/plugins/cloudwatch-test/results/*/output
+        passed=$(grep "^PASS:" results/plugins/cloudwatch-test/results/something)
+        if [[ ${passed} == "PASS: Logs have been reached cloudwatch" ]]; then
+          echo "SUCCESS"
+          exit 0
+        fi
+        echo "FAIL"
+        exit 1
+    inputs:
+    - name: cluster-values
+    - name: user-values
+    - name: namespace-values
+    - name: platform
+
 drain_cluster_task: &drain_cluster_task
   platform: linux
   image_resource: *task_image_resource
@@ -514,7 +574,9 @@ jobs:
     #  - task: run-conformance-tests
     #    timeout: 15m
     #    config: *run_conformance_tests
-
+  - task: run-cloudwatch-test
+    timeout: 10m
+    config: *run_cloudwatch_test
 - name: test
   serial: true
   serial_groups: [cluster-modification]
@@ -536,7 +598,6 @@ jobs:
           - |
             echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress..."
             curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics
-
 - name: destroy
   serial: true
   serial_groups: [cluster-modification]
