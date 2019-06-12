@@ -42,7 +42,7 @@ fly -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--var "platform-version=${CURRENT_BRANCH}" \
 	--load-vars-from "${approvers}" \
 	--load-vars-from "${trusted}" \
-	--check-creds
+	--check-creds "$@"
 
 fly -t cd-gsp expose-pipeline -p "${PIPELINE_NAME}"
 
