@@ -3,10 +3,57 @@ name: daniel.blair
 email: daniel.blair@digital.cabinet-office.gov.uk
 ARN: arn:aws:iam::622626885786:user/daniel.blair@digital.cabinet-office.gov.uk
 roles:
-- farms-sre
-- farms-admin
-- sandbox-admin
+- verify-admin
 - sandbox-sre
-- sandbox-canary-dev
-- drb-istio-test-admin
-- drb-istio-refactor-admin
+- sandbox-admin
+- portfolio-admin
+hardware:
+  id: 9607848
+  type: yubikey
+github: blairboy362
+teams:
+- re-gsp
+pub: |
+  -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+  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
+  +OnKIJ23fUGSSn2JblCiII4L9JQ=
+  =Tox4
+  -----END PGP PUBLIC KEY BLOCK-----
