@@ -28,16 +28,9 @@ worker-instance-type: t3.medium
 worker-count: 3
 ci-worker-instance-type: t3.micro
 ci-worker-count: 3
-platform-uri: "https://github.com/alphagov/gsp-terraform-ignition.git"
-platform-organization: "alphagov"
-platform-repository: "gsp-terraform-ignition"
 config-uri: "https://github.com/alphagov/gsp-terraform-ignition.git"
 config-organization: "alphagov"
 config-repository: "gsp-terraform-ignition"
 config-path: "pipelines/examples"
 config-trigger: false
-users-uri: "https://github.com/alphagov/gsp-terraform-ignition.git"
-users-organization: "alphagov"
-users-repository: "gsp-terraform-ignition"
-users-path: "pipelines/examples/users"
 users-trigger: false
