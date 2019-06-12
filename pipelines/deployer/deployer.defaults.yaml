@@ -1,0 +1,8 @@
+platform-trigger: true
+platform-version: "master"
+config-trigger: true
+config-version: "master"
+users-trigger: true
+users-version: "master"
+disable-destroy: true
+disable-update: false
