@@ -435,12 +435,12 @@ jobs:
           echo "generating list of pipeline approvers..."
           echo -n "github-approvers: " > approvers.yaml
           yq . users/users/*.yaml \
-            | jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github] | unique" \
+            | jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github] | unique | sort" \
             >> approvers.yaml
           echo "generating list of trusted-developer-keys for pipeline changes"
           echo -n "trusted-developer-keys: " > trusted-developer-keys.yaml
           yq . users/users/*.yaml \
-            | jq -c -s '[ .[].pub ]' \
+            | jq -c -s '[ .[].pub ] | sort' \
             >> trusted-developer-keys.yaml
           echo "downloading correct fly version..."
           curl -L --fail "${CONCOURSE_URL}/api/v1/cli?arch=amd64&platform=linux" > fly
