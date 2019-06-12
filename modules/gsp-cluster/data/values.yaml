@@ -7,12 +7,10 @@ global:
   account:
     name: ${account_name}
   roles:
-    canary: ${canary_role}
     harbor: ${harbor_iam_role_name}
     concourse: ${concourse_iam_role_name}
   # move these to gsp-namespace terraform output
   canary:
-    repository: ${canary_code_commit_url}
     verificationKeys: []
     
 adminRoleARNs: ${admin_role_arns}

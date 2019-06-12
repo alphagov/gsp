@@ -132,11 +132,6 @@ variable "vpc_flow_log_splunk_index" {
   default     = ""
 }
 
-variable "codecommit_init_role_arn" {
-  type    = "string"
-  default = ""
-}
-
 variable "vpc_id" {
   type = "string"
 }
