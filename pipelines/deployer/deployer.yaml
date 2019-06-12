@@ -399,11 +399,11 @@ jobs:
   serial_groups: [cluster-modification]
   plan:
   - get: platform
-    trigger: true
+    trigger: ((platform-trigger))
   - get: config
-    trigger: true
+    trigger: ((config-trigger))
   - get: users
-    trigger: true
+    trigger: ((users-trigger))
   - task: set-pipelines
     params:
       CONCOURSE_TEAM: ((concourse-team))
@@ -413,7 +413,9 @@ jobs:
       CONCOURSE_PIPELINE_PATH: platform/pipelines/deployer/deployer.yaml
       CONCOURSE_PIPELINE_NAME: ((concourse-pipeline-name))
       CLUSTER_NAME: ((cluster-name))
-      CLUSTER_CONFIG_VARS: config/clusters/((cluster-name)).yaml
+      CLUSTER_CONFIG_VARS: config/((config-path))/clusters/((cluster-name)).yaml
+      DEFAULT_CONFIG_VARS: platform/pipelines/deployer/deployer.defaults.yaml
+      SKIP_UPDATE: ((disable-update))
     config:
       platform: linux
       image_resource: *task_image_resource
@@ -426,6 +428,10 @@ jobs:
         args:
         - -uec
         - |
+          if [[ "${SKIP_UPDATE}" == "true" ]]; then
+            echo "skipping updating pipeline as SKIP_UPDATE==true"
+            exit 0
+          fi
           echo "generating list of pipeline approvers..."
           echo -n "github-approvers: " > approvers.yaml
           yq . users/users/*.yaml \
@@ -450,6 +456,7 @@ jobs:
           ./fly --target self \
             validate-pipeline \
             --config "${CONCOURSE_PIPELINE_PATH}" \
+            --load-vars-from "${DEFAULT_CONFIG_VARS}" \
             --load-vars-from "${CLUSTER_CONFIG_VARS}" \
             --load-vars-from "approvers.yaml" \
             --load-vars-from "trusted-developer-keys.yaml"
@@ -459,6 +466,7 @@ jobs:
             --check-creds \
             --pipeline "${CONCOURSE_PIPELINE_NAME}" \
             --config "${CONCOURSE_PIPELINE_PATH}" \
+            --load-vars-from "${DEFAULT_CONFIG_VARS}" \
             --load-vars-from "${CLUSTER_CONFIG_VARS}" \
             --load-vars-from "approvers.yaml" \
             --load-vars-from "trusted-developer-keys.yaml" \
@@ -471,13 +479,13 @@ jobs:
   plan:
   - get: platform
     passed: ["update"]
-    trigger: true
+    trigger: ((platform-trigger))
   - get: config
     passed: ["update"]
-    trigger: true
+    trigger: ((config-trigger))
   - get: users
     passed: ["update"]
-    trigger: true
+    trigger: ((users-trigger))
   - put: cluster-state
     params:
       env_name: ((account-name))
@@ -511,6 +519,7 @@ jobs:
   disable_manual_trigger: ((disable-destroy))
   plan:
   - get: config
+  - get: users
   - get: platform
   - task: drain-cluster
     timeout: 30m
