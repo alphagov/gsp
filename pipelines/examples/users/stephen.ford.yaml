@@ -3,10 +3,72 @@ name: stephen.ford
 email: stephen.ford@digital.cabinet-office.gov.uk
 ARN: arn:aws:iam::622626885786:user/stephen.ford@digital.cabinet-office.gov.uk
 roles:
-- farms-sre
-- farms-admin
-- sandbox-admin
+- verify-admin
 - sandbox-sre
-- sandbox-canary-dev
-- drb-istio-test-admin
-- drb-istio-refactor-admin
+- sandbox-admin
+- portfolio-sre
+hardware:
+  id: 9599499
+  type: yubikey
+github: smford
+teams:
+- re-gsp
+pub: |
+  -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+  mQENBFy/H2cBCADKLijAL6+1l+F+kwvmaXz5HVRFQ80ZSCrCXOfiPMH/wYXKIzZn
+  yc+psFPL8wnRc1ztLFYysOG6YnVIXJESpin6fAhiowbEYiahz9PBea1M6uXG3Atg
+  NUKJunN2Y1SmXtBpOekIo89MsIqyIPAGw2qNDwzBMVL9a5yAkhFxWT8cdMrTtNO4
+  OJ3LvC0N710E/JL5NJ6nRigBfcWGby5PuANpzLaL1EltGKCGz/1TWhgo/Dhrm17p
+  RNFwfGc4t/4UrkvavI6/+o+9w551F7O4kCgti5deTqWdJEuNVMkGTz4CNry6rhyl
+  5T01ZtXfeYIyKGN53VHLQSCbn+eF3L0hdvk9ABEBAAG0X1N0ZXBoZW4gRm9yZCAo
+  R0RTIC0gWXViaWtleSBHaXRodWIgQW5vbnltaXNlZCBFbWFpbCkgPDExMTgyMjc1
+  K3NtZm9yZEB1c2Vycy5ub3JlcGx5LmdpdGh1Yi5jb20+iQE3BBMBCgAhBQJcvzSQ
+  AhsDBQsJCAcDBRUKCQgLBRYCAwEAAh4BAheAAAoJEGmeulXiaYNNBtgIALx8yGnF
+  EEdbtLakls7gs1mukyap5eh+n6yBpz5QWC04R0VlvRGU76L2lKnVksw9SwoLVQN9
+  IUQHVDOuJpRTdBur/8NgEaKCWwSqAIcdkpXQCZZRc/34vv81LQqFbMt6UINZcLVG
+  DLVldHk4ssqxMmsFNLJukol/rXSRsXTSTBCYwotjD4SdjoTjghWFYqpngq/tk/Fo
+  q5d5yaNavh6tFwITd8+OwLs53dog+UVAGbIYzsLm8yta+5fPW44OO7X6sKM3mvEW
+  DGnTzlPhAPgliQ+dZG3ZuCOUgtmAK5QcH0MLD5mGmngY8LT86T1wsMI5424c3KOY
+  Lc/q6HA4qycuCIi0SVN0ZXBoZW4gRm9yZCAoR0RTIC0gWXViaWtleSkgPHN0ZXBo
+  ZW4uZm9yZEBkaWdpdGFsLmNhYmluZXQtb2ZmaWNlLmdvdi51az6JATcEEwEKACEF
+  Aly/H2cCGwMFCwkIBwMFFQoJCAsFFgIDAQACHgECF4AACgkQaZ66VeJpg03FwggA
+  hQ+Xy9czwLT0PMuNT9zyxFSeB5XNs1itxlHdi/uwxY5dlIgcf57cKApQmpTZ5RVK
+  pJcUXulgrrlfilIILAMSCl9aj7cvGCyu3ynyD6lDiR1EEmcxwW/kQkPAjU2D5LPF
+  vmzRIifJKWVHiI+1/xBxKAnrsMn+32O4lXLm2r53/6jaFZZaP91TaWkyA5h/ivIA
+  bvFF5rtbnhJf2Eii+jLajHFRPfcjmu1JRQUPQp30pTBjjcTA14aTFxgAR6xzqnQV
+  rk7HWl2UMR/THeA4y8JN5PDF6apNiilDIBOOsdDfmCmOj98G9L4R4oSX9ZtInP9q
+  LoraZyZX56HLyZ/kHh56SLQpU3RlcGhlbiBGb3JkIChHaXRMYWIpIDxhc2NkdW1w
+  QGdtYWlsLmNvbT6JATcEEwEKACEFAly/NQoCGwMFCwkIBwMFFQoJCAsFFgIDAQAC
+  HgECF4AACgkQaZ66VeJpg034lgf8Csh3UJSeKVELZFj8fpnDanCjFtmzgEkbNiJD
+  a6jZANKzrEVw3ZB2ZpvkBvpsaRQx2/wT2rGkF+/ZjX8fZRjV0EN056UD4eVpLRP3
+  oSkZAS/lbDKiabXOkh8AKG6TSzXzBn6f1QG36ji61qIlZdHslEjsXlc6T9LKTEJh
+  DKcadzZ7NligmIND4bnF0owsnqekpvJvAOp6ucIiW2Uvk2O4KdUkNe6jAXHUHikW
+  ocz9taQxrU905sb4qkiTP6nBjKE8SwRiaKDfv/di4RF24GWu8jDhirOuEroXizy2
+  AbOww+vOTk/e1D+QTWsnKMXF9YGR7MPfsfN08KvP0gamBW/z3LkBDQRcvx9nAQgA
+  vZMiblrHsya7D0nOW6qtf5f4rnihEfyuXklqPY6GL/C/E0zJq9+aer+W2QY3igag
+  V6FjfQ66OsPcit47Yz3Re2bL9v+ar6RTm+JTWoXXnpfKjKWxN4mPlA0aHpq2o0qY
+  GbNykDTZw4X+GsQ5+itihHADkYzU9SfT8SobKB2Myzh2l7qegeXjRQcererpHa6g
+  taVSmz6AU0Ch9Jrf5DdW0MIBhjJHHzPhQdBgW2GGa126+En8JoPbJnxR/l7nFr9e
+  6IW/kAoEC2jtrfmqbCbjuF2GKdhuuLDfqEp1BInSfivcOo3ksT7isadDoHyFE6Jx
+  bdp82+fv8vT3p3sSC7ETiwARAQABiQEfBBgBCgAJBQJcvx9nAhsgAAoJEGmeulXi
+  aYNNxdkH/imjTHmrwcq1lp66zhbbELbhxn414OPJzM9EJr4dj4HUQVh67Upbn/il
+  jqPxPRNAxCzu0nSKgQcOZSI3sG1Tg4Y6DKSFwxVlEzGyhX5CumQPtUCEVGaRR5KV
+  4F6Xv42tdYHqeWAx3PlAGP04PGmARhL3MwlBKFx8Cxpzb4AEnhfywcjr4N8gjm9f
+  186DQz5+S1sggBFJNyj8rvjio5xsy1QNlRva/X/LDZEUNTJDqKGuUMsydJlUIA6r
+  rVxoOHi1cL/CI2djPRTtHsstha/It+WYMrXAz22ntoxDNMSNpGvmJuj1E7w+eHCU
+  vfB3ICbZLexNsZdeWYiAfKJY3PokQxK5AQ0EXL8fZwEIAJ9sNWat7CA73svwOOQD
+  PoWzRzW5CJ+8y5ffa5i8Y12gEGO7T2I48e770YYllQ+Yk2A5p01Kl1jV2i/D95Jh
+  kplDez0RXDeYblcLeUra75ucS+WDap7/yDpZV7tRH+w1al/weBtC/kFoGrPuFvuD
+  wmbysQs1L78p8OZ+6WWLWlw7YfgmXXUjivrj/g1PWtl6LfccTenbZUyGs6aK9dIR
+  flpkAH0ChqXx/LfJOA90vqB5zUrropP1vXkUy30cFzaI8gr72hopsRtFE6kIOou7
+  fKACi/RZUELsONEZrIlz/wmZGSgizgSdAkLesx/UNRbrNWTqoV+SaRGHWNxDAI0k
+  sA0AEQEAAYkBHwQYAQoACQUCXL8fZwIbDAAKCRBpnrpV4mmDTQ2MB/9yEAiUgn0N
+  lxeTAEPGRJH1O4eXcOvth+ZP0APPdyMM2H1L4AFoqXUgsZsIl8TvJQdAjbuc+8bK
+  Agn24mMFYSrmrJ/Fy134a9NIVLp88QMv6Oou9OZHf/44yN0uIjXdC84C7AQsjj6h
+  q0pXa8zju1Wjf7yFeIq+BH6s5atlnhBY01Sbkv+pWaf7N9w422uCbPUZF+af/1l7
+  FsAz9ntguw1EP2NS4i3kkRMIBuQa2HasXgA+mIwq8Atfzellil1Bg7QQFj0mbpcv
+  gLKr7rhws8EwH5Rc/IX186MxhZ8IvaoOx26a3qhWJgsA1XJS3K31FTTgF2bS2/nE
+  xfLZL4DHTckh
+  =4Xlb
+  -----END PGP PUBLIC KEY BLOCK-----

@@ -1,0 +1,23 @@
+eks-version: "1.12"
+
+config-trigger: true
+config-version: "master"
+config-path: "."
+
+platform-uri: "https://github.com/alphagov/gsp-terraform-ignition.git"
+platform-organization: "alphagov"
+platform-repository: "gsp-terraform-ignition"
+platform-version: "master"
+platform-trigger: true
+
+users-uri: "git@github.com:alphagov/gds-trusted-developers.git"
+users-organization: "alphagov"
+users-repository: "gds-trusted-developers"
+users-version: "master"
+users-path: "users"
+users-trigger: true
+
+disable-destroy: true
+disable-update: false
+
+github-approval-count: 2
