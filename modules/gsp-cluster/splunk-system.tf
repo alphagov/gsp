@@ -13,7 +13,7 @@ module "k8s_lambda_splunk_forwarder" {
 module "eks_lambda_splunk_forwarder" {
   source                    = "../lambda_splunk_forwarder"
   enabled                   = "${var.splunk_enabled}"
-  name                      = "pods"
+  name                      = "eks"
   cloudwatch_log_group_arn  = "${module.k8s-cluster.eks-log-group-arn}"
   cloudwatch_log_group_name = "${module.k8s-cluster.eks-log-group-name}"
   cluster_name              = "${var.cluster_name}"
