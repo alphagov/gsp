@@ -23,7 +23,13 @@ resource "aws_eks_cluster" "eks-cluster" {
   depends_on = [
     "aws_iam_role_policy_attachment.eks-cluster-policy",
     "aws_iam_role_policy_attachment.eks-service-policy",
+    "aws_cloudwatch_log_group.eks",
   ]
+}
+
+resource "aws_cloudwatch_log_group" "eks" {
+  name              = "/aws/eks/${var.cluster_name}/cluster"
+  retention_in_days = 30
 }
 
 # As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
