@@ -23,14 +23,14 @@ approvers="/tmp/deployer-${CLUSTER_NAME}-approvers.yaml"
 echo -n "github-approvers: " > "${approvers}"
 cat ${USER_CONFIGS}/*.yaml \
 	| yq . \
-	| jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github] | unique" \
+	| jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github] | unique | sort" \
 	>> "${approvers}"
 
 trusted="/tmp/deployer-${CLUSTER_NAME}-keys.yaml"
 echo -n "trusted-developer-keys: " > "${trusted}"
 cat ${USER_CONFIGS}/*.yaml \
 	| yq . \
-	| jq -c -s '[ .[].pub ]' \
+	| jq -c -s '[ .[].pub ] | sort' \
 	>> "${trusted}"
 
 fly -t cd-gsp sync
@@ -42,7 +42,7 @@ fly -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--var "platform-version=${CURRENT_BRANCH}" \
 	--load-vars-from "${approvers}" \
 	--load-vars-from "${trusted}" \
-	--check-creds
+	--check-creds "$@"
 
 fly -t cd-gsp expose-pipeline -p "${PIPELINE_NAME}"
 
