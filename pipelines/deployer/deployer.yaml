@@ -295,6 +295,9 @@ run_cloudwatch_test: &run_cloudwatch_test
       - -eu
       - -c
       - |
+        echo "grabbing acceptance test"
+        curl -O -L https://raw.githubusercontent.com/alphagov/gsp-terraform-ignition/cloudwatch-acceptance/acceptance_tests/cloudwatch/cloudwatch-test.json -o /etc/sonobuoy/plugins.d/cloudwatch-test.json
+        ls -la /etc/sonobuoy/plugins.d
         echo "assuming aws deployer role..."
         AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
         eval "${AWS_CREDS}"
