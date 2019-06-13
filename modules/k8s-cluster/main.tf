@@ -26,6 +26,11 @@ resource "aws_eks_cluster" "eks-cluster" {
   ]
 }
 
+resource "aws_cloudwatch_log_group" "eks" {
+  name              = "/aws/eks/${var.cluster_name}/cluster"
+  retention_in_days = 30
+}
+
 # As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
 resource "aws_cloudformation_stack" "worker-nodes" {
   name          = "${var.cluster_name}-worker-nodes"

@@ -17,3 +17,11 @@ output "bootstrap_role_arns" {
 output "worker_http_target_group_arn" {
   value = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]}"
 }
+
+output "eks-log-group-arn" {
+  value = "${aws_cloudwatch_log_group.eks.arn}"
+}
+
+output "eks-log-group-name" {
+  value = "${aws_cloudwatch_log_group.eks.name}"
+}
