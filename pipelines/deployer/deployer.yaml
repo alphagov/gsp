@@ -52,7 +52,7 @@ generate_cluster_values: &generate_cluster_values
       mkdir -p cluster-values
       echo "fetching cluster-values file from cluster-state..."
       jq -r '.values' ./cluster-state/metadata > ./cluster-values/values.yaml
-      cat ./cluster-values/values.yaml
+      echo "OK!"
   inputs:
   - name: cluster-state
   outputs:
