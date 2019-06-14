@@ -3,6 +3,7 @@ groups:
   jobs:
   - update
   - deploy
+  - test
 - name: destroy
   jobs:
   - destroy
