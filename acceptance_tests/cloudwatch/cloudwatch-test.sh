@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
 echo "starting cloudwatch test"
 
 set -x
 #set -xeuf -o pipefail
 
-timeout="${TEST_TIMEOUT:-60}"
+timeout="${TEST_TIMEOUT:-30}"
 retries="${TEST_RETRIES:-3}"
 
 echo "accountname: $ACCOUNT_NAME"
