@@ -296,7 +296,9 @@ run_cloudwatch_test: &run_cloudwatch_test
       - -c
       - |
         echo "grabbing acceptance test"
-        curl -O -L https://raw.githubusercontent.com/alphagov/gsp-terraform-ignition/cloudwatch-acceptance/acceptance_tests/cloudwatch/cloudwatch-test.json -o /etc/sonobuoy/plugins.d/cloudwatch-test.json
+        mkdir -p /etc/sonobuoy/plugins.d
+        cd /etc/sonobuoy/plugins.d
+        curl -O -L https://raw.githubusercontent.com/alphagov/gsp-terraform-ignition/cloudwatch-acceptance/acceptance_tests/cloudwatch/cloudwatch-test.yaml -o /etc/sonobuoy/plugins.d/cloudwatch-test.yaml
         ls -la /etc/sonobuoy/plugins.d
         echo "assuming aws deployer role..."
         AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
@@ -319,9 +321,8 @@ run_cloudwatch_test: &run_cloudwatch_test
         sonobuoy run \
           --wait \
           --sonobuoy-image "gcr.io/heptio-images/sonobuoy:v0.14.2" \
-          --plugin cloudwatch-test \
-          --plugin-env cloudwatch-test.TEST_LOGS_SINCE=$(date '+%s') \
-          --kube-conformance-image "govsvc/conformance-amd64:0.0.1559644071"
+          --plugin /etc/sonobuoy/plugins.d/cloudwatch-test.yaml \
+          --plugin-env cloudwatch-test.TEST_LOGS_SINCE=$(date '+%s')
         sonoexitcode=$?
         echo "Sonobuoys exit code: $sonoexitcode"
         sleep 10 # wait for results to be written
@@ -564,16 +565,16 @@ jobs:
     - task: generate-user-values
       timeout: 10m
       config: *generate_user_values
-    - task: generate-user-terraform
-      timeout: 10m
-      config: *generate_users_terraform
-  - put: user-state
-    params:
-      env_name: ((account-name))
-      terraform_source: users-terraform
-  - task: apply-cluster-chart
-    timeout: 10m
-    config: *apply_cluster_chart
+    #- task: generate-user-terraform
+    #  timeout: 10m
+    #  config: *generate_users_terraform
+  #- put: user-state
+  #  params:
+  #    env_name: ((account-name))
+  #    terraform_source: users-terraform
+  #- task: apply-cluster-chart
+  #  timeout: 10m
+  #  config: *apply_cluster_chart
     #  - task: run-conformance-tests
     #    timeout: 15m
     #    config: *run_conformance_tests
