@@ -13,7 +13,7 @@ timeout="${TEST_TIMEOUT:-30}"
 retries="${TEST_RETRIES:-3}"
 ACCOUNT_NAME="portfolio"
 CLUSTER_NAME="portfolio"
-TEST_LOGS_SINCE="$(date --date 'now - 5 minutes' '+%s')"
+TEST_LOGS_SINCE=$(date --date 'now - 5 minutes' '+%s')
 
 echo "accountname: $ACCOUNT_NAME"
 echo "clustername: $CLUSTER_NAME"
@@ -27,7 +27,7 @@ while [ $i -lt $retries ]
 do
   ((i++))
   echo "attempt: $i"
-  LASTSEENLOG=$(aws logs describe-log-streams --log-group-name $CLUSTER_NAME.$ACCOUNT_NAME.govsvc.uk --log-stream-name-prefix "kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
+  LASTSEENLOG=$(AWS_REGION=eu-west-2 aws logs describe-log-streams --log-group-name $CLUSTER_NAME.$ACCOUNT_NAME.govsvc.uk --log-stream-name-prefix "kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
 
   echo "lastseen: $LASTSEENLOG"
 
