@@ -225,7 +225,7 @@ spec:
       source:
         uri: "https://github.com/{{ .owner }}/{{ .repository }}.git"
         organization: {{ .owner }}
-        branch: master
+        branch: {{ .branch | default "master" | quote }}
         owner: {{ .owner }}
         repository: {{ .repository }}
         github_api_token: ((github.api-token))
