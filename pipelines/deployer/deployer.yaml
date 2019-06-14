@@ -271,6 +271,61 @@ run_conformance_tests: &run_conformance_tests
   - name: namespace-values
   - name: platform
 
+check_cloudwatch: &check_cloudwatch
+  platform: linux
+  image_resource: *task_image_resource
+  params:
+    ACCOUNT_ROLE_ARN: ((account-role-arn))
+    ACCOUNT_NAME: ((account-name))
+    CLUSTER_NAME: ((cluster-name))
+    AWS_REGION: eu-west-2
+    AWS_DEFAULT_REGION: eu-west-2
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      echo "assuming aws deployer role..."
+      AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+      eval "${AWS_CREDS}"
+
+      TEST_LOGS_SINCE=$(date '+%s')
+      TEST_LOGS_SINCE=$(($TEST_LOGS_SINCE - 300))
+      RETRIES=3
+      DELAY=30
+
+      echo "Accountname: $ACCOUNT_NAME"
+      echo "Clustername: $CLUSTER_NAME"
+      echo "      Delay: $DELAY"
+      echo "    Retries: $RETRIES"
+      echo " Logs Since: $TEST_LOGS_SINCE"
+
+      i=0
+      while [ $i -lt $retries ]
+      do
+        ((i++))
+        echo "attempt: $i"
+        LASTSEENLOG=$(AWS_DEFAULT_REGION=eu-west-2 AWS_REGION=eu-west-2 aws logs describe-log-streams --log-group-name $CLUSTER_NAME.$ACCOUNT_NAME.govsvc.uk --log-stream-name-prefix "kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
+
+        echo "lastseen: $LASTSEENLOG"
+
+        if (( ${LASTSEENLOG} > ${TEST_LOGS_SINCE} )); then
+          echo "PASS: Logs have been reached cloudwatch\nAfter: $TEST_LOGS_SINCE at $LASTSEENLOG in $CLUSTER_NAME.$ACCOUNT_NAME.govsvc.uk/kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" 2>&1 | tee /tmp/results
+          exit 0
+        fi
+
+        sleep ${DELAY}
+      done
+
+      echo "FAIL: No logs have been detected reaching cloudwatch since $TEST_LOGS_SINCE" 2>&1 | tee /tmp/results
+      exit 1
+  inputs:
+  - name: cluster-values
+  - name: user-values
+  - name: namespace-values
+  - name: platform
+
 drain_cluster_task: &drain_cluster_task
   platform: linux
   image_resource: *task_image_resource
@@ -503,9 +558,12 @@ jobs:
   - task: apply-cluster-chart
     timeout: 10m
     config: *apply_cluster_chart
-    #  - task: run-conformance-tests
-    #    timeout: 15m
-    #    config: *run_conformance_tests
+  - task: check-cloudwatch
+    timeout: 15m
+    config: *check_cloudwatch
+  #- task: run-conformance-tests
+  #  timeout: 15m
+  #  config: *run_conformance_tests
 
 - name: test
   serial: true
