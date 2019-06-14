@@ -1,3 +1,3 @@
 #!/bin/sh
-sleep 2000
+sleep 60
 echo "HELLO STUFF WORKED"
