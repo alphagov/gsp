@@ -13,7 +13,10 @@ timeout="${TEST_TIMEOUT:-30}"
 retries="${TEST_RETRIES:-3}"
 ACCOUNT_NAME="portfolio"
 CLUSTER_NAME="portfolio"
-TEST_LOGS_SINCE=$(date --date 'now - 5 minutes' '+%s')
+TEST_LOGS_SINCE=$(date '+%s')
+echo "Current time: $TEST_LOGS_SINCE"
+TEST_LOGS_SINCE=$(($TEST_LOGS_SINCE - 300))
+echo "  5 Mins ago: $TEST_LOGS_SINCE"
 
 echo "accountname: $ACCOUNT_NAME"
 echo "clustername: $CLUSTER_NAME"
