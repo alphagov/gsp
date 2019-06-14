@@ -526,9 +526,16 @@ jobs:
     config:
       platform: linux
       image_resource: *task_image_resource
+      params:
+        CLUSTER_DOMAIN: ((cluster-domain))
       run:
-        path: /usr/bin/curl
-        args: ["--silent", "--show-error", "--max-time 10", "--fail", "https://canary.((cluster-domain))/metrics"]
+        path: /bin/bash
+        args:
+          - -eu
+          - -c
+          - |
+            echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress..."
+            curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics
 
 - name: destroy
   serial: true
