@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
+set -x
+
 echo "starting cloudwatch test"
 
-set -x
 #set -xeuf -o pipefail
+
+AWS_DEFAULT_REGION=eu-west-2
+AWS_REGION=eu-west-2
 
 timeout="${TEST_TIMEOUT:-30}"
 retries="${TEST_RETRIES:-3}"
