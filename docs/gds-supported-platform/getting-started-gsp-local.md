@@ -19,7 +19,7 @@ This process is resource-intensive and you must set the resource amount used by 
 1. Install dependencies from the Brewfile at the root of the repo:
 
     ```
-    brew bundle
+    brew bundle --verbose
     ```
 
     After installing `docker-machine-driver-hyperkit` follow instructions on how to grant driver superuser privileges to the hypervisor.
