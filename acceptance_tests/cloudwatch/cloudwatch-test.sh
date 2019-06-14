@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-set -euf -o pipefail
+set -xeuf -o pipefail
+
+timeout="${TEST_TIMEOUT:-60}"
+retries="${TEST_RETRIES:-3}"
 
 echo "accountname: $ACCOUNT_NAME"
 echo "clustername: $CLUSTER_NAME"
-echo "timeout: $TEST_TIMEOUT"
-echo "retries: $TEST_RETRIES"
+echo "timeout: $timeout"
+echo "retries: $retries"
 echo "testlogsince: $TEST_LOGS_SINCE"
 
 
 i=0
-while [ $i -le $TEST_RETRIES ]
+while [ $i -le $retries ]
 do
   ((i++))
   echo "attempt: $i"
@@ -22,7 +25,7 @@ do
     exit 0
   fi
 
-  sleep ${TEST_TIMEOUT}
+  sleep ${timeout}
 done
 
 echo "FAIL: No logs have been detected reaching cloudwatch since $TEST_LOGS_SINCE" 2>&1 | tee /tmp/results
