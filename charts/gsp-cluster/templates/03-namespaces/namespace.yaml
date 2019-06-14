@@ -201,6 +201,7 @@ metadata:
     "kubernetes.io/service-account.name": cluster-deployer
 type: kubernetes.io/service-account-token
 {{- end }}
+{{- if .repository }}
 ---
 apiVersion: concourse.k8s.io/v1beta1
 kind: Pipeline
@@ -285,4 +286,5 @@ spec:
               kubectl config use-context deployer
               echo "applying manifests from ${SRC_URI} at path ${PATH_TO_MANIFESTS} to ${RELEASE_NAMESPACE}"
               kubectl apply $NS_ARGS -R -f "./src/${PATH_TO_MANIFESTS}"
+{{- end }}
 {{- end }}
