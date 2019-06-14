@@ -4,9 +4,9 @@ config-trigger: true
 config-version: "master"
 config-path: "."
 
-platform-uri: "https://github.com/alphagov/gsp-terraform-ignition.git"
+platform-uri: "https://github.com/alphagov/gsp.git"
 platform-organization: "alphagov"
-platform-repository: "gsp-terraform-ignition"
+platform-repository: "gsp"
 platform-version: "master"
 platform-trigger: true
 

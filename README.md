@@ -30,13 +30,15 @@ The platform is for teams working in the [Government Digital Service](https://ww
 - Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
 
 ## Getting started
+
 - [Host a GDS Supported Platform cluster in the AWS cloud](docs/gds-supported-platform/getting-started-gsp-cluster.md)
 - [Host a GDS Supported Platform cluster locally](docs/gds-supported-platform/getting-started-gsp-local.md)
 
 
 
 ## Help and support
+
 For help or support:
 - read our [documentation](/docs)
-- raise an [issue](https://github.com/alphagov/gsp-terraform-ignition/issues)
+- raise an [issue](https://github.com/alphagov/gsp/issues)
 - message the team on the Reliability [Engineering Slack channel](https://gds.slack.com/messages/CAD6NP598) [#reliability-eng](https://gds.slack.com/messages/CAD6NP598)
