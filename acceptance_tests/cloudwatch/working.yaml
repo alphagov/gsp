@@ -1,0 +1,17 @@
+sonobuoy-config:
+  driver: Job
+  plugin-name: working
+  result-type: working
+spec:
+  env:
+  - name: ACCEPTANCE_TEST
+    value: Logs to cloudwatch should be received
+  command:
+  - /run_test.sh
+  image: narcotk/acceptance_tests:latest
+  name: plugin
+  resources: {}
+  volumeMounts:
+  - mountPath: /tmp/results
+    name: results
+
