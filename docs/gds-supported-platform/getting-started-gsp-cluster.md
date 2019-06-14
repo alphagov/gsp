@@ -5,7 +5,7 @@
 You should have:
 
 - a [Docker image](https://docs.docker.com/engine/reference/commandline/images/) of your app built in line with the [12 factor principles](https://docs.cloud.service.gov.uk/architecture.html#12-factor-application-principles)
-- access to a [Kubernetes cluster](https://github.com/alphagov/gsp-terraform-ignition/blob/master/docs/gds-supported-platform/troubleshooting_app_errors.md) created by Tech Ops
+- access to a [Kubernetes cluster](https://github.com/alphagov/gsp/blob/master/docs/gds-supported-platform/troubleshooting_app_errors.md) created by Tech Ops
 
 ## Create a GitHub repository
 
@@ -164,4 +164,4 @@ kubectl proxy
 
 Kubectl will make your Dashboard available at http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/.
 
-To access your dashboard, see the [GSP documentation on accessing dashboards](https://github.com/alphagov/gsp-terraform-ignition/blob/master/docs/gds-supported-platform/accessing-dashboard.md).
+To access your dashboard, see the [GSP documentation on accessing dashboards](https://github.com/alphagov/gsp/blob/master/docs/gds-supported-platform/accessing-dashboard.md).

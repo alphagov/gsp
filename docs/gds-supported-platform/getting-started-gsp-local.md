@@ -21,7 +21,7 @@ This process is resource-intensive and you must set the resource amount used by 
 1. Clone the GSP repo:
 
     ```
-    git clone https://github.com/alphagov/gsp-terraform-ignition.git
+    git clone https://github.com/alphagov/gsp.git
     ```
 
 1. Run the following to create a local GSP cluster:
