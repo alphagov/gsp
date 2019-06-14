@@ -10,6 +10,12 @@ This process is resource-intensive and you must set the resource amount used by 
 
 1. Install [Homebrew](https://brew.sh/)
 
+1. Clone the GSP repo:
+
+    ```
+    git clone https://github.com/alphagov/gsp.git
+    ```
+
 1. Install dependencies from the Brewfile at the root of the repo:
 
     ```
@@ -17,12 +23,6 @@ This process is resource-intensive and you must set the resource amount used by 
     ```
 
     After installing `docker-machine-driver-hyperkit` follow instructions on how to grant driver superuser privileges to the hypervisor.
-
-1. Clone the GSP repo:
-
-    ```
-    git clone https://github.com/alphagov/gsp.git
-    ```
 
 1. Run the following to create a local GSP cluster:
 
