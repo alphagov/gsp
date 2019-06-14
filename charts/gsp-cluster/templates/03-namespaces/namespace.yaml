@@ -171,6 +171,7 @@ metadata:
   annotations:
     "kubernetes.io/service-account.name": namespace-deployer
 type: kubernetes.io/service-account-token
+{{- if (eq .scope "cluster") }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -199,6 +200,7 @@ metadata:
   annotations:
     "kubernetes.io/service-account.name": cluster-deployer
 type: kubernetes.io/service-account-token
+{{- end }}
 ---
 apiVersion: concourse.k8s.io/v1beta1
 kind: Pipeline
