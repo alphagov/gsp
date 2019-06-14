@@ -113,32 +113,24 @@ generate_namespace_values: &generate_namespace_values
   platform: linux
   image_resource: *task_image_resource
   params:
-    PATH_TO_NAMESPACES: ((config-path))/namespaces/
     CLUSTER_NAME: ((cluster-name))
+    NAMESPACE_JSON: ((namespaces))
   run:
     path: /bin/bash
     args:
-    - -eu
+    - -euo
+    - pipefail
     - -c
     - |
-      echo "creating tmp dirs"
+      echo "creating helm compatible values file from namespace data"
       mkdir -p namespace-values
       namespace_values_file="$(pwd)/namespace-values/values.yaml"
-      mkdir ns-chart
-      cd config/${PATH_TO_NAMESPACES}
-      echo "creating helm compatible values file from namespace data"
       echo "--> ${CLUSTER_NAME}-main"
-      echo 'namespaces:' > $namespace_values_file
+      echo "namespaces:" > $namespace_values_file
       echo "- name: ${CLUSTER_NAME}-main" >> $namespace_values_file
-      echo "  resources: []" >> $namespace_values_file
-      for ns in $(ls | grep -E "^${CLUSTER_NAME}-"); do
-        echo "--> ${ns}"
-        echo "- name: ${ns}" >> $namespace_values_file
-        set_namespace=".metadata.namespace=\"${ns}\""
-        combined_resources="$(yq . ${ns}/*.yaml | jq $set_namespace | jq -s -c .)"
-        echo "  resources: $combined_resources" >> $namespace_values_file
-      done
+      echo "${NAMESPACE_JSON}" | yq --yaml-output . >> $namespace_values_file
       cat $namespace_values_file
+      echo "OK!"
   inputs:
   - name: config
   outputs:
