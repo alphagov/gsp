@@ -1,5 +1,8 @@
-#!/usr/bin/env bash
-set -xeuf -o pipefail
+#!/bin/sh
+echo "starting cloudwatch test"
+
+set -x
+#set -xeuf -o pipefail
 
 timeout="${TEST_TIMEOUT:-60}"
 retries="${TEST_RETRIES:-3}"
