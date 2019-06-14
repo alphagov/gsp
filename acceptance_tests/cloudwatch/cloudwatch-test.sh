@@ -11,6 +11,9 @@ AWS_REGION=eu-west-2
 
 timeout="${TEST_TIMEOUT:-30}"
 retries="${TEST_RETRIES:-3}"
+ACCOUNT_NAME="portfolio"
+CLUSTER_NAME="portfolio"
+TEST_LOGS_SINCE="$(date --date 'now - 5 minutes' '+%s')"
 
 echo "accountname: $ACCOUNT_NAME"
 echo "clustername: $CLUSTER_NAME"
@@ -20,7 +23,7 @@ echo "testlogsince: $TEST_LOGS_SINCE"
 
 
 i=0
-while [ $i -le $retries ]
+while [ $i -lt $retries ]
 do
   ((i++))
   echo "attempt: $i"
