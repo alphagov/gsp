@@ -513,6 +513,22 @@ jobs:
     #  - task: run-conformance-tests
     #    timeout: 15m
     #    config: *run_conformance_tests
+
+- name: test
+  serial: true
+  serial_groups: [cluster-modification]
+  plan:
+  - get: cluster-state
+    passed: ["deploy"]
+    trigger: true
+  - task: ping
+    config:
+      platform: linux
+      image_resource: *task_image_resource
+      run:
+        path: /usr/bin/curl
+        args: ["--silent", "--show-error", "--max-time 10", "--fail", "https://canary.((cluster-domain))/metrics"]
+
 - name: destroy
   serial: true
   serial_groups: [cluster-modification]

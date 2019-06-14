@@ -175,3 +175,10 @@ spec:
                 --diff-changes \
                 -f ./manifests/
 
+      - task: ping
+        config:
+          platform: linux
+          image_resource: *task_toolbox
+          run:
+            path: /usr/bin/curl
+            args: ["--silent", "--show-error", "--max-time 10", "--fail", "https://canary.((cluster.domain))/metrics"]
