@@ -38,8 +38,14 @@ githubAPIToken: ""
 #   - sandbox-canary-dev
 
 # namespaces:
-# - name: sandbox-example
-#   resources: [{...}, {...}]
+# - name: verify-metadata-controller
+#   owner: alphagov
+#   repository: verify-metadata-controller
+#   branch: master
+#   path: ci
+#   permittedRolesRegex: "^$"
+#   requiredApprovalCount: 2
+#   scope: cluster
 
 kiam:
   nameOverride:
