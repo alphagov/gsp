@@ -121,6 +121,7 @@ generate_namespace_values: &generate_namespace_values
     - -euo
     - pipefail
     - -c
+    - -x
     - |
       echo "creating helm compatible values file from namespace data"
       mkdir -p namespace-values
