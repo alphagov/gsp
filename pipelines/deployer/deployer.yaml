@@ -279,7 +279,7 @@ check_cloudwatch: &check_cloudwatch
     CLUSTER_DOMAIN: ((cluster-domain))
     AWS_REGION: eu-west-2
     AWS_DEFAULT_REGION: eu-west-2
-    TEST_FARBACK: 360
+    TEST_FARBACK: 180
     TEST_RETRIES: 3
     TEST_DELAY: 30
   run:
