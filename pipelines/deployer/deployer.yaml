@@ -277,8 +277,6 @@ check_cloudwatch: &check_cloudwatch
   image_resource: *task_image_resource
   params:
     ACCOUNT_ROLE_ARN: ((account-role-arn))
-    ACCOUNT_NAME: ((account-name))
-    CLUSTER_NAME: ((cluster-name))
     CLUSTER_DOMAIN: ((cluster-domain))
     AWS_REGION: eu-west-2
     AWS_DEFAULT_REGION: eu-west-2
@@ -299,18 +297,15 @@ check_cloudwatch: &check_cloudwatch
       DELAY="${TEST_DELAY:-30}"
       RETRIES="${TEST_RETRIES:-3}"
       FARBACK="${TEST_FARBACK:-300}"
-      TEST_LOGS_SINCE=$(($CURRENT_TIME - $FARBACK))
+      LOGS_SINCE=$(($CURRENT_TIME - $FARBACK))
       LOGGROUP="$CLUSTER_DOMAIN"
-      #LOGGROUP="london.$ACCOUNT_NAME.govsvc.uk"
       LOGSTREAM="kubernetes.var.log.containers.kube-proxy-"
 
-      echo "  Accountname: $ACCOUNT_NAME"
-      echo "  Clustername: $CLUSTER_NAME"
       echo "ClusterDomain: $CLUSTER_DOMAIN"
       echo "        Delay: $DELAY"
       echo "      Retries: $RETRIES"
       echo "         Time: $CURRENT_TIME"
-      echo "   Logs Since: $TEST_LOGS_SINCE"
+      echo "   Logs Since: $LOGS_SINCE"
       echo "    Log Group: $LOGGROUP"
       echo "   Log Stream: $LOGSTREAM*"
 
@@ -318,18 +313,18 @@ check_cloudwatch: &check_cloudwatch
       while [ $i -lt $RETRIES ]; do
         i=$((i+1))
         echo "======================================="
-        echo "    Attempt: $i"
+        echo "      Attempt: $i"
         #LASTSEENLOG=$(AWS_DEFAULT_REGION=eu-west-2 AWS_REGION=eu-west-2 aws logs describe-log-streams --log-group-name $LOGGROUP --log-stream-name-prefix "$LOGSTREAM" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
 
         LASTSEENLOG=$(aws logs describe-log-streams --log-group-name $LOGGROUP --log-stream-name-prefix "$LOGSTREAM" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
 
-        SIZESINCE=$(echo -n $TEST_LOGS_SINCE | wc -c)
+        SIZESINCE=$(echo -n $LOGS_SINCE | wc -c)
         LASTSEENLOG=$(echo -n $LASTSEENLOG | cut -c1-$SIZESINCE)
-        echo " Logs Since: $TEST_LOGS_SINCE"
-        echo "  Logs Seen: $LASTSEENLOG"
-        if (( ${LASTSEENLOG} > ${TEST_LOGS_SINCE} )); then
+        echo "   Logs Since: $LOGS_SINCE"
+        echo "    Logs Seen: $LASTSEENLOG"
+        if (( ${LASTSEENLOG} > ${LOGS_SINCE} )); then
           echo "PASS: Logs have been reached cloudwatch"
-          echo "Logs received at: $LASTSEENLOG in london.$ACCOUNT_NAME.govsvc.uk/kubernetes.var.log.containers.kube-proxy-*"
+          echo "Logs received at: $LASTSEENLOG in $LOGGROUP/$LOGSTREAM*"
           exit 0
         fi
         if (( ${i} != ${RETRIES} )); then
@@ -339,7 +334,7 @@ check_cloudwatch: &check_cloudwatch
       done
 
       echo ""
-      echo "FAIL: No logs have been detected reaching cloudwatch since $TEST_LOGS_SINCE"
+      echo "FAIL: No logs have been detected reaching cloudwatch since $LOGS_SINCE"
       exit 1
 
 drain_cluster_task: &drain_cluster_task
