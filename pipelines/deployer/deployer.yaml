@@ -271,6 +271,71 @@ run_conformance_tests: &run_conformance_tests
   - name: namespace-values
   - name: platform
 
+check_cloudwatch: &check_cloudwatch
+  platform: linux
+  image_resource: *task_image_resource
+  params:
+    ACCOUNT_ROLE_ARN: ((account-role-arn))
+    CLUSTER_DOMAIN: ((cluster-domain))
+    AWS_REGION: eu-west-2
+    AWS_DEFAULT_REGION: eu-west-2
+    TEST_FARBACK: 180
+    TEST_RETRIES: 3
+    TEST_DELAY: 30
+  run:
+    path: /bin/bash
+    args:
+    - -euo
+    - pipefail
+    - -c
+    - |
+      echo "assuming aws deployer role..."
+      AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+      eval "${AWS_CREDS}"
+
+      CURRENT_TIME=$(date '+%s')
+      DELAY="${TEST_DELAY:-30}"
+      RETRIES="${TEST_RETRIES:-3}"
+      FARBACK="${TEST_FARBACK:-300}"
+      LOGS_SINCE=$(($CURRENT_TIME - $FARBACK))
+      LOGGROUP="$CLUSTER_DOMAIN"
+
+      # convert from seconds based epoch to AWS supported milliseconds epoch
+      CURRENT_TIME="${CURRENT_TIME}000"
+      LOGS_SINCE="${LOGS_SINCE}000"
+
+      echo "ClusterDomain: $CLUSTER_DOMAIN"
+      echo "  Retry Delay: $DELAY"
+      echo "      Retries: $RETRIES"
+      echo "         Time: $CURRENT_TIME"
+      echo "   Logs Since: $LOGS_SINCE"
+      echo "    Log Group: $LOGGROUP"
+
+      i=0
+      while [ $i -lt $RETRIES ]; do
+        i=$((i+1))
+        echo "======================================="
+        echo "      Attempt: $i"
+
+        LASTSEENLOG=$(aws logs filter-log-events --log-group-name $LOGGROUP --start-time $LOGS_SINCE --max-items 10 | jq ".events[].timestamp" | grep -v "null" | sort -urn | head -n1)
+
+        echo "   Logs Since: $LOGS_SINCE"
+        echo "    Logs Seen: $LASTSEENLOG"
+        if (( ${LASTSEENLOG} > ${LOGS_SINCE} )); then
+          echo "PASS: Logs have been reached cloudwatch"
+          echo "Logs received at: $LASTSEENLOG in $LOGGROUP"
+          exit 0
+        fi
+        if (( ${i} != ${RETRIES} )); then
+          echo "Retrying in ${DELAY} seconds"
+          sleep ${DELAY}
+        fi
+      done
+
+      echo ""
+      echo "FAIL: No logs have been detected reaching cloudwatch since $LOGS_SINCE"
+      exit 1
+
 drain_cluster_task: &drain_cluster_task
   platform: linux
   image_resource: *task_image_resource
@@ -528,6 +593,9 @@ jobs:
           - |
             echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress..."
             curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics
+  - task: check-cloudwatch
+    timeout: 10m
+    config: *check_cloudwatch
 
 - name: destroy
   serial: true
