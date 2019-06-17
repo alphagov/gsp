@@ -121,7 +121,6 @@ generate_namespace_values: &generate_namespace_values
     - -euo
     - pipefail
     - -c
-    - -x
     - |
       echo "creating helm compatible values file from namespace data"
       mkdir -p namespace-values
@@ -299,39 +298,31 @@ check_cloudwatch: &check_cloudwatch
       FARBACK="${TEST_FARBACK:-300}"
       LOGS_SINCE=$(($CURRENT_TIME - $FARBACK))
       LOGGROUP="$CLUSTER_DOMAIN"
-      LOGSTREAM="kubernetes.var.log.containers.kube-proxy-"
+
+      # convert from seconds based epoch to AWS supported milliseconds epoch
+      CURRENT_TIME="${CURRENT_TIME}000"
+      LOGS_SINCE="${LOGS_SINCE}000"
 
       echo "ClusterDomain: $CLUSTER_DOMAIN"
-      echo "        Delay: $DELAY"
+      echo "  Retry Delay: $DELAY"
       echo "      Retries: $RETRIES"
       echo "         Time: $CURRENT_TIME"
       echo "   Logs Since: $LOGS_SINCE"
       echo "    Log Group: $LOGGROUP"
-      echo "   Log Stream: $LOGSTREAM*"
 
       i=0
       while [ $i -lt $RETRIES ]; do
         i=$((i+1))
         echo "======================================="
         echo "      Attempt: $i"
-        #LASTSEENLOG=$(AWS_DEFAULT_REGION=eu-west-2 AWS_REGION=eu-west-2 aws logs describe-log-streams --log-group-name $LOGGROUP --log-stream-name-prefix "$LOGSTREAM" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
 
-        LASTSEENLOG=$(aws logs describe-log-streams --log-group-name $LOGGROUP --log-stream-name-prefix "$LOGSTREAM" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
+        LASTSEENLOG=$(aws logs filter-log-events --log-group-name $LOGGROUP --start-time $LOGS_SINCE --max-items 10 | jq ".events[].timestamp" | grep -v "null" | sort -urn | head -n1)
 
-        echo "before what"
-        WHAT="${LOGS_SINCE}000"
-
-        echo "New Logs Since: $WHAT"
-
-        aws logs filter-log-events --log-group-name london.portfolio.govsvc.uk --start-time $WHAT --max-items 10
-
-        SIZESINCE=$(echo -n $LOGS_SINCE | wc -c)
-        LASTSEENLOG=$(echo -n $LASTSEENLOG | cut -c1-$SIZESINCE)
         echo "   Logs Since: $LOGS_SINCE"
         echo "    Logs Seen: $LASTSEENLOG"
         if (( ${LASTSEENLOG} > ${LOGS_SINCE} )); then
           echo "PASS: Logs have been reached cloudwatch"
-          echo "Logs received at: $LASTSEENLOG in $LOGGROUP/$LOGSTREAM*"
+          echo "Logs received at: $LASTSEENLOG in $LOGGROUP"
           exit 0
         fi
         if (( ${i} != ${RETRIES} )); then
