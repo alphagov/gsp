@@ -318,6 +318,13 @@ check_cloudwatch: &check_cloudwatch
 
         LASTSEENLOG=$(aws logs describe-log-streams --log-group-name $LOGGROUP --log-stream-name-prefix "$LOGSTREAM" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
 
+        echo "before what"
+        WHAT="${LOGS_SINCE}000"
+
+        echo "New Logs Since: $WHAT"
+
+        aws logs filter-log-events --log-group-name london.portfolio.govsvc.uk --start-time $WHAT --max-items 10
+
         SIZESINCE=$(echo -n $LOGS_SINCE | wc -c)
         LASTSEENLOG=$(echo -n $LASTSEENLOG | cut -c1-$SIZESINCE)
         echo "   Logs Since: $LOGS_SINCE"
