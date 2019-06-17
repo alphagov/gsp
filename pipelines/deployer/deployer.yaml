@@ -289,6 +289,9 @@ run_cloudwatch_test: &run_cloudwatch_test
       DEFAULT_NAMESPACE: gsp-system
       AWS_REGION: eu-west-2
       AWS_DEFAULT_REGION: eu-west-2
+      TEST_TIMEOUT: 10
+      TEST_RETRIES: 5
+      TEST_FARBACK: 360
     run:
       path: /bin/bash
       args:

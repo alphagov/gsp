@@ -21,6 +21,7 @@ echo "$FARBACK Secs ago: $TEST_LOGS_SINCE"
 
 echo "accountname: $ACCOUNT_NAME"
 echo "clustername: $CLUSTER_NAME"
+echo "clusterdomain: $CLUSTER_DOMAIN"
 echo "timeout: $TIMEOUT"
 echo "retries: $RETRIES"
 echo "testlogsince: $TEST_LOGS_SINCE"
@@ -33,12 +34,12 @@ do
   echo "Attempt: $i"
   # LASTSEENLOG=$(AWS_DEFAULT_REGION=eu-west-2 AWS_REGION=eu-west-2 aws logs describe-log-streams --log-group-name $CLUSTER_NAME.$ACCOUNT_NAME.govsvc.uk --log-stream-name-prefix "kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
 
-  LASTSEENLOG=$(AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION AWS_REGION=$AWS_REGION aws logs describe-log-streams --log-group-name $CLUSTER_NAME.$ACCOUNT_NAME.govsvc.uk --log-stream-name-prefix "kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
+  LASTSEENLOG=$(AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION AWS_REGION=$AWS_REGION aws logs describe-log-streams --log-group-name $CLUSTER_DOMAIN --log-stream-name-prefix "kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" | jq ".logStreams[].lastEventTimestamp" | grep -v "null" | sort -urn | head -n1)
 
   echo "lastseen: $LASTSEENLOG"
 
   if (( ${LASTSEENLOG} > ${TEST_LOGS_SINCE} )); then
-    echo "PASS: Logs have been reached cloudwatch\nAfter: $TEST_LOGS_SINCE at $LASTSEENLOG in $CLUSTER_NAME.$ACCOUNT_NAME.govsvc.uk/kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" 2>&1 | tee /tmp/results
+    echo "PASS: Logs have been reached cloudwatch\nAfter: $TEST_LOGS_SINCE at $LASTSEENLOG in $CLUSTER_DOMAIN/kubernetes.var.log.containers.sonobuoy_heptio-sonobuoy_istio-proxy" 2>&1 | tee /tmp/results
     exit 0
   fi
 
