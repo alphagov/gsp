@@ -19,17 +19,17 @@ if [[ "${CURRENT_BRANCH}" != "master" ]]; then
 	fi
 fi
 
+echo "generating approvers for ${CLUSTER_NAME}..."
+
 approvers="/tmp/deployer-${CLUSTER_NAME}-approvers.yaml"
 echo -n "github-approvers: " > "${approvers}"
-cat ${USER_CONFIGS}/*.yaml \
-	| yq . \
+yq . ${USER_CONFIGS}/*.yaml \
 	| jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github] | unique | sort" \
 	>> "${approvers}"
 
 trusted="/tmp/deployer-${CLUSTER_NAME}-keys.yaml"
 echo -n "trusted-developer-keys: " > "${trusted}"
-cat ${USER_CONFIGS}/*.yaml \
-	| yq . \
+yq . ${USER_CONFIGS}/*.yaml \
 	| jq -c -s '[ .[].pub ] | sort' \
 	>> "${trusted}"
 
