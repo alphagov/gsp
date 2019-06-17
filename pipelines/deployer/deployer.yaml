@@ -278,8 +278,12 @@ check_cloudwatch: &check_cloudwatch
     ACCOUNT_ROLE_ARN: ((account-role-arn))
     ACCOUNT_NAME: ((account-name))
     CLUSTER_NAME: ((cluster-name))
+    CLUSTER_DOMAIN: ((cluster-domain))
     AWS_REGION: eu-west-2
     AWS_DEFAULT_REGION: eu-west-2
+    TEST_FARBACK: 360
+    TEST_RETRIES: 3
+    TEST_DELAY: 30
   run:
     path: /bin/bash
     args:
@@ -291,20 +295,23 @@ check_cloudwatch: &check_cloudwatch
       eval "${AWS_CREDS}"
 
       CURRENT_TIME=$(date '+%s')
-      TEST_LOGS_SINCE=$(($CURRENT_TIME - 300))
-      RETRIES=3
-      DELAY=30
-      LOGGROUP="london.$ACCOUNT_NAME.govsvc.uk"
+      DELAY="${TEST_DELAY:-30}"
+      RETRIES="${TEST_RETRIES:-3}"
+      FARBACK="${TEST_FARBACK:-300}"
+      TEST_LOGS_SINCE=$(($CURRENT_TIME - $FARBACK))
+      LOGGROUP="$CLUSTER_DOMAIN"
+      #LOGGROUP="london.$ACCOUNT_NAME.govsvc.uk"
       LOGSTREAM="kubernetes.var.log.containers.kube-proxy-"
 
-      echo "Accountname: $ACCOUNT_NAME"
-      echo "Clustername: $CLUSTER_NAME"
-      echo "      Delay: $DELAY"
-      echo "    Retries: $RETRIES"
-      echo "       Time: $CURRENT_TIME"
-      echo " Logs Since: $TEST_LOGS_SINCE"
-      echo "  Log Group: $LOGGROUP"
-      echo " Log Stream: $LOGSTREAM*"
+      echo "  Accountname: $ACCOUNT_NAME"
+      echo "  Clustername: $CLUSTER_NAME"
+      echo "ClusterDomain: $CLUSTER_DOMAIN"
+      echo "        Delay: $DELAY"
+      echo "      Retries: $RETRIES"
+      echo "         Time: $CURRENT_TIME"
+      echo "   Logs Since: $TEST_LOGS_SINCE"
+      echo "    Log Group: $LOGGROUP"
+      echo "   Log Stream: $LOGSTREAM*"
 
       i=0
       while [ $i -lt $RETRIES ]; do
