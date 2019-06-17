@@ -114,7 +114,7 @@ generate_namespace_values: &generate_namespace_values
   image_resource: *task_image_resource
   params:
     CLUSTER_NAME: ((cluster-name))
-    NAMESPACE_JSON: ((namespaces))
+    CLUSTER_CONFIG_PATH: ((config-path))
   run:
     path: /bin/bash
     args:
@@ -128,7 +128,7 @@ generate_namespace_values: &generate_namespace_values
       echo "--> ${CLUSTER_NAME}-main"
       echo "namespaces:" > $namespace_values_file
       echo "- name: ${CLUSTER_NAME}-main" >> $namespace_values_file
-      echo "${NAMESPACE_JSON}" | yq --yaml-output . >> $namespace_values_file
+      yq .namespaces --yaml-output < "./config/${CLUSTER_CONFIG_PATH}" >> $namespace_values_file
       cat $namespace_values_file
       echo "OK!"
   inputs:
@@ -406,8 +406,8 @@ jobs:
       CONCOURSE_PIPELINE_PATH: platform/pipelines/deployer/deployer.yaml
       CONCOURSE_PIPELINE_NAME: ((concourse-pipeline-name))
       CLUSTER_NAME: ((cluster-name))
-      CLUSTER_CONFIG_VARS: config/((config-path))/clusters/((cluster-name)).yaml
-      DEFAULT_CONFIG_VARS: platform/pipelines/deployer/deployer.defaults.yaml
+      CLUSTER_CONFIG_PATH: ((config-path))
+      DEFAULT_CONFIG_PATH: pipelines/deployer/deployer.defaults.yaml
       SKIP_UPDATE: ((disable-update))
     config:
       platform: linux
@@ -449,8 +449,8 @@ jobs:
           ./fly --target self \
             validate-pipeline \
             --config "${CONCOURSE_PIPELINE_PATH}" \
-            --load-vars-from "${DEFAULT_CONFIG_VARS}" \
-            --load-vars-from "${CLUSTER_CONFIG_VARS}" \
+            --load-vars-from "platform/${DEFAULT_CONFIG_PATH}" \
+            --load-vars-from "config/${CLUSTER_CONFIG_PATH}" \
             --load-vars-from "approvers.yaml" \
             --load-vars-from "trusted-developer-keys.yaml"
           echo "updating pipeline..."
@@ -459,8 +459,8 @@ jobs:
             --check-creds \
             --pipeline "${CONCOURSE_PIPELINE_NAME}" \
             --config "${CONCOURSE_PIPELINE_PATH}" \
-            --load-vars-from "${DEFAULT_CONFIG_VARS}" \
-            --load-vars-from "${CLUSTER_CONFIG_VARS}" \
+            --load-vars-from "platform/${DEFAULT_CONFIG_PATH}" \
+            --load-vars-from "config/${CLUSTER_CONFIG_PATH}" \
             --load-vars-from "approvers.yaml" \
             --load-vars-from "trusted-developer-keys.yaml" \
             --non-interactive
