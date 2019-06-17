@@ -113,32 +113,24 @@ generate_namespace_values: &generate_namespace_values
   platform: linux
   image_resource: *task_image_resource
   params:
-    PATH_TO_NAMESPACES: ((config-path))/namespaces/
     CLUSTER_NAME: ((cluster-name))
+    CLUSTER_CONFIG_PATH: ((config-path))
   run:
     path: /bin/bash
     args:
-    - -eu
+    - -euo
+    - pipefail
     - -c
     - |
-      echo "creating tmp dirs"
+      echo "creating helm compatible values file from namespace data"
       mkdir -p namespace-values
       namespace_values_file="$(pwd)/namespace-values/values.yaml"
-      mkdir ns-chart
-      cd config/${PATH_TO_NAMESPACES}
-      echo "creating helm compatible values file from namespace data"
       echo "--> ${CLUSTER_NAME}-main"
-      echo 'namespaces:' > $namespace_values_file
+      echo "namespaces:" > $namespace_values_file
       echo "- name: ${CLUSTER_NAME}-main" >> $namespace_values_file
-      echo "  resources: []" >> $namespace_values_file
-      for ns in $(ls | grep -E "^${CLUSTER_NAME}-"); do
-        echo "--> ${ns}"
-        echo "- name: ${ns}" >> $namespace_values_file
-        set_namespace=".metadata.namespace=\"${ns}\""
-        combined_resources="$(yq . ${ns}/*.yaml | jq $set_namespace | jq -s -c .)"
-        echo "  resources: $combined_resources" >> $namespace_values_file
-      done
+      yq .namespaces --yaml-output < "./config/${CLUSTER_CONFIG_PATH}" >> $namespace_values_file
       cat $namespace_values_file
+      echo "OK!"
   inputs:
   - name: config
   outputs:
@@ -414,8 +406,8 @@ jobs:
       CONCOURSE_PIPELINE_PATH: platform/pipelines/deployer/deployer.yaml
       CONCOURSE_PIPELINE_NAME: ((concourse-pipeline-name))
       CLUSTER_NAME: ((cluster-name))
-      CLUSTER_CONFIG_VARS: config/((config-path))/clusters/((cluster-name)).yaml
-      DEFAULT_CONFIG_VARS: platform/pipelines/deployer/deployer.defaults.yaml
+      CLUSTER_CONFIG_PATH: ((config-path))
+      DEFAULT_CONFIG_PATH: pipelines/deployer/deployer.defaults.yaml
       SKIP_UPDATE: ((disable-update))
     config:
       platform: linux
@@ -457,8 +449,8 @@ jobs:
           ./fly --target self \
             validate-pipeline \
             --config "${CONCOURSE_PIPELINE_PATH}" \
-            --load-vars-from "${DEFAULT_CONFIG_VARS}" \
-            --load-vars-from "${CLUSTER_CONFIG_VARS}" \
+            --load-vars-from "platform/${DEFAULT_CONFIG_PATH}" \
+            --load-vars-from "config/${CLUSTER_CONFIG_PATH}" \
             --load-vars-from "approvers.yaml" \
             --load-vars-from "trusted-developer-keys.yaml"
           echo "updating pipeline..."
@@ -467,8 +459,8 @@ jobs:
             --check-creds \
             --pipeline "${CONCOURSE_PIPELINE_NAME}" \
             --config "${CONCOURSE_PIPELINE_PATH}" \
-            --load-vars-from "${DEFAULT_CONFIG_VARS}" \
-            --load-vars-from "${CLUSTER_CONFIG_VARS}" \
+            --load-vars-from "platform/${DEFAULT_CONFIG_PATH}" \
+            --load-vars-from "config/${CLUSTER_CONFIG_PATH}" \
             --load-vars-from "approvers.yaml" \
             --load-vars-from "trusted-developer-keys.yaml" \
             --non-interactive

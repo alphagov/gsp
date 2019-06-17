@@ -18,10 +18,15 @@
     {{- end }}
   {{- end }}
 {{- end }}
-{{- range .resources }}
 ---
-{{ tpl (toYaml .) $ }}
-{{- end }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .name }}
+  labels:
+    namespace: {{ .name }}
+  annotations:
+    iam.amazonaws.com/permitted: {{ .permittedRolesRegex | default "^$" | quote }}
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
@@ -166,6 +171,7 @@ metadata:
   annotations:
     "kubernetes.io/service-account.name": namespace-deployer
 type: kubernetes.io/service-account-token
+{{- if (eq .scope "cluster") }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -194,4 +200,91 @@ metadata:
   annotations:
     "kubernetes.io/service-account.name": cluster-deployer
 type: kubernetes.io/service-account-token
+{{- end }}
+{{- if .repository }}
+---
+apiVersion: concourse.k8s.io/v1beta1
+kind: Pipeline
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: configure-namespace
+  namespace: {{ .name }}
+spec:
+  exposed: true
+  pipelineString: |
+    resource_types:
+    - name: github
+      type: registry-image
+      source:
+        repository: "govsvc/concourse-github-resource"
+        tag: "v0.0.2"
+    resoures:
+    - name: src
+      type: github
+      icon: github-circle
+      source:
+        uri: "https://github.com/{{ .owner }}/{{ .repository }}.git"
+        organization: {{ .owner }}
+        branch: {{ .branch | default "master" | quote }}
+        owner: {{ .owner }}
+        repository: {{ .repository }}
+        github_api_token: ((github.api-token))
+        access_token: ((github.api-token))
+        approvers: ((trusted-developers.github-accounts))
+        required_approval_count: {{ .requiredApprovalCount | default 2 }}
+        commit_verification_keys: ((trusted-developers.gpg-keys))
+        paths:
+        - {{ .path | quote }}
+    jobs:
+    - name: apply
+      serial: true
+      plan:
+      - get: src
+        trigger: true
+      - task: apply
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: govsvc/task-toolbox
+              tag: "1.2.0"
+          inputs:
+          - name: src
+          params:
+            KUBERNETES_SERVICE_ACCOUNT: (({{ .scope | default "namespace" }}-deployer))
+            KUBERNETES_TOKEN: (({{ .scope | default "namespace" }}-deployer.token))
+            KUBERNETES_API: kubernetes.default.svc
+            RELEASE_NAMESPACE: (({{ .scope | default "namespace" }}-deployer.namespace))
+            PATH_TO_MANIFESTS: {{ .path | quote }}
+            SRC_URI: {{ .uri }}
+            SCOPE: {{ .scope | default "namespace" }}
+          run:
+            path: /bin/bash
+            args:
+            - -eu
+            - -c
+            - |
+              echo "this job will populate the namespace with kubeyaml found in repository ${SRC_URI} at path ${PATH_TO_MANIFESTS}..."
+              if [[ "${SCOPE}" == "cluster" ]]; then
+                echo "deployer has cluster scope (can deploy anywhere)"
+                NS_ARGS=""
+              elif [[ "${SCOPE}" == "namespace" ]]; then
+                echo "deployer has namespace scope (can only deploy to namespace)"
+                NS_ARGS="-n ${RELEASE_NAMESPACE}"
+              else
+                echo "invalid scope '${SCOPE}' expected 'namespace' or 'cluster'"
+                exit 1
+              fi
+              echo "configuring kubectl..."
+              echo "${KUBERNETES_SERVICE_ACCOUNT}" | jq -r .["ca.crt"] > ca.crt
+              kubectl config set-cluster self --server=https://kubernetes.default --certificate-authority=ca.crt
+              kubectl config set-credentials deployer --token "${KUBERNETES_TOKEN}"
+              kubectl config set-context deployer --user deployer --cluster self
+              kubectl config set-context deployer --namespace "${RELEASE_NAMESPACE}"
+              kubectl config use-context deployer
+              echo "applying manifests from ${SRC_URI} at path ${PATH_TO_MANIFESTS} to ${RELEASE_NAMESPACE}"
+              kubectl apply $NS_ARGS -R -f "./src/${PATH_TO_MANIFESTS}"
+{{- end }}
 {{- end }}
