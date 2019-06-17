@@ -219,7 +219,7 @@ spec:
       source:
         repository: "govsvc/concourse-github-resource"
         tag: "v0.0.2"
-    resoures:
+    resources:
     - name: src
       type: github
       icon: github-circle
