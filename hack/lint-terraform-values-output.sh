@@ -36,10 +36,19 @@ global:
     privateKey: BEGIN-PRIVATE
     publicKey: BEGIN-PUBLIC
 namespaces:
-- name: sandbox-canary
-  resources: [{"apiVersion":"v1","kind":"Secret","type":"Opaque","metadata":{"name":"ci-deploy-key"},"data":{"private_key":"RklYTUUK"}},{"apiVersion":"v1","kind":"ConfigMap","metadata":{"name":"ci-deploy-key"},"data":{"public_key":"RklYTUUK"}},{"apiVersion":"flux.weave.works/v1beta1","kind":"HelmRelease","metadata":{"name":"canary"},"spec":{"releaseName":"canary","chart":{"git":"","ref":"master","path":"charts/gsp-canary","verificationKeys":""},"values":{"annotations":{"iam.amazonaws.com/role":""},"updater":{"helmChartRepoUrl":""}}}}]
-- name: jefferson-canary
-  resources: [{"apiVersion":"v1","kind":"Secret","type":"Opaque","metadata":{"name":"ci-deploy-key"},"data":{"private_key":"RklYTUUK"}},{"apiVersion":"v1","kind":"ConfigMap","metadata":{"name":"ci-deploy-key"},"data":{"public_key":"RklYTUUK"}},{"apiVersion":"flux.weave.works/v1beta1","kind":"HelmRelease","metadata":{"name":"canary"},"spec":{"releaseName":"canary","chart":{"git":"","ref":"master","path":"charts/gsp-canary","verificationKeys":""},"values":{"annotations":{"iam.amazonaws.com/role":""},"updater":{"helmChartRepoUrl":""}}}}]
+- name: verify-metadata-controller
+  owner: alphagov
+  repository: verify-metadata-controller
+  branch: master
+  path: ci
+  permittedRolesRegex: "^$"
+  requiredApprovalCount: 2
+  scope: cluster
+- name: verify-proxy-node-build
+  owner: alphagov
+  repository: verify-proxy-node
+  path: ci/build
+  requiredApprovalCount: 2
 users:
 - name: chris.farmiloe
   email: chris.farmiloe@digital.cabinet-office.gov.uk
