@@ -285,7 +285,8 @@ check_cloudwatch: &check_cloudwatch
   run:
     path: /bin/bash
     args:
-    - -eu
+    - -euo
+    - pipefail
     - -c
     - |
       echo "assuming aws deployer role..."
