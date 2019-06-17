@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+
+set -eu
+
+payload="/original_input"
+
+# allow nested stringified json (useful when using credential store to pass values)
+cat | jq 'walk(if type == "string" then . as $raw | try fromjson catch $raw else . end)' > ${payload} <&0
+
+organization=$(jq --raw-output '.source.organization // ""' < ${payload})
+repository=$(jq --raw-output '.source.repository // ""' < ${payload})
+github_api_token=$(jq --raw-output '.source.github_api_token // ""' < ${payload})
+required_approval_count=$(jq --raw-output '(.source.required_approval_count // 0)' < ${payload})
+approvers=$(jq --raw-output '(.source.approvers // [])[]' < ${payload} | sort -d)
+
+if [ -z "${organization}" ]; then
+  echo "invalid payload (missing organization):" >&2
+  cat ${payload} >&2
+  exit 1
+fi
+
+if [ -z "${repository}" ]; then
+  echo "invalid payload (missing repository):" >&2
+  cat ${payload} >&2
+  exit 1
+fi
+
+if [ -z "${github_api_token}" ]; then
+  echo "invalid payload (missing github_api_token):" >&2
+  cat ${payload} >&2
+  exit 1
+fi
+
+if [ -z "${approvers}" ]; then
+  echo "invalid payload (missing approvers):" >&2
+  echo "If you don't require this you probably should be using the regular git-resource" >&2
+  cat ${payload} >&2
+  exit 1
+fi
+
+if [ "${required_approval_count}" -eq 0 ]; then
+  echo "warning: approval count set to zero." >&2
+  echo "If you don't require this you probably should be using the regular git-resource" >&2
+  cat ${payload} >&2
+fi
+
+/opt/resource/in.origin "$@" < ${payload} > /original_output
+
+exec 3>&1 # make stdout available as fd 3 for the result
+exec 1>&2 # redirect all output to stderr for logging
+
+destination=$1
+cd "${destination}"
+
+function latest_code_change_commit() {
+  local commits_to_check
+  local commit_diff
+
+  commits_to_check="$(git rev-list HEAD -n 10)" # assume not more than 10 commits need to be checked
+
+  for commit_sha in ${commits_to_check} ; do
+    commit_diff="$(git diff-tree -p "${commit_sha}")"
+
+    if git verify-commit "${commit_sha}" > /dev/null 2>&1 && [ -z "${commit_diff}" ]; then
+      echo "${commit_sha} is an empty signed commit by GitHub" 1>&2
+      continue
+    fi
+
+    echo "${commit_sha} is the latest code change commit" 1>&2
+    echo "${commit_sha}"
+    return
+  done
+}
+
+function build_query() {
+{
+  local org=$1
+  local repo=$2
+
+  cat <<EOF
+query {
+  viewer {
+    login
+  }
+  organization(login: \"${org}\") {
+    repository(name: \"${repo}\") {
+      pullRequests(last: 40, states: [MERGED]) {
+        nodes {
+          number
+          reviews(last: 10, states: APPROVED) {
+            totalCount
+            nodes {
+              author {
+                login
+              }
+              state
+              commit {
+                oid
+                abbreviatedOid
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+EOF
+} | tr -d '\n'
+}
+
+function approvals() {
+  local commit_sha=$1
+  local org=$2
+  local repo=$3
+  local token=$4
+  local api_response
+
+  api_response=$( \
+    curl --header 'Content-Type: application/json' \
+         --header "Authorization: bearer ${token}" \
+         --data "{ \"query\": \"$(build_query "${org}" "${repo}")\"}" \
+         "https://api.github.com/graphql" \
+  )
+
+  echo "${api_response}" \
+    | jq --raw-output .data.organization.repository.pullRequests.nodes[] \
+    | jq --raw-output ".reviews.nodes[] | select(.commit.oid==\"${commit_sha}\")" \
+    | jq --raw-output .author.login \
+    | sort -d
+}
+
+approvals=$(approvals "$(latest_code_change_commit)" "${organization}" "${repository}" "${github_api_token}")
+
+approval_count=$(\
+  comm -12 \
+    <(echo "${approvers}") \
+    <(echo "${approvals}") \
+  | wc -l \
+)
+
+if [[ "${approval_count}" -lt "${required_approval_count}" ]]; then
+  echo "[FAILURE] You have ${approval_count} GitHub approval(s) and need ${required_approval_count} or more."
+  echo "[FAILURE]"
+  echo "[FAILURE] The following could provide the required approvals:"
+
+  comm -23 \
+    <(echo "${approvers}") \
+    <(echo "${approvals}") \
+  | xargs -I {} echo "[FAILURE]   - {}"
+
+  exit 1
+fi
+
+echo "[SUCCESS] You have ${approval_count} GitHub approval(s) and needed ${required_approval_count} or more."
+
+cat /original_output >&3
