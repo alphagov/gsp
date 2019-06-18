@@ -1,0 +1,14 @@
+{{- if .Values.service.monitor.create }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "gsp-canary.fullname" . }}
+  labels:
+    release: {{ .Values.service.monitor.release }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+  - port: {{ .Values.service.port_name }}
+{{- end }}

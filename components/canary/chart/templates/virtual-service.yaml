@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "gsp-canary.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-canary.name" . }}
+    helm.sh/chart: {{ include "gsp-canary.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  hosts:
+  - canary.{{ .Values.global.cluster.domain }}
+  gateways:
+  - gsp-gsp-cluster.gsp-system
+  http:
+    - route:
+      - destination:
+          host: {{ include "gsp-canary.fullname" . }}
+          port:
+            number: {{ .Values.service.port }}

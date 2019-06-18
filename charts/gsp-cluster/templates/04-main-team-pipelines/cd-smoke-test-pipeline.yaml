@@ -51,7 +51,9 @@ spec:
       type: git
       icon: github-circle
       source:
-        uri: https://github.com/alphagov/gsp-canary.git
+        uri: https://github.com/alphagov/gsp.git
+        paths:
+        - components/canary
 
     - name: image
       type: harbor
@@ -69,8 +71,8 @@ spec:
       - get: src
       - put: image
         params:
-          build: src
-          dockerfile: src/Dockerfile
+          build: src/components/canary
+          dockerfile: src/components/canary/Dockerfile
           tag_file: src/.git/short_ref
           tag_as_latest: true
           tag_prefix: v
@@ -109,7 +111,7 @@ spec:
                   chartCommitTimestamp: $(date +%s)
                 EOF
                 echo "merging with chart values..."
-                spruce merge ./src/chart/values.yaml ./overrides.yaml | tee -a chart-values/values.yaml
+                spruce merge ./src/components/canary/chart/values.yaml ./overrides.yaml | tee -a chart-values/values.yaml
 
       - task: render-manifests
         config:
@@ -139,7 +141,7 @@ spec:
                 --set "global.cluster.domain=${CLUSTER_DOMAIN}" \
                 --values chart-values/values.yaml \
                 --output-dir "./manifests/" \
-                ./src/chart
+                ./src/components/canary/chart
 
       - task: deploy-manifests
         config:

@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "gsp-canary.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-canary.name" . }}
+    helm.sh/chart: {{ include "gsp-canary.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  groups:
+  - name: {{ include "gsp-canary.fullname" . }}
+    rules:
+    - alert: CanaryRotationOverdue
+      annotations:
+        message: The Canary rotation is overdue. Either the CodeCommit interaction failed or Flux hasn't rolled out the changes yet.
+      expr: time() - max(canary_chart_commit_timestamp{namespace="{{ .Release.Namespace }}"}) without (pod) > 2100
+      labels:
+        severity: critical
