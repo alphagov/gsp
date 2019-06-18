@@ -9,7 +9,7 @@ addons:
     - shellcheck
 
 script:
- - shellcheck assets/**/*
+ - shellcheck components/concourse-harbor-resource/assets/**/*
 
 matrix:
   fast_finish: true
