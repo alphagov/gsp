@@ -7,14 +7,14 @@ metadata:
     helm.sh/chart: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-    control-plane: controller-manager
+    control-plane: concourse-operator
     controller-tools.k8s.io: "1.0"
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: "pipeline-operator"
       app.kubernetes.io/instance: {{ .Release.Name }}
-      control-plane: controller-manager
+      control-plane: concourse-operator
       controller-tools.k8s.io: "1.0"
   serviceName: {{ .Release.Name }}-pipeline-operator
   template:
@@ -22,7 +22,7 @@ spec:
       labels:
         app.kubernetes.io/name: "pipeline-operator"
         app.kubernetes.io/instance: {{ .Release.Name }}
-        control-plane: controller-manager
+        control-plane: concourse-operator
         controller-tools.k8s.io: "1.0"
     spec:
       containers:
@@ -42,5 +42,31 @@ spec:
           value: {{ .Values.pipelineOperator.concoursePassword | quote }}
         - name: CONCOURSE_INSECURE_SKIP_VERIFY
           value: {{ .Values.pipelineOperator.concourseInsecureSkipVerify | quote }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: SECRET_NAME
+          value: {{ .Release.Name }}-concourse-operator-webhook
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - containerPort: 9876
+          name: webhook-server
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/cert
+          name: cert
+          readOnly: true
       serviceAccountName: {{ template "pipelineOperator.serviceAccountName" . }}
       terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: {{ .Release.Name }}-concourse-operator-webhook
