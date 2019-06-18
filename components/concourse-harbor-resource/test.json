@@ -1,0 +1,21 @@
+{
+  "source": {
+    "repository": "harbor.k8s.com/project/image",
+    "username": "admin",
+    "password": "Harbor12345",
+    "harbor": {
+      "url": "http://harbor.k8s.com"
+    },
+    "notary": {
+      "url": "http://notary.k8s.com",
+      "root_key": "<<INSERT PRIVATE KEY>>",
+      "delegate_key": "<<INSERT PRIVATE KEY>>",
+      "passphrase": {
+        "root": "qwertyuiop-root",
+        "snapshot": "qwertyuiop-snapshot",
+        "targets": "qwertyuiop-targets",
+        "delegation": "qwertyuiop-delegation"
+      }
+    }
+  }
+}

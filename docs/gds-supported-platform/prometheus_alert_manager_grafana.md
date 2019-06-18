@@ -66,8 +66,6 @@ To set up your app for monitoring, you must:
 
     To do this, you must add a `ServiceMonitor` Kubernetes resource to your deployment chart repo. A chart is a collection of files that describes a related set of Kubernetes resources.
 
-    To create a `ServiceMonitor` resource, refer to this [example `ServiceMonitor` for the `gsp-canary` app](https://github.com/alphagov/gsp-canary-chart/blob/master/charts/gsp-canary/templates/service-monitor.yaml) [external link].
-
 Refer to the following documentation:
 
 - the [Helm documentation on charts](https://docs.helm.sh/developing_charts/) [external link] for more information on charts
