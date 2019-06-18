@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: concourse-operator
+  namespace: system
+spec:
+  template:
+    spec:
+      containers:
+      # Change the value of image field below to your controller image URL
+      - image: govsvc/gsp-concourse-pipeline-controller:1560865806
+        name: manager

@@ -1,0 +1,19 @@
+apiVersion: concourse.k8s.io/v1beta1
+kind: Team
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: team-sample
+spec:
+  roles:
+  - name: owner
+    github:
+      users: ["admin"]
+  - name: member
+    github:
+      teams: ["org:team"]
+  - name: viewer
+    github:
+      orgs: ["org"]
+    local:
+      users: ["visitor"]
