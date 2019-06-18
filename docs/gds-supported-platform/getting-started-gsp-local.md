@@ -14,21 +14,31 @@ These instructions tell you how to set up a local instance of the GDS Supported 
 
 1. Install [Homebrew](https://brew.sh/).
 
-1. Clone the GSP repository:
+1. Run the following to get the latest version of Homebrew.
 
     ```
-    git clone https://github.com/alphagov/gsp.git
+    brew update
     ```
 
-1. Go to the local repository folder and run the following to install the prerequisites:
+1. Go to the local repository folder and run the following to install the prerequisite software:
 
     ```
     brew bundle
     ```
 
-    After installing `docker-machine-driver-hyperkit`, follow the on-screen instructions to grant `driver superuser` privileges to the hypervisor.
+1. Run the following to grant `driver superuser` privileges to the hypervisor:
+
+    ```
+    sudo chown root:wheel /usr/local/bin/docker-machine-driver-hyperkit && sudo chmod u+s /usr/local/bin/docker-machine-driver-hyperkit
+    ```
 
 1. Install [Docker](https://docs.docker.com).
+
+1. Clone the GSP repository:
+
+    ```
+    git clone https://github.com/alphagov/gsp.git
+    ```
 
 ## Create a local GSP instance
 
@@ -79,7 +89,6 @@ These instructions tell you how to set up a local instance of the GDS Supported 
 
     You now have a local GSP instance and can access that instance using kubectl.
 
-    _what is the difference between this and the creation below?_
 
 ## Create a Dockerised app
 
@@ -229,8 +238,6 @@ You run an app in the local GSP instance by creating a [Kubernetes Deployment re
     ```
     kubectl get pods
     ```
-
-    _output?????_
 
 If the pods are running you have created a Kubernetes Deployment resource.
 
