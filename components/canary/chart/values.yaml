@@ -26,19 +26,6 @@ service:
     create: true
     release: monitoring-system
 
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  path: /
-  hosts:
-    - gsp-canary.local
-  tls: []
-  #  - secretName: gsp-canary-tls
-  #    hosts:
-  #      - gsp-canary.local
-
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
