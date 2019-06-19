@@ -70,6 +70,8 @@ kiam:
         mountPath: /etc/ssl/certs/ca-certificates.crt
         hostPath: /etc/pki/tls/certs/ca-bundle.crt
         readOnly: true
+    serviceAnnotations:
+      networking.istio.io/exportTo: "."
   agent:
     gatewayTimeoutCreation: 30s
     host:
