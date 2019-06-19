@@ -1,6 +1,6 @@
 # Set up a local GDS Supported Platform instance
 
-These instructions tell you how to set up a local instance of the GDS Supported Platform (GSP) and run the example `govuk-prototype-kit` app on that instance. This process is useful for testing your app before deploying that app to a production environment. You will:
+These instructions tell you how to set up a local instance of the GDS Supported Platform (GSP) and run the example `govuk-prototype-kit` app on that instance. You can use this process to test your app before deploying that app to a production environment. You will:
 
 - [install prerequisite software](#install-prerequisite-software)
 - [create and run a local GSP instance](#create-and-run-a-local-gsp-instance)
@@ -10,11 +10,13 @@ These instructions tell you how to set up a local instance of the GDS Supported 
 - [connect to the app](#connect-to-the-app)
 - [destroy the local instance](#destroy-the-local-instance)
 
+This process should take no more than 2 hours. Contact the GSP team using the [#re-gsp Slack channel](https://gds.slack.com/messages/CDA7YSP0D) if it takes longer.
+
+<%= warning_text('Whilst setting up or running a local GSP instance is running, do not:<br>- power down your laptop<br>- put your laptop in standby mode<br>- connect or disconnect the Cisco VPN client') %>
+
 ## Install prerequisite software
 
-1. Install [Homebrew](https://brew.sh/).
-
-1. Run the following to get the latest version of Homebrew.
+1. Install [Homebrew](https://brew.sh/) and run the following to make sure you have the latest version of Homebrew.
 
     ```
     brew update
@@ -32,12 +34,29 @@ These instructions tell you how to set up a local instance of the GDS Supported 
     sudo chown root:wheel /usr/local/bin/docker-machine-driver-hyperkit && sudo chmod u+s /usr/local/bin/docker-machine-driver-hyperkit
     ```
 
-1. Install [Docker](https://docs.docker.com).
+1. Install [Docker](https://docs.docker.com) and configure Docker to have the following settings:
+
+    - CPU = 4
+    - Memory = 8 Gb
+    - Swap = 2 Gb
 
 1. Clone the GSP repository:
 
     ```
     git clone https://github.com/alphagov/gsp.git
+    ```
+
+1. If you already have either a `~/.minkube/machine/minikube` or `~/.minkube/machine/gocd` directory on your local machine,  run the following to ensure that Minikube is not running an existing cluster:
+
+    ```
+    minikube stop -p CLUSTER
+    ```
+    where `CLUSTER` can be either `minikube` or `gocd`.
+
+1. If the `kubeconfig` environment variable is assigned, run the following to unset this environment variable:
+
+    ```
+    unset KUBECONFIG
     ```
 
 ## Create and run a local GSP instance
@@ -244,15 +263,11 @@ You run an app in the local GSP instance by creating a [Kubernetes Deployment re
     kubectl get deployments
     ```
 
-    _example output_
-
 1. [Kubernetes pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/) are the smallest deployable units of computing that you can create and manage in Kubernetes. You must check that the pods are running:
 
     ```
     kubectl get pods
     ```
-
-    _example output_
 
 If the pods are running you have created a Kubernetes Deployment resource.
 
