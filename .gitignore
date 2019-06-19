@@ -1,3 +1,6 @@
 .terraform/
 **/terraform.tfstate*
 manifests/
+
+# ignore vendor dirs
+components/concourse-operator/vendor
