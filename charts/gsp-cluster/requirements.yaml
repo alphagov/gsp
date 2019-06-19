@@ -10,7 +10,7 @@ dependencies:
     version: 6.4.1
     repository: https://kubernetes-charts.storage.googleapis.com/
   - name: "kiam"
-    version: 2.2.0
+    version: 2.2.5
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: global.runningOnAws
   - name: "harbor"
