@@ -1,4 +1,6 @@
 global:
+  serviceOperatorRegion: eu-west-2
+  serviceOperatorAccountId: 626298535712
   runningOnAws: false
   cluster:
     name: "my-cluster"
