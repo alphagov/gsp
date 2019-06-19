@@ -51,11 +51,12 @@ type PipelineCreateUpdateHandler struct {
 
 func (h *PipelineCreateUpdateHandler) validatingPipelineFn(ctx context.Context, p *concoursev1beta1.Pipeline) (bool, string, error) {
 	if p == nil {
-		return false, "error", fmt.Errorf("pipeline was nil")
+		return false, "pipeline was nil", nil
 	}
 	warnings, err := h.validationWarnings([]byte(p.Spec.PipelineString))
 	if err != nil {
-		return false, "unable to parse pipelineString", nil
+		msg := fmt.Sprintf("unable to parse pipeline: %s", err.Error())
+		return false, msg, nil
 	}
 	if len(warnings) > 0 {
 		msg := fmt.Sprintf("pipeline validation failed: %s", strings.Join(warnings, ", "))
@@ -66,7 +67,7 @@ func (h *PipelineCreateUpdateHandler) validatingPipelineFn(ctx context.Context, 
 
 func (h *PipelineCreateUpdateHandler) validationWarnings(tmpl []byte) ([]string, error) {
 	var config atc.Config
-	if err := yaml.UnmarshalStrict(tmpl, &config); err != nil {
+	if err := yaml.Unmarshal(tmpl, &config); err != nil {
 		return nil, err
 	}
 
