@@ -18,7 +18,7 @@ limitations under the License.
 // Package v1beta1 contains API Schema definitions for the concourse v1beta1 API group
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen=package,register
-// +k8s:conversion-gen=github.com/alphagov/gsp-concourse-pipeline-controller/pkg/apis/concourse
+// +k8s:conversion-gen=github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse
 // +k8s:defaulter-gen=TypeMeta
 // +groupName=concourse.k8s.io
 package v1beta1

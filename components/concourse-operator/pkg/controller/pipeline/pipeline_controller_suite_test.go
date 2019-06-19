@@ -22,7 +22,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/alphagov/gsp-concourse-pipeline-controller/pkg/apis"
+	"github.com/alphagov/gsp/components/concourse-operator/pkg/apis"
 	"github.com/onsi/gomega"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"

@@ -16,7 +16,7 @@ limitations under the License.
 package webhook
 
 import (
-	server "github.com/alphagov/gsp-concourse-pipeline-controller/pkg/webhook/default_server"
+	server "github.com/alphagov/gsp/components/concourse-operator/pkg/webhook/default_server"
 )
 
 func init() {

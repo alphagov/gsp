@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	concoursev1beta1 "github.com/alphagov/gsp-concourse-pipeline-controller/pkg/apis/concourse/v1beta1"
+	concoursev1beta1 "github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse/v1beta1"
 	"github.com/concourse/concourse/atc"
 	"github.com/concourse/concourse/go-concourse/concourse"
 	fakes "github.com/concourse/concourse/go-concourse/concourse/concoursefakes"
