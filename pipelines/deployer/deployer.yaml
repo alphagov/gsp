@@ -151,6 +151,7 @@ apply_cluster_chart: &apply_cluster_chart
     GITHUB_API_TOKEN: ((github-api-token))
     CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
     CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
+    CONFIG_VALUES_PATH: ((config-values-path))
   run:
     path: /bin/bash
     args:
@@ -176,6 +177,7 @@ apply_cluster_chart: &apply_cluster_chart
         --values cluster-values/values.yaml \
         --values user-values/values.yaml \
         --values namespace-values/values.yaml \
+        --values config/${CONFIG_VALUES_PATH} \
         --set githubAPIToken=${GITHUB_API_TOKEN} \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
@@ -186,6 +188,7 @@ apply_cluster_chart: &apply_cluster_chart
         --name istio \
         --namespace istio-system \
         --output-dir manifests \
+        --values config/${CONFIG_VALUES_PATH} \
         --set global.runningOnAws=true \
         platform/charts/gsp-istio
       function apply() {
@@ -203,6 +206,7 @@ apply_cluster_chart: &apply_cluster_chart
       apply manifests/
   inputs:
   - name: cluster-values
+  - name: config
   - name: user-values
   - name: namespace-values
   - name: platform
