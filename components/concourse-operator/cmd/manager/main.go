@@ -18,9 +18,9 @@ package main
 import (
 	"os"
 
-	"github.com/alphagov/gsp-concourse-pipeline-controller/pkg/apis"
-	"github.com/alphagov/gsp-concourse-pipeline-controller/pkg/controller"
-	"github.com/alphagov/gsp-concourse-pipeline-controller/pkg/webhook"
+	"github.com/alphagov/gsp/components/concourse-operator/pkg/apis"
+	"github.com/alphagov/gsp/components/concourse-operator/pkg/controller"
+	"github.com/alphagov/gsp/components/concourse-operator/pkg/webhook"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"

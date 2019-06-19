@@ -16,7 +16,7 @@ limitations under the License.
 package apis
 
 import (
-	"github.com/alphagov/gsp-concourse-pipeline-controller/pkg/apis/concourse/v1beta1"
+	"github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse/v1beta1"
 )
 
 func init() {

@@ -18,7 +18,7 @@ package defaultserver
 import (
 	"fmt"
 
-	"github.com/alphagov/gsp-concourse-pipeline-controller/pkg/webhook/default_server/pipeline/validating"
+	"github.com/alphagov/gsp/components/concourse-operator/pkg/webhook/default_server/pipeline/validating"
 )
 
 func init() {

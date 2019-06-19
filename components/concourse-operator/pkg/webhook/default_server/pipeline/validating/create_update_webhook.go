@@ -16,7 +16,7 @@ limitations under the License.
 package validating
 
 import (
-	concoursev1beta1 "github.com/alphagov/gsp-concourse-pipeline-controller/pkg/apis/concourse/v1beta1"
+	concoursev1beta1 "github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse/v1beta1"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission/builder"
 )

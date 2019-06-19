@@ -16,7 +16,7 @@ limitations under the License.
 package controller
 
 import (
-	"github.com/alphagov/gsp-concourse-pipeline-controller/pkg/controller/pipeline"
+	"github.com/alphagov/gsp/components/concourse-operator/pkg/controller/pipeline"
 )
 
 func init() {
