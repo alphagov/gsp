@@ -1,7 +1,7 @@
 global:
   k8sIngressSelector: ingressgateway
   mtls:
-    enabled: true
+    enabled: false
   proxy:
     accessLogFile: "/dev/stdout"
 
