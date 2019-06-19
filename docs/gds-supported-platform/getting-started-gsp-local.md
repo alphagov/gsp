@@ -2,13 +2,13 @@
 
 These instructions tell you how to set up a local instance of the GDS Supported Platform (GSP) and run the example `govuk-prototype-kit` app on that instance. This process is useful for testing your app before deploying that app to a production environment. You will:
 
-- install prerequisite software
-- create and run an instance of the GSP on your local machine
-- create a Dockerised `govuk-prototype-kit` app
-- create a Helm chart
-- deploy the app on to the local GSP instance
-- connect to the app
-- destroy the local instance
+- [install prerequisite software](#install-prerequisite-software)
+- [create and run a local GSP instance](#create-and-run-a-local-gsp-instance)
+- [create a Dockerised `govuk-prototype-kit` app](#create-a-dockerised-govuk-prototype-kit-app)
+- [create a Helm chart](#create-a-helm-chart)
+- [deploy the app on to the local GSP instance](#deploy-the-app-on-to-the-local-GSP-instance)
+- [connect to the app](#connect-to-the-app)
+- [destroy the local instance](#destroy-the-local-instance)
 
 ## Install prerequisite software
 
@@ -40,7 +40,7 @@ These instructions tell you how to set up a local instance of the GDS Supported 
     git clone https://github.com/alphagov/gsp.git
     ```
 
-## Create a local GSP instance
+## Create and run a local GSP instance
 
 1. Run the following script to create a local GSP instance:
 
@@ -70,7 +70,7 @@ These instructions tell you how to set up a local instance of the GDS Supported 
     To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
     ```
 
-    If this script is still running after 20 minutes, contact the GSP team using the [re-GSP Slack channel](https://gds.slack.com/messages/CDA7YSP0D).
+    If this script is still running after 20 minutes, contact the GSP team using the [#re-gsp Slack channel](https://gds.slack.com/messages/CDA7YSP0D).
 
     Refer to the [GSP Features list](https://github.com/alphagov/gsp#features) for more information.
 
@@ -90,7 +90,7 @@ These instructions tell you how to set up a local instance of the GDS Supported 
     You now have a local GSP instance and can access that instance using kubectl.
 
 
-## Create a Dockerised app
+## Create a Dockerised `govuk-prototype-kit` app
 
 You must build the `govuk-prototype-kit` app into a Docker image before you can add the app into your GSP local instance.
 
@@ -139,15 +139,26 @@ You must build the `govuk-prototype-kit` app into a Docker image before you can 
     docker build . -t prototype-kit:latest
     ```
 
-    You have created a Docker image and built it into your local GSP instance.
+1. Run the following to check that the Docker image has been built:
+
+    ```
+    docker images | head -n 2
+    ```
+
+    if the Docker image has been built, you will see output similar to the following:
+
+    ```
+    REPOSITORY      TAG       IMAGE ID        CREATED               SIZE
+    prototype-kit   latest    53250c797a93    About a minute ago    246MB
+    ```
+
+    You have created a Docker image and built it in your local GSP instance.
 
 ## Create a Helm chart
 
 Kubernetes resources describe the configuration of your running app. You define these resources as `.yaml` files and collect them together in a packaging format called a [Helm chart](https://helm.sh/docs/developing_charts/).
 
-You create Helm charts as files in a directory. These files are then packaged into versioned archives that users can deploy.
-
-The Helm chart directory has the following structure:
+You create Helm charts as files in a directory with the following structure:
 
 ```
 chart/
@@ -233,11 +244,15 @@ You run an app in the local GSP instance by creating a [Kubernetes Deployment re
     kubectl get deployments
     ```
 
+    _example output_
+
 1. [Kubernetes pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/) are the smallest deployable units of computing that you can create and manage in Kubernetes. You must check that the pods are running:
 
     ```
     kubectl get pods
     ```
+
+    _example output_
 
 If the pods are running you have created a Kubernetes Deployment resource.
 
@@ -423,12 +438,26 @@ By default, your app is not accessible outside of the local instance. To connect
 
 You have successfully deployed the `govuk-prototype-kit` app in your local GSP instance.
 
+1.  In your command line, enter `Ctrl-c` to stop port-forwarding.
+
 ## Destroy the local instance
 
 You should destroy your local GSP instance when you have finished testing your app.
 
-Run the following command to destroy the local instance:
+1. Run the following command to destroy the local instance:
 
-```
-./scripts/gsp-local.sh delete
-```
+    ```
+    ./scripts/gsp-local.sh delete
+    ```
+
+1. Remove the installed packages so your system is in the same state as it was before setting up the local instance:
+
+    ```
+    brew uninstall kubernetes-cli
+    brew uninstall kubernetes-helm
+    brew uninstall hyperkit
+    brew uninstall docker-machine-driver-hyperkit
+    brew cask uninstall minikube
+    ```
+
+You have destroyed your local GSP instance.
