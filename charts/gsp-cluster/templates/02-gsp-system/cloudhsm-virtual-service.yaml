@@ -2,6 +2,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  namespace: sandbox-metadata-controller
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-direct-cloudhsm-through-egress-gateway
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
