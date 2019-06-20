@@ -20,3 +20,5 @@ spec:
   resolution: STATIC
   endpoints:
   - address: {{ .Values.global.cluster.cloudHsmIp }}
+  exportTo:
+  - "*"

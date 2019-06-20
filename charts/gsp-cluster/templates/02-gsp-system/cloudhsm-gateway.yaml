@@ -17,3 +17,5 @@ spec:
       protocol: TCP
     hosts:
     - cloudhsm.tcp.svc
+  exportTo:
+  - "*"
