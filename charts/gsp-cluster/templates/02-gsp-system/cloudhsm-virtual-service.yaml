@@ -37,3 +37,5 @@ spec:
         port:
           number: 2225
       weight: 100
+  exportTo:
+  - "."
