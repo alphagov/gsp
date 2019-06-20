@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  namespace: sandbox-proxy-node-integration
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  hosts:
+  - cloudhsm.tcp.svc
+  addresses:
+  - {{ .Values.global.cluster.cloudHsmIp }}/32
+  ports:
+  - name: tcp
+    number: 2225
+    protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: STATIC
+  endpoints:
+  - address: {{ .Values.global.cluster.cloudHsmIp }}
