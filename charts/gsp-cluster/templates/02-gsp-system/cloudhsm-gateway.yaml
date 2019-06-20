@@ -13,7 +13,7 @@ spec:
   servers:
   - port:
       number: 2225
-      name: tcp
+      name: tcp-cloudhsm
       protocol: TCP
     hosts:
     - cloudhsm.tcp.svc
