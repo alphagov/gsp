@@ -132,6 +132,10 @@ variable "vpc_flow_log_splunk_index" {
   default     = ""
 }
 
+variable "cloud_hsm_ip" {
+  type = "string"
+}
+
 variable "vpc_id" {
   type = "string"
 }

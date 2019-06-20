@@ -4,6 +4,7 @@ global:
     name: "my-cluster"
     domain: "example.com"
     domain_id: ""
+    cloudHsmIp: "127.0.0.1"
   account:
     name: ""
   roles:

@@ -4,6 +4,7 @@ global:
     name: ${cluster_name}
     domain: ${cluster_domain}
     domain_id: ${cluster_domain_id}
+    cloudHsmIp: ${cloud_hsm_ip}
   account:
     name: ${account_name}
   roles:
