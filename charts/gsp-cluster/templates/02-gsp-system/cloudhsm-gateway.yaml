@@ -16,4 +16,4 @@ spec:
       name: tcp
       protocol: TCP
     hosts:
-    - {{ include "gsp-cluster.fullname" . }}-cloudhsm.tcp.svc
+    - cloudhsm.tcp.svc

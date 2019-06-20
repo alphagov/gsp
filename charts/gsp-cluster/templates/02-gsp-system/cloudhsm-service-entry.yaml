@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   hosts:
-  - {{ include "gsp-cluster.fullname" . }}-cloudhsm.tcp.svc
+  - cloudhsm.tcp.svc
   addresses:
   - {{ .Values.global.cluster.cloudHsmIp }}/32
   ports:
