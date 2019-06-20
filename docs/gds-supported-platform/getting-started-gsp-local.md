@@ -46,14 +46,14 @@ This process should take no more than 2 hours. Contact the GSP team using the [#
     git clone https://github.com/alphagov/gsp.git
     ```
 
-1. If you already have either a `~/.minkube/machine/minikube` or `~/.minkube/machine/gocd` directory on your local machine,  run the following to ensure that Minikube is not running an existing cluster:
+1. If you already have either a `~/.minkube/machine/minikube` or `~/.minkube/machine/gocd` directory on your local machine,  run the following to ensure that Minikube is not running either of these clusters:
 
     ```
     minikube stop -p CLUSTER
     ```
     where `CLUSTER` can be either `minikube` or `gocd`.
 
-1. If the `kubeconfig` environment variable is assigned, run the following to unset this environment variable:
+1. If the `KUBECONFIG` environment variable is assigned, run the following to unset this environment variable:
 
     ```
     unset KUBECONFIG
