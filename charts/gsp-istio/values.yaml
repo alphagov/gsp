@@ -71,6 +71,17 @@ istio:
         enabled: true
     istio-egressgateway:
       enabled: true
+      ports:
+      - port: 80
+        name: http2
+      - port: 443
+        name: https
+        # This is the port where sni routing happens
+      - port: 15443
+        targetPort: 15443
+        name: tls
+      - port: 2225
+        name: tcp-cloudhsm
   sidecarInjectorWebhook:
     enableNamespacesByDefault: true
   kiali:
