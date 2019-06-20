@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    istio: egressgateway
+  servers:
+  - port:
+      number: 2225
+      name: tcp
+      protocol: TCP
+    hosts:
+    - {{ include "gsp-cluster.fullname" . }}-cloudhsm.tcp.svc
