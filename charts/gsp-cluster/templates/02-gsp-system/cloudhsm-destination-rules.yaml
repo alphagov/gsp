@@ -2,7 +2,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: {{ include "gsp-cluster.fullname" . }}-egressgateway-for-cloudhsm
-  namespace: sandbox-metadata-controller
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -12,20 +11,15 @@ spec:
   host: istio-egressgateway.istio-system.svc.cluster.local
   subsets:
   - name: {{ include "gsp-cluster.name" . }}-cloudhsm
-  exportTo:
-  - "."
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: {{ include "gsp-cluster.fullname" . }}-cloudhsm
-  namespace: sandbox-metadata-controller
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  host: cloudhsm.tcp.svc.gsp-system.svc.cluster.local
-  exportTo:
-  - "."
+  host: cloudhsm.tcp.svc

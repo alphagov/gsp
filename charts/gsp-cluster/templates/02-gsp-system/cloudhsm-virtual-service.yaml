@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   hosts:
-  - cloudhsm.tcp.svc.gsp-system.svc.cluster.local
+  - cloudhsm.tcp.svc
   gateways:
   - mesh
   - {{ include "gsp-cluster.fullname" . }}-cloudhsm.gsp-system.svc.cluster.local
@@ -33,7 +33,7 @@ spec:
       port: 2225
     route:
     - destination:
-        host: cloudhsm.tcp.svc.gsp-system.svc.cluster.local
+        host: cloudhsm.tcp.svc
         port:
           number: 2225
       weight: 100
