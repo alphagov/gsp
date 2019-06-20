@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: {{ include "gsp-cluster.fullname" . }}-egressgateway-for-cloudhsm
-  namespace: sandbox-metadata-controller
+  namespace: sandbox-proxy-node-integration
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -19,7 +19,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: {{ include "gsp-cluster.fullname" . }}-cloudhsm
-  namespace: sandbox-metadata-controller
+  namespace: sandbox-proxy-node-integration
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
