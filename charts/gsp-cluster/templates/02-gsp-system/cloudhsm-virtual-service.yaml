@@ -13,7 +13,7 @@ spec:
   - cloudhsm.tcp.svc
   gateways:
   - mesh
-  - {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  - {{ include "gsp-cluster.fullname" . }}-cloudhsm.gsp-system.svc.cluster.local
   tcp:
   - match:
     - gateways:
@@ -29,7 +29,7 @@ spec:
           number: 2225
   - match:
     - gateways:
-      - {{ include "gsp-cluster.fullname" . }}-cloudhsm
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm.gsp-system.svc.cluster.local
       port: 2225
     route:
     - destination:
