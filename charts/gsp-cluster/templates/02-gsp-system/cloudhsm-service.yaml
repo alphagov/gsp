@@ -1,0 +1,88 @@
+{{ if .Values.cloudHSMExpose }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-hsmproxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: hsmproxy
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: hsmproxy
+  template:
+    metadata:
+      labels:
+        app: hsmproxy
+    spec:
+      containers:
+      - name: haproxy
+        image: haproxy:1.9.8
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/local/etc/haproxy/
+        ports:
+          - containerPort: 2225
+        readinessProbe:
+          tcpSocket:
+            port: 2225
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 2225
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .Release.Name }}-hsmproxy
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-hsmproxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: hsmproxy
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  haproxy.cfg: |
+    global
+      daemon
+      maxconn 256
+
+    defaults
+      mode tcp
+      timeout connect 5000ms
+      timeout client 50000ms
+      timeout server 50000ms
+      log stdout format raw daemon
+
+    listen tcp-in
+      bind *:2225
+      acl gds_ips src 10.0.0.0/8 213.86.153.212 213.86.153.213 213.86.153.214 213.86.153.235 213.86.153.236 213.86.153.237 85.133.67.244
+      tcp-request connection reject if !gds_ips
+      server cloudhsm 10.101.29.134:2225 check
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-hsmproxy
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+spec:
+  externalTrafficPolicy: Local
+  type: LoadBalancer
+  selector:
+      app: hsmproxy
+  ports:
+    - port: 2225
+      targetPort: 2225
+{{ end }}
