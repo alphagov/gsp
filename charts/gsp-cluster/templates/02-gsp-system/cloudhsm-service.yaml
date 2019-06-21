@@ -1,22 +1,22 @@
-{{ if .Values.global.cluster.cloudHSMExpose }}
+{{ if .Values.cloudHSMExpose }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-haproxy
+  name: {{ .Release.Name }}-hsmproxy
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: vmc
+    app.kubernetes.io/name: hsmproxy
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
     matchLabels:
-      app: haproxy
+      app: hsmproxy
   template:
     metadata:
       labels:
-        app: haproxy
+        app: hsmproxy
     spec:
       containers:
       - name: haproxy
@@ -39,15 +39,15 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: {{ .Release.Name }}-haproxy
+          name: {{ .Release.Name }}-hsmproxy
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-haproxy
+  name: {{ .Release.Name }}-hsmproxy
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: vmc
+    app.kubernetes.io/name: hsmproxy
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -73,7 +73,7 @@ data:
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-haproxy
+  name: {{ .Release.Name }}-hsmproxy
   namespace: {{ .Release.Namespace }}
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
@@ -81,7 +81,7 @@ spec:
   externalTrafficPolicy: Local
   type: LoadBalancer
   selector:
-      app: haproxy
+      app: hsmproxy
   ports:
     - port: 2225
       targetPort: 2225
