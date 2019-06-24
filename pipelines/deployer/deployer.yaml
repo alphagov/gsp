@@ -615,17 +615,34 @@ jobs:
   - task: generate-user-terraform
     timeout: 10m
     config: *generate_users_terraform
+  - task: empty-config
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+      inputs:
+      - name: platform
+      outputs:
+      - name: terraformz
+      run:
+        path: sh
+        args:
+        - -euc
+        - |
+          cp platform/pipelines/deployer/main.tf terraformz/main.tf
   - put: cluster-state
     params:
       env_name: ((account-name))
-      terraform_source: platform/pipelines/deployer
-      action: destroy
+      terraform_source: terraformz
+      action: apply
     get_params:
-      action: destroy
+      action: apply
   - put: user-state
     params:
       env_name: ((account-name))
       terraform_source: users-terraform
-      action: destroy
+      action: apply
     get_params:
-      action: destroy
+      action: apply
