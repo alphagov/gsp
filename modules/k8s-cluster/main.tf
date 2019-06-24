@@ -25,11 +25,19 @@ resource "aws_eks_cluster" "eks-cluster" {
     "aws_iam_role_policy_attachment.eks-service-policy",
     "aws_cloudwatch_log_group.eks",
   ]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_log_group" "eks" {
   name              = "/aws/eks/${var.cluster_name}/cluster"
   retention_in_days = 30
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
