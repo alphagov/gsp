@@ -1,11 +1,3 @@
-terraform {
-  backend "s3" {}
-}
-
-variable "aws_account_role_arn" {
-  type = "string"
-}
-
 variable "account_name" {
   type = "string"
 }
@@ -87,14 +79,6 @@ variable "ci_worker_count" {
 variable "eks_version" {
   description = "EKS platform version (https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html)"
   type        = "string"
-}
-
-provider "aws" {
-  region = "eu-west-2"
-
-  assume_role {
-    role_arn = "${var.aws_account_role_arn}"
-  }
 }
 
 data "aws_caller_identity" "current" {}
