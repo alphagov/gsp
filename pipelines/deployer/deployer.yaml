@@ -539,30 +539,42 @@ jobs:
   serial: true
   serial_groups: [cluster-modification]
   plan:
-  - get: platform
-    passed: ["update"]
-    trigger: ((platform-trigger))
-  - get: config
-    passed: ["update"]
-    trigger: ((config-trigger))
-  - get: users
-    passed: ["update"]
-    trigger: ((users-trigger))
+  - aggregate:
+    - get: platform
+      passed: ["update"]
+      trigger: ((platform-trigger))
+    - get: config
+      passed: ["update"]
+      trigger: ((config-trigger))
+    - get: users
+      passed: ["update"]
+      trigger: ((users-trigger))
+  - task: build-task-toolbox
+    file: platform/tasks/builder.yaml
+    params:
+      REPOSITORY: task-toolbox
+      CONTEXT: components/task-toolbox
+    input_mapping: {context: platform}
+    output_mapping: {image: task-toolbox}
   - put: cluster-state
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
   - aggregate:
     - task: generate-cluster-values
+      image: task-toolbox
       timeout: 10m
       config: *generate_cluster_values
     - task: generate-namespace-values
+      image: task-toolbox
       timeout: 10m
       config: *generate_namespace_values
     - task: generate-user-values
+      image: task-toolbox
       timeout: 10m
       config: *generate_user_values
     - task: generate-user-terraform
+      image: task-toolbox
       timeout: 10m
       config: *generate_users_terraform
   - put: user-state
