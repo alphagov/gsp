@@ -53,7 +53,7 @@ RUN wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-li
 	&& rm -rf linux-amd64
 
 # install sonobuoy
-ENV SONOBUOY_VERSION=0.15.0
+ENV SONOBUOY_VERSION=0.14.3
 RUN wget https://github.com/heptio/sonobuoy/releases/download/v${SONOBUOY_VERSION}/sonobuoy_${SONOBUOY_VERSION}_linux_amd64.tar.gz \
 	&& tar -zxvf sonobuoy_${SONOBUOY_VERSION}_linux_amd64.tar.gz \
 	&& mv sonobuoy /usr/local/bin/sonobuoy \

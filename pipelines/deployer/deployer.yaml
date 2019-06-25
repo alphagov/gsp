@@ -40,7 +40,7 @@ terraform_source: &terraform_source
 
 task_image_resource: &task_image_resource
   type: docker-image
-  source: {repository: "govsvc/task-toolbox", tag: "1.4.0"}
+  source: {repository: "govsvc/task-toolbox", tag: "1.5.0"}
 
 generate_cluster_values: &generate_cluster_values
   platform: linux
@@ -251,7 +251,7 @@ run_conformance_tests: &run_conformance_tests
 
       sonobuoy run \
         --wait \
-        --sonobuoy-image "gcr.io/heptio-images/sonobuoy:v0.15.0" \
+        --sonobuoy-image "gcr.io/heptio-images/sonobuoy:v0.14.3" \
         --plugin e2e \
         --e2e-focus "Pods should be submitted and removed" \
         --kube-conformance-image "govsvc/conformance-amd64:0.0.1559644071" \
