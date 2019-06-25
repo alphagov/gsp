@@ -16,6 +16,26 @@ spec:
   - match:
     - gateways:
       - {{ include "gsp-cluster.fullname" . }}-cloudhsm
+      port: 2223
+    route:
+    - destination:
+        host: cloudhsm.tcp.svc
+        port:
+          number: 2223
+      weight: 100
+  - match:
+    - gateways:
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm
+      port: 2224
+    route:
+    - destination:
+        host: cloudhsm.tcp.svc
+        port:
+          number: 2224
+      weight: 100
+  - match:
+    - gateways:
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm
       port: 2225
     route:
     - destination:

@@ -12,8 +12,20 @@ spec:
     istio: egressgateway
   servers:
   - port:
+      number: 2223
+      name: tcp-cloudhsm-2223
+      protocol: TCP
+    hosts:
+    - cloudhsm.tcp.svc
+  - port:
+      number: 2224
+      name: tcp-cloudhsm-2224
+      protocol: TCP
+    hosts:
+    - cloudhsm.tcp.svc
+  - port:
       number: 2225
-      name: tcp-cloudhsm
+      name: tcp-cloudhsm-2225
       protocol: TCP
     hosts:
     - cloudhsm.tcp.svc

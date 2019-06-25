@@ -13,7 +13,13 @@ spec:
   addresses:
   - {{ .Values.global.cluster.cloudHsmIp }}/32
   ports:
-  - name: tcp
+  - name: tcp-2223
+    number: 2223
+    protocol: TCP
+  - name: tcp-2224
+    number: 2224
+    protocol: TCP
+  - name: tcp-2225
     number: 2225
     protocol: TCP
   location: MESH_EXTERNAL
