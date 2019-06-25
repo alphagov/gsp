@@ -72,7 +72,7 @@ kind: Team
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"
-  name: {{ trimPrefix (printf "%s-" $clusterName) .name }}
+  name: {{ trimPrefix (printf "%s-" $.Values.global.account.name) .name }}
   namespace: {{ .name }}
 spec:
   roles:
