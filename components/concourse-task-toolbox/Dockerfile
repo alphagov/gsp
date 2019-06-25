@@ -52,9 +52,12 @@ RUN wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-li
 	&& mv linux-amd64/helm /bin/helm \
 	&& rm -rf linux-amd64
 
-
-# install sonobuoy built from source >0.14.2
-COPY --from=gcr.io/heptio-images/sonobuoy:a07aed2f /sonobuoy /usr/local/bin/sonobuoy
+# install sonobuoy
+ENV SONOBUOY_VERSION=0.15.0
+RUN wget https://github.com/heptio/sonobuoy/releases/download/v${SONOBUOY_VERSION}/sonobuoy_${SONOBUOY_VERSION}_linux_amd64.tar.gz \
+	&& tar -zxvf sonobuoy_${SONOBUOY_VERSION}_linux_amd64.tar.gz \
+	&& mv sonobuoy /usr/local/bin/sonobuoy \
+	&& rm -rf LICENSE
 
 # install kapp
 ENV KAPP_VERSION=0.7.0
