@@ -80,6 +80,10 @@ istio:
       - port: 15443
         targetPort: 15443
         name: tls
+      - port: 2223
+        name: tcp-cloudhsm
+      - port: 2224
+        name: tcp-cloudhsm
       - port: 2225
         name: tcp-cloudhsm
   sidecarInjectorWebhook:
