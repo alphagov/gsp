@@ -25,3 +25,7 @@ output "eks-log-group-arn" {
 output "eks-log-group-name" {
   value = "${aws_cloudwatch_log_group.eks.name}"
 }
+
+output "worker_security_group_id" {
+  value = "${aws_cloudformation_stack.worker-nodes.outputs["NodeSecurityGroup"]}"
+}

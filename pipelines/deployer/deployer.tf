@@ -100,13 +100,14 @@ module "gsp-network" {
 }
 
 module "hsm" {
-  source           = "../../modules/hsm"
-  subnet_cidr_map  = "${module.gsp-network.private_subnet_cidr_mapping}"
-  cluster_name     = "${var.cluster_name}"
-  splunk           = "${var.splunk_enabled}"
-  splunk_hec_url   = "${var.splunk_hec_url}"
-  splunk_hec_token = "${var.hsm_splunk_hec_token}"
-  splunk_index     = "${var.hsm_splunk_index}"
+  source                   = "../../modules/hsm"
+  subnet_cidr_map          = "${module.gsp-network.private_subnet_cidr_mapping}"
+  source_security_group_id = "${module.gsp-cluster.worker_security_group_id}"
+  cluster_name             = "${var.cluster_name}"
+  splunk                   = "${var.splunk_enabled}"
+  splunk_hec_url           = "${var.splunk_hec_url}"
+  splunk_hec_token         = "${var.hsm_splunk_hec_token}"
+  splunk_index             = "${var.hsm_splunk_index}"
 }
 
 module "gsp-cluster" {
@@ -150,8 +151,8 @@ module "gsp-cluster" {
   vpc_flow_log_splunk_hec_token = "${var.vpc_flow_log_splunk_hec_token}"
   vpc_flow_log_splunk_index     = "${var.vpc_flow_log_splunk_index}"
 
-  github_client_id         = "${var.github_client_id}"
-  github_client_secret     = "${var.github_client_secret}"
+  github_client_id     = "${var.github_client_id}"
+  github_client_secret = "${var.github_client_secret}"
 }
 
 output "kubeconfig" {

@@ -2,6 +2,10 @@ variable "subnet_cidr_map" {
   type = "map"
 }
 
+variable "source_security_group_id" {
+  type = "string"
+}
+
 variable "cluster_name" {
   type = "string"
 }
@@ -35,12 +39,12 @@ resource "aws_cloudhsm_v2_cluster" "cluster" {
 }
 
 resource "aws_security_group_rule" "hsm-worker-ingress" {
-  security_group_id = "${aws_cloudhsm_v2_cluster.cluster.security_group_id}"
-  type              = "ingress"
-  from_port         = 2223
-  to_port           = 2225
-  protocol          = "tcp"
-  cidr_blocks       = ["${values(var.subnet_cidr_map)}"]
+  security_group_id        = "${aws_cloudhsm_v2_cluster.cluster.security_group_id}"
+  type                     = "ingress"
+  from_port                = 2223
+  to_port                  = 2225
+  protocol                 = "tcp"
+  source_security_group_id = "${var.source_security_group_id}"
 }
 
 # We can only create one HSM in Terraform rather than the multiple we require for high availability as you must create
