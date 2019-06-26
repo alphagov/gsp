@@ -26,7 +26,7 @@ GSP provides a suite of pre-configured components along with upstream Kubernetes
 - Protective monitoring provided by GDS TechOps CyberSecurity with [Splunk](https://www.splunk.com/)
 - Cloud infrastructure hosted on [AWS](https://aws.amazom.com) across multiple availability zones in London
 - Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
-- A local GDS Supported Platform development environent `[gsp-local](https://github.com/alphagov/gsp/blob/master/docs/gds-supported-platform/getting-started-gsp-local.md)`
+- A local GDS Supported Platform development environment `[gsp-local](https://github.com/alphagov/gsp/blob/master/docs/gds-supported-platform/getting-started-gsp-local.md)` based on [minikube](https://github.com/kubernetes/minikube) 
 
 
 
