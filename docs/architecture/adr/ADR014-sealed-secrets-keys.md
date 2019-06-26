@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superceded by [ADR031](ADR031-sealed-secrets-keys.md)
 
 ## Context
 

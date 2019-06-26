@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superceded by [ADR024](ADR024-tenant-isolation.md)
 
 ## Context
 

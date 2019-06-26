@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending
+Superceded by [ADR029](ADR029-multitenant-ci-cd.md)
 
 ## Context
 

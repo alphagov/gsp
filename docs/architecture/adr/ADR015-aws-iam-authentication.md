@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superceded by [ADR032](ADR032-aws-iam-authentication.md)
 
 ## Context
 

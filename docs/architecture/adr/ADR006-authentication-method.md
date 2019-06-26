@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superceded by [ADR026](ADR026-authentication-method.md)
 
 ## Context
 

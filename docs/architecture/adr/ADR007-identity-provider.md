@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superceded by [ADR027](ADR027-identity-provider.md)
 
 ## Context
 

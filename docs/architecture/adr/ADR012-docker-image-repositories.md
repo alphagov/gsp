@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending
+Superceded by [ADR028](ADR028-docke-image-repositories.md)
 
 ## Context
 

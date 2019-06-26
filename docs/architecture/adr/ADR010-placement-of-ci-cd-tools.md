@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending
+Superceded by [ADR030](ADR030-placement-of-ci-cd-tools.md)
 
 ## Context
 
