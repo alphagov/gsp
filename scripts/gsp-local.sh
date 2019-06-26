@@ -88,8 +88,8 @@ function apply() {
 
 log "Creating local GSP..."
 minikube start \
-	--memory 8192 \
-	--cpus 4 \
+	--memory ${GSP_MEMORY:-8192} \
+	--cpus ${GSP_CPUS:-4} \
 	--disk-size 30g \
 	--vm-driver hyperkit \
 	--kubernetes-version v1.12.0 \
