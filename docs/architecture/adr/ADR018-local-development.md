@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending
+Accepted
 
 ## Context
 
@@ -10,10 +10,10 @@ Teams using the GDS Supported platform require the ability to develop, test appl
 
 ## Decision
 
-We will provide a way to run a full GSP compatible stack locally on a standard GDS developer OSX based laptop based on a single node [minikube](https://github.com/kubernetes/minikube) cluster. 
+We will [provide a way to run a full GSP compatible stack locally on a developer machine](/docs/gds-supported-platform/getting-started-gsp-local.md) without the cloud provider specific configuration.
 
 ## Consequences
-- Developers using linux and windows may encounter platform specific issues due to lack of cross platform testing
-- Lack of local machine resources (RAM and CPU) may constrain the use of the environments
-- Docker performance on OSX may slow develpment
+
+- Lack of local machine resources (RAM and CPU) may be an issue due to deploying the full GSP stack
+- Docker performance may slow down development and will require some effort to optimise
 - The current environment lacks higher level tooling to streamline the workflow of the developer

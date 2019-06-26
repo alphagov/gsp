@@ -11,7 +11,6 @@ GSP (GDS Supported Platform) is a Kubernetes distribution maintained by the [Gov
 
 GSP provides a suite of pre-configured components along with upstream Kubernetes, much like a GNU/Linux distribution provides a suite of userspace components along with the upstream Linux kernel.
 
-
 ## Features
 
 - A declarative continuous delivery workflow - merging to master triggers deployment to production
@@ -26,9 +25,6 @@ GSP provides a suite of pre-configured components along with upstream Kubernetes
 - Protective monitoring provided by GDS TechOps CyberSecurity with [Splunk](https://www.splunk.com/)
 - Cloud infrastructure hosted on [AWS](https://aws.amazom.com) across multiple availability zones in London
 - Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
-- A local GDS Supported Platform development environment `[gsp-local](https://github.com/alphagov/gsp/blob/master/docs/gds-supported-platform/getting-started-gsp-local.md)` based on [minikube](https://github.com/kubernetes/minikube) 
-
-
 
 ## Non goals
 
@@ -60,7 +56,6 @@ The figure above illustrates where we think GSP fits on a "PaaS Spectrum":
 Contributions encouraged!
 
 Changes require commits signed by [GDS Trusted Developers](https://github.com/alphagov/gds-trusted-developers)
-
 
 ## Help and support
 

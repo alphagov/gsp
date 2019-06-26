@@ -1,8 +1,8 @@
-# ADR013: CI & CD Tool Selection
+# ADR013: CI & CD Tool
 
 ## Status
 
-Pending
+Accepted
 
 ## Context
 
@@ -10,7 +10,7 @@ We need to choose which tool or tools to use for CI and CD.  Different tools sui
 
 ## Decision
 
-We will use Concourse for both CI and CD.  
+We will use [Concourse](https://concourse-ci.org/) for both CI and CD.  
 
 Reasons:
 
@@ -19,9 +19,9 @@ Reasons:
 - A working example already exists that can be extended for use in the alpha
 - Concourse supports simple RBAC which should allow for multi-tenancy capability in the future
 - It will accelerate the development of the alpha, with the team only needing to learn a single tool rather than multiple tools
- 
+
 
 ## Consequences
 
-- Research to discern whether concourse is still an appropriate choice will occur as team becomes better familiar with the technology
+- Research to discern whether Concourse is still an appropriate choice will occur as team becomes better familiar with the technology
 - User research will be possible once an alpha can be presented to users for evaluation, and a decision to change tool or begin using different tools for CI and CD will be possible

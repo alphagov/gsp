@@ -2,7 +2,7 @@
 
 ## Status
 
-Superceded by [ADR027](ADR027-identity-provider.md)
+Superceded by [ADR023](ADR023-cluster-authentication.md)
 
 ## Context
 

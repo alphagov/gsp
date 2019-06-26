@@ -2,7 +2,7 @@
 
 ## Status
 
-Superceded by [ADR030](ADR030-placement-of-ci-cd-tools.md)
+Superceded by [ADR029](ADR029-continuous-delivery-tools.md)
 
 ## Context
 

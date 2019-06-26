@@ -2,7 +2,7 @@
 
 ## Status
 
-Superceded by [ADR026](ADR026-authentication-method.md)
+Superceded by [ADR023](ADR023-cluster-authentication.md)
 
 ## Context
 

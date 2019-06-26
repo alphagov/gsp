@@ -2,7 +2,7 @@
 
 ## Status
 
-Superceded by [ADR028](ADR028-docke-image-repositories.md)
+Superceded by [ADR028](ADR028-docker-tools.md)
 
 ## Context
 

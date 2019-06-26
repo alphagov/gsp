@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-[ADR002](https://github.com/alphagov/gsp-team-manual/blob/master/adr/ADR002-containerised-workloads.md) decided that we should provide the primitives for building, deploying and running container-based workloads.
+[ADR002](ADR002-containers.md) decided that we should provide the primitives for building, deploying and running container-based workloads.
 
 In order to meet the needs existing service teams such a primitive must be able to support:
 
@@ -30,13 +30,13 @@ There are many popular solutions that can meet the needs of this orchestration p
 * **DCOS/Marathon**: An extra abstraction layer (DCOS) above a container orchestrator layer (Marathon) that could potentially support other types of workloads ie VMs.
 * **Docker Swarm**: An orchestrator tightly integrated with the Docker container runtime.
 
-In [ADR001](https://github.com/alphagov/gsp-team-manual/blob/master/adr/ADR001-support-model.md) we decided against running a "batteries included" PaaS-type platform, and to sacrifice the centralised control such a system would bring in exchange for giving more control/flexibility to service teams.
+In [ADR001](ADR001-support-model.md) we decided against running a "batteries included" PaaS-type platform, and to sacrifice the centralised control such a system would bring in exchange for giving more control/flexibility to service teams.
 
 We did not feel like the additional abstraction layer in DCOS/Marathon provided any value we needed.
 
 We were unsure that a system based on Swarm would provide the flexibility we want to respond to the evolving needs of service teams.
 
-Kubernetes has been emerging as an industry standard, with most major cloud providers offering various services around the technology. It offers only the very basic building blocks for managing container workloads but has a large strong community of compatible projects ([CNCF](https://landscape.cncf.io/)) to extend functionality.
+Kubernetes has been emerging as an industry standard, with most major cloud providers offering various services around the technology. It offers the basic building blocks for managing container workloads but has a large strong community of compatible projects ([CNCF](https://landscape.cncf.io/)) to extend functionality.
 
 The vendor specific solutions such as ECS/Fargate are very compelling, potentially reducing the maintenance burden of running infrastructure. However as a public body we should try to avoid unnecessary vendor lock-in.
 
