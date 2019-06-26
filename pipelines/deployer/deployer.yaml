@@ -575,6 +575,7 @@ jobs:
     passed: ["deploy"]
     trigger: true
   - task: ping
+    timeout: 20m
     config:
       platform: linux
       image_resource: *task_image_resource
@@ -586,8 +587,18 @@ jobs:
           - -eu
           - -c
           - |
-            echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress..."
-            curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics
+            now="$(date '+%s')"
+            echo "Current time: ${now}"
+            echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress, expecting the deployment to happen soon..."
+            while true; do
+              last_deploy="$(curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics | awk '$1 ~ /^canary_build_timestamp/ {print $2 * 2 / 2}')"
+              if [ "${last_deploy}" -ge "${now}" ]; then
+                echo "OK!"
+                exit 0
+              fi
+              echo -n .
+              sleep 5
+            done
   - task: check-cloudwatch
     timeout: 10m
     config: *check_cloudwatch
