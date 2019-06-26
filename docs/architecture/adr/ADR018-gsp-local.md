@@ -6,11 +6,11 @@ Pending
 
 ## Context
 
-Teams using the GDS Supported platform require the ability to develop, test applications and prove conformance with the GDS Supported platform on local hardware. Teams need to learn how to use the GSP and to understand how applications are containerised, packaged and deployed to a cluster using the standard CICD tools provided by GSP. 
+Teams using the GDS Supported platform require the ability to develop, test applications and prove conformance with the GDS Supported platform on local hardware. Teams need to learn how to use the GSP and to understand how applications are containerised, packaged and deployed to a cluster using the standard CICD tools provided by GSP.
 
 ## Decision
 
-We will provide a way to run a full GSP compatible stack locally on a standard GDS developer OSX based laptop
+We will provide a way to run a full GSP compatible stack locally on a standard GDS developer OSX based laptop based on a single node [minikube](https://github.com/kubernetes/minikube) cluster. 
 
 ## Consequences
 - Developers using linux and windows may encounter platform specific issues due to lack of cross platform testing
