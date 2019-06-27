@@ -83,6 +83,10 @@ harbor:
         bucket: ${harbor_bucket_id}
         region: ${harbor_bucket_region}
         regionendpoint: s3.${harbor_bucket_region}.amazonaws.com
+  core:
+    secret: ${harbor_secret_key}
+  jobservice:
+    secret: ${harbor_secret_key}
   registry:
     secret: ${harbor_secret_key}
     podAnnotations:
