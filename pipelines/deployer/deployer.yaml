@@ -212,7 +212,7 @@ apply_cluster_chart: &apply_cluster_chart
   - name: namespace-values
   - name: platform
 
-run_conformance_tests: &run_conformance_tests
+check_conformance: &check_conformance
   platform: linux
   image_resource: *task_image_resource
   params:
@@ -270,6 +270,31 @@ run_conformance_tests: &run_conformance_tests
 
       echo "FAIL"
       exit 1
+
+
+check_canary: &check_canary
+  platform: linux
+  image_resource: *task_image_resource
+  params:
+    CLUSTER_DOMAIN: ((cluster-domain))
+  run:
+    path: /bin/bash
+    args:
+      - -eu
+      - -c
+      - |
+        now="$(date '+%s')"
+        echo "Current time: ${now}"
+        echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress, expecting the deployment to happen soon..."
+        while true; do
+          last_deploy="$(curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics | awk '$1 ~ /^canary_build_timestamp/ {print $2 * 2 / 2}')"
+          if [ "${last_deploy}" -ge "${now}" ]; then
+            echo "OK!"
+            exit 0
+          fi
+          echo -n .
+          sleep 5
+        done
 
 check_cloudwatch: &check_cloudwatch
   platform: linux
@@ -569,48 +594,32 @@ jobs:
     timeout: 10m
     config: *apply_cluster_chart
 
-- name: test
+- name: check-canary
   plan:
   - get: cluster-state
     passed: ["deploy"]
     trigger: true
   - task: ping
     timeout: 20m
-    config:
-      platform: linux
-      image_resource: *task_image_resource
-      params:
-        CLUSTER_DOMAIN: ((cluster-domain))
-      run:
-        path: /bin/bash
-        args:
-          - -eu
-          - -c
-          - |
-            now="$(date '+%s')"
-            echo "Current time: ${now}"
-            echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress, expecting the deployment to happen soon..."
-            while true; do
-              last_deploy="$(curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics | awk '$1 ~ /^canary_build_timestamp/ {print $2 * 2 / 2}')"
-              if [ "${last_deploy}" -ge "${now}" ]; then
-                echo "OK!"
-                exit 0
-              fi
-              echo -n .
-              sleep 5
-            done
+    config: *check_canary
+
+- name: check-logging
+  plan:
+  - get: cluster-state
+    passed: ["deploy"]
+    trigger: true
   - task: check-cloudwatch
     timeout: 10m
     config: *check_cloudwatch
 
-- name: conformance-test
+- name: check-conformance
   plan:
   - get: cluster-state
     passed: ["deploy"]
     trigger: true
   - task: run-conformance-tests
     timeout: 15m
-    config: *run_conformance_tests
+    config: *check_conformance
 
 - name: destroy
   serial: true
