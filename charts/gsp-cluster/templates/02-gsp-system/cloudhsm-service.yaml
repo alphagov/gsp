@@ -86,9 +86,12 @@ spec:
       app: hsmproxy
   ports:
     - port: 2223
+      name: cloudhsm-2223
       targetPort: 2223
     - port: 2224
+      name: cloudhsm-2224
       targetPort: 2224
     - port: 2225
+      name: cloudhsm-2225
       targetPort: 2225
 {{ end }}
