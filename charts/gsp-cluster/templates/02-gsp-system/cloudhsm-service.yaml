@@ -25,6 +25,8 @@ spec:
         - name: config-volume
           mountPath: /usr/local/etc/haproxy/
         ports:
+          - containerPort: 2223
+          - containerPort: 2224
           - containerPort: 2225
         readinessProbe:
           tcpSocket:
@@ -65,10 +67,10 @@ data:
       log stdout format raw daemon
 
     listen tcp-in
-      bind *:2225
+      bind *:2223-2225
       acl gds_ips src 10.0.0.0/8 213.86.153.212 213.86.153.213 213.86.153.214 213.86.153.235 213.86.153.236 213.86.153.237 85.133.67.244
       tcp-request connection reject if !gds_ips
-      server cloudhsm 10.101.29.134:2225 check
+      server cloudhsm 10.101.29.134 check
 ---
 kind: Service
 apiVersion: v1
@@ -83,6 +85,10 @@ spec:
   selector:
       app: hsmproxy
   ports:
+    - port: 2223
+      targetPort: 2223
+    - port: 2224
+      targetPort: 2224
     - port: 2225
       targetPort: 2225
 {{ end }}
