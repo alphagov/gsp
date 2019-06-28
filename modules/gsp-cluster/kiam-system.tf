@@ -22,6 +22,19 @@ data "aws_iam_policy_document" "kiam_server_policy" {
   }
 }
 
+# a trust relationship policy for roles we want kiam-server to assume
+data "aws_iam_policy_document" "trust_kiam_server" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals = {
+      type        = "AWS"
+      identifiers = ["${aws_iam_role.kiam_server_role.arn}"]
+    }
+  }
+}
+
 resource "aws_iam_role" "kiam_server_role" {
   name        = "${var.cluster_name}_kiam_server"
   description = "Role the Kiam Server process assumes"
