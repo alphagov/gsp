@@ -9,6 +9,10 @@ groups:
 - name: destroy
   jobs:
   - destroy
+- name: validate
+  jobs:
+  - ensure-trusted-config-contributor
+  - ensure-trusted-platform-contributor
 
 terraform_source: &terraform_source
   env_name: ((account-name))
@@ -427,6 +431,11 @@ resource_types:
   source:
     repository: "govsvc/concourse-github-resource"
     tag: "v0.0.2"
+- name: pull-request
+  type: registry-image
+  source:
+    repository: "teliaoss/github-pr-resource"
+    tag: "v0.15.0"
 
 resources:
 - name: platform
@@ -440,6 +449,11 @@ resources:
     required_approval_count: ((github-approval-count))
     branch: ((platform-version))
     commit_verification_keys: ((trusted-developer-keys))
+- name: platform-pr
+  type: pull-request
+  source:
+    access_token: ((github-api-token))
+    repository: ((platform-organization))/((platform-repository))
 - name: config
   type: github
   source:
@@ -451,6 +465,11 @@ resources:
     required_approval_count: ((github-approval-count))
     branch: ((config-version))
     commit_verification_keys: ((trusted-developer-keys))
+- name: config-pr
+  type: pull-request
+  source:
+    access_token: ((github-api-token))
+    repository: ((config-organization))/((config-repository))
 - name: users
   type: github
   source:
@@ -479,6 +498,77 @@ resources:
       key: users-((cluster-name)).tfstate
 
 jobs:
+- name: ensure-trusted-platform-contributor
+  plan:
+  - get: platform-pr
+    trigger: true
+    version: every
+  - do:
+    - put: platform-pr
+      params:
+        path: platform-pr
+        status: PENDING
+        base_context: ((cluster-name))
+        context: ensure-trusted-contributor
+    - get: platform
+    on_success:
+      put: platform-pr
+      params:
+        path: platform-pr
+        status: SUCCESS
+        base_context: ((cluster-name))
+        context: ensure-trusted-contributor
+    on_failure:
+      put: platform-pr
+      params:
+        path: platform-pr
+        status: FAILURE
+        base_context: ((cluster-name))
+        context: ensure-trusted-contributor
+        # comment: ""
+    on_abort:
+      put: platform-pr
+      params:
+        path: platform-pr
+        status: ERROR
+        base_context: ((cluster-name))
+        context: ensure-trusted-contributor
+- name: ensure-trusted-config-contributor
+  plan:
+  - get: config-pr
+    trigger: true
+    version: every
+  - do:
+    - put: config-pr
+      params:
+        path: config-pr
+        status: PENDING
+        base_context: ((cluster-name))
+        context: ensure-trusted-contributor
+    - get: config
+    on_success:
+      put: config-pr
+      params:
+        path: config-pr
+        status: SUCCESS
+        base_context: ((cluster-name))
+        context: ensure-trusted-contributor
+    on_failure:
+      put: config-pr
+      params:
+        path: config-pr
+        status: FAILURE
+        base_context: ((cluster-name))
+        context: ensure-trusted-contributor
+        # comment: ""
+    on_abort:
+      put: config-pr
+      params:
+        path: config-pr
+        status: ERROR
+        base_context: ((cluster-name))
+        context: ensure-trusted-contributor
+
 - name: update
   serial_groups: [cluster-modification]
   plan:
