@@ -3,8 +3,9 @@ groups:
   jobs:
   - update
   - deploy
-  - test
-  - conformance-test
+  - check-canary
+  - check-logging
+  - check-conformance
 - name: destroy
   jobs:
   - destroy
