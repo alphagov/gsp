@@ -50,6 +50,12 @@ resource "aws_iam_policy_attachment" "user-defaults-cloudwatch" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
 }
 
+resource "aws_iam_policy_attachment" "user-defaults-view-only" {
+  name       = "${var.cluster_name}-${var.user_name}-user-defaults-view-only-attachment"
+  roles      = ["${aws_iam_role.user.name}"]
+  policy_arn = "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess"
+}
+
 resource "aws_iam_policy_attachment" "user-defaults" {
   name       = "${var.cluster_name}-${var.user_name}-user-defaults-attachment"
   roles      = ["${aws_iam_role.user.name}"]
