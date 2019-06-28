@@ -1,4 +1,7 @@
 dependencies:
+- name: cluster-autoscaler
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 5.1.0
 - name: concourse
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 8.2.5
@@ -11,5 +14,5 @@ dependencies:
 - name: kiam
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.5.1
-digest: sha256:a17390f7f60e589452106bcaffa87d2e570e981a92cebdf91bf5fe98a90a29df
-generated: "2019-10-02T10:45:32.943669+01:00"
+digest: sha256:151b4ed228617b41d7793f2edd1eb92039d9b243f87ee4d2c893406ea3a67e6f
+generated: "2019-10-02T10:55:58.447495+01:00"

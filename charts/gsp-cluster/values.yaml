@@ -60,6 +60,15 @@ httpEgressSafelist: []
 #   requiredApprovalCount: 2
 #   scope: cluster
 
+cluster-autoscaler:
+  extraArgs:
+    balance-similar-node-groups: true
+  image:
+    tag: v1.14.5 # upgrade this when upgrading kubernetes
+  priorityClassName: system-cluster-critical
+  serviceMonitor:
+    enabled: true
+
 kiam:
   nameOverride:
   fullnameOverride:
