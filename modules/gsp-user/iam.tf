@@ -44,20 +44,17 @@ resource "aws_iam_policy" "user-defaults" {
   policy = "${data.aws_iam_policy_document.user-defaults.json}"
 }
 
-resource "aws_iam_policy_attachment" "user-defaults-cloudwatch" {
-  name       = "${var.cluster_name}-${var.user_name}-user-defaults-cloudwatch-attachment"
-  roles      = ["${aws_iam_role.user.name}"]
+resource "aws_iam_role_policy_attachment" "user-defaults" {
+  role       = "${aws_iam_role.user.name}"
+  policy_arn = "${aws_iam_policy.user-defaults.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "user-defaults-cloudwatch" {
+  role       = "${aws_iam_role.user.name}"
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
 }
 
-resource "aws_iam_policy_attachment" "user-defaults-view-only" {
-  name       = "${var.cluster_name}-${var.user_name}-user-defaults-view-only-attachment"
-  roles      = ["${aws_iam_role.user.name}"]
+resource "aws_iam_role_policy_attachment" "user-defaults-view-only" {
+  role       = "${aws_iam_role.user.name}"
   policy_arn = "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess"
-}
-
-resource "aws_iam_policy_attachment" "user-defaults" {
-  name       = "${var.cluster_name}-${var.user_name}-user-defaults-attachment"
-  roles      = ["${aws_iam_role.user.name}"]
-  policy_arn = "${aws_iam_policy.user-defaults.arn}"
 }
