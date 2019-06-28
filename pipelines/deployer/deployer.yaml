@@ -115,33 +115,6 @@ generate_users_terraform: &generate_users_terraform
   outputs:
   - name: users-terraform
 
-generate_namespace_values: &generate_namespace_values
-  platform: linux
-  image_resource: *task_image_resource
-  params:
-    CLUSTER_NAME: ((cluster-name))
-    CLUSTER_CONFIG_PATH: ((config-path))
-  run:
-    path: /bin/bash
-    args:
-    - -euo
-    - pipefail
-    - -c
-    - |
-      echo "creating helm compatible values file from namespace data"
-      mkdir -p namespace-values
-      namespace_values_file="$(pwd)/namespace-values/values.yaml"
-      echo "--> ${CLUSTER_NAME}-main"
-      echo "namespaces:" > $namespace_values_file
-      echo "- name: ${CLUSTER_NAME}-main" >> $namespace_values_file
-      yq .namespaces --yaml-output < "./config/${CLUSTER_CONFIG_PATH}" >> $namespace_values_file
-      cat $namespace_values_file
-      echo "OK!"
-  inputs:
-  - name: config
-  outputs:
-  - name: namespace-values
-
 apply_cluster_chart: &apply_cluster_chart
   platform: linux
   image_resource: *task_image_resource
@@ -182,7 +155,6 @@ apply_cluster_chart: &apply_cluster_chart
         --namespace "${DEFAULT_NAMESPACE}" \
         --values cluster-values/values.yaml \
         --values user-values/values.yaml \
-        --values namespace-values/values.yaml \
         --values config/${CONFIG_VALUES_PATH} \
         --set githubAPIToken=${GITHUB_API_TOKEN} \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
@@ -214,7 +186,6 @@ apply_cluster_chart: &apply_cluster_chart
   - name: cluster-values
   - name: config
   - name: user-values
-  - name: namespace-values
   - name: platform
 
 check_conformance: &check_conformance
@@ -668,9 +639,6 @@ jobs:
     - task: generate-cluster-values
       timeout: 10m
       config: *generate_cluster_values
-    - task: generate-namespace-values
-      timeout: 10m
-      config: *generate_namespace_values
     - task: generate-user-values
       timeout: 10m
       config: *generate_user_values
