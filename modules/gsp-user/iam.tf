@@ -27,14 +27,6 @@ data "aws_iam_policy_document" "user-defaults" {
     effect = "Allow"
 
     actions = [
-      "autoscaling:Describe*",
-      "cloudwatch:Describe*",
-      "cloudwatch:Get*",
-      "cloudwatch:List*",
-      "logs:Get*",
-      "logs:Describe*",
-      "sns:Get*",
-      "sns:List*",
       "eks:DescribeCluster*",
     ]
 
@@ -50,6 +42,18 @@ resource "aws_iam_role" "user" {
 resource "aws_iam_policy" "user-defaults" {
   name   = "${var.cluster_name}-${var.user_name}-user-defaults"
   policy = "${data.aws_iam_policy_document.user-defaults.json}"
+}
+
+resource "aws_iam_policy_attachment" "user-defaults-cloudwatch" {
+  name       = "${var.cluster_name}-${var.user_name}-user-defaults-cloudwatch-attachment"
+  roles      = ["${aws_iam_role.user.name}"]
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+}
+
+resource "aws_iam_policy_attachment" "user-defaults-view-only" {
+  name       = "${var.cluster_name}-${var.user_name}-user-defaults-view-only-attachment"
+  roles      = ["${aws_iam_role.user.name}"]
+  policy_arn = "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess"
 }
 
 resource "aws_iam_policy_attachment" "user-defaults" {
