@@ -94,6 +94,12 @@ prometheus-operator:
     rules:
       general: false # see templates/general.rules.yaml for replacement
       alertmanager: false
+  kubeControllerManager:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeEtcd:
+    enabled: false
   prometheus:
     prometheusSpec:
       externalLabels:
