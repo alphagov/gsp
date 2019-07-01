@@ -1,7 +1,7 @@
 dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 5.7.0
+  version: 5.14.1
 - name: fluentd-cloudwatch
   repository: https://kubernetes-charts-incubator.storage.googleapis.com/
   version: 0.6.4
@@ -14,5 +14,5 @@ dependencies:
 - name: harbor
   repository: https://helm.goharbor.io/
   version: 1.1.0
-digest: sha256:a0a175e0f1540a2d32318a1bdb34c6b0963e7d0b5792ae478ea046ec189a8e0b
-generated: "2019-06-14T13:23:15.105558+01:00"
+digest: sha256:a991f9481b834b066828ab2df050ab705b51d7ae221df979bc4cc404a8344076
+generated: "2019-06-29T20:11:02.423126+01:00"
