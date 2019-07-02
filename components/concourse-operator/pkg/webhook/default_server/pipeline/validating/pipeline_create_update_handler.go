@@ -49,11 +49,8 @@ type PipelineCreateUpdateHandler struct {
 	Decoder types.Decoder
 }
 
-func (h *PipelineCreateUpdateHandler) validatingPipelineFn(ctx context.Context, p *concoursev1beta1.Pipeline) (bool, string, error) {
-	if p == nil {
-		return false, "pipeline was nil", nil
-	}
-	warnings, err := h.validationWarnings([]byte(p.Spec.PipelineString))
+func (h *PipelineCreateUpdateHandler) Validate(config []byte) (bool, string, error) {
+	warnings, err := h.validationWarnings(config)
 	if err != nil {
 		msg := fmt.Sprintf("unable to parse pipeline: %s", err.Error())
 		return false, msg, nil
@@ -62,7 +59,7 @@ func (h *PipelineCreateUpdateHandler) validatingPipelineFn(ctx context.Context, 
 		msg := fmt.Sprintf("pipeline validation failed: %s", strings.Join(warnings, ", "))
 		return false, msg, nil
 	}
-	return true, "allowed to be admitted", nil
+	return true, "ok", nil
 }
 
 func (h *PipelineCreateUpdateHandler) validationWarnings(tmpl []byte) ([]string, error) {
@@ -101,7 +98,7 @@ func (h *PipelineCreateUpdateHandler) Handle(ctx context.Context, req types.Requ
 		return admission.ErrorResponse(http.StatusBadRequest, err)
 	}
 
-	allowed, reason, err := h.validatingPipelineFn(ctx, obj)
+	allowed, reason, err := h.Validate([]byte(obj.Spec.PipelineString))
 	if err != nil {
 		return admission.ErrorResponse(http.StatusInternalServerError, err)
 	}

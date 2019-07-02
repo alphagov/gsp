@@ -26,8 +26,7 @@
   revision = "6226ea591a40176dd3ff9cd8eff81ed6ca721a00"
 
 [[projects]]
-  branch = "master"
-  digest = "1:6ef14d8b084f921692bcc2f2684abec1dbe9ab2373c06122febc2631af564abf"
+  digest = "1:79d04affad4b549c7cc6cb5352836b2db6ae74b5463410b12ada57343f15baca"
   name = "github.com/concourse/concourse"
   packages = [
     ".",
@@ -39,19 +38,8 @@
     "go-concourse/concourse/internal",
   ]
   pruneopts = "T"
-  revision = "858e2d6aa0d65fcaf690865da8753787883906fd"
-
-[[projects]]
-  digest = "1:bb109206a2acc2d1544b21086a34b99b8dd23a645b7b6b9ac3555e4db72e4269"
-  name = "github.com/concourse/go-concourse"
-  packages = [
-    "concourse",
-    "concourse/eventstream",
-    "concourse/internal",
-  ]
-  pruneopts = "T"
-  revision = "79a832c54c62c957d666520937ee4a62b1af9efc"
-  version = "v4.2.2"
+  revision = "5ffc88a8d5c7c82a225ab11997ddfc1fde230e18"
+  version = "v5.3.0"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -538,7 +526,16 @@
   branch = "master"
   digest = "1:d470cb69884835b1800e93ceceb85afcf981ea647e61d99398a76af7a95bad6a"
   name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
+  packages = [
+    "curve25519",
+    "ed25519",
+    "ed25519/internal/edwards25519",
+    "internal/chacha20",
+    "internal/subtle",
+    "poly1305",
+    "ssh",
+    "ssh/terminal",
+  ]
   pruneopts = "T"
   revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
 
@@ -961,6 +958,7 @@
     "pkg/source/internal",
     "pkg/webhook",
     "pkg/webhook/admission",
+    "pkg/webhook/admission/builder",
     "pkg/webhook/admission/types",
     "pkg/webhook/internal/cert",
     "pkg/webhook/internal/cert/generator",
@@ -1010,12 +1008,13 @@
     "github.com/concourse/concourse/atc",
     "github.com/concourse/concourse/go-concourse/concourse",
     "github.com/concourse/concourse/go-concourse/concourse/concoursefakes",
-    "github.com/concourse/go-concourse/concourse",
     "github.com/emicklei/go-restful",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
     "golang.org/x/net/context",
     "golang.org/x/oauth2",
+    "gopkg.in/yaml.v2",
+    "k8s.io/api/admissionregistration/v1beta1",
     "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
@@ -1034,10 +1033,15 @@
     "sigs.k8s.io/controller-runtime/pkg/handler",
     "sigs.k8s.io/controller-runtime/pkg/manager",
     "sigs.k8s.io/controller-runtime/pkg/reconcile",
+    "sigs.k8s.io/controller-runtime/pkg/runtime/inject",
     "sigs.k8s.io/controller-runtime/pkg/runtime/log",
     "sigs.k8s.io/controller-runtime/pkg/runtime/scheme",
     "sigs.k8s.io/controller-runtime/pkg/runtime/signals",
     "sigs.k8s.io/controller-runtime/pkg/source",
+    "sigs.k8s.io/controller-runtime/pkg/webhook",
+    "sigs.k8s.io/controller-runtime/pkg/webhook/admission",
+    "sigs.k8s.io/controller-runtime/pkg/webhook/admission/builder",
+    "sigs.k8s.io/controller-runtime/pkg/webhook/admission/types",
     "sigs.k8s.io/controller-tools/cmd/controller-gen",
     "sigs.k8s.io/testing_frameworks/integration",
   ]
