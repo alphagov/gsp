@@ -99,7 +99,7 @@ You now have a local GSP instance you can access using kubectl.
 
 ## Create a Docker image of the `govuk-prototype-kit` app
 
-You must build the `govuk-prototype-kit` app as a a [Docker image](https://docs.docker.com/v17.09/engine/userguide/storagedriver/imagesandcontainers/) before you can add the app to your GSP local instance.
+You must build the `govuk-prototype-kit` app as a [Docker image](https://docs.docker.com/v17.09/engine/userguide/storagedriver/imagesandcontainers/) before you can add the app to your GSP local instance.
 
 1. Clone the GOV.UK prototype kit repository:
 
