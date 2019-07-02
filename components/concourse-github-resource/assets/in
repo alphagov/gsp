@@ -61,8 +61,8 @@ function latest_code_change_commit() {
   for commit_sha in ${commits_to_check} ; do
     commit_diff="$(git diff-tree -p "${commit_sha}")"
 
-    if git verify-commit "${commit_sha}" > /dev/null 2>&1 && [ -z "${commit_diff}" ]; then
-      echo "${commit_sha} is an empty signed commit by GitHub" 1>&2
+    if [ "$(git cat-file -p ${commit_sha} | grep parent | wc -l)" -gt "1" ]; then
+      echo "${commit_sha} is an empty signed merge commit by GitHub" 1>&2
       continue
     fi
 
