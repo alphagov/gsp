@@ -15,41 +15,40 @@ Neither Prometheus nor Grafana are publicly accessible to everyone through the i
 1. Run the following command to get the name of the services and ports that expose Prometheus and Grafana:
 
     ```
-    aws vault exec <AWS_PROFILE_NAME> -- kubectl -n monitoring-system get services
+    aws vault exec <AWS_PROFILE_NAME> -- kubectl -n gsp-system get services
     ```
 
     where `<AWS_PROFILE_NAME>`is your AWS profile name.
 
     In the following example output from this command:
-    - the `monitoring-system-promethe-prometheus` service that exposes Prometheus is on port `9090`
-    - the `monitoring-system-grafana` service that exposes Grafana is on port `80`
+    - the `gsp-prometheus-operator-prometheus` service that exposes Prometheus is on port `9090`
+    - the `gsp-grafana` service that exposes Grafana is on port `80`
 
     ```
-    NAME                                         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
-    monitoring-system-grafana                    ClusterIP   10.3.0.125   <none>        80/TCP     20h
-    monitoring-system-kube-state-metrics         ClusterIP   10.3.0.209   <none>        8080/TCP   20h
-    monitoring-system-promethe-operator          ClusterIP   None         <none>        8080/TCP   20h
-    monitoring-system-promethe-prometheus        ClusterIP   10.3.0.20    <none>        9090/TCP   20h
-    monitoring-system-prometheus-node-exporter   ClusterIP   10.3.0.152   <none>        9100/TCP   20h
-    prometheus-operated                          ClusterIP   None         <none>        9090/TCP   20h
+    NAME                                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+    gsp-grafana                          ClusterIP   172.20.51.56     <none>        80/TCP                       48d
+    gsp-prometheus-node-exporter         ClusterIP   172.20.154.251   <none>        9100/TCP                     48d
+    gsp-prometheus-operator-operator     ClusterIP   172.20.174.143   <none>        8080/TCP                     48d
+    gsp-prometheus-operator-prometheus   ClusterIP   172.20.11.107    <none>        9090/TCP                     48d
+    prometheus-operated                  ClusterIP   None             <none>        9090/TCP                     48d
     ```
 
 1. Run the following to connect to the service that exposes either Prometheus or Grafana:
 
     ```
-    aws-vault exec <AWS_PROFILE_NAME> -- kubectl port-forward service/<SERVICE_NAME> -n monitoring-system <PORT_1>:<PORT_2>
+    aws-vault exec <AWS_PROFILE_NAME> -- kubectl -n gsp-system port-forward service/<SERVICE_NAME> <LOCAL_PORT>:<FORWARDED_PORT>
     ```
 
     where:
     - `<SERVICE_NAME>` is the name of the service that exposes either Prometheus or Grafana
-    - `<PORT_1>` is a port available on your local machine
-    - `<PORT_2>` is the port that exposes either Prometheus or Grafana
+    - `<LOCAL_PORT>` is a port available on your local machine
+    - `<FORWARDED_PORT>` is the port that exposes either Prometheus or Grafana
 
-1. Go to `http://127.0.0.1:<PORT_1>` to see the interface.
+1. Go to `http://127.0.0.1:<LOCAL_PORT>` to see the interface.
 
     To access Grafana you must also sign in with:
-    - username: admin
-    - password: password
+    - username: `admin`
+    - password: `password`
 
 ## Set up monitoring for your app
 

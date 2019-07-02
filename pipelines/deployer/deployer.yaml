@@ -6,6 +6,7 @@ groups:
   - check-canary
   - check-logging
   - check-conformance
+  - check-health-monitoring
 - name: destroy
   jobs:
   - destroy
@@ -336,6 +337,43 @@ check_cloudwatch: &check_cloudwatch
       echo ""
       echo "FAIL: No logs have been detected reaching cloudwatch since $LOGS_SINCE"
       exit 1
+
+check-health-monitoring: &check-health-monitoring
+  platform: linux
+  image_resource: *task_image_resource
+  params:
+    ACCOUNT_ROLE_ARN: ((account-role-arn))
+    AWS_REGION: eu-west-2
+    AWS_DEFAULT_REGION: eu-west-2
+    CLUSTER_NAME: ((cluster-name))
+  run:
+    path: /bin/bash
+    args:
+    - -euo
+    - pipefail
+    - -c
+    - |
+      echo "Assuming AWS deployer role..."
+      AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+      eval "${AWS_CREDS}"
+      echo "Fetching kubeconfig from aws..."
+      aws eks update-kubeconfig --name "${CLUSTER_NAME}" --kubeconfig ./kubeconfig
+      export KUBECONFIG=$(pwd)/kubeconfig
+      # Check Prometheus
+      echo "Port forwarding Prometheus to localhost:9090..."
+      kubectl -n gsp-system port-forward service/gsp-prometheus-operator-prometheus 9090:9090 &
+      sleep 5
+      echo "Curling forwarded port..."
+      curl --silent --show-error --max-time 5 --fail --location "http://127.0.0.1:9090" | grep "<title>Prometheus"
+      echo "Success!"
+      echo "Stopping port forward"
+      kill $(jobs -p)
+      # Check Grafana
+      echo "Port forwarding Grafana to localhost:8080"
+      kubectl -n gsp-system port-forward service/gsp-grafana 8080:80 &
+      sleep 5
+      curl --silent --show-error --max-time 5 --fail --location "http://127.0.0.1:8080" | grep "<title>Grafana</title>"
+      echo "Success!"
 
 drain_cluster_task: &drain_cluster_task
   platform: linux
@@ -679,6 +717,15 @@ jobs:
   - task: run-conformance-tests
     timeout: 15m
     config: *check_conformance
+
+- name: check-health-monitoring
+  plan:
+  - get: cluster-state
+    passed: ["deploy"]
+    trigger: true
+  - task: check-health-monitoring
+    timeout: 10m
+    config: *check-health-monitoring
 
 - name: destroy
   serial: true
