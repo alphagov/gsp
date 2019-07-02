@@ -163,7 +163,3 @@ output "values" {
   sensitive = true
   value     = "${module.gsp-cluster.values}"
 }
-
-output "hsm_ips" {
-  value = "${module.hsm.hsm_ips}"
-}
