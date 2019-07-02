@@ -14,34 +14,28 @@ required_approval_count=$(jq --raw-output '(.source.required_approval_count // 0
 approvers=$(jq --raw-output '(.source.approvers // [])[]' < ${payload} | sort -d)
 
 if [ -z "${organization}" ]; then
-  echo "invalid payload (missing organization):" >&2
-  cat ${payload} >&2
+  echo "invalid source configuration: missing required 'organization'" >&2
   exit 1
 fi
 
 if [ -z "${repository}" ]; then
-  echo "invalid payload (missing repository):" >&2
-  cat ${payload} >&2
+  echo "invalid source configuration: missing required 'repository'" >&2
   exit 1
 fi
 
 if [ -z "${github_api_token}" ]; then
-  echo "invalid payload (missing github_api_token):" >&2
-  cat ${payload} >&2
+  echo "invalid source configuration: missing required 'github_api_token'" >&2
   exit 1
 fi
 
 if [ -z "${approvers}" ]; then
-  echo "invalid payload (missing approvers):" >&2
-  echo "If you don't require this you probably should be using the regular git-resource" >&2
-  cat ${payload} >&2
+  echo "invalid source configuration: missing required 'approvers'" >&2
   exit 1
 fi
 
 if [ "${required_approval_count}" -eq 0 ]; then
   echo "warning: approval count set to zero." >&2
   echo "If you don't require this you probably should be using the regular git-resource" >&2
-  cat ${payload} >&2
 fi
 
 /opt/resource/in.origin "$@" < ${payload} > /original_output
