@@ -21,7 +21,7 @@ Setting up a local GSP instance should take no more than 2 hours. Contact the GS
 
 1. Install [Homebrew](https://brew.sh/) and run `brew update` to make sure you have the latest version of Homebrew.
 
-1. Go to the local repository folder and run `brew bundle` to install the [Homebrew Bundler](https://github.com/Homebrew/homebrew-bundle).
+1. Go to the local repository folder and run `brew bundle` to install the packages listed in the [Brewfile](https://github.com/alphagov/gsp/blob/master/Brewfile).
 
 1. Grant `driver superuser` privileges to the hypervisor:
 
