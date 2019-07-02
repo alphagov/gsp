@@ -12,6 +12,7 @@ spec:
   - cloudhsm.tcp.svc
   gateways:
   - {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  - mesh
   tcp:
   - match:
     - gateways:
@@ -43,3 +44,39 @@ spec:
         port:
           number: 2225
       weight: 100
+  - match:
+    - gateways:
+      - mesh
+      destinationSubnets:
+      - {{ .Values.global.cluster.cloudHsmIp }}/32
+      port: 2223
+    route:
+    - destination:
+        host: istio-egressgateway.istio-system.svc.cluster.local
+        subset: {{ .Release.Name }}-cloudhsm
+        port:
+          number: 2223
+  - match:
+    - gateways:
+      - mesh
+      destinationSubnets:
+      - {{ .Values.global.cluster.cloudHsmIp }}/32
+      port: 2224
+    route:
+    - destination:
+        host: istio-egressgateway.istio-system.svc.cluster.local
+        subset: {{ .Release.Name }}-cloudhsm
+        port:
+          number: 2224
+  - match:
+    - gateways:
+      - mesh
+      destinationSubnets:
+      - {{ .Values.global.cluster.cloudHsmIp }}/32
+      port: 2225
+    route:
+    - destination:
+        host: istio-egressgateway.istio-system.svc.cluster.local
+        subset: {{ .Release.Name }}-cloudhsm
+        port:
+          number: 2225
