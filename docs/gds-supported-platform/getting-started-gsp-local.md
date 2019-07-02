@@ -1,54 +1,111 @@
-# Getting started with a local GDS Supported Platform development cluster
+# Set up a local GDS Supported Platform instance
 
-These instructions tell you how to set up a local GDS Supported Platform (GSP) cluster and host an app on that cluster.
+The GDS Supported Platform (GSP) is a platform to host Government Digital Service (GDS) services. The GSP is based on [Docker](https://docs.docker.com/) and [Kubernetes](https://kubernetes.io/).
 
-This process is resource-intensive and you must set the resource amount used by Docker to the following:
-- 4 CPUs
-- 8 gigabytes of memory
+These instructions explain how to set up a local instance of the GSP and run the example `govuk-prototype-kit` app on that instance. You can use this process to test your app before deploying that app to a production environment on the GSP. This process has several stages. 
 
-## Build a local GSP cluster
+1. Install [prerequisite software](#install-prerequisite-software).
+1. [Create and run](#create-and-run-a-local-gsp-instance) a local GSP instance.
+1. Create a [Docker image of the `govuk-prototype-kit` app](#create-a-docker-image-of-the-govuk-prototype-kit-app).
+1. Create a [Helm chart](#create-a-helm-chart).
+1. [Deploy the app](#deploy-the-app-on-to-the-local-GSP-instance) on to the local GSP instance.
+1. [Connect](#connect-to-the-app) to the app.
+1. [Destroy](#destroy-the-local-instance) the local instance.
 
-1. Install [Homebrew](https://brew.sh/)
+Setting up a local GSP instance should take no more than 2 hours. Contact the GSP team using the [#re-gsp Slack channel](https://gds.slack.com/messages/CDA7YSP0D) if this process takes longer.
 
-1. Clone the GSP repo:
+<%= warning_text('While setting up or running a local GSP instance, do not:<br>- power down your laptop<br>- put your laptop in standby mode<br>- connect or disconnect the Cisco VPN client') %>
+
+
+## Install prerequisite software
+
+1. Install [Homebrew](https://brew.sh/) and run `brew update` to make sure you have the latest version of Homebrew.
+
+1. Go to the local repository folder and run `brew bundle` to install the packages listed in the [Brewfile](https://github.com/alphagov/gsp/blob/master/Brewfile).
+
+1. Grant `driver superuser` privileges to the hypervisor:
 
     ```
-    git clone https://github.com/alphagov/gsp.git
+    sudo chown root:wheel /usr/local/bin/docker-machine-driver-hyperkit && sudo chmod u+s /usr/local/bin/docker-machine-driver-hyperkit
     ```
 
-1. Install dependencies from the Brewfile at the root of the repo:
+1. Install [Docker](https://docs.docker.com) and configure Docker to have the following settings:
+
+    - CPU = 4
+    - Memory = 8 Gb
+    - Swap = 2 Gb
+
+1. Run `git clone https://github.com/alphagov/gsp.git` to clone the GSP repository.
+
+1. If you already have either a `~/.minkube/machine/minikube` or `~/.minkube/machine/gocd` directory on your local machine, run the following to make sure Minikube is not running either of these [Kubernetes clusters](https://kubernetes.io/docs/tutorials/kubernetes-basics/create-cluster/cluster-intro/):
 
     ```
-    brew bundle --verbose
+    minikube stop -p CLUSTER
+    ```
+    where `CLUSTER` can be either `minikube` or `gocd`.
+
+1. If you have already assigned the `KUBECONFIG` environment variable, run `unset KUBECONFIG`.
+
+    
+## Create and run a local GSP instance
+
+1. Run `./scripts/gsp-local.sh create` to create a local GSP instance.
+
+    
+
+    This script provisions a [Kubernetes control plane](https://kubernetes.io/docs/concepts/#kubernetes-control-plane) and a curated list of tools on to your local machine.
+
+    This script loops every 10 seconds until the local GSP instance is complete. During the build, you will see looped output similar to the following example:
+
+    ```
+    [Stabilize attempt #2] Failed to stabilize. Retrying in 10s...
+    kube-system   default-http-backend-5957bfbccb-djj4b       0/1     ErrImagePull       0          104s
+    kube-system   metrics-server-6486d4db88-985vz             0/1     ImagePullBackOff   0          103s
+    kube-system   nginx-ingress-controller-5bbcd969c5-5wc2c   0/1     ErrImagePull       0          102s
+    kube-system   registry-7ngqc                              0/1     ErrImagePull       0          103s
     ```
 
-    After installing `docker-machine-driver-hyperkit` follow instructions on how to grant driver superuser privileges to the hypervisor.
-
-1. Run the following to create a local GSP cluster:
+    Once the process is complete, you will see output similar to the following example:
 
     ```
-    ./scripts/gsp-local.sh create
+    [Apply attempt #1, Stabilize attempt: #3] Finished deploying ./scripts/hack/expose-grafana.yaml.
+    Kubernetes master is running at https://192.168.64.9:8443
+    KubeDNS is running at https://192.168.64.9:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+    To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
     ```
 
-    If this script is still running after 15 minutes, contact the GSP team using the [re-GSP Slack channel](https://gds.slack.com/messages/CDA7YSP0D).
+    If this script is still running after 20 minutes, contact the GSP team using the [#re-gsp Slack channel](https://gds.slack.com/messages/CDA7YSP0D).
 
-1. Check that you can access your local GSP cluster using [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/):
+1. Check you can access your local GSP instance using [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/):
 
     ```
     kubectl get nodes
     ```
 
-    You now have a GSP cluster running locally and can access that cluster using `kubectl`.
+    You will see output similar to the following example:
 
-## Create a Docker image of your app
+    ```
+    NAME       STATUS   ROLES    AGE   VERSION
+    minikube   Ready    master   14m   v1.12.0
+    ```
 
-1. Clone the GOV.UK Prototype Kit:
+You now have a local GSP instance you can access using kubectl.
+
+
+
+
+## Create a Docker image of the `govuk-prototype-kit` app
+
+You must build the `govuk-prototype-kit` app as a [Docker image](https://docs.docker.com/v17.09/engine/userguide/storagedriver/imagesandcontainers/) before you can add the app to your GSP local instance.
+
+1. Clone the GOV.UK prototype kit repository:
 
     ```
     git clone https://github.com/alphagov/govuk-prototype-kit
     ```
 
-1. Create a `Dockerfile` for the `govuk-prototype-kit` app with the following code:
+1. Go to the root directory of the local `govuk-prototype-kit` repository and create a `Dockerfile` with the following:
 
     ```
     FROM node:8.12-alpine
@@ -65,40 +122,64 @@ This process is resource-intensive and you must set the resource amount used by 
     CMD ["npm", "start"]
     ```
 
-1. Build the Docker image:
+1. Build a Docker image of the GOV.UK prototype kit app:
 
     ```
     docker build . --tag prototype-kit:latest
     ```
 
-1. Test the Docker image:
+1. Check that the Dockerised app runs successfully:
 
     ```
-    docker run --publish 3000:3000 prototype-kit:latest
+    docker run -it --rm --publish 3000:3000 prototype-kit:latest
     ```
-    This will create a local Docker container with the app running in that container.
+    This will create a local [Docker container](https://www.docker.com/resources/what-container) with the GOV.UK prototype kit app at `http://localhost:3000/`.
 
+    Enter `Ctrl-c` to stop the container once you have confirmed that the GOV.UK prototype kit is running in the local Docker container.
 
-1. Build the Docker image in the GSP cluster (gsp-local):
+1. Build the Docker image in the GSP instance:
 
-    Talk to cluster 'docker' (not the version you have locally installed)
     ```
     eval $(minikube docker-env -p gsp-local)
-    docker ps (should yield screens full of containers)
     docker build . -t prototype-kit:latest
     ```
-    You have created a Docker image and copied it into your local GSP cluster.
-    
 
+1. Check that the Docker has finished building the image:
+
+   ```
+   docker images | head -n 2
+   ```
+
+   Once Docker has built the image, you will see output similar to the following:
+
+    ```
+    REPOSITORY      TAG       IMAGE ID        CREATED               SIZE
+    prototype-kit   latest    53250c797a93    About a minute ago    246MB
+    ```
+
+    You have created a Docker image of the GOV.UK prototype kit app, and built that image in your local GSP instance.
+
+
 ## Create a Helm chart
 
-The GDS Supported Platform uses a packaging format called [Helm charts](https://helm.sh/docs/developing_charts/). A chart is a collection of files that describe a related set of Kubernetes resources.
+Kubernetes resources describe the configuration of the app that you are running. You define these resources as `.yaml` files and collect them together in a packaging format called a [Helm chart](https://helm.sh/docs/developing_charts/).
 
-You create Helm charts as files in a directory. These files are then packaged into versioned archives that users can deploy.
+You create Helm charts as files in a directory with the following structure:
 
-1. Create a `chart/` directory inside `govuk-prototype-kit`.
+```
+chart/
+├── Chart.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    └── virtualservice.yaml
+```
 
-1. Create a `Chart.yaml` file in this directory with the following code:
+### Create the Helm chart directory and Chart.yaml
+
+1. Create a `chart` directory inside the local `govuk-prototype-kit` repository.
+
+1. Create a `Chart.yaml` file in the `chart` directory with the following:
 
     ```
     apiVersion: v1
@@ -108,15 +189,15 @@ You create Helm charts as files in a directory. These files are then packaged in
     version: 0.1.0
     ```
 
-    This file defines metadata about the chart.
+    This file defines metadata about the Helm chart.
 
-1. Create a `templates` directory in the `chart/` directory. This directory contains all Kubernetes object definitions.
+1. Create a `templates` directory in the `chart` directory to store the Kubernetes object definitions.
 
-### Create a Kubernetes Deployment object
+### Create a Kubernetes Deployment resource
 
-You run an app by creating a [Kubernetes Deployment object](https://kubernetes.io/docs/concepts/#kubernetes-objects). This object defines your app and its routes, databases and all other relevant information. You describe a Deployment in a YAML file.
+You run an app in the local GSP instance by creating a [Kubernetes Deployment resource object](https://kubernetes.io/docs/concepts/#kubernetes-objects). This object defines your app and its routes, databases and all other relevant information. You describe a Kubernetes Deployment in a `.yaml` file.
 
-1. Create a `deployment.yaml` file in the `templates` directory with the following code:
+1. Create a `deployment.yaml` file in the `templates` directory with the following:
 
     ```
     apiVersion: apps/v1beta2
@@ -148,110 +229,227 @@ You run an app by creating a [Kubernetes Deployment object](https://kubernetes.i
                   protocol: TCP
     ```
 
-1. Run the following command in the root directory to render the chart and send the output to an `output` directory:
+1. Run the following command in the root directory of the repository to render the chart and send the output to an `output` directory:
 
     ```
     mkdir output
     helm template --name prototype-kit --output-dir=output chart
     ```
 
-1. Install the contents of the `output` directory to the GSP cluster:
+1. Install the contents of the `output` directory to the local GSP instance:
 
     ```
     kubectl apply -R -f output/
     ```
 
-1. List the Deployments installed in the GSP cluster:
+    Refer to the [`kubectl apply` documentation](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#apply) for more information.
+
+1. List the Kubernetes Deployments installed in the local GSP instance:
 
     ```
     kubectl get deployments
     ```
 
-1. Check that the pods are running:
+1. [Kubernetes pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/) are the smallest deployable units of computing you can create and manage in Kubernetes. You must check the pods are running:
 
     ```
     kubectl get pods
     ```
 
-### Create a service
+If the pods are running, you have created a Kubernetes Deployment resource.
 
-By default, your apps are not accessible to the public. To expose them to the public, you must set up a [`Service`](https://kubernetes.io/docs/concepts/services-networking/service/), [`VirtualService`](https://istio.io/docs/reference/config/networking/v1alpha3/virtual-service/) and `port-forward` to the GSP cluster's ingress [Gateway](https://istio.io/docs/reference/config/networking/v1alpha3/gateway/).
+### Set up a service
 
-Setting up a `VirtualService` creates a stable endpoint that acts like an internal load balancer to send traffic to your Deployment's pods.
+A [Kubernetes `Service`](https://kubernetes.io/docs/concepts/services-networking/service/) defines a set of pods and a policy by which to access and communicate with them.
 
-1. Create a `service.yaml` file in the `templates` directory with the following code:
+Create a `service.yaml` file in the `templates` directory with the following:
 
-    ```
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: {{ .Release.Name }}-web
-      labels:
-        app.kubernetes.io/name: web
-        app.kubernetes.io/instance: {{ .Release.Name }}
-    spec:
-      type: ClusterIP
-      ports:
-        - port: 3000
-          targetPort: http
-          protocol: TCP
-          name: http
-      selector:
-        app.kubernetes.io/name: web
-        app.kubernetes.io/instance: {{ .Release.Name }}
-    ```
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-web
+  labels:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/instance: {{ .Release.Name }}
+```
 
-1. Create a `virtualservice.yaml` file in the `templates` directory with the following code:
+### Set up a VirtualService
 
-    ```
-    apiVersion: networking.istio.io/v1alpha3
-    kind: VirtualService
-    metadata:
-      name: prototype-kit
-    spec:
-      hosts:
-      - "prototype-kit.local.govsandbox.uk"
-      gateways:
-      - "gsp-gsp-cluster.gsp-system"
-      http:
-      - route:
-        - destination:
-            host: prototype-kit-web
-            port:
-              number: 3000
+A `VirtualService` is a stable endpoint that acts as an internal load balancer to send traffic to your Deployment's pods.
 
-    ```
+Create a `virtualservice.yaml` file in the `templates` directory with the following:
 
-1. Render your template again:
+```
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: prototype-kit
+spec:
+  hosts:
+  - "prototype-kit.local.govsandbox.uk"
+  gateways:
+  - "gsp-gsp-cluster.gsp-system"
+  http:
+  - route:
+    - destination:
+        host: prototype-kit-web
+        port:
+          number: 3000
+
+```
+
+You now have a Helm chart which describes how you will deploy your app to the GSP local instance. 
+
+## Deploy the app on to the local GSP instance
+
+### Create and apply deployable manifests
+
+You must create and apply a set of deployable manifests to tell the GSP local instance how to deploy the `govuk-prototype-kit` app.
+
+1. Go to the root directory of the `govuk-prototype-kit` repository.
+
+1. Render the template:
 
     ```
     helm template --name prototype-kit --output-dir=output chart
     ```
 
-1. Re-apply the template to the GSP cluster:
+    You will see output similar to the following example:
+
+    ```
+    wrote output/prototype-kit/templates/service.yaml
+    wrote output/prototype-kit/templates/deployment.yaml
+    wrote output/prototype-kit/templates/virtualservice.yaml
+    ```
+
+    You now have a set of deployable manifests with the following directory structure and files:
+
+    ```
+    output/
+    └── prototype-kit/
+       └── templates
+           ├── deployment.yaml
+           ├── service.yaml
+           └── virtualservice.yaml
+    ```
+
+1. Apply the manifests to the local GSP instance:
 
     ```
     kubectl apply -R -f output/
     ```
 
-You have successfully created a Helm chart.
+    You will see output similar to the following example:
 
-## Connect to GOV.UK Prototype Kit
+    ```
+    deployment.apps/prototype-kit-web created
+    service/prototype-kit-web created
+    virtualservice.networking.istio.io/prototype-kit created
+    ```
 
-1. Use `kubectl port-forward` to tunnel to the ingress Gateway:
+### Check the service, virtualservice and Kubernetes Deployment are live
+
+1. Check that the Kubernetes Deployment is live:
+
+    ```
+    kubectl get deployments prototype-kit-web
+    ```
+
+    You will see output similar to the following:
+
+    ```
+    NAME                               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    prototype-kit-web                  1         0         1            0           1m
+    ```
+    Once the `CURRENT` and `AVAILABLE` fields are set to `1`, the Kubernetes Deployment is live.
+
+1. Check the `service` is live:
+
+    ```
+    kubectl get service prototype-kit-web
+    ```
+
+    You will see output similar to the following:
+
+    ```
+    NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+    prototype-kit-web   ClusterIP   10.110.146.100   <none>        3000/TCP   1m
+    ```
+
+    Once the `CLUSTER-IP` and `PORT` fields are complete, the service is live.
+
+1. Check the `virtualservice` is live:
+
+    ```
+    kubectl get virtualservice prototype-kit
+    ```
+    You will see output similar to the following:
+
+    ```
+    NAME            GATEWAYS                       HOSTS                                 AGE
+    prototype-kit   [gsp-gsp-cluster.gsp-system]   [prototype-kit.local.govsandbox.uk]   19h
+    ```
+    Once the `GATEWAYS` and `HOSTS` field have URLs in them, the `virtualservice` is live.
+
+Once the `service`, `virtualservice` and Deployment are live, you have successfully created a local GSP instance and deployed the `govuk-prototype-kit` app.
+
+You must now connect to the app.
+
+
+## Connect to the app
+
+By default, your app is not accessible outside of the local GSP instance. To connect to the app, you must use [`port-forwarding`](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/).
+
+1. Connect to the `govuk-prototype-kit` app:
 
     ```
     sudo --preserve-env kubectl port-forward service/istio-ingressgateway -n istio-system 80:80
     ```
 
-1. Open `http://prototype-kit.local.govsandbox.uk` in your browser.
+    You will see output similar to the following example:
 
-You have successfully deployed the `govuk-prototype-kit` app in your local GSP cluster.
+    ```
+    sudo --preserve-env kubectl port-forward service/istio-ingressgateway -n istio-system 80:80
+    Password:
+    Forwarding from 127.0.0.1:80 -> 80
+    Forwarding from [::1]:80 -> 80
+    ```
 
-## Destroy cluster
+1. Open [http://prototype-kit.local.govsandbox.uk](http://prototype-kit.local.govsandbox.uk) in your browser.
+1. In the command line, enter `Ctrl-c` to stop port-forwarding.
 
-Run the following command to destroy the cluster:
+You have successfully deployed the `govuk-prototype-kit` app in your local GSP instance.
 
-```
-./scripts/gsp-local.sh delete
-```
+
+## Destroy the local instance
+
+You should destroy your local GSP instance when you have finished testing your app.
+
+1. Destroy the local instance:
+
+    ```
+    ./scripts/gsp-local.sh delete
+    ```
+
+1. Remove the installed packages so your system is the same as it was before setting up the local instance:
+
+    ```
+    brew uninstall kubernetes-cli
+    brew uninstall kubernetes-helm
+    brew uninstall hyperkit
+    brew uninstall docker-machine-driver-hyperkit
+    brew cask uninstall minikube
+    ```
+
+You have destroyed your local GSP instance.
