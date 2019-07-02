@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-direct-cloudhsm-through-egress-gateway
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -10,37 +10,69 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   hosts:
-  - cloudhsm.tcp.svc
+  - cloudhsm-2223.tcp.svc
   gateways:
-  - {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
   tcp:
   - match:
     - gateways:
-      - {{ include "gsp-cluster.fullname" . }}-cloudhsm
-      port: 2223
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
+      port: 443
     route:
     - destination:
-        host: cloudhsm.tcp.svc
+        host: cloudhsm-2223.tcp.svc
         port:
           number: 2223
       weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-direct-cloudhsm-through-egress-gateway
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  hosts:
+  - cloudhsm-2224.tcp.svc
+  gateways:
+  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
+  tcp:
   - match:
     - gateways:
-      - {{ include "gsp-cluster.fullname" . }}-cloudhsm
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
       port: 2224
     route:
     - destination:
-        host: cloudhsm.tcp.svc
+        host: cloudhsm-2224.tcp.svc
         port:
           number: 2224
       weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-direct-cloudhsm-through-egress-gateway
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  hosts:
+  - cloudhsm-2225.tcp.svc
+  gateways:
+  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
+  tcp:
   - match:
     - gateways:
-      - {{ include "gsp-cluster.fullname" . }}-cloudhsm
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
       port: 2225
     route:
     - destination:
-        host: cloudhsm.tcp.svc
+        host: cloudhsm-2225.tcp.svc
         port:
           number: 2225
       weight: 100

@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -13,21 +13,64 @@ spec:
     istio: egressgateway
   servers:
   - port:
-      number: 2223
-      name: tcp-cloudhsm-2223
-      protocol: TCP
+      number: 443
+      name: tls-cloudhsm-2223
+      protocol: TLS
     hosts:
-    - cloudhsm.tcp.svc
+    - cloudhsm-2223.tcp.svc
+    tls:
+      mode: MUTUAL
+      serverCertificate: /etc/certs/cert-chain.pem
+      privateKey: /etc/certs/key.pem
+      caCertificates: /etc/certs/root-cert.pem
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    istio: egressgateway
+  servers:
   - port:
-      number: 2224
-      name: tcp-cloudhsm-2224
-      protocol: TCP
+      number: 443
+      name: tls-cloudhsm-2224
+      protocol: TLS
     hosts:
-    - cloudhsm.tcp.svc
+    - cloudhsm-2224.tcp.svc
+    tls:
+      mode: MUTUAL
+      serverCertificate: /etc/certs/cert-chain.pem
+      privateKey: /etc/certs/key.pem
+      caCertificates: /etc/certs/root-cert.pem
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    istio: egressgateway
+  servers:
   - port:
-      number: 2225
-      name: tcp-cloudhsm-2225
-      protocol: TCP
+      number: 443
+      name: tls-cloudhsm-2225
+      protocol: TLS
     hosts:
-    - cloudhsm.tcp.svc
+    - cloudhsm-2225.tcp.svc
+    tls:
+      mode: MUTUAL
+      serverCertificate: /etc/certs/cert-chain.pem
+      privateKey: /etc/certs/key.pem
+      caCertificates: /etc/certs/root-cert.pem
 {{- end }}

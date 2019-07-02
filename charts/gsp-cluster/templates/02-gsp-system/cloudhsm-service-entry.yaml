@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -10,16 +10,56 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   hosts:
-  - cloudhsm.tcp.svc
+  - cloudhsm-2223.tcp.svc
   addresses:
   - {{ .Values.global.cloudHsm.ip }}/32
   ports:
   - name: tcp-2223
     number: 2223
     protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: STATIC
+  endpoints:
+  - address: {{ .Values.global.cloudHsm.ip }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  hosts:
+  - cloudhsm-2224.tcp.svc
+  addresses:
+  - {{ .Values.global.cloudHsm.ip }}/32
+  ports:
   - name: tcp-2224
     number: 2224
     protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: STATIC
+  endpoints:
+  - address: {{ .Values.global.cloudHsm.ip }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  hosts:
+  - cloudhsm-2225.tcp.svc
+  addresses:
+  - {{ .Values.global.cloudHsm.ip }}/32
+  ports:
   - name: tcp-2225
     number: 2225
     protocol: TCP
