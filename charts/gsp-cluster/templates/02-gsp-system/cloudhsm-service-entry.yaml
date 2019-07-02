@@ -12,7 +12,7 @@ spec:
   hosts:
   - cloudhsm.tcp.svc
   addresses:
-  - {{ .Values.global.cluster.cloudHsm.ip }}/32
+  - {{ .Values.global.cloudHsm.ip }}/32
   ports:
   - name: tcp-2223
     number: 2223
@@ -26,5 +26,5 @@ spec:
   location: MESH_EXTERNAL
   resolution: STATIC
   endpoints:
-  - address: {{ .Values.global.cluster.cloudHsm.ip }}
+  - address: {{ .Values.global.cloudHsm.ip }}
 {{- end }}

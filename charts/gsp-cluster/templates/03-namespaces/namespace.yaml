@@ -117,7 +117,7 @@ metadata:
 data:
   name: {{ $.Values.global.cluster.name | b64enc }}
   domain: {{ $.Values.global.cluster.domain | b64enc }}
-  cloudHsmIp: {{ $.Values.global.cluster.cloudHsm.ip | b64enc }}
+  cloudHsmIp: {{ $.Values.global.cloudHsm.ip | b64enc }}
   privateKey: {{ $.Values.global.cluster.privateKey | b64enc }}
   publicKey: {{ $.Values.global.cluster.publicKey | b64enc }}
 ---

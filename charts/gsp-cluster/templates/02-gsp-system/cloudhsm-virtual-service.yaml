@@ -49,7 +49,7 @@ spec:
     - gateways:
       - mesh
       destinationSubnets:
-      - {{ .Values.global.cluster.cloudHsm.ip }}/32
+      - {{ .Values.global.cloudHsm.ip }}/32
       port: 2223
     route:
     - destination:
@@ -61,7 +61,7 @@ spec:
     - gateways:
       - mesh
       destinationSubnets:
-      - {{ .Values.global.cluster.cloudHsm.ip }}/32
+      - {{ .Values.global.cloudHsm.ip }}/32
       port: 2224
     route:
     - destination:
@@ -73,7 +73,7 @@ spec:
     - gateways:
       - mesh
       destinationSubnets:
-      - {{ .Values.global.cluster.cloudHsm.ip }}/32
+      - {{ .Values.global.cloudHsm.ip }}/32
       port: 2225
     route:
     - destination:
