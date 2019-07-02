@@ -46,7 +46,7 @@ Setting up a local GSP instance should take no more than 2 hours. Contact the GS
     ```
     where `CLUSTER` can be either `minikube` or `gocd`.
 
-1. If you have already assigned the `KUBECONFIG` environment variable, run `unset KUBECONFIG` the following to unset this variable:
+1. If you have already assigned the `KUBECONFIG` environment variable, run `unset KUBECONFIG`
 
     
 ## Create and run a local GSP instance
