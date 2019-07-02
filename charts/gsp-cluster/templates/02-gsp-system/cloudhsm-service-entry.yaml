@@ -1,3 +1,4 @@
+{{- if .Values.global.cloudHsm.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
@@ -11,7 +12,7 @@ spec:
   hosts:
   - cloudhsm.tcp.svc
   addresses:
-  - {{ .Values.global.cluster.cloudHsmIp }}/32
+  - {{ .Values.global.cluster.cloudHsm.ip }}/32
   ports:
   - name: tcp-2223
     number: 2223
@@ -25,4 +26,5 @@ spec:
   location: MESH_EXTERNAL
   resolution: STATIC
   endpoints:
-  - address: {{ .Values.global.cluster.cloudHsmIp }}
+  - address: {{ .Values.global.cluster.cloudHsm.ip }}
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.global.cloudHsm.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -48,7 +49,7 @@ spec:
     - gateways:
       - mesh
       destinationSubnets:
-      - {{ .Values.global.cluster.cloudHsmIp }}/32
+      - {{ .Values.global.cluster.cloudHsm.ip }}/32
       port: 2223
     route:
     - destination:
@@ -60,7 +61,7 @@ spec:
     - gateways:
       - mesh
       destinationSubnets:
-      - {{ .Values.global.cluster.cloudHsmIp }}/32
+      - {{ .Values.global.cluster.cloudHsm.ip }}/32
       port: 2224
     route:
     - destination:
@@ -72,7 +73,7 @@ spec:
     - gateways:
       - mesh
       destinationSubnets:
-      - {{ .Values.global.cluster.cloudHsmIp }}/32
+      - {{ .Values.global.cluster.cloudHsm.ip }}/32
       port: 2225
     route:
     - destination:
@@ -80,3 +81,4 @@ spec:
         subset: {{ .Release.Name }}-cloudhsm
         port:
           number: 2225
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.global.cloudHsm.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -11,7 +12,9 @@ spec:
   host: istio-egressgateway.istio-system.svc.cluster.local
   subsets:
   - name: {{ .Release.Name }}-cloudhsm
+{{- end }}
 ---
+{{- if .Values.global.cloudHsm.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -23,3 +26,4 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   host: cloudhsm.tcp.svc
+{{- end }}

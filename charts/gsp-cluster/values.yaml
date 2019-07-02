@@ -4,11 +4,13 @@ global:
     name: "my-cluster"
     domain: "example.com"
     domain_id: ""
-    cloudHsmIp: "127.0.0.1"
   account:
     name: ""
   roles:
     canary: ""
+  cloudHsm:
+    enabled: false
+    ip: "127.0.0.1"
   # move these to gsp-namespace terraform output
   canary:
     repository: ""
