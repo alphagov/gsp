@@ -4,6 +4,7 @@ RUN apt-get update && \
     apt-get install -y curl \
                 netcat \
                 python \
+                redis-tools \
                 telnet \
                 vim \
                 wget && \
