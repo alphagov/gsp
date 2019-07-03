@@ -5,4 +5,4 @@ metadata:
 spec:
   mode: 'ON_WITH_EXCLUSION'
   exclusion:
-    namespaces: ["kube-system", "gsp-system", "istio-system"]
+    namespaces: ["kube-system", "gsp-system"]
