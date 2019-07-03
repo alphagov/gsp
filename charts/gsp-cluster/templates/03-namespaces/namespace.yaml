@@ -28,6 +28,22 @@ metadata:
   annotations:
     iam.amazonaws.com/permitted: {{ .permittedRolesRegex | default "^$" | quote }}
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-allow-prometheus
+  namespace: {{ .name }}
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          namespace: gsp-system
+      podSelector:
+        matchLabels:
+          app: prometheus
+---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
