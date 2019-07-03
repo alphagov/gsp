@@ -43,7 +43,7 @@ spec:
   - match:
     - gateways:
       - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
-      port: 2224
+      port: 443
     route:
     - destination:
         host: cloudhsm-2224.tcp.svc
@@ -69,7 +69,7 @@ spec:
   - match:
     - gateways:
       - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
-      port: 2225
+      port: 443
     route:
     - destination:
         host: cloudhsm-2225.tcp.svc
