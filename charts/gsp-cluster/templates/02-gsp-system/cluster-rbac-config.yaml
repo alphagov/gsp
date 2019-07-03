@@ -3,6 +3,4 @@ kind: ClusterRbacConfig
 metadata:
   name: default
 spec:
-  mode: 'ON_WITH_EXCLUSION'
-  exclusion:
-    namespaces: ["kube-system", "gsp-system"]
+  mode: 'ON'
