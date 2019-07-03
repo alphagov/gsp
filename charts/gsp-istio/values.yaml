@@ -88,6 +88,7 @@ istio:
         name: tcp-cloudhsm-2225
   sidecarInjectorWebhook:
     enableNamespacesByDefault: true
+    rewriteAppHTTPProbe: true
   kiali:
     enabled: true
     createDemoSecret: true # FIXME: probably not a good idea for prod!
