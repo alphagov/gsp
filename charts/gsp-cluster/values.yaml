@@ -367,3 +367,17 @@ secrets:
 
 letsencrypt:
   email: daniel.blair@digital.cabinet-office.gov.uk
+
+# concourse resource image references available in-cluster
+# this lets users follow our upstream releases without having
+# to use a "latest" tag which
+concourseResources:
+  githubResource:
+    image: govsvc/concourse-github-resource
+    tag: latest
+  harborResource:
+    image: govsvc/concourse-harbor-resource
+    tag: latest
+  taskToolbox:
+    image: govsvc/task-toolbox
+    tag: latest

@@ -1,0 +1,396 @@
+
+resource_types:
+
+- name: github
+  type: registry-image
+  source:
+    repository: "govsvc/concourse-github-resource"
+    tag: "v0.0.3"
+
+- name: concourse-pipeline
+  type: docker-image
+  source:
+    repository: concourse/concourse-pipeline-resource
+    tag: "2.2.0"
+
+resources:
+
+- name: platform
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: users
+  type: github-release
+  source:
+    owner: alphagov
+    repository: gds-trusted-developers
+    access_token: ((github-api-token))
+    release: true
+
+- name: pipeline
+  type: concourse-pipeline
+  source:
+    teams:
+    - name: gsp
+      username: gsp
+      password: ((readonly_local_user_password))
+
+- name: concourse-github-resource
+  type: docker-image
+  source:
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: govsvc/concourse-github-resource
+
+- name: concourse-harbor-resource
+  type: docker-image
+  source:
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: govsvc/concourse-harbor-resource
+
+- name: concourse-operator
+  type: docker-image
+  source:
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: govsvc/concourse-operator
+
+- name: concourse-task-toolbox
+  type: docker-image
+  source:
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: govsvc/task-toolbox
+
+- name: release
+  type: github-release
+  source:
+    owner: alphagov
+    repository: gsp
+    access_token: ((github-api-token))
+    release: true
+    pre_release: true
+
+- name: pre-release
+  type: github-release
+  source:
+    owner: alphagov
+    repository: gsp
+    access_token: ((github-api-token))
+    release: false
+    pre_release: true
+
+jobs:
+
+- name: selfupdate
+  serial: true
+  serial_groups: [release]
+  plan:
+  - get: platform
+    trigger: true
+  - get: users
+  - task: generate-trusted-contributors
+    file: platform/pipelines/tasks/generate-trusted-contributors.yaml
+  - put: pipeline
+    params:
+      pipelines:
+      - name: ((pipeline-name))
+        team: gsp
+        config_file: platform/pipelines/release/release.yaml
+        vars_files:
+        - trusted-contributors/github.vars.yaml
+        - trusted-contributors/keys.vars.yaml
+        vars:
+          branch: ((branch))
+          pipeline-name: ((pipeline-name))
+
+- name: build-concourse-task-toolbox
+  serial: true
+  plan:
+  - aggregate:
+    - get: platform
+      passed: [selfupdate]
+      trigger: true
+    - get: release
+  - task: version
+    file: platform/pipelines/tasks/bump-semver.yaml
+  - put: concourse-task-toolbox
+    params:
+      build: platform/components/concourse-task-toolbox
+      dockerfile: platform/components/concourse-task-toolbox/Dockerfile
+      tag_as_latest: true
+      cache: true
+      cache_tag: latest
+    get_params:
+      skip_download: true
+
+- name: build-concourse-github-resource
+  serial: true
+  plan:
+  - aggregate:
+    - get: platform
+      passed: [selfupdate]
+      trigger: true
+    - get: release
+  - task: version
+    file: platform/pipelines/tasks/bump-semver.yaml
+  - put: concourse-github-resource
+    params:
+      build: platform/components/concourse-github-resource
+      dockerfile: platform/components/concourse-github-resource/Dockerfile
+      tag_file: version/tag
+      tag_as_latest: true
+      cache: true
+      cache_tag: latest
+    get_params:
+      skip_download: true
+
+- name: build-concourse-harbor-resource
+  serial: true
+  plan:
+  - aggregate:
+    - get: platform
+      passed: [selfupdate]
+      trigger: true
+    - get: release
+  - task: version
+    file: platform/pipelines/tasks/bump-semver.yaml
+  - put: concourse-harbor-resource
+    params:
+      build: platform/components/concourse-harbor-resource
+      dockerfile: platform/components/concourse-harbor-resource/Dockerfile
+      tag_file: version/tag
+      tag_as_latest: true
+      cache: true
+      cache_tag: latest
+    get_params:
+      skip_download: true
+
+- name: build-concourse-operator
+  serial: true
+  plan:
+  - aggregate:
+    - get: platform
+      passed: [selfupdate]
+      trigger: true
+    - get: release
+  - task: version
+    file: platform/pipelines/tasks/bump-semver.yaml
+  - put: concourse-operator
+    params:
+      build: platform/components/concourse-operator
+      dockerfile: platform/components/concourse-operator/Dockerfile
+      tag_file: version/tag
+      tag_as_latest: true
+      cache: true
+      cache_tag: latest
+    get_params:
+      skip_download: true
+
+- name: package
+  serial: true
+  serial_groups: [release]
+  plan:
+  - aggregate:
+    - get: platform
+      trigger: true
+      passed:
+      - build-concourse-task-toolbox
+      - build-concourse-github-resource
+      - build-concourse-harbor-resource
+      - build-concourse-operator
+    - get: release
+      passed:
+      - build-concourse-task-toolbox
+      - build-concourse-github-resource
+      - build-concourse-harbor-resource
+      - build-concourse-operator
+    - get: concourse-task-toolbox
+      passed: [build-concourse-task-toolbox]
+      trigger: true
+    - get: concourse-github-resource
+      passed: [build-concourse-github-resource]
+      trigger: true
+    - get: concourse-harbor-resource
+      passed: [build-concourse-harbor-resource]
+      trigger: true
+    - get: concourse-operator
+      passed: [build-concourse-operator]
+      trigger: true
+  - task: version
+    file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      NAME_PREFIX: "gsp-"
+  - task: generate-gsp-cluster-values
+    image: concourse-task-toolbox
+    config:
+      platform: linux
+      inputs:
+      - name: platform
+      - name: concourse-task-toolbox
+      - name: concourse-github-resource
+      - name: concourse-harbor-resource
+      - name: concourse-operator
+      outputs:
+      - name: cluster-values
+      run:
+        path: /bin/bash
+        args:
+          - -euo
+          - pipefail
+          - -c
+          - |
+            echo "generating helm values for latest image versions..."
+            mkdir -p cluster-values
+            cat << EOF > ./overrides.yaml
+            pipelineOperator:
+              image:
+                repository: $(cat concourse-operator/repository)@$(cat concourse-operator/digest | cut -d ':' -f 1)
+                tag: $(cat concourse-operator/digest | cut -d ':' -f 2)
+            concourseResources:
+              taskToolbox:
+                image:
+                  repository: $(cat concourse-task-toolbox/repository)@$(cat concourse-task-toolbox/digest | cut -d ':' -f 1)
+                  tag: $(cat concourse-task-toolbox/digest | cut -d ':' -f 2)
+              githubResource:
+                image:
+                  repository: $(cat concourse-github-resource/repository)@$(cat concourse-github-resource/digest | cut -d ':' -f 1)
+                  tag: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
+              harborResource:
+                image:
+                  repository: $(cat concourse-harbor-resource/repository)@$(cat concourse-harbor-resource/digest | cut -d ':' -f 1)
+                  tag: $(cat concourse-harbor-resource/digest | cut -d ':' -f 2)
+            EOF
+            echo "merging with cluster values..."
+            spruce merge ./platform/charts/gsp-cluster/values.yaml ./overrides.yaml | tee -a cluster-values/values.yaml
+  - task: package-gsp-cluster
+    image: concourse-task-toolbox
+    config:
+      platform: linux
+      inputs:
+      - name: platform
+      - name: version
+      - name: cluster-values
+      outputs:
+      - name: cluster-package
+      params:
+        CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
+      run:
+        path: /bin/bash
+        args:
+        - -eu
+        - -c
+        - |
+          echo "preparing keyring..."
+          echo "${CLUSTER_PRIVATE_KEY}" > key
+          gpg --import key
+          gpg --export-secret-keys > ~/.gnupg/pubring.gpg
+          KEY_ID="$(gpg --list-secret-keys --with-colons  | awk -F: '/uid:/ {print $10}' | head -n1)"
+          echo "building chart with release values..."
+          CHART_NAME=$(yq . < ./platform/charts/gsp-cluster/Chart.yaml | jq -r .name)
+          cp -r "./platform/charts/gsp-cluster" "./${CHART_NAME}"
+          cp "./cluster-values/values.yaml" "./${CHART_NAME}/values.yaml"
+          mkdir -p cluster-package
+          APP_VERSION=$(cat ./platform/.git/short_ref)
+          CHART_VERSION=$(cat ./version/tag)
+          echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
+          helm package \
+            --app-version "${APP_VERSION}" \
+            --version "${CHART_VERSION}" \
+            --destination "./cluster-package/" \
+            --save=false \
+            --sign \
+            --key "${KEY_ID}" \
+            "./${CHART_NAME}"
+  - task: package-gsp-istio
+    image: concourse-task-toolbox
+    config:
+      platform: linux
+      inputs:
+      - name: platform
+      - name: version
+      outputs:
+      - name: istio-package
+      params:
+        CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
+      run:
+        path: /bin/bash
+        args:
+        - -eu
+        - -c
+        - |
+          echo "preparing keyring..."
+          echo "${CLUSTER_PRIVATE_KEY}" > key
+          gpg --import key
+          gpg --export-secret-keys > ~/.gnupg/pubring.gpg
+          KEY_ID="$(gpg --list-secret-keys --with-colons  | awk -F: '/uid:/ {print $10}' | head -n1)"
+          echo "building chart with release values..."
+          CHART_NAME=$(yq . < ./platform/charts/gsp-istio/Chart.yaml | jq -r .name)
+          cp -r "./platform/charts/gsp-istio" "./${CHART_NAME}"
+          mkdir -p istio-package
+          APP_VERSION=$(cat ./platform/.git/short_ref)
+          CHART_VERSION=$(cat ./version/tag)
+          echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
+          helm package \
+            --app-version "${APP_VERSION}" \
+            --version "${CHART_VERSION}" \
+            --destination "./istio-package/" \
+            --save=false \
+            --sign \
+            --key "${KEY_ID}" \
+            "./${CHART_NAME}"
+  - task: package-deployer-vars
+    image: concourse-task-toolbox
+    config:
+      platform: linux
+      inputs:
+      - name: platform
+      - name: concourse-task-toolbox
+      outputs:
+      - name: deployer-package
+      params:
+        CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
+      run:
+        path: /bin/bash
+        args:
+        - -eu
+        - -c
+        - |
+          echo "generate overrides for pipeline default values..."
+          mkdir -p deployer-package
+          echo "copying deployer config to release dir..."
+          cp platform/pipelines/deployer/* deployer-package/
+          cat << EOF > ./overrides.yaml
+          task-toolbox-image: $(cat concourse-task-toolbox/repository)@$(cat concourse-task-toolbox/digest | cut -d ':' -f 1)
+          task-toolbox-tag: $(cat concourse-task-toolbox/digest | cut -d ':' -f 2)
+          github-resource-image: $(cat concourse-github-resource/repository)@$(cat concourse-github-resource/digest | cut -d ':' -f 1)
+          github-resource-tag: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
+          EOF
+          echo overrides.yaml
+          echo "merging with default values..."
+          spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
+          echo "preparing keyring to sign deployer release..."
+          echo "${CLUSTER_PRIVATE_KEY}" > key
+          gpg --import key
+          gpg --export-secret-keys > ~/.gnupg/pubring.gpg
+          KEY_ID="$(gpg --list-secret-keys --with-colons  | awk -F: '/uid:/ {print $10}' | head -n1)"
+          echo "TODO actually sign the thing!!!!!!!!!!"
+  - put: pre-release
+    params:
+      name: version/name
+      tag: version/tag
+      commitish: platform/.git/ref
+      globs:
+      - cluster-package/*
+      - deployer-package/*
+      - istio-package/*
+
