@@ -3,58 +3,39 @@ groups:
   jobs:
   - update
   - deploy
+  - apply
   - check-canary
   - check-logging
   - check-conformance
-  - check-health-monitoring
+  - check-tools
 - name: destroy
   jobs:
   - destroy
-- name: validate
-  jobs:
-  - ensure-trusted-config-contributor
-  - ensure-trusted-platform-contributor
 
-terraform_source: &terraform_source
-  env_name: ((account-name))
-  backend_type: s3
-  backend_config: &terraform_backend_config
-    bucket: cd-gsp-private-qndvvc
-    region: eu-west-2
-  vars:
-    account_id: ((account-id))
-    account_name: ((account-name))
-    cluster_name: ((cluster-name))
-    cluster_domain: ((cluster-domain))
-    cluster_number: ((cluster-number))
-    aws_account_role_arn: ((account-role-arn))
-    github_client_id: ((github-client-id))
-    github_client_secret: ((github-client-secret))
-    splunk_enabled: ((splunk-enabled))
-    splunk_hec_url: ((splunk-hec-url))
-    k8s_splunk_hec_token: ((k8s-splunk-hec-token))
-    k8s_splunk_index: ((k8s-splunk-index))
-    hsm_splunk_hec_token: ((hsm-splunk-hec-token))
-    hsm_splunk_index: ((hsm-splunk-index))
-    vpc_flow_log_splunk_hec_token: ((vpc-flow-log-splunk-hec-token))
-    vpc_flow_log_splunk_index: ((vpc-flow-log-splunk-index))
-    eks_version: ((eks-version))
-    worker_instance_type: ((worker-instance-type))
-    worker_count: ((worker-count))
-    ci_worker_instance_type: ((ci-worker-instance-type))
-    ci_worker_count: ((ci-worker-count))
-
-task_image_resource: &task_image_resource
-  type: docker-image
-  source: {repository: "govsvc/task-toolbox", tag: "1.5.0"}
-
-generate_cluster_values: &generate_cluster_values
+unpack_release: &unpack_release
   platform: linux
-  image_resource: *task_image_resource
   run:
     path: /bin/bash
     args:
-    - -eu
+    - -euo
+    - pipefail
+    - -c
+    - |
+      echo "TODO: verify *.tar.gz.asc in the release!!!!!!!!!!!"
+      echo "unpacking src tarball..."
+      tar -xvf gsp/*.tar.gz -C platform --strip-components=1
+  inputs:
+  - name: gsp
+  outputs:
+  - name: platform
+
+generate_cluster_values: &generate_cluster_values
+  platform: linux
+  run:
+    path: /bin/bash
+    args:
+    - -euo
+    - pipefail
     - -c
     - |
       mkdir -p cluster-values
@@ -68,20 +49,20 @@ generate_cluster_values: &generate_cluster_values
 
 generate_user_values: &generate_user_values
   platform: linux
-  image_resource: *task_image_resource
   params:
-    ACCOUNT_ID: ((account-id))
-    CLUSTER_NAME: ((cluster-name))
-    PATH_TO_USERS: ((users-path))
+    ACCOUNT_ID:
+    ACCOUNT_NAME:
+    CLUSTER_NAME:
   run:
     path: /bin/bash
     args:
-    - -eu
+    - -euo
+    - pipefail
     - -c
     - |
       cd users
       echo "creating helm compatible values file from user data"
-      yq . ${PATH_TO_USERS}/*.yaml \
+      yq '.[]' "${ACCOUNT_NAME}-trusted-developers.yaml" \
         | jq ". + {roleARN: (\"arn:aws:iam::${ACCOUNT_ID}:role/${CLUSTER_NAME}-user-\" + .name)}" \
         | jq -s '{users: .}' \
         | yq --yaml-output .\
@@ -94,19 +75,19 @@ generate_user_values: &generate_user_values
 
 generate_users_terraform: &generate_users_terraform
   platform: linux
-  image_resource: *task_image_resource
   params:
-    PATH_TO_USERS: ((users-path))
+    ACCOUNT_NAME:
   run:
     path: /bin/bash
     args:
-    - -eu
+    - -euo
+    - pipefail
     - -c
     - |
       mkdir -p users-terraform
       cd users
       echo "creating terraform for user roles from user data"
-      yq . ${PATH_TO_USERS}/*.yaml \
+      yq '.[]' "${ACCOUNT_NAME}-trusted-developers.yaml" \
         | jq '[{key: (.name | gsub("[^a-z-A-Z0-9]"; "-")), value: {source: "../platform/modules/gsp-user", user_name: .name, user_arn: .ARN, cluster_name: "${var.cluster_name}"}}] | from_entries' \
         | jq -s '{module: . | add, variable: { aws_account_role_arn: { type: "string" }, cluster_name: { type: "string" } }, provider: { aws: { region: "eu-west-2", assume_role: { role_arn: "${var.aws_account_role_arn}" } } } }' \
         > ../users-terraform/users.tf.json
@@ -118,20 +99,19 @@ generate_users_terraform: &generate_users_terraform
 
 apply_cluster_chart: &apply_cluster_chart
   platform: linux
-  image_resource: *task_image_resource
   params:
-    ACCOUNT_ROLE_ARN: ((account-role-arn))
-    ACCOUNT_NAME: ((account-name))
-    CLUSTER_NAME: ((cluster-name))
-    AWS_REGION: eu-west-2
-    AWS_DEFAULT_REGION: eu-west-2
-    CHART_NAME: gsp-cluster
-    DEFAULT_NAMESPACE: gsp-system
-    CHART_RELEASE_NAME: gsp
-    GITHUB_API_TOKEN: ((github-api-token))
-    CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
-    CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
-    CONFIG_VALUES_PATH: ((config-values-path))
+    ACCOUNT_ROLE_ARN:
+    ACCOUNT_NAME:
+    CLUSTER_NAME:
+    AWS_REGION:
+    AWS_DEFAULT_REGION:
+    CHART_NAME:
+    DEFAULT_NAMESPACE:
+    CHART_RELEASE_NAME:
+    GITHUB_API_TOKEN:
+    CLUSTER_PRIVATE_KEY:
+    CLUSTER_PUBLIC_KEY:
+    CONFIG_VALUES_PATH:
   run:
     path: /bin/bash
     args:
@@ -161,7 +141,7 @@ apply_cluster_chart: &apply_cluster_chart
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
         --output-dir manifests \
-        "platform/charts/${CHART_NAME}"
+        gsp/gsp-cluster-*.tgz
       echo "rendering gsp-istio chart..."
       helm template \
         --name istio \
@@ -169,7 +149,7 @@ apply_cluster_chart: &apply_cluster_chart
         --output-dir manifests \
         --values config/${CONFIG_VALUES_PATH} \
         --set global.runningOnAws=true \
-        platform/charts/gsp-istio
+        gsp/gsp-istio-*.tgz
       function apply() {
         echo "applying ${1} from ${CHART_NAME} chart..."
         until kubectl apply -R -f $1; do
@@ -187,18 +167,30 @@ apply_cluster_chart: &apply_cluster_chart
   - name: cluster-values
   - name: config
   - name: user-values
+  - name: gsp
+
+generate_destroy_terraform: &generate_destroy_terraform
+  platform: linux
+  inputs:
   - name: platform
+  outputs:
+  - name: destroy-cluster
+  run:
+    path: /bin/bash
+    args:
+    - -euc
+    - |
+      cp platform/pipelines/deployer/main.tf destroy-cluster/main.tf
 
 check_conformance: &check_conformance
   platform: linux
-  image_resource: *task_image_resource
   params:
-    ACCOUNT_ROLE_ARN: ((account-role-arn))
-    ACCOUNT_NAME: ((account-name))
-    CLUSTER_NAME: ((cluster-name))
-    DEFAULT_NAMESPACE: gsp-system
-    AWS_REGION: eu-west-2
-    AWS_DEFAULT_REGION: eu-west-2
+    ACCOUNT_ROLE_ARN:
+    ACCOUNT_NAME:
+    CLUSTER_NAME:
+    DEFAULT_NAMESPACE:
+    AWS_REGION:
+    AWS_DEFAULT_REGION:
   run:
     path: /bin/bash
     args:
@@ -251,9 +243,8 @@ check_conformance: &check_conformance
 
 check_canary: &check_canary
   platform: linux
-  image_resource: *task_image_resource
   params:
-    CLUSTER_DOMAIN: ((cluster-domain))
+    CLUSTER_DOMAIN:
   run:
     path: /bin/bash
     args:
@@ -275,10 +266,9 @@ check_canary: &check_canary
 
 check_cloudwatch: &check_cloudwatch
   platform: linux
-  image_resource: *task_image_resource
   params:
-    ACCOUNT_ROLE_ARN: ((account-role-arn))
-    CLUSTER_DOMAIN: ((cluster-domain))
+    ACCOUNT_ROLE_ARN:
+    CLUSTER_DOMAIN:
     AWS_REGION: eu-west-2
     AWS_DEFAULT_REGION: eu-west-2
     TEST_FARBACK: 180
@@ -338,14 +328,13 @@ check_cloudwatch: &check_cloudwatch
       echo "FAIL: No logs have been detected reaching cloudwatch since $LOGS_SINCE"
       exit 1
 
-check-health-monitoring: &check-health-monitoring
+check_health_monitoring: &check_health_monitoring
   platform: linux
-  image_resource: *task_image_resource
   params:
-    ACCOUNT_ROLE_ARN: ((account-role-arn))
+    ACCOUNT_ROLE_ARN:
+    CLUSTER_NAME:
     AWS_REGION: eu-west-2
     AWS_DEFAULT_REGION: eu-west-2
-    CLUSTER_NAME: ((cluster-name))
   run:
     path: /bin/bash
     args:
@@ -377,12 +366,11 @@ check-health-monitoring: &check-health-monitoring
 
 drain_cluster_task: &drain_cluster_task
   platform: linux
-  image_resource: *task_image_resource
   params:
-    ACCOUNT_ROLE_ARN: ((account-role-arn))
+    ACCOUNT_ROLE_ARN:
+    CLUSTER_NAME:
     AWS_REGION: eu-west-2
     AWS_DEFAULT_REGION: eu-west-2
-    CLUSTER_NAME: ((cluster-name))
   run:
     path: /bin/bash
     args:
@@ -433,36 +421,28 @@ resource_types:
 - name: terraform
   type: registry-image
   source:
-    repository: "govsvc/terraform-resource"
-    tag: "0.13.0-beta.2"
+    repository: ((terraform-resource-image))
+    tag: ((terraform-resource-tag))
 - name: github
   type: registry-image
   source:
-    repository: "govsvc/concourse-github-resource"
-    tag: "v0.0.2"
-- name: pull-request
-  type: registry-image
+    repository: ((github-resource-image))
+    tag: ((github-resource-tag))
+- name: concourse-pipeline
+  type: docker-image
   source:
-    repository: "teliaoss/github-pr-resource"
-    tag: "v0.15.0"
+    repository: concourse/concourse-pipeline-resource
+    tag: "2.2.0"
 
 resources:
-- name: platform
-  type: github
+- name: gsp
+  type: github-release
   source:
-    uri: ((platform-uri))
-    organization: ((platform-organization))
+    owner: ((platform-organization))
     repository: ((platform-repository))
-    github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
-    required_approval_count: ((github-approval-count))
-    branch: ((platform-version))
-    commit_verification_keys: ((trusted-developer-keys))
-- name: platform-pr
-  type: pull-request
-  source:
     access_token: ((github-api-token))
-    repository: ((platform-organization))/((platform-repository))
+    release: true
+    pre_release: ((platform-pre-release))
 - name: config
   type: github
   source:
@@ -470,298 +450,287 @@ resources:
     organization: ((config-organization))
     repository: ((config-repository))
     github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
-    required_approval_count: ((github-approval-count))
+    approvers: [chrisfarms]
+    required_approval_count: 0
     branch: ((config-version))
     commit_verification_keys: ((trusted-developer-keys))
-- name: config-pr
-  type: pull-request
-  source:
-    access_token: ((github-api-token))
-    repository: ((config-organization))/((config-repository))
 - name: users
-  type: github
+  type: github-release
   source:
-    uri: ((users-uri))
-    organization: ((users-organization))
+    owner: ((users-organization))
     repository: ((users-repository))
-    github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
-    required_approval_count: ((github-approval-count))
-    branch: ((users-version))
-    commit_verification_keys: ((trusted-developer-keys))
-    private_key: ((users-deployment-key))
+    access_token: ((github-api-token))
+    release: true
+- name: pipeline
+  type: concourse-pipeline
+  source:
+    teams:
+    - name: gsp
+      username: gsp
+      password: ((readonly_local_user_password))
 - name: cluster-state
   type: terraform
   source:
-    <<: *terraform_source
+    env_name: ((account-name))
+    backend_type: s3
     backend_config:
-      <<: *terraform_backend_config
+      bucket: cd-gsp-private-qndvvc
+      region: eu-west-2
       key: cluster-((cluster-name)).tfstate
+    vars:
+      account_id: ((account-id))
+      account_name: ((account-name))
+      cluster_name: ((cluster-name))
+      cluster_domain: ((cluster-domain))
+      cluster_number: ((cluster-number))
+      aws_account_role_arn: ((account-role-arn))
+      github_client_id: ((github-client-id))
+      github_client_secret: ((github-client-secret))
+      splunk_enabled: ((splunk-enabled))
+      splunk_hec_url: ((splunk-hec-url))
+      k8s_splunk_hec_token: ((k8s-splunk-hec-token))
+      k8s_splunk_index: ((k8s-splunk-index))
+      hsm_splunk_hec_token: ((hsm-splunk-hec-token))
+      hsm_splunk_index: ((hsm-splunk-index))
+      vpc_flow_log_splunk_hec_token: ((vpc-flow-log-splunk-hec-token))
+      vpc_flow_log_splunk_index: ((vpc-flow-log-splunk-index))
+      eks_version: ((eks-version))
+      worker_instance_type: ((worker-instance-type))
+      worker_count: ((worker-count))
+      ci_worker_instance_type: ((ci-worker-instance-type))
+      ci_worker_count: ((ci-worker-count))
 - name: user-state
   type: terraform
   source:
-    <<: *terraform_source
+    env_name: ((account-name))
+    backend_type: s3
     backend_config:
-      <<: *terraform_backend_config
+      bucket: cd-gsp-private-qndvvc
+      region: eu-west-2
       key: users-((cluster-name)).tfstate
+    vars:
+      account_id: ((account-id))
+      account_name: ((account-name))
+      cluster_name: ((cluster-name))
+      cluster_domain: ((cluster-domain))
+      cluster_number: ((cluster-number))
+      aws_account_role_arn: ((account-role-arn))
+      github_client_id: ((github-client-id))
+      github_client_secret: ((github-client-secret))
+- name: task-toolbox
+  type: docker-image
+  source:
+    repository: ((task-toolbox-image))
+    tag: ((task-toolbox-tag))
 
 jobs:
-- name: ensure-trusted-platform-contributor
-  plan:
-  - get: platform-pr
-    trigger: true
-    version: every
-  - do:
-    - put: platform-pr
-      params:
-        path: platform-pr
-        status: PENDING
-        base_context: ((cluster-name))
-        context: ensure-trusted-contributor
-    - get: platform
-    on_success:
-      put: platform-pr
-      params:
-        path: platform-pr
-        status: SUCCESS
-        base_context: ((cluster-name))
-        context: ensure-trusted-contributor
-    on_failure:
-      put: platform-pr
-      params:
-        path: platform-pr
-        status: FAILURE
-        base_context: ((cluster-name))
-        context: ensure-trusted-contributor
-        # comment: ""
-    on_abort:
-      put: platform-pr
-      params:
-        path: platform-pr
-        status: ERROR
-        base_context: ((cluster-name))
-        context: ensure-trusted-contributor
-- name: ensure-trusted-config-contributor
-  plan:
-  - get: config-pr
-    trigger: true
-    version: every
-  - do:
-    - put: config-pr
-      params:
-        path: config-pr
-        status: PENDING
-        base_context: ((cluster-name))
-        context: ensure-trusted-contributor
-    - get: config
-    on_success:
-      put: config-pr
-      params:
-        path: config-pr
-        status: SUCCESS
-        base_context: ((cluster-name))
-        context: ensure-trusted-contributor
-    on_failure:
-      put: config-pr
-      params:
-        path: config-pr
-        status: FAILURE
-        base_context: ((cluster-name))
-        context: ensure-trusted-contributor
-        # comment: ""
-    on_abort:
-      put: config-pr
-      params:
-        path: config-pr
-        status: ERROR
-        base_context: ((cluster-name))
-        context: ensure-trusted-contributor
-
 - name: update
   serial_groups: [cluster-modification]
   plan:
-  - get: platform
+  - get: task-toolbox
+  - get: gsp
     trigger: ((platform-trigger))
+    params:
+      include_source_tarball: true
   - get: config
     trigger: ((config-trigger))
   - get: users
     trigger: ((users-trigger))
-  - task: set-pipelines
+  - task: unpack-gsp-release
+    image: task-toolbox
+    config: *unpack_release
+  - task: generate-trusted-contributors
+    image: task-toolbox
+    file: platform/pipelines/tasks/generate-trusted-contributors.yaml
     params:
-      CONCOURSE_TEAM: ((concourse-team))
-      CONCOURSE_USERNAME: ((concourse-username))
-      CONCOURSE_PASSWORD: ((readonly_local_user_password))
-      CONCOURSE_URL: ((concourse-url))
-      CONCOURSE_PIPELINE_PATH: platform/pipelines/deployer/deployer.yaml
-      CONCOURSE_PIPELINE_NAME: ((concourse-pipeline-name))
-      CLUSTER_NAME: ((cluster-name))
-      CLUSTER_CONFIG_PATH: ((config-path))
-      DEFAULT_CONFIG_PATH: pipelines/deployer/deployer.defaults.yaml
-      SKIP_UPDATE: ((disable-update))
-    config:
-      platform: linux
-      image_resource: *task_image_resource
-      inputs:
-      - name: platform
-      - name: config
-      - name: users
-      run:
-        path: sh
-        args:
-        - -uec
-        - |
-          if [[ "${SKIP_UPDATE}" == "true" ]]; then
-            echo "skipping updating pipeline as SKIP_UPDATE==true"
-            exit 0
-          fi
-          echo "generating list of pipeline approvers..."
-          echo -n "github-approvers: " > approvers.yaml
-          yq . users/users/*.yaml \
-            | jq -c -s "[.[] | select(.roles[] | select((. == \"${CLUSTER_NAME}-sre\" ) or (. == \"${CLUSTER_NAME}-admin\"))) | .github] | unique | sort" \
-            >> approvers.yaml
-          echo "generating list of trusted-developer-keys for pipeline changes"
-          echo -n "trusted-developer-keys: " > trusted-developer-keys.yaml
-          yq . users/users/*.yaml \
-            | jq -c -s '[ .[].pub ] | sort' \
-            >> trusted-developer-keys.yaml
-          echo "downloading correct fly version..."
-          curl -L --fail "${CONCOURSE_URL}/api/v1/cli?arch=amd64&platform=linux" > fly
-          chmod +x fly
-          echo "configuring fly target..."
-          ./fly --target self \
-            login \
-            --concourse-url "${CONCOURSE_URL}" \
-            --username "${CONCOURSE_TEAM}" \
-            --password "${CONCOURSE_PASSWORD}" \
-            --team-name "${CONCOURSE_TEAM}"
-          echo "validating the pipeline..."
-          ./fly --target self \
-            validate-pipeline \
-            --config "${CONCOURSE_PIPELINE_PATH}" \
-            --load-vars-from "platform/${DEFAULT_CONFIG_PATH}" \
-            --load-vars-from "config/${CLUSTER_CONFIG_PATH}" \
-            --load-vars-from "approvers.yaml" \
-            --load-vars-from "trusted-developer-keys.yaml"
-          echo "updating pipeline..."
-          ./fly --target self \
-            set-pipeline \
-            --check-creds \
-            --pipeline "${CONCOURSE_PIPELINE_NAME}" \
-            --config "${CONCOURSE_PIPELINE_PATH}" \
-            --load-vars-from "platform/${DEFAULT_CONFIG_PATH}" \
-            --load-vars-from "config/${CLUSTER_CONFIG_PATH}" \
-            --load-vars-from "approvers.yaml" \
-            --load-vars-from "trusted-developer-keys.yaml" \
-            --non-interactive
-          echo "OK!"
+      ACCOUNT_NAME: ((account-name))
+  - put: pipeline
+    params:
+      pipelines:
+      - name: ((concourse-pipeline-name))
+        team: ((concourse-team))
+        config_file: gsp/deployer.yaml
+        vars_files:
+        - gsp/deployer.defaults.yaml
+        - config/((config-path))
+        - trusted-contributors/github.vars.yaml
+        - trusted-contributors/keys.vars.yaml
 
 - name: deploy
   serial: true
   serial_groups: [cluster-modification]
   plan:
-  - get: platform
-    passed: ["update"]
-    trigger: ((platform-trigger))
+  - get: task-toolbox
+  - get: gsp
+    passed: [update]
+    trigger: true
+    params:
+      include_source_tarball: true
+  - task: unpack-gsp-release
+    image: task-toolbox
+    config: *unpack_release
   - get: config
-    passed: ["update"]
-    trigger: ((config-trigger))
+    passed: [update]
+    trigger: true
   - get: users
-    passed: ["update"]
-    trigger: ((users-trigger))
+    passed: [update]
+    trigger: true
   - put: cluster-state
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
   - aggregate:
-    - task: generate-cluster-values
-      timeout: 10m
-      config: *generate_cluster_values
-    - task: generate-user-values
-      timeout: 10m
-      config: *generate_user_values
     - task: generate-user-terraform
+      image: task-toolbox
       timeout: 10m
       config: *generate_users_terraform
+      params:
+        ACCOUNT_NAME: ((account-name))
   - put: user-state
     params:
       env_name: ((account-name))
       terraform_source: users-terraform
+
+- name: apply
+  serial: true
+  serial_groups: [cluster-modification]
+  plan:
+  - aggregate:
+    - get: gsp
+      passed: [deploy]
+      trigger: true
+    - get: config
+      passed: [deploy]
+      trigger: true
+    - get: users
+      passed: [deploy]
+      trigger: true
+    - get: task-toolbox
+    - get: cluster-state
+      passed: [deploy]
+      trigger: true
+  - aggregate:
+    - task: generate-cluster-values
+      image: task-toolbox
+      timeout: 10m
+      config: *generate_cluster_values
+    - task: generate-user-values
+      image: task-toolbox
+      timeout: 10m
+      config: *generate_user_values
+      params:
+        ACCOUNT_ID: ((account-id))
+        CLUSTER_NAME: ((cluster-name))
+        ACCOUNT_NAME: ((account-name))
   - task: apply-cluster-chart
+    image: task-toolbox
     timeout: 10m
     config: *apply_cluster_chart
+    params:
+      ACCOUNT_ROLE_ARN: ((account-role-arn))
+      ACCOUNT_NAME: ((account-name))
+      CLUSTER_NAME: ((cluster-name))
+      AWS_REGION: eu-west-2
+      AWS_DEFAULT_REGION: eu-west-2
+      CHART_NAME: gsp-cluster
+      DEFAULT_NAMESPACE: gsp-system
+      CHART_RELEASE_NAME: gsp
+      GITHUB_API_TOKEN: ((github-api-token))
+      CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
+      CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
+      CONFIG_VALUES_PATH: ((config-values-path))
 
 - name: check-canary
   plan:
-  - get: cluster-state
-    passed: ["deploy"]
+  - get: task-toolbox
+  - get: gsp
+    passed: [apply]
     trigger: true
   - task: ping
+    image: task-toolbox
     timeout: 20m
     config: *check_canary
+    params:
+      CLUSTER_DOMAIN: ((cluster-domain))
 
 - name: check-logging
   plan:
-  - get: cluster-state
-    passed: ["deploy"]
+  - get: task-toolbox
+  - get: gsp
+    passed: [apply]
     trigger: true
   - task: check-cloudwatch
+    image: task-toolbox
     timeout: 10m
     config: *check_cloudwatch
+    params:
+      ACCOUNT_ROLE_ARN: ((account-role-arn))
+      CLUSTER_DOMAIN: ((cluster-domain))
 
 - name: check-conformance
   plan:
-  - get: cluster-state
-    passed: ["deploy"]
+  - get: task-toolbox
+  - get: gsp
+    passed: [apply]
     trigger: true
   - task: run-conformance-tests
+    image: task-toolbox
     timeout: 15m
     config: *check_conformance
+    params:
+      ACCOUNT_ROLE_ARN: ((account-role-arn))
+      ACCOUNT_NAME: ((account-name))
+      CLUSTER_NAME: ((cluster-name))
+      DEFAULT_NAMESPACE: gsp-system
+      AWS_REGION: eu-west-2
+      AWS_DEFAULT_REGION: eu-west-2
 
-- name: check-health-monitoring
+- name: check-tools
   plan:
-  - get: cluster-state
-    passed: ["deploy"]
+  - get: task-toolbox
+  - get: gsp
+    passed: [apply]
     trigger: true
-  - task: check-health-monitoring
+  - task: check-monitoring-tools
+    image: task-toolbox
     timeout: 10m
-    config: *check-health-monitoring
+    config: *check_health_monitoring
+    params:
+      ACCOUNT_ROLE_ARN: ((account-role-arn))
+      CLUSTER_NAME: ((cluster-name))
 
 - name: destroy
   serial: true
   serial_groups: [cluster-modification]
   disable_manual_trigger: ((disable-destroy))
   plan:
+  - get: task-toolbox
   - get: config
   - get: users
-  - get: platform
+  - get: gsp
+    params:
+      include_source_tarball: true
+  - task: unpack-gsp-release
+    image: task-toolbox
+    config: *unpack_release
   - task: drain-cluster
+    image: task-toolbox
     timeout: 30m
     config: *drain_cluster_task
+    params:
+      ACCOUNT_ROLE_ARN: ((account-role-arn))
+      CLUSTER_NAME: ((cluster-name))
   - task: generate-user-terraform
+    image: task-toolbox
     timeout: 10m
     config: *generate_users_terraform
   - task: empty-config
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: alpine
-      inputs:
-      - name: platform
-      outputs:
-      - name: terraformz
-      run:
-        path: sh
-        args:
-        - -euc
-        - |
-          cp platform/pipelines/deployer/main.tf terraformz/main.tf
+    image: task-toolbox
+    config: *generate_destroy_terraform
   - put: cluster-state
     params:
       env_name: ((account-name))
-      terraform_source: terraformz
+      terraform_source: destroy-cluster
       action: apply
     get_params:
       action: apply
