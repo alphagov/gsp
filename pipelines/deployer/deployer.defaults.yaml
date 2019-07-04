@@ -7,17 +7,24 @@ config-path: "."
 platform-uri: "https://github.com/alphagov/gsp.git"
 platform-organization: "alphagov"
 platform-repository: "gsp"
-platform-version: "master"
 platform-trigger: true
+platform-pre-release: true
 
 users-uri: "git@github.com:alphagov/gds-trusted-developers.git"
 users-organization: "alphagov"
 users-repository: "gds-trusted-developers"
-users-version: "master"
-users-path: "users"
 users-trigger: true
 
 disable-destroy: true
 disable-update: false
 
 github-approval-count: 2
+
+task-toolbox-image: govsvc/task-toolbox
+task-toolbox-tag: latest
+
+github-resource-image: govsvc/concourse-github-resource
+github-resource-tag: latest
+
+terraform-resource-image: govsvc/terraform-resource
+terraform-resource-tag: "0.13.0-beta.2"
