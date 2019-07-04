@@ -46,6 +46,10 @@ resource "aws_iam_role_policy_attachment" "eks-service-policy" {
   role       = "${aws_iam_role.eks-cluster.name}"
 }
 
+data "aws_arn" "aws-service-operator-role" {
+  arn = "${aws_cloudformation_stack.worker-nodes.outputs["AWSServiceOperatorRole"]}"
+}
+
 data "aws_arn" "worker-nodes-role" {
   arn = "${aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"]}"
 }

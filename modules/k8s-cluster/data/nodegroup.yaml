@@ -201,7 +201,6 @@ Resources:
   AWSServiceOperatorRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: aws-service-operator
       AssumeRolePolicyDocument:
         Version": "2012-10-17"
           Statement:
