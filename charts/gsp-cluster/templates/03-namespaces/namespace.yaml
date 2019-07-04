@@ -152,6 +152,19 @@ data:
   privateKey: {{ $.Values.global.cluster.privateKey | b64enc }}
   publicKey: {{ $.Values.global.cluster.publicKey | b64enc }}
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: concourse
+  namespace: {{ .name }}
+data:
+  github-resource-image: {{ $.Values.concourseResources.github.image.repository | b64enc }}
+  github-resource-tag: {{ $.Values.concourseResources.github.image.tag | b64enc }}
+  harbor-resource-image: {{ $.Values.concourseResources.harbor.image.repository | b64enc }}
+  harbor-resource-tag: {{ $.Values.concourseResources.harbor.image.tag | b64enc }}
+  task-toolbox-image: {{ $.Values.concourseResources.task.image.repository | b64enc }}
+  task-toolbox-tag: {{ $.Values.concourseResources.task.image.tag | b64enc }}
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
