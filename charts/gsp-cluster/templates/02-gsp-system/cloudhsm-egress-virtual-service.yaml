@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2223
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-direct-cloudhsm-through-egress-gateway
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -12,11 +12,11 @@ spec:
   hosts:
   - cloudhsm-2223.tcp.svc
   gateways:
-  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
+  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2223
   tcp:
   - match:
     - gateways:
-      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2223
       port: 443
     route:
     - destination:
@@ -28,7 +28,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2224
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-direct-cloudhsm-through-egress-gateway
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -38,11 +38,11 @@ spec:
   hosts:
   - cloudhsm-2224.tcp.svc
   gateways:
-  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
+  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2224
   tcp:
   - match:
     - gateways:
-      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2224
       port: 443
     route:
     - destination:
@@ -54,7 +54,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2225
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-direct-cloudhsm-through-egress-gateway
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -64,11 +64,11 @@ spec:
   hosts:
   - cloudhsm-2225.tcp.svc
   gateways:
-  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
+  - {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2225
   tcp:
   - match:
     - gateways:
-      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
+      - {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2225
       port: 443
     route:
     - destination:

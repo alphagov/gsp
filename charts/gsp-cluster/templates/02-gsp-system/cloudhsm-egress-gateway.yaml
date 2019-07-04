@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2223
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2223
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -27,7 +27,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2224
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2224
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
@@ -52,7 +52,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-2225
+  name: {{ include "gsp-cluster.fullname" . }}-cloudhsm-egress-2225
   labels:
     app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-cloudhsm
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
