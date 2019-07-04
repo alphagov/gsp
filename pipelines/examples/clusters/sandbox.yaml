@@ -23,7 +23,6 @@ trusted-developer-keys: []
 github-approval-count: 0
 github-approvers: ["chrisfarms"]
 disable-destroy: false
-disable-update: true
 worker-instance-type: t3.medium
 worker-count: 3
 ci-worker-instance-type: t3.micro
