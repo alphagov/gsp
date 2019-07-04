@@ -11,6 +11,8 @@ global:
   cloudHsm:
     enabled: false
     ip: "127.0.0.1"
+  kubeApiService:
+    endpointCidrs: []
   # move these to gsp-namespace terraform output
   canary:
     repository: ""

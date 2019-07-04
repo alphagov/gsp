@@ -337,10 +337,10 @@ spec:
           istio: system
   # FIXME EXPERIMENTAL
   - to:
+    {{- range $.Values.global.kubeApiService.endpointCidrs }}
     - ipBlock:
-        cidr: 10.101.166.131/32
-    - ipBlock:
-        cidr: 10.101.87.209/32
+        cidr: {{ . }}
+    {{- end }}
     ports:
     - protocol: TCP
       port: 443
