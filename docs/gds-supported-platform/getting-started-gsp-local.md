@@ -21,7 +21,9 @@ Setting up a local GSP instance should take no more than 2 hours. Contact the GS
 
 1. Install [Homebrew](https://brew.sh/) and run `brew update` to make sure you have the latest version of Homebrew.
 
-1. Go to the local repository folder and run `brew bundle` to install the packages listed in the [Brewfile](https://github.com/alphagov/gsp/blob/master/Brewfile).
+1. Run `git clone https://github.com/alphagov/gsp.git` to clone the GSP repository.
+
+1. Go to the local GSP repository folder and run `brew bundle` to install the packages listed in the [Brewfile](https://github.com/alphagov/gsp/blob/master/Brewfile).
 
 1. Grant `driver superuser` privileges to the hypervisor:
 
@@ -34,8 +36,6 @@ Setting up a local GSP instance should take no more than 2 hours. Contact the GS
     - CPU = 4
     - Memory = 8 Gb
     - Swap = 2 Gb
-
-1. Run `git clone https://github.com/alphagov/gsp.git` to clone the GSP repository.
 
 1. If you already have either a `~/.minkube/machine/minikube` or `~/.minkube/machine/gocd` directory on your local machine, run the following to make sure Minikube is not running either of these [Kubernetes clusters](https://kubernetes.io/docs/tutorials/kubernetes-basics/create-cluster/cluster-intro/):
 
