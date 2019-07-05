@@ -6,13 +6,7 @@
 {{- range $.Values.users }}
   {{- $user := . }}
   {{- range .roles }}
-    {{- if and (hasPrefix $clusterName .) (hasSuffix "-sre" .) }}
-      {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
-      {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
-    {{- else if and (hasPrefix $clusterName .) (hasSuffix "-admin" .) }}
-      {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
-      {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
-    {{- else if and (hasPrefix $ns.name .) (hasSuffix "-dev" .) }}
+    {{- if eq .account $clusterName }}
       {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
       {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
     {{- end }}
