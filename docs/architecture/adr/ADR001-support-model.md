@@ -9,7 +9,7 @@ Accepted
 How we structure our support model has a large impact on the design of any
 systems we put in place or services we provide.
 
-The different models could be considered on a spectrum like:
+The different models could be considered on a spectrum:
 
 * A **Platform as a Service** model:
     * A larger dedicated team of SREs provide a centralised full end-to-end
@@ -52,12 +52,12 @@ these models.
 | Backing services | RE | RE/ServiceTeam | ServiceTeam |
 | Iterating new features | RE | RE/ServiceTeam | ServiceTeam |
 | Workflow/Process | RE | RE | ServiceTeam |
-| Productionizing common features | RE | RE | ServiceTeam |
+| Productionising common features | RE | RE | ServiceTeam |
 | Infrastructure Responsibility | RE | RE | ServiceTeam |
 
 Traditionally GDS teams were operating closest to a "paved path" model where teams took complete control over their own infrastructure. GDS also operates the [GOV.UK PaaS](https://cloud.service.gov.uk), a platform targeting other government departments with limited operations capability.
 
-More recently GDS has created a Reliability Engineering team (RE) to provide support for common needs of Service Teams and reduce duplication of effort around areas like infrastructure, build tooling and observabilty.
+More recently GDS has created a Reliability Engineering team (RE) to provide support for common needs of Service Teams and reduce duplication of effort around areas like infrastructure, build tooling and observability.
 
 With more of the operations skills centralised in Reliability Engineering, models on the "paved path" end of the spectrum become more difficult to sustain. This leaves us with two choices:
 
@@ -72,11 +72,11 @@ We believe that the middle ground where service teams have a high level of respo
 
 * We should provide, promote and support the use of a common language for declaratively describing infrastructure and deployments
 * We should provide, promote and support low-level deployment primitives suitable for service teams to build upon
-* We should work closely and continuously with service teams to reduce duplication of effort by identify common needs and providing reliable, reusable solutions 
+* We should work closely and continuously with service teams to reduce duplication of effort by identify common needs and providing reliable, reusable solutions
 
 ## Consequences
 
-* Implies a framework for embedding/loaning/floating SREs within Service Teams so that knowledge can be shared and common needs can be indetified improved upon
+* Implies a framework for embedding/loaning/floating SREs within Service Teams so that knowledge can be shared and common needs can be identified and improved upon
 * Will require a migration to a common declarative deployment language
 * Gives more control/flexibility to Service Teams than a PaaS model at the cost of potentially more complex deployment patterns
 * Keeping Service Teams converging on a smaller set of best-practice solutions would be harder than with a centrally enforced PaaS model

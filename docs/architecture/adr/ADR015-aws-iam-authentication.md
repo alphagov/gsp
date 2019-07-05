@@ -2,15 +2,15 @@
 
 ## Status
 
-Accepted
+Superceded by [ADR023](ADR023-cluster-authentication.md)
 
 ## Context
 
-IAM Roles that can be assumed by authorized infrastructure engineers currently do not give access to the clusters via kubectl. We do not want to have to manage two sets of admins.
+IAM Roles that can be assumed by authorised infrastructure engineers currently do not give access to the clusters via kubectl. We do not want to have to manage two sets of admins.
 
 ## Decision
 
-We will enable any admin-like roles within the cluster only to those who can authenicate via the [aws-iam-authenticator](https://github.com/kubernetes-sigs/aws-iam-authenticator) assuming an appropriate role within the AWS account.
+We will enable any admin-like roles within the cluster only to those who can authenticate via the [aws-iam-authenticator](https://github.com/kubernetes-sigs/aws-iam-authenticator) assuming an appropriate role within the AWS account.
 
 This should provide:
 

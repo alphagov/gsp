@@ -1,4 +1,4 @@
-# ADR016: Verifying two-eyes on code changes
+# ADR016: Code Verification
 
 ## Status
 
@@ -7,13 +7,13 @@ Accepted
 ## Context
 
 All of our deployment processes start with code in git repositories hosted on
-Github and continous delivery pipelines automate the build and deployment of
+Github and continuous delivery pipelines automate the build and deployment of
 applications out to production. Git supports GPG signing of commits.
 
 Code changes should not be able to make it out to a production environment
 without being exposed to at least two authorised code owners.
 
-Our aim is to improve on process-based appoval methods by being able to
+Our aim is to improve on process-based approval methods by being able to
 digitally verify that code has been exposed to at least two authorised code
 owners without adversely affecting developer workflow.
 

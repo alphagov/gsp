@@ -1,8 +1,8 @@
-# ADR004: Tenant isolation
+# ADR004: Tenant Isolation
 
 ## Status
 
-Accepted
+Superceded by [ADR024 - Programme level tenant isolation](ADR024-tenant-isolation.md)
 
 ## Context
 
@@ -31,7 +31,7 @@ We will manage multiple Kubernetes clusters, one per environment per tenant.
 
 This should provide:
 
-* Strong network/compute isolatation between service teams
+* Strong network/compute isolation between service teams
 * Clear separation of billing
 * Ability to deploy into target VPCs to make piecemeal microservice migration practical
 

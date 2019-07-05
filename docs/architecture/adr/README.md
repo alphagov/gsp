@@ -4,20 +4,31 @@ We document our decisions using [Architecture Decision Records](https://github.c
 
 ## Index
 
+- [ADR #000 - Decision Record Template](ADR000-template.md)
 - [ADR #001 - Support Model](ADR001-support-model.md)
-- [ADR #002 - Containerised Workloads](ADR002-containerised-workloads.md)
+- [ADR #002 - Containers](ADR002-containers.md)
 - [ADR #003 - Container Orchestration](ADR003-container-orchestration.md)
-- [ADR #004 - Tenant isolation](ADR004-tenant-isolation.md)
-- [ADR #005 - Ingress](ADR005-ingress.md)
-- [ADR #006 - Cluster Authentication Method](ADR006-authentication-method.md)
-- [ADR #007 - Identity Provider](ADR007-identity-provider.md)
+- [ADR #004 - Tenant Isolation](ADR004-tenant-isolation.md) [superceded by [ADR #024 - Soft Multi-tenancy](ADR024-soft-multitenancy.md)]
+- [ADR #005 - Ingress](ADR005-ingress.md) [superceded by [ADR #025 - Ingress](ADR025-ingress.md)]
+- [ADR #006 - Cluster Authentication Method](ADR006-authentication-method.md) [superceded by [ADR #023 - Cluster Authentication](ADR023-cluster-authentication.md)]
+- [ADR #007 - Identity Provider](ADR007-identity-provider.md) [superceded by [ADR #023 - Cluster Authentication](ADR023-cluster-authentication.md)]
 - [ADR #008 - Continuous delivery workflow](ADR008-continuous-delivery-workflow.md)
-- [ADR #009 - Multi-tenancy for CI and CD](ADR009-multitenant-ci-cd.md)
-- [ADR #010 - Placement of CI and CD Tools](ADR010-placement-of-ci-cd-tools.md)
-- [ADR #011 - Build Artifacts](ADR011-build-artifacts.md)
-- [ADR #012 - Docker image repositories](ADR012-docker-image-repositories.md)
-- [ADR #013 - CI & CD Tool Selection](ADR013-ci-cd-tool.md)
-- [ADR #014 - Sealed Secrets](ADR014-sealed-secrets-keys.md)
-- [ADR #015 - AWS IAM Authentication (for admins)](ADR015-aws-iam-authentication.md)
-- [ADR #016 - Verifying two-eyes on code changes](ADR016-two-eyes-git-verification.md)
+- [ADR #009 - Multi-tenancy for CI and CD](ADR009-multitenant-ci-cd.md) [superceded by [ADR #029 - Pull based Continuous Delivery tools](ADR029-continuous-delivery-tools.md)]
+- [ADR #010 - Placement of CI and CD Tools](ADR010-placement-of-ci-cd-tools.md) [superceded by [ADR #029 - Pull based Continuous Delivery tools](ADR029-continuous-delivery-tools.md)]
+- [ADR #011 - Build Artefacts](ADR011-build-artefacts.md)
+- [ADR #012 - Docker image repositories](ADR012-docker-image-repositories.md) [superceded by [ADR #028 - Container Tools](ADR028-container-tools.md)]
+- [ADR #013 - CI & CD Tools](ADR013-ci-cd-tools.md)
+- [ADR #014 - Sealed Secrets](ADR014-sealed-secrets.md)
+- [ADR #015 - AWS IAM Authentication (for admins)](ADR015-aws-iam-authentication.md) [superceded by [ADR #023 - Cluster Authentication](ADR023-cluster-authentication.md)]
+- [ADR #016 - Code verification](ADR016-code-verification.md)
 - [ADR #017 - Vendor provided container orchestration](ADR017-vendor-provided-container-orchestration.md)
+- [ADR #018 - Local Development Environment](ADR018-local-development.md)
+- [ADR #019 - Service Mesh](ADR019-service-mesh.md)
+- [ADR #020 - Metrics](ADR020-metrics.md)
+- [ADR #021 - Alerting](ADR021-alerting.md)
+- [ADR #022 - Logging](ADR022-logging.md)
+- [ADR #023 - Cluster Authentication](ADR023-cluster-authentication.md)
+- [ADR #024 - Soft Multi-tenancy](ADR024-soft-multitenancy.md)
+- [ADR #025 - Ingress](ADR025-ingress.md)
+- [ADR #028 - Container Tools](ADR028-container-tools.md)
+- [ADR #029 - Pull based Continuous delivery tools](ADR029-continuous-delivery-tools.md)

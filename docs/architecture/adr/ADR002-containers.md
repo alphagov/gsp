@@ -1,4 +1,4 @@
-# ADR002: Containerised Workloads
+# ADR002: Containers
 
 ## Status
 
@@ -12,7 +12,7 @@ At the time of writing the infrastructure/deployment landscape is:
 * Some service teams are deploying applications as containers (AWS ECS, GOV.UK PaaS, Docker)
 * Few service teams are deploying applications as functions (AWS Lambda)
 
-There is a mix of target infrastructure/providers in use, but there is a gradual migration towards all teams being hosted within AWS.
+There is a mix of target infrastructure/providers in use, but there is a gradual migration towards hosting on AWS.
 
 ## Decision
 

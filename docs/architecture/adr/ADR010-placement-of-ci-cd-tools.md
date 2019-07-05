@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending
+Superceded by [ADR029](ADR029-continuous-delivery-tools.md)
 
 ## Context
 

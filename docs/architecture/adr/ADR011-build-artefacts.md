@@ -1,4 +1,4 @@
-# ADR011: Build Artifacts
+# ADR011: Build Artefacts
 
 ## Status
 
@@ -6,7 +6,7 @@ Pending
 
 ## Context
 
-As part of our pipelines we will be building artifacts that will be used to test
+As part of our pipelines we will be building artefacts that will be used to test
 and deploy our applications. We will be deploying applications to Kubernetes. We
 will need to build a container image of some kind.
 
