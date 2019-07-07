@@ -3,6 +3,7 @@ groups:
   jobs:
   - update
   - deploy
+  - apply
   - check-canary
   - check-logging
   - check-conformance
@@ -560,9 +561,8 @@ jobs:
   serial_groups: [cluster-modification]
   plan:
   - get: task-toolbox
-    passed: ["update"]
   - get: gsp
-    passed: ["update"]
+    passed: [update]
     trigger: true
     params:
       include_source_tarball: true
@@ -570,15 +570,45 @@ jobs:
     image: task-toolbox
     config: *unpack_release
   - get: config
-    passed: ["update"]
+    passed: [update]
     trigger: true
   - get: users
-    passed: ["update"]
+    passed: [update]
     trigger: true
   - put: cluster-state
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
+  - aggregate:
+    - task: generate-user-terraform
+      image: task-toolbox
+      timeout: 10m
+      config: *generate_users_terraform
+      params:
+        ACCOUNT_NAME: ((account-name))
+  - put: user-state
+    params:
+      env_name: ((account-name))
+      terraform_source: users-terraform
+
+- name: apply
+  serial: true
+  serial_groups: [cluster-modification]
+  plan:
+  - aggregate:
+    - get: gsp
+      passed: [deploy]
+      trigger: true
+    - get: config
+      passed: [deploy]
+      trigger: true
+    - get: users
+      passed: [deploy]
+      trigger: true
+    - get: task-toolbox
+    - get: cluster-state
+      passed: [deploy]
+      trigger: true
   - aggregate:
     - task: generate-cluster-values
       image: task-toolbox
@@ -592,16 +622,6 @@ jobs:
         ACCOUNT_ID: ((account-id))
         CLUSTER_NAME: ((cluster-name))
         ACCOUNT_NAME: ((account-name))
-    - task: generate-user-terraform
-      image: task-toolbox
-      timeout: 10m
-      config: *generate_users_terraform
-      params:
-        ACCOUNT_NAME: ((account-name))
-  - put: user-state
-    params:
-      env_name: ((account-name))
-      terraform_source: users-terraform
   - task: apply-cluster-chart
     image: task-toolbox
     timeout: 10m
@@ -623,7 +643,8 @@ jobs:
 - name: check-canary
   plan:
   - get: task-toolbox
-    passed: [deploy]
+  - get: gsp
+    passed: [apply]
     trigger: true
   - task: ping
     image: task-toolbox
@@ -635,7 +656,8 @@ jobs:
 - name: check-logging
   plan:
   - get: task-toolbox
-    passed: [deploy]
+  - get: gsp
+    passed: [apply]
     trigger: true
   - task: check-cloudwatch
     image: task-toolbox
@@ -648,7 +670,8 @@ jobs:
 - name: check-conformance
   plan:
   - get: task-toolbox
-    passed: [deploy]
+  - get: gsp
+    passed: [apply]
     trigger: true
   - task: run-conformance-tests
     image: task-toolbox
@@ -665,7 +688,8 @@ jobs:
 - name: check-tools
   plan:
   - get: task-toolbox
-    passed: [deploy]
+  - get: gsp
+    passed: [apply]
     trigger: true
   - task: check-monitoring-tools
     image: task-toolbox

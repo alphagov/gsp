@@ -16,7 +16,6 @@ users-repository: "gds-trusted-developers"
 users-trigger: true
 
 disable-destroy: true
-disable-update: false
 
 github-approval-count: 2
 
