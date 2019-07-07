@@ -79,6 +79,52 @@ resource "tls_private_key" "notary_ci_key" {
   rsa_bits  = "4096"
 }
 
+resource "tls_self_signed_cert" "notary_root_ca" {
+  key_algorithm   = "${tls_private_key.notary_root_key.algorithm}"
+  private_key_pem = "${tls_private_key.notary_root_key.private_key_pem}"
+
+  subject {
+    common_name  = "gsp-harbor-notary-signer"
+    organization = "gsp"
+  }
+
+  is_ca_certificate     = true
+  validity_period_hours = 26280 # 3yrs
+
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+    "cert_signing",
+  ]
+}
+
+resource "tls_cert_request" "notary_cert" {
+  key_algorithm   = "${tls_private_key.notary_root_key.algorithm}"
+  private_key_pem = "${tls_private_key.notary_root_key.private_key_pem}"
+
+  subject {
+    common_name  = "gsp-harbor-notary-signer"
+    organization = "gsp"
+  }
+}
+
+resource "tls_locally_signed_cert" "notary_cert" {
+  cert_request_pem   = "${tls_cert_request.notary_cert.cert_request_pem}"
+  ca_key_algorithm   = "${tls_private_key.notary_root_key.algorithm}"
+  ca_private_key_pem = "${tls_private_key.notary_root_key.private_key_pem}"
+  ca_cert_pem        = "${tls_self_signed_cert.notary_root_ca.cert_pem}"
+
+  validity_period_hours = 8760 # 1yr
+
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+    "cert_signing",
+  ]
+}
+
 resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
   bucket = "registry-${var.cluster_name}-${var.account_name}"
   acl    = "private"
