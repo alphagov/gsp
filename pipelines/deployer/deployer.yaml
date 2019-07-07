@@ -118,6 +118,14 @@ apply_cluster_chart: &apply_cluster_chart
     - -eu
     - -c
     - |
+      echo "preparing keyring..."
+      echo "${CLUSTER_PUBLIC_KEY}" > key
+      gpg --import key
+      gpg --export > ~/.gnupg/pubring.gpg
+      echo "verifying gsp-cluster chart signature..."
+      helm verify gsp/gsp-cluster-*.tgz && echo "OK!"
+      echo "verifying gsp-cluster chart signature..."
+      helm verify gsp/gsp-istio-*.tgz && echo "OK!"
       echo "assuming aws deployer role..."
       AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
       eval "${AWS_CREDS}"
