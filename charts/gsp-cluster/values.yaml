@@ -359,8 +359,12 @@ harbor:
     type: ingress
     tls:
       enabled: false
+  notary:
+    tlsCA: ""
+    tlsCert: ""
+    tlsKey: ""
 
-
+# sealed-secrets keys
 secrets:
   public_certificate: ""
   private_key: ""
