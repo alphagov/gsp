@@ -83,10 +83,11 @@ resources:
 
 jobs:
 
-- name: update-pipeline
+- name: selfupdate
   serial: true
   plan:
   - get: platform
+    trigger: true
   - task: generate-trusted-contributors
     file: platform/pipelines/tasks/generate-trusted-contributors.yaml
   - put: pipeline
@@ -106,6 +107,7 @@ jobs:
   plan:
   - aggregate:
     - get: platform
+      passed: [selfupdate]
       trigger: true
     - get: release
   - task: version
@@ -125,6 +127,7 @@ jobs:
   plan:
   - aggregate:
     - get: platform
+      passed: [selfupdate]
       trigger: true
     - get: release
   - task: version
@@ -145,6 +148,7 @@ jobs:
   plan:
   - aggregate:
     - get: platform
+      passed: [selfupdate]
       trigger: true
     - get: release
   - task: version
@@ -165,6 +169,7 @@ jobs:
   plan:
   - aggregate:
     - get: platform
+      passed: [selfupdate]
       trigger: true
     - get: release
   - task: version

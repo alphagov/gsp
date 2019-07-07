@@ -26,6 +26,7 @@ fly -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--config "pipelines/release/release.yaml" \
 	--load-vars-from "${approvers}" \
 	--load-vars-from "${trusted}" \
+	--var "pipeline-name=${PIPELINE_NAME}" \
 	--check-creds "$@"
 
 fly -t cd-gsp expose-pipeline -p "${PIPELINE_NAME}"
