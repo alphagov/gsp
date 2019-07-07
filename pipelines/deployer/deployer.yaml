@@ -546,8 +546,8 @@ jobs:
   - put: pipeline
     params:
       pipelines:
-      - name: ((pipeline-name))
-        team: ((concourse-pipeline-team))
+      - name: ((concourse-pipeline-name))
+        team: ((concourse-team))
         config_file: gsp/deployer.yaml
         vars_files:
         - gsp/deployer.defaults.yaml
