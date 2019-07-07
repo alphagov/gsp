@@ -416,70 +416,6 @@ drain_cluster_task: &drain_cluster_task
   inputs:
   - name: platform
 
-set_pipeline: &set_pipeline
-  platform: linux
-  params:
-    ACCOUNT_NAME:
-    CONCOURSE_TEAM:
-    CONCOURSE_USERNAME:
-    CONCOURSE_PASSWORD:
-    CONCOURSE_URL:
-    CONCOURSE_PIPELINE_PATH:
-    CONCOURSE_PIPELINE_NAME:
-    CLUSTER_CONFIG_PATH:
-    DEFAULT_CONFIG_PATH:
-    SKIP_UPDATE:
-  inputs:
-  - name: gsp
-  - name: config
-  - name: users
-  run:
-    path: /bin/bash
-    args:
-    - -euo
-    - pipefail
-    - -c
-    - |
-      if [[ "${SKIP_UPDATE}" == "true" ]]; then
-        echo "skipping updating pipeline as SKIP_UPDATE==true"
-        exit 0
-      fi
-      echo "generating list of pipeline approvers..."
-      echo -n "github-approvers: " > approvers.yaml
-      yq '.[]' "users/${ACCOUNT_NAME}-trusted-developers.yaml" \
-        | jq -c -s "[.[] | .github] | unique | sort" \
-        >> approvers.yaml
-      echo "downloading correct fly version..."
-      curl -L --fail "${CONCOURSE_URL}/api/v1/cli?arch=amd64&platform=linux" > fly
-      chmod +x fly
-      echo "configuring fly target..."
-      ./fly --target self \
-        login \
-        --concourse-url "${CONCOURSE_URL}" \
-        --username "${CONCOURSE_TEAM}" \
-        --password "${CONCOURSE_PASSWORD}" \
-        --team-name "${CONCOURSE_TEAM}"
-      echo "validating the pipeline..."
-      ./fly --target self \
-        validate-pipeline \
-        --config "gsp/${CONCOURSE_PIPELINE_PATH}" \
-        --load-vars-from "gsp/${DEFAULT_CONFIG_PATH}" \
-        --load-vars-from "config/${CLUSTER_CONFIG_PATH}" \
-        --load-vars-from "approvers.yaml" \
-        --yaml-var "trusted-developer-keys=$(yq -c . users/gds-trusted-developers-keys.yaml)" \
-      echo "updating pipeline..."
-      ./fly --target self \
-        set-pipeline \
-        --check-creds \
-        --pipeline "${CONCOURSE_PIPELINE_NAME}" \
-        --config "gsp/${CONCOURSE_PIPELINE_PATH}" \
-        --load-vars-from "gsp/${DEFAULT_CONFIG_PATH}" \
-        --load-vars-from "config/${CLUSTER_CONFIG_PATH}" \
-        --load-vars-from "approvers.yaml" \
-        --yaml-var "trusted-developer-keys=$(yq -c . users/gds-trusted-developers-keys.yaml)" \
-        --non-interactive
-      echo "OK!"
-
 resource_types:
 - name: terraform
   type: registry-image
@@ -491,6 +427,11 @@ resource_types:
   source:
     repository: ((github-resource-image))
     tag: ((github-resource-tag))
+- name: concourse-pipeline
+  type: docker-image
+  source:
+    repository: concourse/concourse-pipeline-resource
+    tag: "2.2.0"
 
 resources:
 - name: gsp
@@ -519,6 +460,13 @@ resources:
     repository: ((users-repository))
     access_token: ((github-api-token))
     release: true
+- name: pipeline
+  type: concourse-pipeline
+  source:
+    teams:
+    - name: gsp
+      username: gsp
+      password: ((readonly_local_user_password))
 - name: cluster-state
   type: terraform
   source:
@@ -587,19 +535,25 @@ jobs:
     trigger: ((config-trigger))
   - get: users
     trigger: ((users-trigger))
-  - task: set-pipelines
+  - task: unpack-gsp-release
     image: task-toolbox
-    config: *set_pipeline
+    config: *unpack_release
+  - task: generate-trusted-contributors
+    image: task-toolbox
+    file: platform/pipelines/tasks/generate-trusted-contributors.yaml
     params:
-      CONCOURSE_TEAM: ((concourse-team))
-      CONCOURSE_USERNAME: ((concourse-username))
-      CONCOURSE_PASSWORD: ((readonly_local_user_password))
-      CONCOURSE_URL: ((concourse-url))
-      CONCOURSE_PIPELINE_PATH: deployer.yaml
-      CONCOURSE_PIPELINE_NAME: ((concourse-pipeline-name))
-      CLUSTER_CONFIG_PATH: ((config-path))
-      DEFAULT_CONFIG_PATH: deployer.defaults.yaml
-      SKIP_UPDATE: ((disable-update))
+      ACCOUNT_NAME: ((account-name))
+  - put: pipeline
+    params:
+      pipelines:
+      - name: ((pipeline-name))
+        team: ((concourse-pipeline-team))
+        config_file: gsp/deployer.yaml
+        vars_files:
+        - gsp/deployer.defaults.yaml
+        - config/((config-path))
+        - trusted-contributors/github.vars.yaml
+        - trusted-contributors/keys.vars.yaml
 
 - name: deploy
   serial: true
