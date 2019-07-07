@@ -345,8 +345,8 @@ pipelineOperator:
     port: 443
   serviceAccountName: pipeline-operator-service-account
   image:
-    repository: "govsvc/gsp-concourse-pipeline-controller"
-    tag: "1560929465"
+    repository: govsvc/concourse-operator
+    tag: latest
   concourseUsername: admin
   concoursePassword: password
   concourseInsecureSkipVerify: "false"
