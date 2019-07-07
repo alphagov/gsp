@@ -13,6 +13,6 @@ dependencies:
   version: 2.2.0
 - name: harbor
   repository: https://helm.goharbor.io/
-  version: 1.1.0
-digest: sha256:a991f9481b834b066828ab2df050ab705b51d7ae221df979bc4cc404a8344076
-generated: "2019-06-29T20:11:02.423126+01:00"
+  version: 1.1.1
+digest: sha256:23011bca55b2e4f3fc3684e646dd4bddef384b1b4a8eb7af5fbd136e218eb67e
+generated: "2019-07-07T14:01:37.840859+01:00"

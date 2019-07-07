@@ -94,6 +94,11 @@ harbor:
   chartmuseum:
     podAnnotations:
       iam.amazonaws.com/role: ${harbor_iam_role_name}
+  notary:
+    secretName: gsp-harbor-notary-tls
+    tlsCA: ${notary_ca_pem}
+    tlsCert: ${notary_cert_pem}
+    tlsKey: ${notary_root_key}
 
 secrets:
   public_certificate: ${sealed_secrets_public_cert}
