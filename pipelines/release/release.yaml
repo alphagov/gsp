@@ -110,6 +110,7 @@ jobs:
         - trusted-contributors/keys.vars.yaml
         vars:
           branch: ((branch))
+          pipeline-name: ((pipeline-name))
 
 - name: build-concourse-task-toolbox
   serial: true
