@@ -360,7 +360,7 @@ harbor:
     tls:
       enabled: false
 
-
+# sealed-secrets keys
 secrets:
   public_certificate: ""
   private_key: ""
