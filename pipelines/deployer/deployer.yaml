@@ -151,15 +151,6 @@ apply_cluster_chart: &apply_cluster_chart
         --set "githubAPIToken=${GITHUB_API_TOKEN}" \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
-        --set "harbor.portal.podAnnotations.gsp-release=${RELEASE_TAG}" \
-        --set "harbor.nginx.podAnnotations.gsp-release=${RELEASE_TAG}" \
-        --set "harbor.core.podAnnotations.gsp-release=${RELEASE_TAG}" \
-        --set "harbor.jobservice.podAnnotations.gsp-release=${RELEASE_TAG}" \
-        --set "harbor.registry.podAnnotations.gsp-release=${RELEASE_TAG}" \
-        --set "harbor.chartmuseum.podAnnotations.gsp-release=${RELEASE_TAG}" \
-        --set "harbor.clair.podAnnotations.gsp-release=${RELEASE_TAG}" \
-        --set "harbor.database.podAnnotations.gsp-release=${RELEASE_TAG}" \
-        --set "harbor.redis.podAnnotations.gsp-release=${RELEASE_TAG}" \
         --output-dir manifests \
         gsp/gsp-cluster-*.tgz
       echo "rendering gsp-istio chart..."
