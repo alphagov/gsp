@@ -54,7 +54,8 @@ users:
   email: chris.farmiloe@digital.cabinet-office.gov.uk
   ARN: arn:aws:iam::000000072:user/chris.farmiloe@digital.cabinet-office.gov.uk
   roles:
-  - sandbox-admin
+  - role: admin
+    account: sandbox
   roleARN: arn:aws:iam::000000072:role/chris.farmiloe
   github: "chrisfarms"
   pub: BEGIN-FARMS-KEY
@@ -62,7 +63,8 @@ users:
   email: sam.crang@digital.cabinet-office.gov.uk
   ARN: arn:aws:iam::000000072:user/sam.crang@digital.cabinet-office.gov.uk
   roles:
-  - sandbox-sre
+  - role: sre
+    account: sandbox
   roleARN: arn:aws:iam::000000072:role/sam.crang
   github: "samcrang"
   pub: BEGIN-SAM-KEY
@@ -70,7 +72,8 @@ users:
   email: jeff.jefferson@digital.cabinet-office.gov.uk
   ARN: arn:aws:iam::000000072:user/jeff.jefferson@digital.cabinet-office.gov.uk
   roles:
-  - jefferson-canary-dev
+  - role: dev
+    account: portfolio
   roleARN: arn:aws:iam::000000072:role/jeff.jefferson
   github: "jefferz83"
   pub: BEGIN-JEFF-KEY
