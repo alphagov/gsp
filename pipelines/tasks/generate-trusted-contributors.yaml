@@ -27,6 +27,6 @@ run:
       >> "${trusted_approvers}"
     cat "${trusted_approvers}"
     echo "generating list of all trusted signing keys"
-    echo "trusted-developer-keys=$(yq -c . users/gds-trusted-developers-keys.yaml)" \
+    echo "trusted-developer-keys: $(yq -c . users/gds-trusted-developers-keys.yaml)" \
       > "${trusted_keys}"
     cat "${trusted_keys}"
