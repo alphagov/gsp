@@ -7,6 +7,12 @@ resource_types:
     repository: "govsvc/concourse-github-resource"
     tag: "v0.0.3"
 
+- name: concourse-pipeline
+  type: docker-image
+  source:
+    repository: concourse/concourse-pipeline-resource
+    tag: "2.2.0"
+
 resources:
 
 - name: platform
@@ -20,6 +26,14 @@ resources:
     required_approval_count: 0
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
+
+- name: pipeline
+  type: concourse-pipeline
+  source:
+    teams:
+    - name: gsp
+      username: gsp
+      password: ((readonly_local_user_password))
 
 - name: concourse-github-resource
   type: docker-image
@@ -68,6 +82,24 @@ resources:
     pre_release: true
 
 jobs:
+
+- name: update-pipeline
+  serial: true
+  plan:
+  - get: platform
+  - task: generate-trusted-contributors
+    file: platform/pipelines/tasks/generate-trusted-contributors.yaml
+  - put: pipeline
+    params:
+      pipelines:
+      - name: ((pipeline-name))
+        team: gsp
+        config_file: platform/pipelines/release/release.yaml
+        vars_files:
+        - trusted-contributors/github.vars.yaml
+        - trusted-contributors/keys.vars.yaml
+        vars:
+          branch: ((branch))
 
 - name: build-concourse-task-toolbox
   serial: true
