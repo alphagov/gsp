@@ -93,6 +93,7 @@ jobs:
 
 - name: selfupdate
   serial: true
+  serial_groups: [release]
   plan:
   - get: platform
     trigger: true
@@ -196,6 +197,8 @@ jobs:
       skip_download: true
 
 - name: package
+  serial: true
+  serial_groups: [release]
   plan:
   - aggregate:
     - get: platform
@@ -215,10 +218,13 @@ jobs:
       passed: [build-concourse-task-toolbox]
     - get: concourse-github-resource
       passed: [build-concourse-github-resource]
+      trigger: true
     - get: concourse-harbor-resource
       passed: [build-concourse-harbor-resource]
+      trigger: true
     - get: concourse-operator
       passed: [build-concourse-operator]
+      trigger: true
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
   - task: generate-gsp-cluster-values
