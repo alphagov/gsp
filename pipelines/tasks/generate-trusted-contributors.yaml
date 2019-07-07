@@ -25,6 +25,8 @@ run:
     yq '.[]' "users/${ACCOUNT_NAME}-trusted-developers.yaml" \
       | jq -c -s "[.[] | .github] | unique | sort" \
       >> "${trusted_approvers}"
+    cat "${trusted_approvers}"
     echo "generating list of all trusted signing keys"
     echo "trusted-developer-keys=$(yq -c . users/gds-trusted-developers-keys.yaml)" \
       > "${trusted_keys}"
+    cat "${trusted_keys}"
