@@ -129,6 +129,9 @@ apply_cluster_chart: &apply_cluster_chart
       echo "setting default namespace to ${DEFAULT_NAMESPACE}"
       kubectl config set-context $(kubectl config get-contexts -o name) \
         --namespace "${DEFAULT_NAMESPACE}"
+      echo "fetching release tag"
+      RELEASE_TAG=$(cat gsp/tag)
+      echo "RELEASE_TAG=${RELEASE_TAG}"
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       helm template \
@@ -137,9 +140,18 @@ apply_cluster_chart: &apply_cluster_chart
         --values cluster-values/values.yaml \
         --values user-values/values.yaml \
         --values config/${CONFIG_VALUES_PATH} \
-        --set githubAPIToken=${GITHUB_API_TOKEN} \
+        --set "githubAPIToken=${GITHUB_API_TOKEN}" \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
+        --set "harbor.portal.podAnnotations.gsp-release=${RELEASE_TAG}" \
+        --set "harbor.nginx.podAnnotations.gsp-release=${RELEASE_TAG}" \
+        --set "harbor.core.podAnnotations.gsp-release=${RELEASE_TAG}" \
+        --set "harbor.jobservice.podAnnotations.gsp-release=${RELEASE_TAG}" \
+        --set "harbor.registry.podAnnotations.gsp-release=${RELEASE_TAG}" \
+        --set "harbor.chartmuseum.podAnnotations.gsp-release=${RELEASE_TAG}" \
+        --set "harbor.clair.podAnnotations.gsp-release=${RELEASE_TAG}" \
+        --set "harbor.database.podAnnotations.gsp-release=${RELEASE_TAG}" \
+        --set "harbor.redis.podAnnotations.gsp-release=${RELEASE_TAG}" \
         --output-dir manifests \
         gsp/gsp-cluster-*.tgz
       echo "rendering gsp-istio chart..."
@@ -560,32 +572,32 @@ jobs:
   serial: true
   serial_groups: [cluster-modification]
   plan:
-  - get: task-toolbox
-  - get: gsp
-    passed: [update]
-    trigger: true
-    params:
-      include_source_tarball: true
+  - aggregate:
+    - get: task-toolbox
+    - get: gsp
+      passed: [update]
+      trigger: true
+      params:
+        include_source_tarball: true
+    - get: config
+      passed: [update]
+      trigger: true
+    - get: users
+      passed: [update]
+      trigger: true
   - task: unpack-gsp-release
     image: task-toolbox
     config: *unpack_release
-  - get: config
-    passed: [update]
-    trigger: true
-  - get: users
-    passed: [update]
-    trigger: true
   - put: cluster-state
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
-  - aggregate:
-    - task: generate-user-terraform
-      image: task-toolbox
-      timeout: 10m
-      config: *generate_users_terraform
-      params:
-        ACCOUNT_NAME: ((account-name))
+  - task: generate-user-terraform
+    image: task-toolbox
+    timeout: 10m
+    config: *generate_users_terraform
+    params:
+      ACCOUNT_NAME: ((account-name))
   - put: user-state
     params:
       env_name: ((account-name))
