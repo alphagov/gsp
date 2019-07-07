@@ -62,7 +62,7 @@ resources:
   source:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
-    repository: govsvc/gsp-concourse-pipeline-controller
+    repository: govsvc/concourse-operator
 
 - name: concourse-task-toolbox
   type: docker-image
