@@ -27,6 +27,14 @@ resources:
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
 
+- name: users
+  type: github-release
+  source:
+    owner: alphagov
+    repository: gds-trusted-developers
+    access_token: ((github-api-token))
+    release: true
+
 - name: pipeline
   type: concourse-pipeline
   source:
@@ -88,6 +96,7 @@ jobs:
   plan:
   - get: platform
     trigger: true
+  - get: users
   - task: generate-trusted-contributors
     file: platform/pipelines/tasks/generate-trusted-contributors.yaml
   - put: pipeline
