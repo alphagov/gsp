@@ -1,4 +1,5 @@
 {{- $clusterName := .Values.global.cluster.name }}
+{{- $accountName := .Values.global.account.name }}
 {{- range .Values.namespaces }}
 {{- $ns := . }}
 {{- $trustedGithubAccounts := list }}
@@ -6,7 +7,7 @@
 {{- range $.Values.users }}
   {{- $user := . }}
   {{- range .roles }}
-    {{- if eq .account $clusterName }}
+    {{- if eq .account $accountName }}
       {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
       {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
     {{- end }}
@@ -65,33 +66,6 @@ spec:
       podSelector:
         matchLabels:
           app: prometheus
----
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  namespace: {{ .name }}
-  name: pod-reader
-rules:
-- apiGroups: [""]
-  resources: ["pods", "services", "pods/log", "services/proxy", "namespaces"]
-  verbs: ["get", "watch", "list", "describe"]
-- apiGroups: [""]
-  resources: ["pods/portforward"]
-  verbs: ["create"]
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: dev-pod-reader
-  namespace: {{ .name }}
-subjects:
-- kind: Group
-  name: {{ .name }}-dev
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: Role
-  name: pod-reader
-  apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: concourse.k8s.io/v1beta1
 kind: Team
