@@ -81,7 +81,7 @@ resource "aws_iam_role_policy_attachment" "ci-nodes-ssm" {
 resource "aws_iam_role" "aws-service-operator" {
   name               = "${var.cluster_name}-aws-service-operator"
   description        = "Role the AWS Service Operator assumes"
-  assume_role_policy = "${data.aws_iam_policy_document.trust_kiam_server.json}"
+  assume_role_policy = "${var.trust_kiam_server}"
 }
 
 data "aws_iam_policy_document" "aws-service-operator" {
