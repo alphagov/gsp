@@ -100,6 +100,8 @@ jobs:
   - get: users
   - task: generate-trusted-contributors
     file: platform/pipelines/tasks/generate-trusted-contributors.yaml
+    params:
+      CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - put: pipeline
     params:
       pipelines:
@@ -357,8 +359,6 @@ jobs:
       - name: concourse-task-toolbox
       outputs:
       - name: deployer-package
-      params:
-        CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
       run:
         path: /bin/bash
         args:
@@ -378,13 +378,6 @@ jobs:
           echo overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
-          echo "preparing keyring to sign deployer-package release..."
-          echo "${CLUSTER_PRIVATE_KEY}" > key
-          gpg --import key
-          echo "signing release..."
-          for file in deployer-package/*; do
-            gpg --armor --detach-sign "$file"
-          done
   - put: pre-release
     params:
       name: version/name
@@ -394,4 +387,38 @@ jobs:
       - cluster-package/*
       - deployer-package/*
       - istio-package/*
+    get_params:
+      include_source_tarball: true
+  - task: sign-release
+    image: concourse-task-toolbox
+    config:
+      platform: linux
+      inputs:
+      - name: pre-release
+      outputs:
+      - name: signed-release
+      params:
+        CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
+      run:
+        path: /bin/bash
+        args:
+        - -eu
+        - -c
+        - |
+          mkdir -p tarball-signature
+          echo "preparing keyring to sign deployer-package release..."
+          echo "${CLUSTER_PRIVATE_KEY}" > key
+          gpg --import key
+          echo "signing release tarball..."
+          for file in pre-release/*; do
+            gpg --armor --detach-sign "$file"
+            cp ${file}* signed-release/
+          done
+  - put: pre-release
+    params:
+      name: version/name
+      tag: version/tag
+      commitish: platform/.git/ref
+      globs:
+      - signed-release/*
 
