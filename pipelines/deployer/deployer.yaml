@@ -449,10 +449,15 @@ resource_types:
   source:
     repository: concourse/concourse-pipeline-resource
     tag: "2.2.0"
+- name: github-release-fork
+  type: registry-image
+  source:
+    repository: govsvc/github-release-resource
+    tag: temp-fork-pull-85 # see https://github.com/concourse/github-release-resource/pull/85
 
 resources:
 - name: gsp
-  type: github-release
+  type: github-release-fork
   source:
     owner: ((platform-organization))
     repository: ((platform-repository))
@@ -471,7 +476,7 @@ resources:
     branch: ((config-version))
     commit_verification_keys: ((trusted-developer-keys))
 - name: users
-  type: github-release
+  type: github-release-fork
   source:
     owner: ((users-organization))
     repository: ((users-repository))

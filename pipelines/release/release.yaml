@@ -13,6 +13,12 @@ resource_types:
     repository: concourse/concourse-pipeline-resource
     tag: "2.2.0"
 
+- name: github-release-fork
+  type: registry-image
+  source:
+    repository: govsvc/github-release-resource
+    tag: temp-fork-pull-85 # see https://github.com/concourse/github-release-resource/pull/85
+
 resources:
 
 - name: platform
@@ -28,7 +34,7 @@ resources:
     commit_verification_keys: ((trusted-developer-keys))
 
 - name: users
-  type: github-release
+  type: github-release-fork
   source:
     owner: alphagov
     repository: gds-trusted-developers
@@ -72,7 +78,7 @@ resources:
     repository: govsvc/task-toolbox
 
 - name: release
-  type: github-release
+  type: github-release-fork
   source:
     owner: alphagov
     repository: gsp
@@ -81,7 +87,7 @@ resources:
     pre_release: true
 
 - name: pre-release
-  type: github-release
+  type: github-release-fork
   source:
     owner: alphagov
     repository: gsp
