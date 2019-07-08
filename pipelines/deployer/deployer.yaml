@@ -14,6 +14,8 @@ groups:
 
 unpack_release: &unpack_release
   platform: linux
+  params:
+    CLUSTER_PUBLIC_KEY:
   run:
     path: /bin/bash
     args:
@@ -21,7 +23,10 @@ unpack_release: &unpack_release
     - pipefail
     - -c
     - |
-      echo "TODO: verify *.tar.gz.asc in the release!!!!!!!!!!!"
+      echo "preparing keyring to verify release..."
+      echo "${CLUSTER_PUBLIC_KEY}" > key
+      gpg --import key
+      gpg --verify gsp/*.tar.gz.asc
       echo "unpacking src tarball..."
       tar -xvf gsp/*.tar.gz -C platform --strip-components=1
   inputs:
@@ -550,11 +555,14 @@ jobs:
   - task: unpack-gsp-release
     image: task-toolbox
     config: *unpack_release
+    params:
+      CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - task: generate-trusted-contributors
     image: task-toolbox
     file: platform/pipelines/tasks/generate-trusted-contributors.yaml
     params:
       ACCOUNT_NAME: ((account-name))
+      CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - put: pipeline
     params:
       pipelines:
@@ -587,6 +595,8 @@ jobs:
   - task: unpack-gsp-release
     image: task-toolbox
     config: *unpack_release
+    params:
+      CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - put: cluster-state
     params:
       env_name: ((account-name))
@@ -724,6 +734,8 @@ jobs:
   - task: unpack-gsp-release
     image: task-toolbox
     config: *unpack_release
+    params:
+      CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - task: drain-cluster
     image: task-toolbox
     timeout: 30m

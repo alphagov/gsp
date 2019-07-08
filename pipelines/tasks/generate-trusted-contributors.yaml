@@ -7,6 +7,7 @@ image_resource:
     tag: "1.5.0"
 params:
   ACCOUNT_NAME: gds
+  CLUSTER_PUBLIC_KEY:
 inputs:
 - name: users
 outputs:
@@ -18,9 +19,14 @@ run:
   - pipefail
   - -c
   - |
+    echo "preparing keyring to verify user release..."
+    echo "${CLUSTER_PUBLIC_KEY}" > key
+    gpg --import key
+    gpg --verify "users/gds-trusted-developers-keys.yaml.asc"
+    gpg --verify "users/${ACCOUNT_NAME}-trusted-developers.yaml.asc"
+    echo "generating list of pipeline approvers..."
     trusted_approvers="trusted-contributors/github.vars.yaml"
     trusted_keys="trusted-contributors/keys.vars.yaml"
-    echo "generating list of pipeline approvers..."
     echo -n "github-approvers: " > "${trusted_approvers}"
     yq '.[]' "users/${ACCOUNT_NAME}-trusted-developers.yaml" \
       | jq -c -s "[.[] | .github] | unique | sort" \
