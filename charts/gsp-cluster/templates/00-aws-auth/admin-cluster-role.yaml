@@ -4,12 +4,12 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     name: admin
-  name: {{ .Values.global.cluster.name }}-admin
+  name: {{ .Values.global.account.name }}-admin
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
 subjects:
 - kind: Group
-  name: {{ .Values.global.cluster.name }}-admin
+  name: {{ .Values.global.account.name }}-admin
   apiGroup: rbac.authorization.k8s.io
