@@ -1,15 +1,3 @@
-data "aws_iam_policy_document" "cloudwatch_log_shipping_role" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    principals = {
-      type        = "AWS"
-      identifiers = ["${aws_iam_role.kiam_server_role.arn}"]
-    }
-  }
-}
-
 data "aws_iam_policy_document" "cloudwatch_log_shipping_policy" {
   statement {
     effect = "Allow"
@@ -37,7 +25,7 @@ data "aws_iam_policy_document" "cloudwatch_log_shipping_policy" {
 resource "aws_iam_role" "cloudwatch_log_shipping_role" {
   name = "${var.cluster_name}_cloudwatch_log_shipping_role"
 
-  assume_role_policy = "${data.aws_iam_policy_document.cloudwatch_log_shipping_role.json}"
+  assume_role_policy = "${data.aws_iam_policy_document.trust_kiam_server.json}"
 }
 
 resource "aws_iam_policy" "cloudwatch_log_shipping_policy" {
