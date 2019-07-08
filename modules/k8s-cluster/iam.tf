@@ -78,31 +78,10 @@ resource "aws_iam_role_policy_attachment" "ci-nodes-ssm" {
   role = "${replace(data.aws_arn.ci-nodes-role.resource, "role/", "")}"
 }
 
-data "aws_iam_policy_document" "assume-aws-service-operator" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    principals = {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    principals = {
-      type        = "AWS"
-      identifiers = ["${replace(data.aws_arn.worker-nodes-role.resource, "role/", "")}"]
-    }
-  }
-}
-
 resource "aws_iam_role" "aws-service-operator" {
   name               = "${var.cluster_name}-aws-service-operator"
   description        = "Role the AWS Service Operator assumes"
-  assume_role_policy = "${data.aws_iam_policy_document.assume-aws-service-operator.json}"
+  assume_role_policy = "${data.aws_iam_policy_document.trust_kiam_server.json}"
 }
 
 data "aws_iam_policy_document" "aws-service-operator" {
