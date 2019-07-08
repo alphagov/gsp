@@ -2,8 +2,8 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
   labels:
-    name: sre
-  name: sre
+    name: dev
+  name: dev
 rules:
   - apiGroups: [""]
     resources: ["pods"]
@@ -67,15 +67,15 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    name: sre
-  name: {{ .Values.global.account.name }}-sre
+    name: dev
+  name: {{ .Values.global.account.name }}-dev
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: sre
+  name: dev
 subjects:
 - kind: Group
-  name: {{ .Values.global.account.name }}-sre
+  name: {{ .Values.global.account.name }}-dev
   apiGroup: rbac.authorization.k8s.io
 
 ---
@@ -83,7 +83,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    name: sre
+    name: dev
   name: {{ .Values.global.account.name }}-viewer
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -91,5 +91,5 @@ roleRef:
   name: view
 subjects:
 - kind: Group
-  name: {{ .Values.global.account.name }}-sre
+  name: {{ .Values.global.account.name }}-dev
   apiGroup: rbac.authorization.k8s.io
