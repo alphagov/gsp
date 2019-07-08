@@ -1,4 +1,5 @@
 {{- $clusterName := .Values.global.cluster.name }}
+{{- $accountName := .Values.global.account.name }}
 {{- range .Values.namespaces }}
 {{- $ns := . }}
 {{- $trustedGithubAccounts := list }}
@@ -6,13 +7,7 @@
 {{- range $.Values.users }}
   {{- $user := . }}
   {{- range .roles }}
-    {{- if and (hasPrefix $clusterName .) (hasSuffix "-sre" .) }}
-      {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
-      {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
-    {{- else if and (hasPrefix $clusterName .) (hasSuffix "-admin" .) }}
-      {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
-      {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
-    {{- else if and (hasPrefix $ns.name .) (hasSuffix "-dev" .) }}
+    {{- if eq .account $accountName }}
       {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
       {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
     {{- end }}
@@ -72,33 +67,6 @@ spec:
         matchLabels:
           app: prometheus
 ---
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  namespace: {{ .name }}
-  name: pod-reader
-rules:
-- apiGroups: [""]
-  resources: ["pods", "services", "pods/log", "services/proxy", "namespaces"]
-  verbs: ["get", "watch", "list", "describe"]
-- apiGroups: [""]
-  resources: ["pods/portforward"]
-  verbs: ["create"]
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: dev-pod-reader
-  namespace: {{ .name }}
-subjects:
-- kind: Group
-  name: {{ .name }}-dev
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: Role
-  name: pod-reader
-  apiGroup: rbac.authorization.k8s.io
----
 apiVersion: concourse.k8s.io/v1beta1
 kind: Team
 metadata:
@@ -151,6 +119,19 @@ data:
   domain: {{ $.Values.global.cluster.domain | b64enc }}
   privateKey: {{ $.Values.global.cluster.privateKey | b64enc }}
   publicKey: {{ $.Values.global.cluster.publicKey | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: concourse
+  namespace: {{ .name }}
+data:
+  github-resource-image: {{ $.Values.concourseResources.github.image.repository | b64enc }}
+  github-resource-tag: {{ $.Values.concourseResources.github.image.tag | b64enc }}
+  harbor-resource-image: {{ $.Values.concourseResources.harbor.image.repository | b64enc }}
+  harbor-resource-tag: {{ $.Values.concourseResources.harbor.image.tag | b64enc }}
+  task-toolbox-image: {{ $.Values.concourseResources.task.image.repository | b64enc }}
+  task-toolbox-tag: {{ $.Values.concourseResources.task.image.tag | b64enc }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

@@ -28,6 +28,8 @@ data "template_file" "values" {
     harbor_bucket_region                = "${aws_s3_bucket.ci-system-harbor-registry-storage.region}"
     harbor_iam_role_name                = "${jsonencode(aws_iam_role.harbor.name)}"
     notary_root_key                     = "${jsonencode(tls_private_key.notary_root_key.private_key_pem)}"
+    notary_ca_pem                       = "${jsonencode(tls_self_signed_cert.notary_root_ca.cert_pem)}"
+    notary_cert_pem                     = "${jsonencode(tls_locally_signed_cert.notary_cert.cert_pem)}"
     notary_delegation_key               = "${jsonencode(tls_private_key.notary_ci_key.private_key_pem)}"
     notary_root_passphrase              = "${jsonencode(random_string.notary_passphrase_root.result)}"
     notary_targets_passphrase           = "${jsonencode(random_string.notary_passphrase_targets.result)}"

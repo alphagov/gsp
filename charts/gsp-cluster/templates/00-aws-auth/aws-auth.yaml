@@ -29,7 +29,7 @@ data:
       username: {{ .name }}
       groups:
       {{- range .roles }}
-        - {{ . }}
+        - {{ .account }}-{{ .role }}
       {{- end }}
   {{- end }}
   mapUsers: |

@@ -1,4 +1,4 @@
-# gsp-concourse-pipeline-controller
+# Concourse Operator
 
 ## Overview
 

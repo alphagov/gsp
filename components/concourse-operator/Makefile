@@ -1,7 +1,7 @@
 
 # Image URL to use all building/pushing image targets
 RELEASE_TIMESTAMP = $(shell date +%s)
-IMAGE_NAME = govsvc/gsp-concourse-pipeline-controller
+IMAGE_NAME = govsvc/concourse-operator
 
 all: test manager
 
@@ -11,7 +11,7 @@ test: generate fmt vet manifests
 
 # Build manager binary
 manager: generate fmt vet
-	go build -o bin/manager github.com/alphagov/gsp-concourse-pipeline-controller/cmd/manager
+	go build -o bin/manager github.com/alphagov/gsp/components/concourse-operator/cmd/manager
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet
