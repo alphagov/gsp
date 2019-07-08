@@ -378,12 +378,13 @@ jobs:
           echo overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
-          echo "preparing keyring to sign deployer release..."
+          echo "preparing keyring to sign deployer-package release..."
           echo "${CLUSTER_PRIVATE_KEY}" > key
           gpg --import key
-          gpg --export-secret-keys > ~/.gnupg/pubring.gpg
-          KEY_ID="$(gpg --list-secret-keys --with-colons  | awk -F: '/uid:/ {print $10}' | head -n1)"
-          echo "TODO actually sign the thing!!!!!!!!!!"
+          echo "signing release..."
+          for file in deployer-package/*; do
+            gpg --armor --detach-sign "$file"
+          done
   - put: pre-release
     params:
       name: version/name
