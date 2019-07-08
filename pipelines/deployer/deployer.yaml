@@ -102,7 +102,7 @@ generate_kube_values: &generate_kube_values
         --kubeconfig ./kubeconfig
       export KUBECONFIG=$(pwd)/kubeconfig
       kubectl -n default get endpoints kubernetes -o json \
-        | jq '{"global": {"kubeApiService": {"endpointCidrs": [.subsets[].addresses[].ip]}}}' | yq --yaml-output . \
+        | jq '{"global": {"kubeApiService": {"endpointCidrs": [.subsets[].addresses[].ip + "/32"]}}}' | yq --yaml-output . \
         > kube-values/values.yaml
   outputs:
   - name: kube-values
