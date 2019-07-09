@@ -230,5 +230,5 @@ items:
           args:
             - server
             - --cluster-name=gsp
-            - --region=
+            - --region=eu-west-2
             - --account-id={{ .Values.global.account.id }}
