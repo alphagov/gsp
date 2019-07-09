@@ -4,7 +4,14 @@ set -eu -o pipefail
 
 : "${USER_CONFIGS:?}"
 
-PIPELINE_NAME="release"
+PIPELINE_NAME="istiomesh-release"
+
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [ "${CURRENT_BRANCH}" != "master" ]
+then
+	echo "${CURRENT_BRANCH} is not master!"
+	#exit 1
+fi
 
 echo "generating initial list of trusted developers for releases..."
 
@@ -27,6 +34,8 @@ fly -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--load-vars-from "${approvers}" \
 	--load-vars-from "${trusted}" \
 	--var "pipeline-name=${PIPELINE_NAME}" \
+	--var "branch=${CURRENT_BRANCH}" \
+	--var "github-release-tag-prefix=gsp-istiomesh-" \
 	--check-creds "$@"
 
 fly -t cd-gsp expose-pipeline -p "${PIPELINE_NAME}"

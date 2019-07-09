@@ -77,8 +77,9 @@ resources:
     owner: alphagov
     repository: gsp
     access_token: ((github-api-token))
-    release: true
+    release: false
     pre_release: true
+    tag_filter: ((github-release-tag-prefix))v?([^v].*)
 
 - name: pre-release
   type: github-release
@@ -88,6 +89,7 @@ resources:
     access_token: ((github-api-token))
     release: false
     pre_release: true
+    tag_filter: ((github-release-tag-prefix))v?([^v].*)
 
 jobs:
 
@@ -114,6 +116,7 @@ jobs:
         vars:
           branch: ((branch))
           pipeline-name: ((pipeline-name))
+          github-release-tag-prefix: ((github-release-tag-prefix))
 
 - name: build-concourse-task-toolbox
   serial: true
@@ -230,8 +233,6 @@ jobs:
       trigger: true
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
-    params:
-      NAME_PREFIX: "gsp-"
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:
@@ -303,7 +304,7 @@ jobs:
           cp "./cluster-values/values.yaml" "./${CHART_NAME}/values.yaml"
           mkdir -p cluster-package
           APP_VERSION=$(cat ./platform/.git/short_ref)
-          CHART_VERSION=$(cat ./version/tag)
+          CHART_VERSION=$(cat ./version/tag | sed 's/gsp-istiomesh-//g')
           echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
           helm package \
             --app-version "${APP_VERSION}" \
@@ -340,7 +341,7 @@ jobs:
           cp -r "./platform/charts/gsp-istio" "./${CHART_NAME}"
           mkdir -p istio-package
           APP_VERSION=$(cat ./platform/.git/short_ref)
-          CHART_VERSION=$(cat ./version/tag)
+          CHART_VERSION=$(cat ./version/tag | sed 's/gsp-istiomesh-//g')
           echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
           helm package \
             --app-version "${APP_VERSION}" \
