@@ -216,7 +216,7 @@ items:
     template:
       metadata:
         annotations:
-          iam.amazonaws.com/role: aws-service-operator
+          iam.amazonaws.com/role: {{ .Values.global.cluster.name }}-aws-service-operator
         labels:
           app: aws-service-operator
       spec:
