@@ -80,7 +80,6 @@ generate_user_values: &generate_user_values
 
 generate_kube_values: &generate_kube_values
   platform: linux
-  image_resource: *task_image_resource
   params:
     ACCOUNT_ROLE_ARN: ((account-role-arn))
     CLUSTER_NAME: ((cluster-name))
@@ -673,6 +672,7 @@ jobs:
     - task: generate-kube-values
       timeout: 10m
       config: *generate_kube_values
+      image: task-toolbox
       params:
         ACCOUNT_ID: ((account-id))
         CLUSTER_NAME: ((cluster-name))
