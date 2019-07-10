@@ -233,8 +233,6 @@ jobs:
       trigger: true
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
-    params:
-      NAME_PREFIX: "((github-release-tag-prefix))"
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:
