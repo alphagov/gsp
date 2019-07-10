@@ -41,7 +41,3 @@ variable "ci_worker_count" {
   type    = "string"
   default = "3"
 }
-
-variable "trust_kiam_server" {
-  type = "string"
-}
