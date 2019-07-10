@@ -86,6 +86,14 @@ function apply() {
 	log "[Apply attempt #${apply_attempt}, Stabilize attempt: #${stabilize_attempt}] Finished deploying ${1}."
 }
 
+# Disable the default minikube dashboard addon as it interferes with the local cluster deployment
+if minikube addons list | grep dashboard | grep -q enabled; then
+	minikube start
+	minikube addons disable dashboard
+	minikube stop
+	minikube delete --profile minikube
+fi
+
 log "Creating local GSP..."
 minikube start \
 	--memory ${GSP_MEMORY:-8192} \
