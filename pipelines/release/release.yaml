@@ -116,6 +116,7 @@ jobs:
         vars:
           branch: ((branch))
           pipeline-name: ((pipeline-name))
+          github-release-tag-prefix: ((github-release-tag-prefix))
 
 - name: build-concourse-task-toolbox
   serial: true
