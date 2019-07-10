@@ -81,10 +81,10 @@ generate_user_values: &generate_user_values
 generate_kube_values: &generate_kube_values
   platform: linux
   params:
-    ACCOUNT_ROLE_ARN: ((account-role-arn))
-    CLUSTER_NAME: ((cluster-name))
-    AWS_REGION: eu-west-2
-    AWS_DEFAULT_REGION: eu-west-2
+    ACCOUNT_ROLE_ARN:
+    CLUSTER_NAME:
+    AWS_REGION:
+    AWS_DEFAULT_REGION:
   run:
     path: /bin/bash
     args:
@@ -670,14 +670,19 @@ jobs:
       image: task-toolbox
       timeout: 10m
       config: *generate_user_values
+      params:
+        ACCOUNT_ID: ((account-id))
+        CLUSTER_NAME: ((cluster-name))
+        ACCOUNT_NAME: ((account-name))
     - task: generate-kube-values
       timeout: 10m
       config: *generate_kube_values
       image: task-toolbox
       params:
-        ACCOUNT_ID: ((account-id))
+        ACCOUNT_ROLE_ARN: ((account-role-arn))
         CLUSTER_NAME: ((cluster-name))
-        ACCOUNT_NAME: ((account-name))
+        AWS_REGION: eu-west-2
+        AWS_DEFAULT_REGION: eu-west-2
   - task: apply-cluster-chart
     image: task-toolbox
     timeout: 10m
