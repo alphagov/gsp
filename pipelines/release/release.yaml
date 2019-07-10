@@ -77,8 +77,9 @@ resources:
     owner: alphagov
     repository: gsp
     access_token: ((github-api-token))
-    release: true
+    release: false
     pre_release: true
+    tag_filter: ((github-release-tag-prefix))v?([^v].*)
 
 - name: pre-release
   type: github-release
@@ -88,6 +89,7 @@ resources:
     access_token: ((github-api-token))
     release: false
     pre_release: true
+    tag_filter: ((github-release-tag-prefix))v?([^v].*)
 
 jobs:
 
@@ -231,7 +233,7 @@ jobs:
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      NAME_PREFIX: "gsp-"
+      NAME_PREFIX: "((github-release-tag-prefix))"
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:

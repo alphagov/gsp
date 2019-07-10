@@ -489,6 +489,7 @@ resources:
     access_token: ((github-api-token))
     release: true
     pre_release: ((platform-pre-release))
+    tag_filter: ((github-release-tag-prefix))v?([^v].*)
 - name: config
   type: github
   source:
