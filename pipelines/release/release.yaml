@@ -306,7 +306,7 @@ jobs:
           cp "./cluster-values/values.yaml" "./${CHART_NAME}/values.yaml"
           mkdir -p cluster-package
           APP_VERSION=$(cat ./platform/.git/short_ref)
-          CHART_VERSION=$(cat ./version/tag)
+          CHART_VERSION=$(cat ./version/tag | sed 's/gsp-istiomesh-//g')
           echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
           helm package \
             --app-version "${APP_VERSION}" \
@@ -343,7 +343,7 @@ jobs:
           cp -r "./platform/charts/gsp-istio" "./${CHART_NAME}"
           mkdir -p istio-package
           APP_VERSION=$(cat ./platform/.git/short_ref)
-          CHART_VERSION=$(cat ./version/tag)
+          CHART_VERSION=$(cat ./version/tag | sed 's/gsp-istiomesh-//g')
           echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
           helm package \
             --app-version "${APP_VERSION}" \
