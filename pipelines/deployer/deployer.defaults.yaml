@@ -24,7 +24,7 @@ task-toolbox-tag: latest
 
 github-resource-image: govsvc/concourse-github-resource
 github-resource-tag: latest
-github-release-tag-pregix: "gsp-"
+github-release-tag-prefix: "gsp-"
 
 terraform-resource-image: govsvc/terraform-resource
 terraform-resource-tag: "0.13.0-beta.2"
