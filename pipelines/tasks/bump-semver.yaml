@@ -5,8 +5,6 @@ image_resource:
   source:
     repository: govsvc/task-toolbox
     tag: "1.5.0"
-params:
-  NAME_PREFIX: ""
 inputs:
 - name: release
 outputs:
@@ -21,5 +19,5 @@ run:
     CURRENT_TAG=$(cat release/tag)
     awk -F. '/[0-9]+\./{$NF++;print}' OFS=. <<< "${CURRENT_TAG}" > version/tag
     NEW_TAG=$(cat version/tag)
-    echo "${NAME_PREFIX}${NEW_TAG}" > version/name
+    echo "${NEW_TAG}" > version/name
     cat version/name

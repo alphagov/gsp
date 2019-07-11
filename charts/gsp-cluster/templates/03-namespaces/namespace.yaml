@@ -72,7 +72,7 @@ kind: Team
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"
-  name: {{ trimPrefix (printf "%s-" $clusterName) .name }}
+  name: {{ trimPrefix (printf "%s-" $.Values.global.account.name) .name }}
   namespace: {{ .name }}
 spec:
   roles:
@@ -117,6 +117,7 @@ metadata:
 data:
   name: {{ $.Values.global.cluster.name | b64enc }}
   domain: {{ $.Values.global.cluster.domain | b64enc }}
+  cloudHsmIp: {{ $.Values.global.cloudHsm.ip | b64enc }}
   privateKey: {{ $.Values.global.cluster.privateKey | b64enc }}
   publicKey: {{ $.Values.global.cluster.publicKey | b64enc }}
 ---
@@ -312,4 +313,38 @@ spec:
               echo "applying manifests from ${SRC_URI} at path ${PATH_TO_MANIFESTS} to ${RELEASE_NAMESPACE}"
               kubectl apply $NS_ARGS -R -f "./src/${PATH_TO_MANIFESTS}"
 {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-to-istio-system-and-kube-dns
+  namespace: {{ .name }}
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kube-system: "true"
+    ports:
+    - protocol: UDP
+      port: 53
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          istio: system
+  - to:
+    {{- range $.Values.global.kubeApiService.endpointCidrs }}
+    - ipBlock:
+        cidr: {{ . }}
+    {{- end }}
+    ports:
+    - protocol: TCP
+      port: 443
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          namespace: {{ .name }}
 {{- end }}

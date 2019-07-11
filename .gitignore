@@ -4,3 +4,8 @@ manifests/
 
 # ignore vendor dirs
 components/concourse-operator/vendor
+
+# ignore cloudhsm setup files
+hack/hsm/*
+hack/.vagrant
+hack/*log

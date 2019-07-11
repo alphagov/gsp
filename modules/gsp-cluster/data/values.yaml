@@ -9,6 +9,9 @@ global:
   roles:
     harbor: ${harbor_iam_role_name}
     concourse: ${concourse_iam_role_name}
+  cloudHsm:
+    enabled: false
+    ip: "127.0.0.1"
   # move these to gsp-namespace terraform output
   canary:
     verificationKeys: []

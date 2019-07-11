@@ -70,7 +70,7 @@ data:
       bind *:2223-2225
       acl gds_ips src 10.0.0.0/8 213.86.153.212 213.86.153.213 213.86.153.214 213.86.153.235 213.86.153.236 213.86.153.237 85.133.67.244
       tcp-request connection reject if !gds_ips
-      server cloudhsm 10.101.29.134 check
+      server cloudhsm {{ .Values.global.cloudHsm.ip }} check
 ---
 kind: Service
 apiVersion: v1
