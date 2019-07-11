@@ -79,7 +79,7 @@ resources:
     access_token: ((github-api-token))
     release: true
     pre_release: true
-    tag_filter: ((github-release-tag-prefix))v?([^v].*)
+    tag_filter: ((github-release-tag-prefix))v([^v].*)
 
 - name: pre-release
   type: github-release
@@ -89,7 +89,7 @@ resources:
     access_token: ((github-api-token))
     release: false
     pre_release: true
-    tag_filter: ((github-release-tag-prefix))v?([^v].*)
+    tag_filter: ((github-release-tag-prefix))v([^v].*)
 
 jobs:
 
