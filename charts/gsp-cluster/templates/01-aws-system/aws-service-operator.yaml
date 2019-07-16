@@ -222,6 +222,6 @@ items:
           imagePullPolicy: Always
           args:
             - server
-            - --cluster-name=gsp
+            - --cluster-name={{ .Values.global.cluster.name }}
             - --region=eu-west-2
             - --account-id={{ .Values.global.account.id }}
