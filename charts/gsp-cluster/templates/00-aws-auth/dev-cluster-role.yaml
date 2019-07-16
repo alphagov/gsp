@@ -61,6 +61,10 @@ rules:
     - get
     - list
     - watch
+  - apiGroups: [""]
+    resources: ["services/proxy"]
+    verbs:
+    - get
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
