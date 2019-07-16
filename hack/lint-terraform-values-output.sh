@@ -35,6 +35,9 @@ global:
     name: sandbox
     privateKey: BEGIN-PRIVATE
     publicKey: BEGIN-PUBLIC
+httpsEgressSafelist:
+- name: hub
+  fqdn: www.integration.signin.service.gov.uk
 namespaces:
 - name: verify-metadata-controller
   owner: alphagov

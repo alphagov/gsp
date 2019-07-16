@@ -25,6 +25,8 @@ bootstrapRoleARNs: ${bootstrap_role_arns}
 
 permittedRolesRegex: ${permitted_roles_regex}
 
+httpsEgressSafelist: []
+
 notary:
   rootPassphrase: ${notary_root_passphrase}
   rootKey: ${notary_root_key}
