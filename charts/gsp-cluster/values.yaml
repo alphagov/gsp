@@ -29,6 +29,8 @@ permittedRolesRegex: ""
 
 githubAPIToken: ""
 
+httpsEgressSafelist: []
+
 
 # users:
 # - name: chris.farmiloe
