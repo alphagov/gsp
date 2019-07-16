@@ -106,7 +106,7 @@ aws ssm put-parameter --type SecureString --name /CLUSTER_NAME/hsm/users/cu/1/pa
 These passwords can be retrieved with:
 
 ```sh
-aws ssm get-parameter --query Parameter.Value --output text --with-decryption --name /hsm/users/cu/1/password | tr -d '\n' | pbcopy
+aws ssm get-parameter --query Parameter.Value --output text --with-decryption --name /CLUSTER_NAME/hsm/users/cu/1/password | tr -d '\n' | pbcopy
 ```
 
 ## Push the HSM IP to SSM
