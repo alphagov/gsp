@@ -9,3 +9,6 @@ components/concourse-operator/vendor
 hack/hsm/*
 hack/.vagrant
 hack/*log
+
+# generated files
+output/
