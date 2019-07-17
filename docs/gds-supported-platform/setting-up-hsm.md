@@ -5,7 +5,6 @@ given piece of information with a non-extractable key.
 
 At the moment, we're committed to using CloudHSM provided by AWS.
 
-
 ## Signing key
 
 We'd like to use another HSM-like piece of hardware, to generate an
@@ -61,18 +60,33 @@ this, except the certificate signing which we do our way. The files to upload ar
 `cluster-rn3c7izgvya_CustomerHsmCertificate.crt` and `customerCA.crt` to initialize
 the cluster.
 
+### Accessing AWS SSM
+
+To get access to SSM, you will need to hijack a container from the appropriate Info
+pipeline from the central Concourse.  An example Info pipeline for GSP, suitable
+for the sandbox environment, can be seen [here](https://cd.gds-reliability.engineering/teams/gsp/pipelines/info)
+then clicking show-available-pipeline-variables -> hijack-me-to-add-secrets
+
+In this example you will run the following commands, then you will be able to run the '''aws ssm <something>''' commands
+
+1. fly --target cd-gsp login --team-name gsp --concourse-url https://cd.gds-reliability.engineering
+1. fly --target cd-gsp hijack --job info/show-available-pipeline-variables sh
+1. Select the hijack-me-to-add-secrets task
+
 ### Push the customerCA.crt to AWS SSM
 
 This signed customer certificate will need to be shared with clients
 interacting with the HSM.
 
-We decided to store it along the passwords in HSM for easier access.
+We decided to store the certificate along with the HSM user passwords in SSM for easier access.
+
+Add certificate to SSM:
 
 ```sh
 aws ssm put-parameter --type SecureString --name /CLUSTER_NAME/hsm/customerCA --value "$(cat customerCA.crt)"
 ```
 
-Obtainable with:
+Retrieve certificate from SSM:
 
 ```sh
 aws ssm get-parameter --query Parameter.Value --output text --with-decryption --name /CLUSTER_NAME/hsm/customerCA
