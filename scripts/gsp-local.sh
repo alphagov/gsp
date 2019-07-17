@@ -99,7 +99,7 @@ minikube start \
 	--memory ${GSP_MEMORY:-8192} \
 	--cpus ${GSP_CPUS:-4} \
 	--disk-size 30g \
-	--vm-driver hyperkit \
+	--vm-driver ${VM_DRIVER:-hyperkit} \
 	--kubernetes-version v1.12.0 \
 	--insecure-registry "registry.local.govsandbox.uk:80" \
 	--profile ${cluster_name}
