@@ -41,7 +41,10 @@ spec:
     hosts:
     - {{ $egressFqdn.fqdn}}
     tls:
-      mode: PASSTHROUGH
+      mode: MUTUAL
+      serverCertificate: /etc/certs/cert-chain.pem
+      privateKey: /etc/certs/key.pem
+      caCertificates: /etc/certs/root-cert.pem
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -58,13 +61,11 @@ spec:
   - {{ $egressFqdn.fqdn}}
   gateways:
   - {{ $.Release.Name }}-https-egress-safelist-{{ $egressFqdn.name }}
-  tls:
+  tcp:
   - match:
     - gateways:
       - {{ $.Release.Name }}-https-egress-safelist-{{ $egressFqdn.name }}
       port: 443
-      sniHosts:
-      - {{ $egressFqdn.fqdn}}
     route:
     - destination:
         host: {{ $egressFqdn.fqdn}}
