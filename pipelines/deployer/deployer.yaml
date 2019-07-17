@@ -215,19 +215,6 @@ apply_cluster_chart: &apply_cluster_chart
   - name: gsp
   - name: kube-values
 
-generate_destroy_terraform: &generate_destroy_terraform
-  platform: linux
-  inputs:
-  - name: platform
-  outputs:
-  - name: destroy-cluster
-  run:
-    path: /bin/bash
-    args:
-    - -euc
-    - |
-      cp platform/pipelines/deployer/main.tf destroy-cluster/main.tf
-
 check_conformance: &check_conformance
   platform: linux
   params:
@@ -789,16 +776,13 @@ jobs:
     config: *generate_users_terraform
     params:
       ACCOUNT_NAME: ((account-name))
-  - task: empty-config
-    image: task-toolbox
-    config: *generate_destroy_terraform
   - put: cluster-state
     params:
       env_name: ((account-name))
-      terraform_source: destroy-cluster
-      action: apply
+      terraform_source: platform/pipelines/deployer
+      action: destroy
     get_params:
-      action: apply
+      action: destroy
   - put: user-state
     params:
       env_name: ((account-name))
