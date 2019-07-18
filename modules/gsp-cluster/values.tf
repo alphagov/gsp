@@ -46,6 +46,7 @@ data "template_file" "values" {
       aws_iam_role.harbor.name,
       aws_iam_role.concourse.name,
       aws_iam_role.cloudwatch_log_shipping_role.name,
+      aws_iam_role.aws-service-operator.name,
     ))})$"
   }
 }
