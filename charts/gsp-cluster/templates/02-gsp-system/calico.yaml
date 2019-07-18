@@ -427,7 +427,7 @@ spec:
             # This will make Felix honor AWS VPC CNI's mangle table
             # rules.
             - name: FELIX_IPTABLESMANGLEALLOWACTION
-              value: Return              
+              value: Return
           livenessProbe:
             exec:
               command:
@@ -484,65 +484,6 @@ rules:
   - apiGroups: [""]
     resources: ["nodes"]
     verbs: ["list"]
-
----
-
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: calico-typha-horizontal-autoscaler
-  namespace: kube-system
-data:
-  ladder: |-
-    {
-      "coresToReplicas": [],
-      "nodesToReplicas":
-      [
-        [1, 1],
-        [10, 2],
-        [100, 3],
-        [250, 4],
-        [500, 5],
-        [1000, 6],
-        [1500, 7],
-        [2000, 8]
-      ]
-    }
-
----
-
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: calico-typha-horizontal-autoscaler
-  namespace: kube-system
-  labels:
-    k8s-app: calico-typha-autoscaler
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        k8s-app: calico-typha-autoscaler
-      annotations:
-        scheduler.alpha.kubernetes.io/critical-pod: ''
-    spec:
-      containers:
-        - image: k8s.gcr.io/cluster-proportional-autoscaler-amd64:1.1.2
-          name: autoscaler
-          command:
-            - /cluster-proportional-autoscaler
-            - --namespace=kube-system
-            - --configmap=calico-typha-horizontal-autoscaler
-            - --target=deployment/calico-typha
-            - --logtostderr=true
-            - --v=2
-          resources:
-            requests:
-              cpu: 10m
-            limits:
-              cpu: 10m
-      serviceAccountName: typha-cpha
 
 ---
 
