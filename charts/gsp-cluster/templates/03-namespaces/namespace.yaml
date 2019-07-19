@@ -112,6 +112,15 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: registry-creds
+  namespace: {{ .name }}
+data:
+  .dockerconfigjson: {{ include "dockerconfig.json" $ | b64enc }}
+type: kubernetes.io/dockerconfigjson
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: cluster
   namespace: {{ .name }}
 data:
