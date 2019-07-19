@@ -255,6 +255,8 @@ spec:
         branch: {{ .branch | default "master" | quote }}
         owner: {{ .owner }}
         repository: {{ .repository }}
+        username: "re-autom8-ci"
+        password: ((github.api-token))
         github_api_token: ((github.api-token))
         access_token: ((github.api-token))
         approvers: ((trusted-developers.github-accounts))
