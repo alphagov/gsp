@@ -61,6 +61,8 @@ spec:
       source:
         <<: *harbor_source
         repository: registry.((cluster.domain))/gsp/canary
+        harbor:
+          public: "false"
 
     jobs:
     - name: build
