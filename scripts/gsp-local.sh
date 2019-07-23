@@ -14,7 +14,7 @@ if [ $# -lt 1 ]; then
 fi
 
 function log() {
-	echo "☁️  ${1}" 1>&2
+	echo "💻  ${1}" 1>&2
 }
 
 function template() {
@@ -86,13 +86,17 @@ function apply() {
 	log "[Apply attempt #${apply_attempt}, Stabilize attempt: #${stabilize_attempt}] Finished deploying ${1}."
 }
 
-# Disable the default minikube dashboard addon as it interferes with the local cluster deployment
-if minikube addons list | grep dashboard | grep -q enabled; then
-	minikube start
-	minikube addons disable dashboard
-	minikube stop
-	minikube delete --profile minikube
-fi
+function disable_minikube_dashboard() {
+	if minikube addons list | grep dashboard | grep -q enabled; then
+		log "[HACK] Disabling conflicting, built-in, minikube Kubernetes dashboard..."
+		minikube start
+		minikube addons disable dashboard
+		minikube stop
+		minikube delete --profile minikube
+	fi
+}
+
+disable_minikube_dashboard
 
 log "Creating local GSP..."
 minikube start \
