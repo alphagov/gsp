@@ -117,6 +117,7 @@ prometheus-operator:
       retention: "60d"
       ruleSelectorNilUsesHelmValues: false
       ruleSelector: {}
+      secrets: [ istio.gsp-prometheus-operator-prometheus ]
       serviceMonitorSelectorNilUsesHelmValues: false
       serviceMonitorSelector: {}
       additionalScrapeConfigs:

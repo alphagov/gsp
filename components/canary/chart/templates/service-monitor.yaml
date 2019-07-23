@@ -11,4 +11,10 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   endpoints:
   - port: {{ .Values.service.port_name }}
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prometheus/secrets/istio.gsp-prometheus-operator-prometheus/root-cert.pem
+      certFile: /etc/prometheus/secrets/istio.gsp-prometheus-operator-prometheus/cert-chain.pem
+      keyFile: /etc/prometheus/secrets/istio.gsp-prometheus-operator-prometheus/key.pem
+      insecureSkipVerify: true  # prometheus does not support secure naming.
 {{- end }}
