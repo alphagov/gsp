@@ -16,6 +16,7 @@ spec:
       harbor:
         url: ((harbor.harbor_url))
         prevent_vul: "false"
+        public: "false"
       notary:
         url: ((harbor.notary_url))
         root_key: ((harbor.root_key))
@@ -61,8 +62,6 @@ spec:
       source:
         <<: *harbor_source
         repository: registry.((cluster.domain))/gsp/canary
-        harbor:
-          public: "false"
 
     jobs:
     - name: build
