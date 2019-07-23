@@ -1,3 +1,4 @@
+{{ if .Values.global.runningOnAws }}
 apiVersion: v1
 kind: List
 items:
@@ -225,3 +226,4 @@ items:
             - --cluster-name={{ .Values.global.cluster.name }}
             - --region=eu-west-2
             - --account-id={{ .Values.global.account.id }}
+{{ end }}
