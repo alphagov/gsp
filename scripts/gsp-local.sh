@@ -14,7 +14,7 @@ if [ $# -lt 1 ]; then
 fi
 
 function log() {
-	echo "☁️  ${1}" 1>&2
+	echo "💻  ${1}" 1>&2
 }
 
 function template() {
