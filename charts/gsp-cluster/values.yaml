@@ -362,6 +362,7 @@ pipelineOperator:
   concourseInsecureSkipVerify: "false"
 
 harbor:
+  harborAdminPassword: ""
   chartmuseum:
     enabled: false
   logLevel: warn
