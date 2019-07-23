@@ -10,7 +10,7 @@ Verify have a need to restrict exfiltration of data, enforce strict authenticati
 
 A service mesh gives us a way of meeting these needs.
 
-#### Option 1: Istio
+### Option 1: Istio
 
 Istio makes it easy to create a network of deployed services with load balancing, service-to-service authentication, monitoring, and more, with few or no code changes in service code.
 
