@@ -91,6 +91,17 @@ resources:
     pre_release: true
     tag_filter: ((github-release-tag-prefix))v([^v].*)
 
+- name: draft-release
+  type: github-release
+  source:
+    owner: alphagov
+    repository: gsp
+    access_token: ((github-api-token))
+    release: false
+    pre_release: false
+    drafts: true
+    tag_filter: ((github-release-tag-prefix))v([^v].*)
+
 jobs:
 
 - name: selfupdate
@@ -379,7 +390,7 @@ jobs:
           echo overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
-  - put: pre-release
+  - put: draft-release
     params:
       name: version/name
       tag: version/tag
@@ -395,7 +406,7 @@ jobs:
     config:
       platform: linux
       inputs:
-      - name: pre-release
+      - name: draft-release
       outputs:
       - name: signed-release
       params:
@@ -411,7 +422,7 @@ jobs:
           echo "${CLUSTER_PRIVATE_KEY}" > key
           gpg --import key
           echo "signing release tarball..."
-          for file in pre-release/*; do
+          for file in draft-release/*; do
             gpg --armor --detach-sign "$file"
             cp ${file}* signed-release/
           done
