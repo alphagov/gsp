@@ -1,9 +1,7 @@
 # Using AWS Service Operator
 
-AWS Service Operator is a tool we use to allow GSP users to write kubeyaml resources that will directly map to AWS resources.
-It consists of a container that runs essentially a daemon, and a (slightly modified in our case) kubeyaml config that sets up the container, provides a bunch of custom resource definitions (e.g., there is a definition in there for SQS Queues), etc. - it also gives the container access to monitor stuff going on around the cluster.
-The daemon monitors the k8s cluster for such custom resources being created and will deploy to AWS the relevant CloudFormation to create the requested resource.
-The end result of this is that developers can create certain types of AWS resources directly inside their kubeyaml. Here's an example:
+## How to use it
+AWS Service Operator is a tool we use to allow GSP users to write kubeyaml resources that will directly map to AWS resources (via CloudFormation that it generates and deploys). The end result of this is that developers can create certain types of AWS resources directly inside their kubeyaml. Here's an example:
 ```yaml
 
 - kind: SQSQueue
@@ -25,3 +23,8 @@ Alongside SQS Queues, it supports the following resources:
 * S3 Bucket
 * SNS Subscription
 * SNS Topic
+
+## How it works
+You don't need to know this to use it, this information is for cluster operators.
+AWS Service Operator consists of a container that runs essentially a daemon, and a (slightly modified in our case) kubeyaml config that sets up the container, provides a bunch of custom resource definitions (e.g., there is a definition in there for SQS Queues), etc. - it also gives the container access to monitor stuff going on around the cluster.
+The daemon monitors the k8s cluster for such custom resources being created and will deploy to AWS the relevant CloudFormation to create the requested resource.
