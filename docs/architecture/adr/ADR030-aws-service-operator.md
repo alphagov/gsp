@@ -1,4 +1,4 @@
-# ADR030: AWS Service Operator
+# ADR030: AWS Service Operator for SQS queues
 
 ## Status
 
