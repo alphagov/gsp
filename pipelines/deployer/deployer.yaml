@@ -26,9 +26,9 @@ unpack_release: &unpack_release
       echo "preparing keyring to verify release..."
       echo "${CLUSTER_PUBLIC_KEY}" > key
       gpg --import key
-      gpg --verify gsp/*.tar.gz.asc
+      gpg --verify gsp/source.tar.gz.asc
       echo "unpacking src tarball..."
-      tar -xvf gsp/*.tar.gz -C platform --strip-components=1
+      tar -xvf gsp/source.tar.gz -C platform --strip-components=1
   inputs:
   - name: gsp
   outputs:
