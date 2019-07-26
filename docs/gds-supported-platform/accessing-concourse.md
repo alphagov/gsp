@@ -1,28 +1,32 @@
 # Accessing Concourse
 
-GSP provides [Concourse](http://ci.local.govsandbox.uk) for all your building, testing and deploying needs. You
-can interact with it through a browser or with `fly`.
+You use [Concourse](http://ci.local.govsandbox.uk) to build, test and deploy apps on the GDS Supported Platform (GSP). You can access Concourse through either the [`fly` CLI](https://concourse-ci.org/fly.html) or through a browser.
 
-## Using `fly`
+## Accessing Concourse using `fly`
 
-You can interact with Concourse using [`fly`](https://concourse-ci.org/fly.html). You must make sure the version of `fly` matches the version of Concourse that is running.
+To access Concourse using [`fly`](https://concourse-ci.org/fly.html), your version of `fly` must match your version of Concourse.
 
-The [documentation for `fly`](https://concourse-ci.org/fly.html) describes how
-to login and do things with Concourse.
+Visit your Concourse to check your `fly` version. Use the links in the bottom right of your Concourse page to upgrade your `fly` if necessary. You can find an example Concourse at http://ci.london.verify.govsvc.uk/.
 
-## Using `fly` and Concourse on GSP local
+Refer to the [`fly` documentation](https://concourse-ci.org/fly.html) for more information on accessing Concourse using `fly`.
 
-GSP local provides a Concourse that you can experiment with. After your local
-cluster has been created you need to port forward to the Istio ingress in order
-to be able to access Concourse:
+## Accessing Concourse in your local GSP environment using `fly`
 
-```
-sudo --preserve-env kubectl port-forward service/istio-ingressgateway -n istio-system 80:80
-```
+The local GSP environment has a Concourse that you can access with use to try to build, test and deploy your app. 
 
-You can then access Concourse in a browser at `http://ci.local.govsandbox.uk`
-and login with `fly` using (`admin:password`):
+1. After you [create your local cluster](https://github.com/alphagov/gsp/blob/master/docs/gds-supported-platform/getting-started-gsp-local.md), port forward to the Istio ingress:
 
-```
-fly login -t gsp-local -c http://ci.local.govsandbox.uk
-```
+    ```
+    sudo --preserve-env kubectl port-forward service/istio-ingressgateway -n istio-system 80:80
+    ```
+
+1. Access the local environment Concourse at `http://ci.local.govsandbox.uk`:
+
+    ```
+    fly login -t gsp-local -c http://ci.local.govsandbox.uk
+    ```
+
+1. Sign into `fly` with: 
+
+    - username: admin
+    - password: password
