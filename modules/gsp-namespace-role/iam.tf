@@ -26,6 +26,7 @@ data "aws_iam_policy_document" "namespace-defaults" {
 resource "aws_iam_role" "namespace" {
   name               = "${var.cluster_name}-namespace-${var.namespace_name}"
   assume_role_policy = "${data.aws_iam_policy_document.assume-role.json}"
+  path               = "/gsp/${var.cluster_name}/namespaceroles/"
 }
 
 resource "aws_iam_policy" "namespace-defaults" {
