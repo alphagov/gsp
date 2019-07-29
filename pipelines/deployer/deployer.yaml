@@ -488,8 +488,8 @@ resources:
     organization: ((config-organization))
     repository: ((config-repository))
     github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
-    required_approval_count: ((github-approval-count))
+    approvers: ((config-approvers))
+    required_approval_count: ((config-approval-count))
     branch: ((config-version))
     commit_verification_keys: ((trusted-developer-keys))
 - name: users
