@@ -27,7 +27,7 @@ run:
     echo "generating list of pipeline approvers..."
     trusted_approvers="trusted-contributors/github.vars.yaml"
     trusted_keys="trusted-contributors/keys.vars.yaml"
-    echo -n "github-approvers: " > "${trusted_approvers}"
+    echo -n "config-approvers: " > "${trusted_approvers}"
     yq '.[]' "users/${ACCOUNT_NAME}-trusted-developers.yaml" \
       | jq -c -s "[.[] | .github] | unique | sort" \
       >> "${trusted_approvers}"

@@ -17,7 +17,7 @@ fi
 echo "generating initial list of trusted developers for releases..."
 
 approvers="/tmp/gsp-release-approvers.yaml"
-echo -n "github-approvers: " > "${approvers}"
+echo -n "config-approvers: " > "${approvers}"
 yq . ${USER_CONFIGS}/*.yaml \
 	| jq -c -s "[.[].github] | unique | sort" \
 	>> "${approvers}"

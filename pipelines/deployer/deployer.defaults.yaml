@@ -17,7 +17,7 @@ users-trigger: true
 
 disable-destroy: true
 
-github-approval-count: 2
+config-approval-count: 2
 
 task-toolbox-image: govsvc/task-toolbox
 task-toolbox-tag: latest
