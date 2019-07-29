@@ -44,8 +44,8 @@ private.
 The crucial line is `public: "false"` to ensure that anonymous users (ie
 public users) can't pull images from that Harbor repo.
 
-2. Add `imagePullSecrets` to your Helm chart in order to use the
-   builtin secret `registry-creds` for pulling the private Docker
+2. Add `imagePullSecrets` to your Kubernetes deployment-files (pods) in order to use the
+   built-in secret `registry-creds` for pulling the private Docker
    image:
 
 ```
