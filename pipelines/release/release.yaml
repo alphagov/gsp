@@ -23,7 +23,7 @@ resources:
     repository: gsp
     github_api_token: ((github-api-token))
     approvers: ((github-approvers))
-    required_approval_count: 0
+    required_approval_count: ((github-approval-count))
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
 
