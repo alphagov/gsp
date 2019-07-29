@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "assume-role" {
   }
 }
 
-data "aws_iam_policy_document" "namespace-defaults" {
+data "aws_iam_policy_document" "namespace-sqs" {
   statement {
     effect = "Allow"
 
@@ -23,18 +23,18 @@ data "aws_iam_policy_document" "namespace-defaults" {
   }
 }
 
-resource "aws_iam_role" "namespace" {
-  name               = "${var.cluster_name}-namespace-${var.namespace_name}"
+resource "aws_iam_role" "namespace-sqs" {
+  name               = "${var.cluster_name}-namespace-${var.namespace_name}-sqs"
   assume_role_policy = "${data.aws_iam_policy_document.assume-role.json}"
-  path               = "/gsp/${var.cluster_name}/namespaceroles/"
+  path               = "/gsp/${var.cluster_name}/namespaceroles/sqs/"
 }
 
-resource "aws_iam_policy" "namespace-defaults" {
-  name   = "${var.cluster_name}-namespace-${var.namespace_name}-defaults"
-  policy = "${data.aws_iam_policy_document.namespace-defaults.json}"
+resource "aws_iam_policy" "namespace-sqs" {
+  name   = "${var.cluster_name}-namespace-${var.namespace_name}-sqs"
+  policy = "${data.aws_iam_policy_document.namespace-sqs.json}"
 }
 
-resource "aws_iam_role_policy_attachment" "namespace-defaults" {
+resource "aws_iam_role_policy_attachment" "namespace-sqs" {
   role       = "${aws_iam_role.namespace.name}"
-  policy_arn = "${aws_iam_policy.namespace-defaults.arn}"
+  policy_arn = "${aws_iam_policy.namespace-sqs.arn}"
 }
