@@ -130,6 +130,28 @@ generate_users_terraform: &generate_users_terraform
   outputs:
   - name: users-terraform
 
+generate_namespace_roles_terraform: &generate_namespace_roles_terraform
+  platform: linux
+  run:
+    path: /bin/bash
+    args:
+    - -euo
+    - pipefail
+    - -c
+    - |
+      mkdir -p namespace-roles-terraform
+      cd config
+      echo "creating terraform for namespace roles from cluster config"
+      yq '.namespaces[]' "((config-values-path))" \
+        | jq '[{key: (.name | gsub("[^a-z-A-Z0-9]"; "-")), value: {source: "../platform/modules/gsp-namespace-role", namespace_name: .name, account_id: ((account-id)), cluster_name: "${var.cluster_name}"}}] | from_entries' \
+        | jq -s '{module: . | add, variable: { aws_account_role_arn: { type: "string" }, cluster_name: { type: "string" } }, provider: { aws: { region: "eu-west-2", assume_role: { role_arn: "${var.aws_account_role_arn}" } } } }' \
+        > ../namespace-roles-terraform/namespace-roles.tf.json
+      cat ../namespace-roles-terraform/namespace-roles.tf.json
+  inputs:
+  - name: config
+  outputs:
+  - name: namespace-roles-terraform
+
 apply_cluster_chart: &apply_cluster_chart
   platform: linux
   params:
@@ -551,6 +573,24 @@ resources:
       aws_account_role_arn: ((account-role-arn))
       github_client_id: ((github-client-id))
       github_client_secret: ((github-client-secret))
+- name: namespace-role-state
+  type: terraform
+  source:
+    env_name: ((account-name))
+    backend_type: s3
+    backend_config:
+      bucket: cd-gsp-private-qndvvc
+      region: eu-west-2
+      key: namespace-roles-((cluster-name)).tfstate
+    vars:
+      account_id: ((account-id))
+      account_name: ((account-name))
+      cluster_name: ((cluster-name))
+      cluster_domain: ((cluster-domain))
+      cluster_number: ((cluster-number))
+      aws_account_role_arn: ((account-role-arn))
+      github_client_id: ((github-client-id))
+      github_client_secret: ((github-client-secret))
 - name: task-toolbox
   type: docker-image
   source:
@@ -629,6 +669,14 @@ jobs:
     params:
       env_name: ((account-name))
       terraform_source: users-terraform
+  - task: generate-namespace-roles-terraform
+    image: task-toolbox
+    timeout: 10m
+    config: *generate_namespace_roles_terraform
+  - put: namespace-role-state
+    params:
+      env_name: ((account-name))
+      terraform_source: namespace-roles-terraform
 
 - name: apply
   serial: true
@@ -776,6 +824,10 @@ jobs:
     config: *generate_users_terraform
     params:
       ACCOUNT_NAME: ((account-name))
+  - task: generate-namespace-roles-terraform
+    image: task-toolbox
+    timeout: 10m
+    config: *generate_namespace_roles_terraform
   - put: cluster-state
     params:
       env_name: ((account-name))
@@ -790,3 +842,10 @@ jobs:
       action: destroy
     get_params:
       action: destroy
+  - put: namespace-role-state
+    params:
+      env_name: ((account-name))
+      terraform_source: namespace-roles-terraform
+      action: apply
+    get_params:
+      action: apply
