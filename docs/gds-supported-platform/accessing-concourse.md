@@ -12,7 +12,7 @@ Refer to the [`fly` documentation](https://concourse-ci.org/fly.html) for more i
 
 ## Accessing Concourse in your local GSP environment using `fly`
 
-The local GSP environment has a Concourse that you can access with use to try to build, test and deploy your app. 
+The local GSP environment has a Concourse that you can use to try to build, test and deploy your app. 
 
 1. After you [create your local cluster](https://github.com/alphagov/gsp/blob/master/docs/gds-supported-platform/getting-started-gsp-local.md), port forward to the Istio ingress:
 
