@@ -145,10 +145,7 @@ generate_namespace_roles_terraform: &generate_namespace_roles_terraform
       mkdir -p namespace-roles-terraform
       cd config
       echo "creating terraform for namespace roles from cluster config"
-      yq '.namespaces[]' $CONFIG_VALUES_PATH \
-        | jq '[{key: (.name | gsub("[^a-z-A-Z0-9]"; "-")), value: {source: "../platform/modules/gsp-namespace-role", namespace_name: .name, account_id: $ACCOUNT_ID, cluster_name: "${var.cluster_name}"}}] | from_entries' \
-        | jq -s '{module: . | add, variable: { aws_account_role_arn: { type: "string" }, cluster_name: { type: "string" } }, provider: { aws: { region: "eu-west-2", assume_role: { role_arn: "${var.aws_account_role_arn}" } } } }' \
-        > ../namespace-roles-terraform/namespace-roles.tf.json
+      generate-namespace-roles-terraform.py --account-id $ACCOUNT_ID --config-file $CONFIG_VALUES_PATH > ../namespace-roles-terraform/namespace-roles.tf.json
       cat ../namespace-roles-terraform/namespace-roles.tf.json
   inputs:
   - name: config
