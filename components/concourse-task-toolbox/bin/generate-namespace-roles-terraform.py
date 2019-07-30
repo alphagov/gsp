@@ -32,12 +32,13 @@ out_data = {
 }
 
 for namespace in in_data.get('namespaces', []):
-    out_data['module']['-'.join([namespace['name'], 'policies'])] = {
-        "source": "../platform/modules/gsp-namespace-policies",
-        "namespace_name": namespace['name'],
-        "account_id": args.account_id,
-        "cluster_name": "${var.cluster_name}"
-    }
+    if len(namespace.get('roles', [])):
+        out_data['module']['-'.join([namespace['name'], 'policies'])] = {
+            "source": "../platform/modules/gsp-namespace-policies",
+            "namespace_name": namespace['name'],
+            "account_id": args.account_id,
+            "cluster_name": "${var.cluster_name}"
+        }
     for role in namespace.get('roles', []):
         out_data['module']['-'.join([namespace['name'], role['name']])] = {
             "source": "../platform/modules/gsp-namespace-role",
