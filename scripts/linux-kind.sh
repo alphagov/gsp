@@ -5,6 +5,18 @@
 
 # Install Docker, Helm, Go, Kubectl and then Kind
 sudo apt-get -y install docker.io git
+
+
+if id | grep docker
+then
+	echo "Current user is already in the group 'docker'"
+else
+	sudo adduser $(whoami) docker
+	echo "Current user added to group 'docker'"
+	echo "Please logout, login again and rerun this script"
+	exit 1
+fi
+
 sudo systemctl enable docker
 sudo systemctl start docker
 sudo snap install helm --classic
@@ -20,6 +32,8 @@ git checkout v0.2.1
 go install
 rm -rf ${TMPDIR}/kind
 cd ${CURRENTDIR}
+
+PATH="${HOME}/go/bin:${PATH}"
 
 # Now install GSP
 ./scripts/gsp-local-linux-kind.sh delete
