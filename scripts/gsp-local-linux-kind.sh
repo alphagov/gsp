@@ -87,7 +87,6 @@ function apply() {
 }
 
 log "Creating local GSP..."
-kind delete cluster
 kind create cluster
 
 export KUBECONFIG="$(kind get kubeconfig-path --name="kind")"
@@ -125,6 +124,9 @@ apply "${script_dir}/hack/expose-grafana.yaml"
 kubectl cluster-info
 
 echo "Now execute in your local shell"
+echo 'export PATH="${HOME}/go/bin:${PATH}'
+echo "You may also wish to add this to ~/.profile"
+echo
 echo 'export KUBECONFIG="$(kind get kubeconfig-path --name="kind")"'
 echo 
 log "Local GSP ready."
