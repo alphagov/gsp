@@ -9,7 +9,6 @@
 - [GSP Architecture](/docs/architecture/gsp-architecture.md)
 - [GSP Architecture Continuous Deployment](/docs/architecture/gsp-architecture-continuous-deployment.md)
 - [GSP Architecture Cloud Infrastructure](/docs/architecture/gsp-architecture-cloud-infrastructure.md)
-- [GSP Architecture Local Environment](/docs/architecture/gsp-local.md)
 - [GSP Architecture Overview](/docs/architecture/gsp-architecture-overview.md)
 - [GSP Terraform](gds-supported-platform/terraform.md)
 - [Incident Reports](incident-reports)
