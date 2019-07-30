@@ -88,7 +88,7 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     name: dev
-  name: {{ .Values.global.account.name }}-viewer
+  name: {{ .Values.global.account.name }}-dev-viewer
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
