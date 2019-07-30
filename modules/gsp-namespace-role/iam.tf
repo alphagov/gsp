@@ -16,7 +16,8 @@ data "aws_iam_policy_document" "namespace-sqs" {
 
     actions = [
       "sqs:SendMessage",
-      "sqs:ReceiveMessage"
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage"
     ]
 
     resources = ["arn:aws:sqs:*:${var.account_id}:${var.cluster_name}-sqsqueue-${var.namespace_name}-*"]
