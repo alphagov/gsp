@@ -39,7 +39,10 @@ spec:
         - name: CONCOURSE_USERNAME
           value: {{ .Values.pipelineOperator.concourseUsername | quote }}
         - name: CONCOURSE_PASSWORD
-          value: {{ .Values.pipelineOperator.concoursePassword | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-pipeline-operator
+              key: concourse_password
         - name: CONCOURSE_INSECURE_SKIP_VERIFY
           value: {{ .Values.pipelineOperator.concourseInsecureSkipVerify | quote }}
         - name: POD_NAMESPACE
