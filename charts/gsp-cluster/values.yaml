@@ -349,6 +349,9 @@ concourse:
   persistence:
     worker:
       size: 64Gi
+  postgresql:
+    persistence:
+      size: 64Gi
 
 pipelineOperator:
   service:
