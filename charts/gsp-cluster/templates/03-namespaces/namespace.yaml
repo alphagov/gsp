@@ -21,7 +21,7 @@ metadata:
   labels:
     namespace: {{ .name }}
   annotations:
-    iam.amazonaws.com/permitted: {{ .permittedRolesRegex | default "^$" | quote }}|^{{ $.Values.global.cluster.name }}-namespace-{{ .name }}$
+    iam.amazonaws.com/permitted: {{ .permittedRolesRegex | default "^$" | quote }}|^{{ $.Values.global.cluster.name }}-namespace-{{ .name }}-.*$
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
