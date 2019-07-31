@@ -67,7 +67,7 @@ func TestReconcile(t *testing.T) {
 		scheme: mgr.GetScheme(),
 		newClient: func(team string) (concourse.Client, error) {
 			if team != "myteam" {
-				t.Fatalf("modifying piplines must be done from target team got: %s expected: myteam", team)
+				t.Fatalf("modifying pipelines must be done from target team got: %s expected: myteam", team)
 			}
 			return concourseClient, nil
 		},
@@ -134,9 +134,9 @@ func TestReconcile(t *testing.T) {
 		if teamClient.CreateOrUpdatePipelineConfigCallCount() < 1 {
 			return nil
 		}
-		piplineName, configVersion, pipelineBytes, checkCreds := teamClient.CreateOrUpdatePipelineConfigArgsForCall(0)
+		pipelineName, configVersion, pipelineBytes, checkCreds := teamClient.CreateOrUpdatePipelineConfigArgsForCall(0)
 		return &pipelineArgs{
-			Name:       piplineName,
+			Name:       pipelineName,
 			Version:    configVersion,
 			Pipeline:   pipelineBytes,
 			checkCreds: checkCreds,
@@ -150,7 +150,7 @@ func TestReconcile(t *testing.T) {
 	// reconcile should be called again
 	g.Eventually(requests, timeout).Should(gomega.Receive(gomega.Equal(expectedRequest)))
 
-	// DeletePipeline should be called with the pipline name
+	// DeletePipeline should be called with the pipeline name
 	g.Eventually(func() string {
 		if teamClient.DeletePipelineCallCount() < 1 {
 			return ""
