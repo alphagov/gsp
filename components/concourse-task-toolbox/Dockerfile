@@ -25,12 +25,12 @@ RUN apk add --update \
 	netcat-openbsd \
 	groff \
 	less \
-	python \
-	py-pip \
+	python3 \
+	py3-pip \
 	mailcap \
 	ncurses \
-	&& pip install awscli s3cmd yq \
-	&& apk -v --purge del py-pip \
+	&& pip3 install awscli s3cmd yq \
+	&& apk -v --purge del py3-pip \
 	&& rm /var/cache/apk/*
 
 # install kubectl

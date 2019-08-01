@@ -3,7 +3,7 @@ FROM ubuntu:xenial
 RUN apt-get update && \
     apt-get install -y curl \
                 netcat \
-                python \
+                python3 \
                 redis-tools \
                 telnet \
                 vim \
