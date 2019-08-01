@@ -147,7 +147,6 @@ prometheus-operator:
       externalLabels:
         clustername: ${cluster_domain}
         product: ${account_name}
-        deployment: gsp
       additionalAlertManagerConfigs:
       - static_configs:
         - targets:
