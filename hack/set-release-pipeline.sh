@@ -4,6 +4,7 @@ set -eu -o pipefail
 
 : "${USER_CONFIGS:?}"
 
+FLY_BIN=${FLY_BIN:-fly}
 PIPELINE_NAME="release"
 
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
@@ -27,9 +28,9 @@ yq . ${USER_CONFIGS}/*.yaml \
 	| jq -c -s '[ .[].pub ] | sort' \
 	>> "${trusted}"
 
-fly -t cd-gsp sync
+$FLY_BIN -t cd-gsp sync
 
-fly -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
+$FLY_BIN -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--config "pipelines/release/release.yaml" \
 	--load-vars-from "${approvers}" \
 	--load-vars-from "${trusted}" \
@@ -38,4 +39,4 @@ fly -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--var "github-release-tag-prefix=gsp-" \
 	--check-creds "$@"
 
-fly -t cd-gsp expose-pipeline -p "${PIPELINE_NAME}"
+$FLY_BIN -t cd-gsp expose-pipeline -p "${PIPELINE_NAME}"
