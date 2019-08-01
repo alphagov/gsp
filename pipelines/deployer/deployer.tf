@@ -163,3 +163,23 @@ output "values" {
   sensitive = true
   value     = "${module.gsp-cluster.values}"
 }
+
+output "vpc_id" {
+  value = "${module.gsp-network.vpc_id}"
+}
+
+output "subnet_ids" {
+  value = "${module.gsp-network.private_subnet_ids}"
+}
+
+output "worker_security_group_id" {
+  value = "${module.gsp-cluster.worker_security_group_id}"
+}
+
+output "r53_zone_id" {
+  value = "${module.gsp-domain.zone_id}"
+}
+
+output "r53_zone_name" {
+  value = "${module.gsp-domain.name}"
+}
