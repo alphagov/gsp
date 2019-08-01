@@ -6,7 +6,24 @@ metadata:
   name: sre
 rules:
   - apiGroups: [""]
-    resources: ["pods"]
+    resources:
+    - configmaps
+    - pods
+    - secrets
+    - services
+    verbs:
+    - delete
+  - apiGroups: ["apps"]
+    resources:
+    - deployments
+    - replicasets
+    - statefulsets
+    verbs:
+    - delete
+  - apiGroups: ["extensions"]
+    resources:
+    - deployments
+    - replicasets
     verbs:
     - delete
   - apiGroups: [""]
