@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import collections
 import json
 import yaml
 
@@ -13,10 +14,7 @@ with open(args.config_file) as f:
 
 out_data = {
     "module": {},
-    "resource": {
-        "aws_iam_role": {},
-        "aws_iam_role_policy_attachment": {}
-    },
+    "resource": collections.defaultdict(dict),
     "variable": {
         "aws_account_role_arn": {
             "type": "string"
