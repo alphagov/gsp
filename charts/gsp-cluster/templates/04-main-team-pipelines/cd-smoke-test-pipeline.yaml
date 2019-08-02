@@ -71,6 +71,7 @@ spec:
         trigger: true
       - get: src
       - put: image
+        get_params: {skip_download: true}
         params:
           build: src/components/canary
           dockerfile: src/components/canary/Dockerfile
