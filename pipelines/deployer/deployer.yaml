@@ -852,6 +852,6 @@ jobs:
     params:
       env_name: ((account-name))
       terraform_source: namespace-roles-terraform
-      action: apply
+      action: destroy
     get_params:
-      action: apply
+      action: destroy
