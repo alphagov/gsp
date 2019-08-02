@@ -13,7 +13,10 @@ AWS Service Operator is a tool we use to allow GSP users to write kubeyaml resou
     maximumMessageSize: 1024
 ```
 This will create an SQS Queue on AWS named alexs-test-queue, with a message retention period of 1 hour, and a maximum message size of 1KiB.
+TODO: How do you connect to it?
 Note that missing those parameters from the spec may lead to it trying to deploy CloudFormation that simply errors as soon as AWS attempts to run it. If a resource does not appear as expected you can go into the AWS CloudFormation console and find out why.
+
+## Resources supported
 
 Alongside SQS Queues, it supports the following resources:
 * CloudFormation Template
