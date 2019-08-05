@@ -12,23 +12,20 @@ args = parser.parse_args()
 with open(args.config_file) as f:
     in_data = yaml.safe_load(f)
 
-out_data = {
-    "module": {},
-    "resource": collections.defaultdict(dict),
-    "variable": {
-        "aws_account_role_arn": {
-            "type": "string"
-        },
-        "cluster_name": {
-            "type": "string"
-        }
+out_data = collections.defaultdict(lambda: collections.defaultdict(dict))
+out_data["variable"] = {
+    "aws_account_role_arn": {
+        "type": "string"
     },
-    "provider": {
-        "aws": {
-            "region": "eu-west-2",
-            "assume_role": {
-                "role_arn": "${var.aws_account_role_arn}"
-            }
+    "cluster_name": {
+        "type": "string"
+    }
+}
+out_data["provider"] = {
+    "aws": {
+        "region": "eu-west-2",
+        "assume_role": {
+            "role_arn": "${var.aws_account_role_arn}"
         }
     }
 }
