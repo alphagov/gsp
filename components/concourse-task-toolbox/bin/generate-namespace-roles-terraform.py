@@ -59,7 +59,7 @@ for namespace in in_data.get('namespaces', []):
         for policy in role['policies']:
             policy_name = genResourceID("${var.cluster_name}", "namespace", namespace['name'], policy)
             out_data['resource']['aws_iam_role_policy_attachment'][genResourceID(namespace['name'], role['name'], policy)] = {
-                "role": genResourceID("${var.cluster_name}", "namespace", namespace['name']),
+                "role": genResourceID("${var.cluster_name}", "namespace", namespace['name'], role['name']),
                 "policy_arn": genResourceID("arn", "aws", "iam", "", args.account_id, "policy/" + policy_name, delimiter=":")
             }
 
