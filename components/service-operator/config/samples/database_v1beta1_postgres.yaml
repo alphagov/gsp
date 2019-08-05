@@ -1,0 +1,7 @@
+apiVersion: database.gsp.k8s.io/v1beta1/v1beta1
+kind: Postgres
+metadata:
+  name: postgres-sample
+spec:
+  # Add fields here
+  foo: bar
