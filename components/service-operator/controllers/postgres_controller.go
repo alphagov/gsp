@@ -19,10 +19,11 @@ import (
 	"context"
 
 	"github.com/go-logr/logr"
+	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	database "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
 )
 
 // PostgresReconciler reconciles a Postgres object
@@ -31,20 +32,33 @@ type PostgresReconciler struct {
 	Log logr.Logger
 }
 
+func ignoreNotFound(err error) error {
+	if apierrs.IsNotFound(err) {
+		return nil
+	}
+	return err
+}
+
 // +kubebuilder:rbac:groups=database.gsp.k8s.io/v1beta1,resources=postgres,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=database.gsp.k8s.io/v1beta1,resources=postgres/status,verbs=get;update;patch
 
 func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("postgres", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("postgres", req.NamespacedName)
 
-	// your logic here
+	var postgres database.Postgres
+	if err := r.Get(ctx, req.NamespacedName, &postgres); err != nil {
+		log.Error(err, "unable to fetch Postgres")
+		return ctrl.Result{}, ignoreNotFound(err)
+	}
+
+	log.Info("%#v", postgres)
 
 	return ctrl.Result{}, nil
 }
 
 func (r *PostgresReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&databasev1beta1.Postgres{}).
+		For(&database.Postgres{}).
 		Complete(r)
 }
