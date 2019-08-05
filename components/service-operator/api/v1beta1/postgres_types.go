@@ -22,16 +22,23 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// AWS allows specifying configuration for the Postgres RDS instance
+type AWS struct {
+	InstanceType string `json:"instanceType,omitempty"`
+}
+
 // PostgresSpec defines the desired state of Postgres
 type PostgresSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	AWS AWS `json:"aws,omitempty"`
 }
 
 // PostgresStatus defines the observed state of Postgres
 type PostgresStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	Status string `json:"status"`
 }
 
 // +kubebuilder:object:root=true
