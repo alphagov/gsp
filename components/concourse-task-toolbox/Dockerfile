@@ -29,7 +29,7 @@ RUN apk add --update \
 	py3-pip \
 	mailcap \
 	ncurses \
-	&& pip3 install awscli s3cmd yq \
+	&& pip3 install awscli s3cmd yq PyYAML \
 	&& apk -v --purge del py3-pip \
 	&& rm /var/cache/apk/*
 
@@ -77,6 +77,7 @@ RUN curl -LO https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/d
 	&& mv aws-iam-authenticator_0.4.0-alpha.1_linux_amd64 /usr/local/bin/aws-iam-authenticator
 
 COPY bin/aws-assume-role /usr/local/bin/
+COPY bin/generate-namespace-roles-terraform.py /usr/local/bin/
 
 # --------------------output------------------------
 
