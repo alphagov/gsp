@@ -112,7 +112,6 @@ prometheus-operator:
   prometheus:
     prometheusSpec:
       externalLabels:
-        deployment: gsp
         product: local
       retention: "60d"
       ruleSelectorNilUsesHelmValues: false
