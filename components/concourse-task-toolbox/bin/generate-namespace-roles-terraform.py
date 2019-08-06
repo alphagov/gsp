@@ -53,8 +53,7 @@ for namespace in in_data.get('namespaces', []):
                         "AWS": genResourceID("arn", "aws", "iam", "", args.account_id, "role/${var.cluster_name}_kiam_server", delimiter=":")
                     }
                 }
-            }),
-            "path": "/gsp/${var.cluster_name}/namespaceroles/"
+            })
         }
         for policy in role['policies']:
             policy_name = genResourceID("${var.cluster_name}", "namespace", namespace['name'], policy)
