@@ -365,6 +365,14 @@ pipelineOperator:
   concoursePassword: password
   concourseInsecureSkipVerify: "false"
 
+serviceOperator:
+  service:
+    port: 443
+  serviceAccountName: service-operator-service-account
+  image:
+    repository: govsvc/service-operator
+    tag: latest
+
 harbor:
   harborAdminPassword: ""
   chartmuseum:

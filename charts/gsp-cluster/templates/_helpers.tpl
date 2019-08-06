@@ -36,6 +36,10 @@ Create chart name and version as used by the chart label.
 {{- printf "%s-%s" .Release.Name .Values.pipelineOperator.serviceAccountName -}}
 {{- end -}}
 
+{{- define "serviceOperator.serviceAccountName" -}}
+{{- printf "%s-%s" .Release.Name .Values.serviceOperator.serviceAccountName -}}
+{{- end -}}
+
 {{/*
 These concourse-related templates need to match the values
 templated by the concourse chart - there doesn't appear to be
