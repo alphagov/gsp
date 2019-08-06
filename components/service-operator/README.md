@@ -8,6 +8,7 @@ Given a configuration file of the form:
   kind: Postgres
 spec:
   aws:
+    diskSizeGB: 150
     instanceType: db.m5.large
 ```
 

@@ -24,6 +24,7 @@ import (
 
 // AWS allows specifying configuration for the Postgres RDS instance
 type AWS struct {
+	DiskSizeGB   int    `json:"diskSizeGB,omitempty"`
 	InstanceType string `json:"instanceType,omitempty"`
 }
 
