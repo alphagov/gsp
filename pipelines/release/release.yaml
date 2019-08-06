@@ -64,6 +64,13 @@ resources:
     password: ((dockerhub-password))
     repository: govsvc/concourse-operator
 
+- name: service-operator
+  type: docker-image
+  source:
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: govsvc/service-operator
+
 - name: concourse-task-toolbox
   type: docker-image
   source:
@@ -212,6 +219,53 @@ jobs:
     get_params:
       skip_download: true
 
+- name: build-service-operator
+  serial: true
+  plan:
+  - aggregate:
+    - get: platform
+      passed: [selfupdate]
+      trigger: true
+    - get: release
+  - task: run-tests
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: golang
+          tag: 1.12.7-buster
+      inputs:
+      - name: platform
+      run:
+        path: /bin/bash
+        args:
+          - -euo
+          - pipefail
+          - -c
+          - |
+            echo "prepare kubebuilder setup... see https://book.kubebuilder.io/quick-start.html#installation"
+            os=$(go env GOOS)
+            arch=$(go env GOARCH)
+            curl -sL https://go.kubebuilder.io/dl/2.0.0-beta.0/${os}/${arch} | tar -xz -C /tmp/
+            mv /tmp/kubebuilder_2.0.0-beta.0_${os}_${arch} /usr/local/kubebuilder
+            export PATH=$PATH:/usr/local/kubebuilder/bin
+
+            cd platform/components/service-operator
+            make test
+  - task: version
+    file: platform/pipelines/tasks/bump-semver.yaml
+  - put: service-operator
+    params:
+      build: platform/components/service-operator
+      dockerfile: platform/components/service-operator/Dockerfile
+      tag_file: version/tag
+      tag_as_latest: true
+      cache: true
+      cache_tag: latest
+    get_params:
+      skip_download: true
+
 - name: package
   serial: true
   serial_groups: [release]
@@ -224,12 +278,14 @@ jobs:
       - build-concourse-github-resource
       - build-concourse-harbor-resource
       - build-concourse-operator
+      - build-service-operator
     - get: release
       passed:
       - build-concourse-task-toolbox
       - build-concourse-github-resource
       - build-concourse-harbor-resource
       - build-concourse-operator
+      - build-service-operator
     - get: concourse-task-toolbox
       passed: [build-concourse-task-toolbox]
       trigger: true
@@ -241,6 +297,9 @@ jobs:
       trigger: true
     - get: concourse-operator
       passed: [build-concourse-operator]
+      trigger: true
+    - get: service-operator
+      passed: [build-service-operator]
       trigger: true
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
@@ -254,6 +313,7 @@ jobs:
       - name: concourse-github-resource
       - name: concourse-harbor-resource
       - name: concourse-operator
+      - name: service-operator
       outputs:
       - name: cluster-values
       run:
@@ -270,6 +330,10 @@ jobs:
               image:
                 repository: $(cat concourse-operator/repository)@$(cat concourse-operator/digest | cut -d ':' -f 1)
                 tag: $(cat concourse-operator/digest | cut -d ':' -f 2)
+            serviceOperator:
+              image:
+                repository: $(cat service-operator/repository)@$(cat service-operator/digest | cut -d ':' -f 1)
+                tag: $(cat service-operator/digest | cut -d ':' -f 2)
             concourseResources:
               task:
                 image:
