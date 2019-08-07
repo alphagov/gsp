@@ -271,7 +271,7 @@ spec:
         github_api_token: ((github.api-token))
         access_token: ((github.api-token))
         approvers: ((trusted-developers.github-accounts))
-        required_approval_count: {{ .requiredApprovalCount | default 2 }}
+        required_approval_count: {{ required (printf "Missing requiredApprovalCount for namespace %s" .name) .requiredApprovalCount }}
         commit_verification_keys: ((trusted-developers.gpg-keys))
         paths:
         - {{ .path | quote }}
