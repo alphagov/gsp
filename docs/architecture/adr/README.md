@@ -34,4 +34,5 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #029 - Pull based Continuous delivery tools](ADR029-continuous-delivery-tools.md)
 - [ADR #030 - AWS Service Operator](ADR030-aws-service-operator.md)
 - [ADR #031 - Postgres](ADR031-postgres.md)
+- [ADR #032 - SRE permissions](ADR032-sre-permissions.md)
 - [ADR #033 - NLB for mTLS](ADR033-nlb-for-mtls.md)
