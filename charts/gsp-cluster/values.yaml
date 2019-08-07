@@ -69,7 +69,7 @@ kiam:
       - effect: NoSchedule
         key: node-role.kubernetes.io/cluster-management
     log:
-      level: warn
+      level: info
     probes:
       serverAddress: 127.0.0.1
     extraHostPathMounts:
@@ -89,7 +89,7 @@ kiam:
       keyFileName: agent-key.pem
       caFileName: ca.pem
     log:
-      level: warn
+      level: info
     tolerations:
     - key: node-role.kubernetes.io/ci
       effect: NoSchedule
