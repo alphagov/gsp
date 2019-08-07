@@ -8,7 +8,7 @@ data "aws_iam_policy_document" "namespace-sqs" {
       "sqs:DeleteMessage"
     ]
 
-    resources = ["arn:aws:sqs:*:${var.account_id}:${var.cluster_name}-sqsqueue-${var.namespace_name}-*"]
+    resources = ["arn:aws:sqs:*:${var.account_id}:${var.cluster_name}-sqsqueue-*"]
   }
 }
 
