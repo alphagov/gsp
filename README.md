@@ -32,7 +32,7 @@ GSP is not a managed service.
 
 If you are a team looking for a fully managed platform, we recommend you evaluate [GOV.UK PaaS](https://docs.cloud.service.gov.uk) before attempting to run and manage your own GSP instance. 
 
-The platform has been designed to complement an organisation that practices a Reliability Eningeering model that assumes there exists a small number of infrastructure and reliability focused members capable of supporting a much larger team or programme.
+The platform has been designed to complement an organisation that practices a Reliability Engineering model that assumes there exists a small number of infrastructure and reliability focused members capable of supporting a much larger team or programme.
 
 ![](./docs/assets/paas-spectrum.png)
 
