@@ -179,3 +179,9 @@ variable "concourse_main_team_github_teams" {
   default     = ["alphagov:re-gsp"]
   description = "the list of github teams authorized to view the concourse 'main' team"
 }
+
+variable "enable_nlb" {
+  default = "0"
+  type = "string"
+  description = "create an NLB for the worker nodes"
+}

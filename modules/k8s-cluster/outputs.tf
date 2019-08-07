@@ -18,6 +18,10 @@ output "worker_http_target_group_arn" {
   value = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]}"
 }
 
+output "worker_tcp_target_group_arn" {
+  value = "${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
+}
+
 output "eks-log-group-arn" {
   value = "${aws_cloudwatch_log_group.eks.arn}"
 }
