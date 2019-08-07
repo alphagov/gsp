@@ -347,7 +347,7 @@ concourse:
       enableTeamAuditing: true
   persistence:
     worker:
-      size: 64Gi
+      size: 128Gi
   postgresql:
     persistence:
       size: 64Gi
