@@ -1,5 +1,5 @@
 version: "2"
-domain: gsp.k8s.io/v1beta1
+domain: gsp.k8s.io
 repo: github.com/alphagov/gsp/components/service-operator
 resources:
 - group: database

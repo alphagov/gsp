@@ -1,10 +1,9 @@
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
-  name: manager-role
+  name: {{ .Release.Name }}-service-operator-role
 rules:
 - apiGroups:
   - database.gsp.k8s.io
@@ -26,3 +25,15 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete

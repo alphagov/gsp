@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-service-operator
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}-service-operator"
+    helm.sh/chart: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    control-plane: {{ .Release.Name }}-service-operator
+    controller-tools.k8s.io: "1.0"
+spec:
+  selector:
+    matchLabels:
+      control-plane: {{ .Release.Name }}-service-operator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        control-plane: {{ .Release.Name }}-service-operator
+    spec:
+      containers:
+      - command:
+        - /manager
+        args:
+        - --enable-leader-election
+        image: "{{ .Values.serviceOperator.image.repository }}:{{ .Values.serviceOperator.image.tag }}"
+        name: manager
+        env:
+        - name: CLOUD_PROVIDER
+          value: "aws"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+      terminationGracePeriodSeconds: 10

@@ -4,9 +4,9 @@ apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   creationTimestamp: null
-  name: postgres.database.gsp.k8s.io/v1beta1
+  name: postgres.database.gsp.k8s.io
 spec:
-  group: database.gsp.k8s.io/v1beta1
+  group: database.gsp.k8s.io
   names:
     kind: Postgres
     plural: postgres
@@ -31,9 +31,10 @@ spec:
           description: PostgresSpec defines the desired state of Postgres
           properties:
             aws:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "make" to regenerate code after modifying this file'
+              description: AWS specific subsection of the resource.
               properties:
+                diskSizeGB:
+                  type: integer
                 instanceType:
                   type: string
               type: object
@@ -42,9 +43,7 @@ spec:
           description: PostgresStatus defines the observed state of Postgres
           properties:
             status:
-              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                of cluster Important: Run "make" to regenerate code after modifying
-                this file'
+              description: Status of the currently running instance.
               type: string
           required:
           - status
