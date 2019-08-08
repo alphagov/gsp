@@ -81,6 +81,11 @@ variable "eks_version" {
   type        = "string"
 }
 
+variable "enable_nlb" {
+  type    = "string"
+  default = "0"
+}
+
 data "aws_caller_identity" "current" {}
 
 module "gsp-domain" {
@@ -153,6 +158,8 @@ module "gsp-cluster" {
 
   github_client_id     = "${var.github_client_id}"
   github_client_secret = "${var.github_client_secret}"
+
+  enable_nlb = "${var.enable_nlb}"
 }
 
 output "kubeconfig" {
