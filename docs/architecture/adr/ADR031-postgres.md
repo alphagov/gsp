@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted, Supplemented by [ADR034](ADR034-one-service-operator-different-resource-kinds.md)
 
 ## Context
 
