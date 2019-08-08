@@ -32,6 +32,8 @@ type AWS struct {
 type PostgresSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// AWS specific subsection of the resource.
 	AWS AWS `json:"aws,omitempty"`
 }
 
@@ -39,6 +41,8 @@ type PostgresSpec struct {
 type PostgresStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Status of the currently running instance.
 	Status string `json:"status"`
 }
 
@@ -59,7 +63,8 @@ type Postgres struct {
 type PostgresList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Instances       []Postgres `json:"instances"`
+
+	Items []Postgres `json:"items,omitempty"`
 }
 
 func init() {

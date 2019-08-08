@@ -7,7 +7,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - database.gsp.k8s.io/v1beta1
+  - database.gsp.k8s.io
   resources:
   - postgres
   verbs:
@@ -19,7 +19,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - database.gsp.k8s.io/v1beta1
+  - database.gsp.k8s.io
   resources:
   - postgres/status
   verbs:

@@ -70,8 +70,8 @@ func (in *PostgresList) DeepCopyInto(out *PostgresList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
-	if in.Instances != nil {
-		in, out := &in.Instances, &out.Instances
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
 		*out = make([]Postgres, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])

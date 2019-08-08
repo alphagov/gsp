@@ -39,8 +39,8 @@ func ignoreNotFound(err error) error {
 	return err
 }
 
-// +kubebuilder:rbac:groups=database.gsp.k8s.io/v1beta1,resources=postgres,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=database.gsp.k8s.io/v1beta1,resources=postgres/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres/status,verbs=get;update;patch
 
 func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
@@ -52,7 +52,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, ignoreNotFound(err)
 	}
 
-	log.Info("%#v", postgres)
+	log.Info("GOT POSTGRES", "resource", postgres)
 
 	return ctrl.Result{}, nil
 }
