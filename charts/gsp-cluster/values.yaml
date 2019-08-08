@@ -119,6 +119,8 @@ prometheus-operator:
       secrets: [ istio.gsp-prometheus-operator-prometheus ]
       serviceMonitorSelectorNilUsesHelmValues: false
       serviceMonitorSelector: {}
+      query:
+        timeout: 30s
       additionalScrapeConfigs:
       - job_name: 'istio-mesh'
         kubernetes_sd_configs:
