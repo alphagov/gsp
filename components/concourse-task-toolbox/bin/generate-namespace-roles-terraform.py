@@ -5,8 +5,8 @@ import json
 import yaml
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--account-id")
-parser.add_argument("--config-file")
+parser.add_argument("--account-id", required=True)
+parser.add_argument("--config-file", required=True)
 args = parser.parse_args()
 
 with open(args.config_file) as f:
@@ -33,33 +33,34 @@ out_data["provider"] = {
 def genResourceID(*labels, delimiter='-'):
     return delimiter.join(labels)
 
-for namespace in in_data.get('namespaces', []):
-    if len(namespace.get('roles', [])):
-        out_data['module'][namespace['name']] = {
-            "source": "../platform/modules/gsp-namespace-policies",
-            "namespace_name": namespace['name'],
-            "account_id": args.account_id,
-            "cluster_name": "${var.cluster_name}"
-        }
-    for role in namespace.get('roles', []):
-        out_data['resource']['aws_iam_role'][genResourceID(namespace['name'], role['name'])] = {
-            "name": genResourceID("${var.cluster_name}", "namespace", namespace['name'], role['name']),
-            "assume_role_policy": json.dumps({
-                "Version": "2012-10-17",
-                "Statement": {
-                    "Effect": "Allow",
-                    "Action": "sts:AssumeRole",
-                    "Principal": {
-                        "AWS": genResourceID("arn", "aws", "iam", "", args.account_id, "role/${var.cluster_name}_kiam_server", delimiter=":")
-                    }
-                }
-            })
-        }
-        for policy in role['policies']:
-            policy_name = genResourceID("${var.cluster_name}", "namespace", namespace['name'], policy)
-            out_data['resource']['aws_iam_role_policy_attachment'][genResourceID(namespace['name'], role['name'], policy)] = {
-                "role": genResourceID("${var.cluster_name}", "namespace", namespace['name'], role['name']),
-                "policy_arn": genResourceID("arn", "aws", "iam", "", args.account_id, "policy/" + policy_name, delimiter=":")
+if in_data:
+    for namespace in in_data.get('namespaces', []):
+        if len(namespace.get('roles', [])):
+            out_data['module'][namespace['name']] = {
+                "source": "../platform/modules/gsp-namespace-policies",
+                "namespace_name": namespace['name'],
+                "account_id": args.account_id,
+                "cluster_name": "${var.cluster_name}"
             }
+        for role in namespace.get('roles', []):
+            out_data['resource']['aws_iam_role'][genResourceID(namespace['name'], role['name'])] = {
+                "name": genResourceID("${var.cluster_name}", "namespace", namespace['name'], role['name']),
+                "assume_role_policy": json.dumps({
+                    "Version": "2012-10-17",
+                    "Statement": {
+                        "Effect": "Allow",
+                        "Action": "sts:AssumeRole",
+                        "Principal": {
+                            "AWS": genResourceID("arn", "aws", "iam", "", args.account_id, "role/${var.cluster_name}_kiam_server", delimiter=":")
+                        }
+                    }
+                })
+            }
+            for policy in role['policies']:
+                policy_name = genResourceID("${var.cluster_name}", "namespace", namespace['name'], policy)
+                out_data['resource']['aws_iam_role_policy_attachment'][genResourceID(namespace['name'], role['name'], policy)] = {
+                    "role": genResourceID("${var.cluster_name}", "namespace", namespace['name'], role['name']),
+                    "policy_arn": genResourceID("arn", "aws", "iam", "", args.account_id, "policy/" + policy_name, delimiter=":")
+                }
 
 print(json.dumps(out_data))
