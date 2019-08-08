@@ -280,6 +280,13 @@ Resources:
       Protocol: HTTP
       VpcId: !Ref VpcId
 
+  TCPTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 31390
+      Protocol: TCP
+      VpcId: !Ref VpcId
+
   NodeGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -290,6 +297,7 @@ Resources:
       VPCZoneIdentifier: !Ref Subnets
       TargetGroupARNs:
         - !Ref HTTPTargetGroup
+        - !Ref TCPTargetGroup
       Tags:
         - Key: Name
           Value: !Sub ${ClusterName}-${NodeGroupName}
@@ -341,4 +349,8 @@ Outputs:
 
   HTTPTargetGroup:
     Description: A target group to node port 31380
+    Value: !Ref HTTPTargetGroup
+
+  TCPTargetGroup:
+    Description: A target group to node port 31390
     Value: !Ref HTTPTargetGroup
