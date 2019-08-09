@@ -37,4 +37,5 @@ spec:
           requests:
             cpu: 100m
             memory: 20Mi
+      serviceAccountName: {{ template "serviceOperator.serviceAccountName" . }}
       terminationGracePeriodSeconds: 10
