@@ -353,4 +353,4 @@ Outputs:
 
   TCPTargetGroup:
     Description: A target group to node port 31390
-    Value: !Ref HTTPTargetGroup
+    Value: !Ref TCPTargetGroup
