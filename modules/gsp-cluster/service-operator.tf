@@ -56,5 +56,5 @@ resource "aws_iam_policy" "service-operator" {
 resource "aws_iam_policy_attachment" "service-operator" {
   name       = "${var.cluster_name}-service-operator"
   roles      = ["${aws_iam_role.gsp-service-operator.name}"]
-  policy_arn = "${aws_iam_policy.harbor-s3.arn}"
+  policy_arn = "${aws_iam_policy.service-operator.arn}"
 }
