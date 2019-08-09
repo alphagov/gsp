@@ -22,7 +22,7 @@ resource "aws_lb" "ingress-nlb" {
 resource "aws_lb_listener" "ingress-nlb" {
   count = "${var.enable_nlb == 1 ? 1 : 0 }"
 
-  load_balancer_arn = "${aws_lb.ingress.arn}"
+  load_balancer_arn = "${aws_lb.ingress-nlb.arn}"
   protocol          = "TCP"
   port              = "443"
 
