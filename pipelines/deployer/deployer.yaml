@@ -207,6 +207,8 @@ apply_cluster_chart: &apply_cluster_chart
       apply manifests/${CHART_NAME}/templates/00-aws-auth/
       apply manifests/gsp-istio
       apply manifests/${CHART_NAME}/templates/01-aws-system/
+      apply manifests/${CHART_NAME}/templates/02-gsp-system/
+      apply manifests/${CHART_NAME}/templates/03-namespaces/
       apply manifests/
   inputs:
   - name: cluster-values
