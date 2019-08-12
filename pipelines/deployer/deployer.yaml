@@ -218,6 +218,7 @@ apply_cluster_chart: &apply_cluster_chart
         --values config/${CONFIG_VALUES_PATH} \
         --set global.runningOnAws=true \
         gsp/gsp-istio-*.tgz
+      kubectl delete -R -f manifests/gsp-istio/istio-cni
       helm template \
         --name istio \
         --namespace kube-system \
