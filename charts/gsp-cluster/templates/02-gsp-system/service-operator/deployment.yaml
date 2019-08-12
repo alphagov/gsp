@@ -17,6 +17,8 @@ spec:
   replicas: 1
   template:
     metadata:
+      annotations:
+        iam.amazonaws.com/role: {{ .Values.global.cluster.name }}-service-operator
       labels:
         control-plane: {{ .Release.Name }}-service-operator
     spec:
