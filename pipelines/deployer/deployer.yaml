@@ -218,7 +218,8 @@ apply_cluster_chart: &apply_cluster_chart
         --values config/${CONFIG_VALUES_PATH} \
         --set global.runningOnAws=true \
         gsp/gsp-istio-*.tgz
-      kubectl delete -R -f manifests/gsp-istio/istio-cni
+      kubectl delete -R -f manifests/gsp-istio/charts/istio-cni
+      rm -rf manifests/gsp-istio/charts/istio-cni
       helm template \
         --name istio \
         --namespace kube-system \
@@ -236,9 +237,9 @@ apply_cluster_chart: &apply_cluster_chart
         echo "---> ${1} applied OK!"
       }
       apply manifests/${CHART_NAME}/templates/00-aws-auth/
-      apply manifests/gsp-istio/istio-init
-      apply kube-system-manifests/gsp-istio/istio-cni
-      apply manifests/gsp-istio/istio
+      apply manifests/gsp-istio/charts/istio-init
+      apply kube-system-manifests/gsp-istio/charts/istio-cni
+      apply manifests/gsp-istio/charts/istio
       apply manifests/${CHART_NAME}/templates/01-aws-system/
       apply manifests/
   inputs:
