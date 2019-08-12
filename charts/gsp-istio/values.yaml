@@ -6,7 +6,7 @@ global:
     accessLogFile: "/dev/stdout"
 
 istio-cni:
-  tag: master-20190410-09-16
+  tag: release-1.1-20190808-09-16
   excludeNamespaces:
   - istio-system
   - kube-system

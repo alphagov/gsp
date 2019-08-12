@@ -98,3 +98,9 @@ helm template \
 	--values output/values.yaml \
 	"charts/gsp-cluster"
 
+helm template \
+--name istio \
+--namespace istio-system \
+--output-dir output \
+--set global.runningOnAws=true \
+charts/gsp-istio
