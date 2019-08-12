@@ -197,6 +197,7 @@ apply_cluster_chart: &apply_cluster_chart
       echo "RELEASE_TAG=${RELEASE_TAG}"
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
+      mkdir -p kube-system-manifests
       helm template \
         --name "${CHART_RELEASE_NAME}" \
         --namespace "${DEFAULT_NAMESPACE}" \
@@ -217,6 +218,13 @@ apply_cluster_chart: &apply_cluster_chart
         --values config/${CONFIG_VALUES_PATH} \
         --set global.runningOnAws=true \
         gsp/gsp-istio-*.tgz
+      helm template \
+        --name istio \
+        --namespace kube-system \
+        --output-dir kube-system-manifests \
+        --values config/${CONFIG_VALUES_PATH} \
+        --set global.runningOnAws=true \
+        gsp/gsp-istio-*.tgz
       function apply() {
         echo "applying ${1} from ${CHART_NAME} chart..."
         until kubectl apply -R -f $1; do
@@ -227,7 +235,9 @@ apply_cluster_chart: &apply_cluster_chart
         echo "---> ${1} applied OK!"
       }
       apply manifests/${CHART_NAME}/templates/00-aws-auth/
-      apply manifests/gsp-istio
+      apply manifests/gsp-istio/istio-init
+      apply kube-system-manifests/gsp-istio/istio-cni
+      apply manifests/gsp-istio/istio
       apply manifests/${CHART_NAME}/templates/01-aws-system/
       apply manifests/
   inputs:
