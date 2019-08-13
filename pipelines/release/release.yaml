@@ -145,6 +145,9 @@ jobs:
     - get: release
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
+      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: concourse-task-toolbox
     params:
       build: platform/components/concourse-task-toolbox
@@ -165,6 +168,9 @@ jobs:
     - get: release
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
+      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: concourse-github-resource
     params:
       build: platform/components/concourse-github-resource
@@ -186,6 +192,9 @@ jobs:
     - get: release
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
+      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: concourse-harbor-resource
     params:
       build: platform/components/concourse-harbor-resource
@@ -207,6 +216,9 @@ jobs:
     - get: release
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
+      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: concourse-operator
     params:
       build: platform/components/concourse-operator
@@ -254,6 +266,9 @@ jobs:
             make test
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
+      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: service-operator
     params:
       build: platform/components/service-operator
@@ -302,6 +317,9 @@ jobs:
       trigger: true
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
+      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:
@@ -453,6 +471,11 @@ jobs:
           echo overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
+  - task: rc-version
+    file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
+      DEST_TAG_PREFIX: ((github-release-tag-prefix))rc-v
   - put: candidate-release
     params:
       name: version/name
@@ -489,6 +512,11 @@ jobs:
             gpg --armor --detach-sign "$file"
             cp ${file}* signed-release/
           done
+  - task: pre-release-version
+    file: platform/pipelines/tasks/bump-semver.yaml
+    params:
+      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
+      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: pre-release
     params:
       name: version/name
