@@ -235,6 +235,26 @@ prometheus-operator:
         - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
           action: keep
           regex: istio-citadel;http-monitoring
+      - job_name: 'kiam-agent'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - gsp-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: gsp-kiam-agent;metrics
+      - job_name: 'kiam-server'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - gsp-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: gsp-kiam-server;metrics
       - job_name: 'kubernetes-pods-istio-secure'
         scheme: https
         tls_config:
