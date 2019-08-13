@@ -6,7 +6,6 @@ groups:
   - apply
   - check-canary
   - check-logging
-  - check-conformance
   - check-tools
 - name: destroy
   jobs:
@@ -777,24 +776,6 @@ jobs:
     params:
       ACCOUNT_ROLE_ARN: ((account-role-arn))
       CLUSTER_DOMAIN: ((cluster-domain))
-
-- name: check-conformance
-  plan:
-  - get: task-toolbox
-  - get: gsp
-    passed: [apply]
-    trigger: true
-  - task: run-conformance-tests
-    image: task-toolbox
-    timeout: 15m
-    config: *check_conformance
-    params:
-      ACCOUNT_ROLE_ARN: ((account-role-arn))
-      ACCOUNT_NAME: ((account-name))
-      CLUSTER_NAME: ((cluster-name))
-      DEFAULT_NAMESPACE: gsp-system
-      AWS_REGION: eu-west-2
-      AWS_DEFAULT_REGION: eu-west-2
 
 - name: check-tools
   plan:
