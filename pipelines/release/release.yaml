@@ -146,7 +146,6 @@ jobs:
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
       DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: concourse-task-toolbox
     params:
@@ -169,7 +168,6 @@ jobs:
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
       DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: concourse-github-resource
     params:
@@ -193,7 +191,6 @@ jobs:
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
       DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: concourse-harbor-resource
     params:
@@ -217,7 +214,6 @@ jobs:
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
       DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: concourse-operator
     params:
@@ -267,7 +263,6 @@ jobs:
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
       DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: service-operator
     params:
@@ -318,7 +313,6 @@ jobs:
   - task: version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
       DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
@@ -474,7 +468,6 @@ jobs:
   - task: rc-version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
       DEST_TAG_PREFIX: ((github-release-tag-prefix))rc-v
   - put: candidate-release
     params:
@@ -515,7 +508,6 @@ jobs:
   - task: pre-release-version
     file: platform/pipelines/tasks/bump-semver.yaml
     params:
-      SRC_TAG_PREFIX: ((github-release-tag-prefix))v
       DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: pre-release
     params:
