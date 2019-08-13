@@ -43,6 +43,15 @@ func coalesceString(values ...string) string {
 	return ""
 }
 
+func isInList(item string, items ...string) bool {
+	for _, element := range items {
+		if element == item {
+			return true
+		}
+	}
+	return false
+}
+
 func ignoreNotFound(err error) error {
 	if apierrs.IsNotFound(err) {
 		return nil
