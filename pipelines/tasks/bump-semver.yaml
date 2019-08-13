@@ -17,7 +17,7 @@ run:
   - |
     echo "bumping release number..."
     CURRENT_TAG=$(cat release/tag)
-    awk -F. '/[0-9]+\./{$NF++;print}' OFS=. <<< "${CURRENT_TAG}" > version/tag
+    sed  "s/${SRC_TAG_PREFIX}//" <<< "${CURRENT_TAG}" | awk -F. '/[0-9]+\./{$NF++;print}' OFS=. | sed "s/^/${DEST_TAG_PREFIX}/" > version/tag
     NEW_TAG=$(cat version/tag)
     echo "${NEW_TAG}" > version/name
     cat version/name
