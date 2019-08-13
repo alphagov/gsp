@@ -190,3 +190,7 @@ output "r53_zone_id" {
 output "r53_zone_name" {
   value = "${module.gsp-domain.name}"
 }
+
+output "cluster_domain" {
+  value = "${var.cluster_domain}"
+}
