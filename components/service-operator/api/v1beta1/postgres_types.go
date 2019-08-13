@@ -35,6 +35,8 @@ type PostgresSpec struct {
 
 	// AWS specific subsection of the resource.
 	AWS AWS `json:"aws,omitempty"`
+	// Secret name to be used for storing relevant instance secrets for further use.
+	Secret string `json:"secret,omitempty"`
 }
 
 // PostgresStatus defines the observed state of Postgres
@@ -42,8 +44,12 @@ type PostgresStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
+	// ID of an instance for a reference.
+	ID string `json:"id"`
 	// Status of the currently running instance.
 	Status string `json:"status"`
+	// Reason for the current status of the instance.
+	Reason string `json:"reason,omitempty"`
 }
 
 // +kubebuilder:object:root=true

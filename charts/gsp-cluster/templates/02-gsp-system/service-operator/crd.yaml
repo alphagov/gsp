@@ -38,14 +38,25 @@ spec:
                 instanceType:
                   type: string
               type: object
+            secret:
+              description: Secret name to be used for storing relevant instance secrets
+                for further use.
+              type: string
           type: object
         status:
           description: PostgresStatus defines the observed state of Postgres
           properties:
+            id:
+              description: ID of an instance for a reference.
+              type: string
+            reason:
+              description: Reason for the current status of the instance.
+              type: string
             status:
               description: Status of the currently running instance.
               type: string
           required:
+          - id
           - status
           type: object
       type: object
