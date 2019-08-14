@@ -382,7 +382,7 @@ You must create and apply a set of deployable manifests to tell the GSP local in
     virtualservice.networking.istio.io/prototype-kit created
     ```
 
-### Check the service, virtualservice, destinatiorule and Kubernetes Deployment are live
+### Check the service, virtualservice, destinationrule and Kubernetes Deployment are live
 
 1. Check that the Kubernetes Deployment is live:
 
