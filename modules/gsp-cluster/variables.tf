@@ -57,7 +57,7 @@ variable "worker_count" {
 
 variable "worker_instance_type" {
   type    = "string"
-  default = "t2.small"
+  default = "t3.medium"
 }
 
 variable "ci_worker_count" {
@@ -181,7 +181,7 @@ variable "concourse_main_team_github_teams" {
 }
 
 variable "enable_nlb" {
-  default = "0"
-  type = "string"
+  default     = "0"
+  type        = "string"
   description = "create an NLB for the worker nodes"
 }
