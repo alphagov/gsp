@@ -1,8 +1,14 @@
 package aws
 
 import (
+	"crypto/rand"
+	"fmt"
+	"strings"
+
 	database "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
 
+	"github.com/aws/aws-sdk-go/aws"
+	awscloudformation "github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/awslabs/goformation/cloudformation"
 	"github.com/awslabs/goformation/cloudformation/resources"
 )
@@ -11,9 +17,18 @@ const (
 	Engine       = "aurora-postgresql"
 	Family       = "aurora-postgresql10"
 	DefaultClass = "db.r5.large"
+
+	charactersUpper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	charactersLower   = "abcdefghijklmnopqrstuvwxyz"
+	charactersNumeric = "0123456789"
+	charactersSpecial = "~=+%^*()[]{}!#$?|"
 )
 
-func AuroraPostgres(stackName string, postgresConfig *database.Postgres) *cloudformation.Template {
+type AuroraPostgres struct {
+	PostgresConfig *database.Postgres
+}
+
+func (p *AuroraPostgres) Template(stackName string) *cloudformation.Template {
 	template := cloudformation.NewTemplate()
 
 	template.Parameters["MasterUsername"] = map[string]string{
@@ -33,7 +48,7 @@ func AuroraPostgres(stackName string, postgresConfig *database.Postgres) *cloudf
 
 	template.Resources["RDSDBInstance1"] = &resources.AWSRDSDBInstance{
 		DBClusterIdentifier:  cloudformation.Ref("RDSCluster"),
-		DBInstanceClass:      coalesceString(postgresConfig.Spec.AWS.InstanceType, DefaultClass),
+		DBInstanceClass:      coalesceString(p.PostgresConfig.Spec.AWS.InstanceType, DefaultClass),
 		Engine:               Engine,
 		PubliclyAccessible:   false,
 		DBParameterGroupName: cloudformation.Ref("RDSDBParameterGroup"),
@@ -41,7 +56,7 @@ func AuroraPostgres(stackName string, postgresConfig *database.Postgres) *cloudf
 
 	template.Resources["RDSDBInstance2"] = &resources.AWSRDSDBInstance{
 		DBClusterIdentifier:  cloudformation.Ref("RDSCluster"),
-		DBInstanceClass:      coalesceString(postgresConfig.Spec.AWS.InstanceType, DefaultClass),
+		DBInstanceClass:      coalesceString(p.PostgresConfig.Spec.AWS.InstanceType, DefaultClass),
 		Engine:               Engine,
 		PubliclyAccessible:   false,
 		DBParameterGroupName: cloudformation.Ref("RDSDBParameterGroup"),
@@ -64,6 +79,53 @@ func AuroraPostgres(stackName string, postgresConfig *database.Postgres) *cloudf
 	}
 
 	return template
+}
+
+func (p *AuroraPostgres) Parameters() ([]*awscloudformation.Parameter, error) {
+	//username, err := randomString(16, charactersUpper, charactersLower)
+	//if err != nil {
+	//  return []*awscloudformation.Parameter{}, err
+	//}
+
+	//password, err := randomString(32, charactersUpper, charactersLower, charactersNumeric, charactersSpecial)
+	//if err != nil {
+	//  return []*awscloudformation.Parameter{}, err
+	//}
+
+	return []*awscloudformation.Parameter{
+		&awscloudformation.Parameter{
+			ParameterKey:   aws.String("MasterUsername"),
+			ParameterValue: aws.String("qwertyuiop"),
+			//      ParameterValue: aws.String(username),
+		},
+		&awscloudformation.Parameter{
+			ParameterKey:   aws.String("MasterPassword"),
+			ParameterValue: aws.String("qwertyuiop1234567890"),
+			//      ParameterValue: aws.String(password),
+		},
+	}, nil
+}
+
+func randomString(length int, charSet ...string) (string, error) {
+	letters := strings.Join(charSet, "")
+	bytes, err := generateRandomBytes(length)
+	if err != nil {
+		return "", fmt.Errorf("unable to generate random string: %s", err)
+	}
+	for i, b := range bytes {
+		bytes[i] = letters[b%byte(len(letters))]
+	}
+	return string(bytes), nil
+}
+
+func generateRandomBytes(length int) ([]byte, error) {
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	if err != nil {
+		return nil, fmt.Errorf("unable to generate random bytes: %s", err)
+	}
+
+	return b, nil
 }
 
 func coalesceString(values ...string) string {

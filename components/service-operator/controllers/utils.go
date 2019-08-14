@@ -1,10 +1,6 @@
 package controllers
 
 import (
-	"crypto/rand"
-	"fmt"
-	"strings"
-
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 )
 
@@ -34,15 +30,6 @@ func removeString(slice []string, s string) (result []string) {
 	return
 }
 
-func coalesceString(values ...string) string {
-	for _, value := range values {
-		if value != "" {
-			return value
-		}
-	}
-	return ""
-}
-
 func isInList(item string, items ...string) bool {
 	for _, element := range items {
 		if element == item {
@@ -57,26 +44,4 @@ func ignoreNotFound(err error) error {
 		return nil
 	}
 	return err
-}
-
-func generateRandomBytes(length int) ([]byte, error) {
-	b := make([]byte, length)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, fmt.Errorf("unable to generate random bytes: %s", err)
-	}
-
-	return b, nil
-}
-
-func randomString(length int, charSet ...string) (string, error) {
-	letters := strings.Join(charSet, "")
-	bytes, err := generateRandomBytes(length)
-	if err != nil {
-		return "", fmt.Errorf("unable to generate random string: %s", err)
-	}
-	for i, b := range bytes {
-		bytes[i] = letters[b%byte(len(letters))]
-	}
-	return string(bytes), nil
 }
