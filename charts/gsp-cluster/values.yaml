@@ -58,11 +58,10 @@ kiam:
   nameOverride:
   fullnameOverride:
   server:
-    tlsSecret: kiam-server-tls
-    tlsCerts:
-      certFileName: server.pem
-      keyFileName: server-key.pem
-      caFileName: ca.pem
+    tlsFiles:
+      ca: "NADA"
+      cert: "NADA"
+      key: "NADA"
     nodeSelector:
       node-role.kubernetes.io/cluster-management: ""
     tolerations:
@@ -83,11 +82,10 @@ kiam:
     gatewayTimeoutCreation: 30s
     host:
       iptables: true
-    tlsSecret: kiam-agent-tls
-    tlsCerts:
-      certFileName: agent.pem
-      keyFileName: agent-key.pem
-      caFileName: ca.pem
+    tlsFiles:
+      ca: "NADA"
+      cert: "NADA"
+      key: "NADA"
     log:
       level: info
     tolerations:

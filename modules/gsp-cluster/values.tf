@@ -38,7 +38,11 @@ data "template_file" "values" {
     sealed_secrets_public_cert          = "${base64encode(tls_self_signed_cert.sealed-secrets-certificate.cert_pem)}"
     sealed_secrets_private_key          = "${base64encode(tls_private_key.sealed-secrets-key.private_key_pem)}"
     kiam_server_role_arn                = "${aws_iam_role.kiam_server_role.arn}"
-    kiam_restart_after_deploy_hack_uuid = "${uuid()}"
+    kiam_ca_cert_b64e_pem               = "${base64encode(tls_self_signed_cert.kiam_ca.cert_pem)}"
+    kiam_server_cert_b64e_pem           = "${base64encode(tls_locally_signed_cert.kiam_server.cert_pem)}"
+    kiam_server_key_b64e_pem            = "${base64encode(tls_private_key.kiam_server.private_key_pem)}"
+    kiam_agent_cert_b64e_pem            = "${base64encode(tls_locally_signed_cert.kiam_agent.cert_pem)}"
+    kiam_agent_key_b64e_pem             = "${base64encode(tls_private_key.kiam_agent.private_key_pem)}"
     cloudwatch_log_shipping_role        = "${aws_iam_role.cloudwatch_log_shipping_role.name}"
     cloudwatch_log_group_name           = "${aws_cloudwatch_log_group.logs.name}"
 

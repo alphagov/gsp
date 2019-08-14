@@ -114,24 +114,20 @@ secrets:
 
 kiam:
   server:
+    tlsFiles:
+      ca: ${kiam_ca_cert_b64e_pem}
+      cert: ${kiam_server_cert_b64e_pem}
+      key: ${kiam_server_key_b64e_pem}
     assumeRoleArn: ${kiam_server_role_arn}
     roleBaseArn: "arn:aws:iam::${account_id}:role/"
-    # Hack to trigger a restart of Kiam server on each and every deploy. This
-    # is to workaround the agent and server using different sets of
-    # CAs/keys/certs because we are currently regenerating CAs/keys/certs on
-    # each and every deploy.
-    extraEnv:
-      restartAfterDeployHack: ${kiam_restart_after_deploy_hack_uuid}
     updateStrategy: RollingUpdate
   agent:
+    tlsFiles:
+      ca: ${kiam_ca_cert_b64e_pem}
+      cert: ${kiam_agent_cert_b64e_pem}
+      key: ${kiam_agent_key_b64e_pem}
     host:
       interface: "eni+"
-    # Hack to trigger a restart of Kiam agent on each and every deploy. This is
-    # to workaround the agent and server using different sets of CAs/keys/certs
-    # because we are currently regenerating CAs/keys/certs on each and every
-    # deploy.
-    extraEnv:
-      restartAfterDeployHack: ${kiam_restart_after_deploy_hack_uuid}
     updateStrategy: RollingUpdate
 
 fluentd-cloudwatch:
