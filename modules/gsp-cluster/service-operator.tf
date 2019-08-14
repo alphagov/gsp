@@ -16,43 +16,11 @@ resource "aws_iam_role" "gsp-service-operator" {
 data "aws_iam_policy_document" "service-operator" {
   statement {
     actions = [
-      "cloudformation:*",
+      "*",
     ]
 
     resources = [
       "*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "ec2:DescribeAccountAttributes",
-    ]
-
-    resources = [
-      "*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-    ]
-
-    resources = [
-      "${aws_s3_bucket.service-operator.arn}",
-      "${aws_s3_bucket.service-operator.arn}/*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "rds:*",
-    ]
-
-    resources = [
-      "*" # TODO: revisit this
     ]
   }
 }
