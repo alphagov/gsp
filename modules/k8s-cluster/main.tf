@@ -76,7 +76,7 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
     NodeAutoScalingGroupMinSize         = "2"
     NodeAutoScalingGroupDesiredCapacity = "2"
     NodeAutoScalingGroupMaxSize         = "3"
-    NodeInstanceType                    = "t2.small"
+    NodeInstanceType                    = "t3.medium"
     NodeImageId                         = "ami-0bc8d0262346bd65e"
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/cluster-management --register-with-taints=node-role.kubernetes.io/cluster-management=:NoSchedule --event-qps=0\""
