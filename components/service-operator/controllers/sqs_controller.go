@@ -17,34 +17,78 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"time"
 
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	database "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 )
 
 // SQSReconciler reconciles a SQS object
 type SQSReconciler struct {
 	client.Client
-	Log logr.Logger
+	Log         logr.Logger
+	ClusterName string
+	sqs         database.SQS
 }
 
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=sqs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=sqs/status,verbs=get;update;patch
 
 func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("sqs", req.NamespacedName)
+	finalizerName := "stack.sqs.queue.database.gsp.k8s.io"
+	ctx := context.Background()
+	log := r.Log.WithValues("sqs", req.NamespacedName)
 
-	// your logic here
+	var sqs database.SQS
+	if err := r.Get(ctx, req.NamespacedName, &sqs); err != nil {
+		log.V(1).Info("unable to fetch SQS Resource - waiting 5 minutes")
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, ignoreNotFound(err)
+	}
 
-	return ctrl.Result{}, nil
+	provisioner := os.Getenv("CLOUD_PROVIDER")
+	switch provisioner {
+	case "aws":
+		sqsCloudFormation := internalaws.SQS{SQSConfig: &sqs}
+		reconciler := AWSReconciler{
+			Log:            log,
+			ClusterName:    r.ClusterName,
+			ResourceName:   "sqs",
+			CloudFormation: &sqsCloudFormation,
+		}
+		action, id, status, reason, err := reconciler.Reconcile(ctx, req, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
+		if err != nil {
+			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
+		}
+		sqs.Status.ID = id
+		sqs.Status.Status = status
+		sqs.Status.Reason = reason
+
+		result := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
+
+		switch action {
+		case Create:
+			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, finalizerName)
+			return result, r.Update(context.Background(), &sqs)
+		case Delete:
+			sqs.ObjectMeta.Finalizers = removeString(sqs.ObjectMeta.Finalizers, finalizerName)
+			return result, r.Update(context.Background(), &sqs)
+		default:
+			return result, r.Update(context.Background(), &sqs)
+		}
+
+	default:
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 15}, fmt.Errorf("unsupported cloud provider: %s", provisioner)
+	}
 }
 
 func (r *SQSReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&databasev1beta1.SQS{}).
+		For(&database.SQS{}).
 		Complete(r)
 }

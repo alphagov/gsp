@@ -41,17 +41,17 @@ type PostgresReconciler struct {
 type Action string
 
 const (
-	Create        Action = "CREATE"
-	Update        Action = "UPDATE"
-	Delete        Action = "DELETE"
-	Retry         Action = "RETRY"
-	finalizerName        = "stack.aurora.postgres.database.gsp.k8s.io"
+	Create Action = "CREATE"
+	Update Action = "UPDATE"
+	Delete Action = "DELETE"
+	Retry  Action = "RETRY"
 )
 
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres/status,verbs=get;update;patch
 
 func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+	finalizerName := "stack.aurora.postgres.database.gsp.k8s.io"
 	ctx := context.Background()
 	log := r.Log.WithValues("postgres", req.NamespacedName)
 

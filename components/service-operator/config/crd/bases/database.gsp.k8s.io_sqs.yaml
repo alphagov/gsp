@@ -29,9 +29,31 @@ spec:
           type: object
         spec:
           description: SQSSpec defines the desired state of SQS
+          properties:
+            aws:
+              description: AWS specific subsection of the resource.
+              properties:
+                queueName:
+                  type: string
+              required:
+              - queueName
+              type: object
           type: object
         status:
           description: SQSStatus defines the observed state of SQS
+          properties:
+            id:
+              description: ID of an instance for a reference.
+              type: string
+            reason:
+              description: Reason for the current status of the instance.
+              type: string
+            status:
+              description: Status of the currently running instance.
+              type: string
+          required:
+          - id
+          - status
           type: object
       type: object
   versions:
