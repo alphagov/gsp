@@ -10,7 +10,6 @@ rules:
   - database.gsp.k8s.io
   resources:
   - postgres
-  - sqs
   verbs:
   - create
   - delete
@@ -23,6 +22,25 @@ rules:
   - database.gsp.k8s.io
   resources:
   - postgres/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - database.gsp.k8s.io
+  resources:
+  - sqs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - database.gsp.k8s.io
+  resources:
   - sqs/status
   verbs:
   - get

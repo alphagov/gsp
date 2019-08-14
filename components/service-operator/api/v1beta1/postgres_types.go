@@ -23,7 +23,7 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // AWS allows specifying configuration for the Postgres RDS instance
-type AWS struct {
+type PostgresAWSConfig struct {
 	DiskSizeGB   int    `json:"diskSizeGB,omitempty"`
 	InstanceType string `json:"instanceType,omitempty"`
 }
@@ -34,7 +34,7 @@ type PostgresSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// AWS specific subsection of the resource.
-	AWS AWS `json:"aws,omitempty"`
+	AWS PostgresAWSConfig `json:"aws,omitempty"`
 	// Secret name to be used for storing relevant instance secrets for further use.
 	Secret string `json:"secret,omitempty"`
 }

@@ -22,16 +22,31 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// AWS allows specifying configuration for the Postgres RDS instance
+type SQSQueueAWSConfig struct {
+	QueueName string `json:"queueName"`
+}
+
 // SQSSpec defines the desired state of SQS
 type SQSSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// AWS specific subsection of the resource.
+	AWS SQSQueueAWSConfig `json:"aws,omitempty"`
 }
 
 // SQSStatus defines the observed state of SQS
 type SQSStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// ID of an instance for a reference.
+	ID string `json:"id"`
+	// Status of the currently running instance.
+	Status string `json:"status"`
+	// Reason for the current status of the instance.
+	Reason string `json:"reason,omitempty"`
 }
 
 // +kubebuilder:object:root=true
