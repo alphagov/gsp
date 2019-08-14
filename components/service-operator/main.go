@@ -71,6 +71,13 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Postgres")
 		os.Exit(1)
 	}
+	if err = (&controllers.SQSReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("SQS"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "SQS")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")

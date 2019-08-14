@@ -5,3 +5,6 @@ resources:
 - group: database
   version: v1beta1
   kind: Postgres
+- group: database
+  version: v1beta1
+  kind: SQS
