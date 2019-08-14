@@ -26,6 +26,16 @@ data "aws_iam_policy_document" "service-operator" {
 
   statement {
     actions = [
+      "ec2:DescribeAccountAttributes",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    actions = [
       "s3:GetObject",
       "s3:PutObject",
     ]
