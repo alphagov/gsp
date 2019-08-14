@@ -171,6 +171,7 @@ chart/
 ├── Chart.yaml
 └── templates/
     ├── deployment.yaml
+    ├── destinationrule.yaml
     ├── service.yaml
     └── virtualservice.yaml
 ```
@@ -294,23 +295,43 @@ Create a `virtualservice.yaml` file in the `templates` directory with the follow
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: prototype-kit
+  name: {{ .Release.Name }}-web
 spec:
   hosts:
-  - "prototype-kit.local.govsandbox.uk"
+  - "{{ .Release.Name }}.local.govsandbox.uk"
   gateways:
   - "gsp-gsp-cluster.gsp-system"
   http:
   - route:
     - destination:
-        host: prototype-kit-web
+        host: {{ .Release.Name }}-web
         port:
           number: 3000
 
 ```
 
-You now have a Helm chart which describes how you will deploy your app to the GSP local instance. 
-
+### Set up a DestiantionRule
+
+A `DestinationRule` defines policies that apply to traffic intended for a service after routing has occurred.
+
+Create a `destinationrule.yaml` file in the `templates` directory with the following:
+
+```
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-web
+  labels:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  host: "{{ .Release.Name }}-web.gsp-system.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+```      
+
+You now have a Helm chart which describes how you will deploy your app to the GSP local instance. 
 ## Deploy the app on to the local GSP instance
 
 ### Create and apply deployable manifests
@@ -330,6 +351,7 @@ You must create and apply a set of deployable manifests to tell the GSP local in
     ```
     wrote output/prototype-kit/templates/service.yaml
     wrote output/prototype-kit/templates/deployment.yaml
+    wrote output/prototype-kit/templates/destinationrule.yaml
     wrote output/prototype-kit/templates/virtualservice.yaml
     ```
 
@@ -340,6 +362,7 @@ You must create and apply a set of deployable manifests to tell the GSP local in
     └── prototype-kit/
        └── templates
            ├── deployment.yaml
+           ├── destinationrule.yaml
            ├── service.yaml
            └── virtualservice.yaml
     ```
@@ -354,11 +377,12 @@ You must create and apply a set of deployable manifests to tell the GSP local in
 
     ```
     deployment.apps/prototype-kit-web created
+    destinationrule.networking.istio.io/prototype-kit-web created
     service/prototype-kit-web created
     virtualservice.networking.istio.io/prototype-kit created
     ```
 
-### Check the service, virtualservice and Kubernetes Deployment are live
+### Check the service, virtualservice, destinationrule and Kubernetes Deployment are live
 
 1. Check that the Kubernetes Deployment is live:
 
@@ -389,20 +413,35 @@ You must create and apply a set of deployable manifests to tell the GSP local in
 
     Once the `CLUSTER-IP` and `PORT` fields are complete, the service is live.
 
+
+
 1. Check the `virtualservice` is live:
 
     ```
-    kubectl get virtualservice prototype-kit
+    kubectl get virtualservice prototype-kit-web
     ```
     You will see output similar to the following:
 
     ```
-    NAME            GATEWAYS                       HOSTS                                 AGE
-    prototype-kit   [gsp-gsp-cluster.gsp-system]   [prototype-kit.local.govsandbox.uk]   19h
+    NAME                GATEWAYS                       HOSTS                                 AGE
+    prototype-kit-web   [gsp-gsp-cluster.gsp-system]   [prototype-kit.local.govsandbox.uk]   4m
     ```
     Once the `GATEWAYS` and `HOSTS` field have URLs in them, the `virtualservice` is live.
 
-Once the `service`, `virtualservice` and Deployment are live, you have successfully created a local GSP instance and deployed the `govuk-prototype-kit` app.
+1. Check the `destinationrule` is live:
+
+    ```
+    kubectl get destinationrule prototype-kit-web
+    ```
+    You will see output similar to the following:
+
+    ```
+    NAME                HOST                                             AGE
+    prototype-kit-web   prototype-kit-web.gsp-system.svc.cluster.local   8m
+    ```
+    Once the `HOSTS` field have cluster URL, the `destiantionrule` is live.
+
+Once the `service`, `virtualservice`, `destinationrule` and `Deployment` are live, you have successfully created a local GSP instance and deployed the `govuk-prototype-kit` app.
 
 You must now connect to the app.
 
