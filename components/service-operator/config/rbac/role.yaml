@@ -10,6 +10,7 @@ rules:
   - database.gsp.k8s.io
   resources:
   - postgres
+  - sqs
   verbs:
   - create
   - delete
@@ -22,6 +23,7 @@ rules:
   - database.gsp.k8s.io
   resources:
   - postgres/status
+  - sqs/status
   verbs:
   - get
   - patch
