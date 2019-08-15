@@ -17,3 +17,16 @@ spec:
         host: gsp-grafana
         port:
           number: 80
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: gsp-grafana
+  namespace: gsp-system
+  labels:
+    chart: gsp-cluster
+spec:
+  host: "gsp-grafana.gsp-system.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE

@@ -17,3 +17,16 @@ spec:
         host: gsp-prometheus-operator-prometheus
         port:
           number: 9090
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: gsp-prometheus
+  namespace: gsp-system
+  labels:
+    chart: gsp-cluster
+spec:
+  host: "gsp-prometheus-operator-prometheus.gsp-system.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
