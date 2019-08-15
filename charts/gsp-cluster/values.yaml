@@ -294,6 +294,51 @@ prometheus-operator:
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
           target_label: pod_name
+      - job_name: 'kubelet-worker'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true  # prometheus does not support secure naming.
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
+          action: keep
+        - target_label: node_role
+          replacement: worker
+        - target_label: job
+          replacement: kubelet
+      - job_name: 'kubelet-ci'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true  # prometheus does not support secure naming.
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
+          action: keep
+        - target_label: node_role
+          replacement: ci
+        - target_label: job
+          replacement: kubelet
+      - job_name: 'kubelet-cluster-management'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true  # prometheus does not support secure naming.
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
+          action: keep
+        - target_label: node_role
+          replacement: cluster-management
+        - target_label: job
+          replacement: kubelet
   grafana:
     adminPassword: "password"
   kubelet:
