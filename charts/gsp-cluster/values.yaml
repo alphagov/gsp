@@ -303,6 +303,8 @@ prometheus-operator:
         kubernetes_sd_configs:
         - role: node
         relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
         - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
           regex: true
           target_label: node_role
