@@ -25,7 +25,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	database "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	database "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 )
 

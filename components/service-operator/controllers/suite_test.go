@@ -22,7 +22,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
+	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -63,7 +64,7 @@ var _ = BeforeSuite(func(done Done) {
 	err = databasev1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
-	err = databasev1beta1.AddToScheme(scheme.Scheme)
+	err = queuev1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:scheme

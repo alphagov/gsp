@@ -19,7 +19,8 @@ import (
 	"flag"
 	"os"
 
-	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
+	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -38,6 +39,7 @@ func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
 
 	_ = databasev1beta1.AddToScheme(scheme)
+	_ = queuev1beta1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
 
