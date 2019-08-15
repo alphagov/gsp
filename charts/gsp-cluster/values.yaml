@@ -88,6 +88,7 @@ kiam:
       key: "NADA"
     log:
       level: info
+    whiteListRouteRegexp: "^(/latest/meta-data/placement/availability-zone)$"
     tolerations:
     - key: node-role.kubernetes.io/ci
       effect: NoSchedule
