@@ -71,13 +71,13 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			ResourceName:   "postgres",
 			CloudFormation: &postgresCloudFormation,
 		}
-		action, id, status, reason, err := reconciler.Reconcile(ctx, req, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
+		action, stackData, err := reconciler.Reconcile(ctx, req, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
-		postgres.Status.ID = id
-		postgres.Status.Status = status
-		postgres.Status.Reason = reason
+		postgres.Status.ID = stackData.ID
+		postgres.Status.Status = stackData.Status
+		postgres.Status.Reason = stackData.Reason
 
 		result := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 

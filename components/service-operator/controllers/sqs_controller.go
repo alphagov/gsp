@@ -61,13 +61,14 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			ResourceName:   "sqs",
 			CloudFormation: &sqsCloudFormation,
 		}
-		action, id, status, reason, err := reconciler.Reconcile(ctx, req, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
+		action, stackData, err := reconciler.Reconcile(ctx, req, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
-		sqs.Status.ID = id
-		sqs.Status.Status = status
-		sqs.Status.Reason = reason
+		newSecret := sqsOutputsToSecret(secretName, req.Namespace, stackData.Outputs)
+		sqs.Status.ID = stackData.ID
+		sqs.Status.Status = stackData.Status
+		sqs.Status.Reason = stackData.Reason
 
 		result := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
