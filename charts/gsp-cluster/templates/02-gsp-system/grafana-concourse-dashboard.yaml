@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: '{{ .Release.Name }}-grafana-concourse-dashboard'
   namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
 data:
   config.json: |
     {
