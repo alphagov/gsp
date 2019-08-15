@@ -24,7 +24,7 @@ variable "eks_version" {
 
 variable "worker_instance_type" {
   type    = "string"
-  default = "t2.small"
+  default = "t3.medium"
 }
 
 variable "worker_count" {
@@ -34,7 +34,7 @@ variable "worker_count" {
 
 variable "ci_worker_instance_type" {
   type    = "string"
-  default = "t2.small"
+  default = "t3.medium"
 }
 
 variable "ci_worker_count" {
