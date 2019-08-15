@@ -21,6 +21,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/alphagov/gsp/components/service-operator/internal"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
+
+	core "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8stypes "k8s.io/apimachinery/pkg/types"
+
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -48,7 +55,14 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	var sqs queue.SQS
 	if err := r.Get(ctx, req.NamespacedName, &sqs); err != nil {
 		log.V(1).Info("unable to fetch SQS Resource - waiting 5 minutes")
-		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, ignoreNotFound(err)
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, internal.IgnoreNotFound(err)
+	}
+
+	var secret core.Secret
+	secretName := internal.CoalesceString(sqs.Spec.Secret, sqs.Name)
+	if err := r.Get(ctx, k8stypes.NamespacedName{Name: secretName, Namespace: req.Namespace}, &secret); internal.IgnoreNotFound(err) != nil {
+		log.V(1).Info("unable to fetch SQS Secret - waiting 5 minutes")
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, err
 	}
 
 	provisioner := os.Getenv("CLOUD_PROVIDER")
@@ -61,25 +75,43 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			ResourceName:   "sqs",
 			CloudFormation: &sqsCloudFormation,
 		}
-		action, id, status, reason, err := reconciler.Reconcile(ctx, req, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
+		action, stackData, err := reconciler.Reconcile(ctx, req, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
-		sqs.Status.ID = id
-		sqs.Status.Status = status
-		sqs.Status.Reason = reason
+		newSecret := sqsOutputsToSecret(secretName, req.Namespace, stackData.Outputs)
+		sqs.Status.ID = stackData.ID
+		sqs.Status.Status = stackData.Status
+		sqs.Status.Reason = stackData.Reason
 
-		result := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
+		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {
 		case Create:
 			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, finalizerName)
-			return result, r.Update(context.Background(), &sqs)
+			err := r.Update(ctx, &sqs)
+			if err != nil {
+				return backoff, err
+			}
+
+			return backoff, r.Create(ctx, &newSecret)
+		case Update:
+			err := r.Update(ctx, &sqs)
+			if err != nil {
+				return backoff, err
+			}
+
+			return backoff, r.Update(ctx, &newSecret)
 		case Delete:
-			sqs.ObjectMeta.Finalizers = removeString(sqs.ObjectMeta.Finalizers, finalizerName)
-			return result, r.Update(context.Background(), &sqs)
+			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, finalizerName)
+			err := r.Update(ctx, &sqs)
+			if err != nil {
+				return backoff, err
+			}
+
+			return backoff, r.Delete(ctx, &secret)
 		default:
-			return result, r.Update(context.Background(), &sqs)
+			return backoff, r.Update(ctx, &sqs)
 		}
 
 	default:
@@ -91,4 +123,22 @@ func (r *SQSReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&queue.SQS{}).
 		Complete(r)
+}
+
+func sqsOutputsToSecret(secretName, namespace string, outputs []*cloudformation.Output) core.Secret {
+	return core.Secret{
+		Type: core.SecretTypeOpaque,
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: namespace,
+			Annotations: map[string]string{
+				"operator": "gsp-service-operator",
+				"group":    queue.GroupVersion.Group,
+				"version":  queue.GroupVersion.Version,
+			},
+		},
+		StringData: map[string]string{
+			"QueueURL": internalaws.ValueFromOutputs(internalaws.SQSOutputURL, outputs),
+		},
+	}
 }

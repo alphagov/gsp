@@ -19,9 +19,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/alphagov/gsp/components/service-operator/internal"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
+	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -55,7 +57,7 @@ var (
 	}
 )
 
-func (r *AWSReconciler) Reconcile(ctx context.Context, req ctrl.Request, deleting bool) (Action, string, string, string, error) {
+func (r *AWSReconciler) Reconcile(ctx context.Context, req ctrl.Request, deleting bool) (Action, internalaws.StackData, error) {
 	stackName := fmt.Sprintf("%s-%s-%s-%s-%s", r.ClusterName, "gsp-service-operator", r.ResourceName, req.NamespacedName.Namespace, req.NamespacedName.Name)
 	// secretName := coalesceString(postgres.Spec.Secret, postgres.Name)
 
@@ -74,41 +76,50 @@ func (r *AWSReconciler) Reconcile(ctx context.Context, req ctrl.Request, deletin
 
 	svc := cloudformation.New(sess, aws.NewConfig())
 
-	stackID, stackStatus, stackStatusReason, stackExists := r.getCloudFormationStackStatus(svc, stackName)
+	stackData, stackExists := r.getCloudFormationStackStatus(svc, stackName)
 
 	if deleting {
 		// The resource needs deleting
-		if !stackExists || stackStatus == cloudformation.StackStatusDeleteComplete {
-			return Delete, stackID, stackStatus, stackStatusReason, nil
+		if !stackExists || stackData.Status == cloudformation.StackStatusDeleteComplete {
+			return Delete, stackData, nil
 		}
 
-		if stackStatus == cloudformation.StackStatusDeleteInProgress {
-			return Retry, stackID, stackStatus, stackStatusReason, nil
+		if stackData.Status == cloudformation.StackStatusDeleteInProgress {
+			return Retry, stackData, nil
 		}
 
-		return Retry, stackID, stackStatus, stackStatusReason, r.deleteCloudFormationStack(svc, stackName, log)
+		return Retry, stackData, r.deleteCloudFormationStack(svc, stackName, log)
 	}
 
 	yaml, err := r.CloudFormation.Template(stackName).YAML()
 	if err != nil {
-		return Retry, stackID, stackStatus, stackStatusReason, fmt.Errorf("error serialising template: %s", err)
+		return Retry, stackData, fmt.Errorf("error serialising template: %s", err)
 	}
 
 	if !stackExists { // create
-		return Create, stackID, stackStatus, stackStatusReason, r.createCloudFormationStack(yaml, svc, stackName, log)
-	} else if !isInList(stackStatus, nonUpdatable...) { // update
-		return Update, stackID, stackStatus, stackStatusReason, r.updateCloudFormationStack(yaml, svc, stackName, log)
+		return Create, stackData, r.createCloudFormationStack(yaml, svc, stackName, log)
+	} else if !internal.IsInList(stackData.Status, nonUpdatable...) { // update
+		return Update, stackData, r.updateCloudFormationStack(yaml, svc, stackName, log)
 	}
 
-	return Retry, stackID, stackStatus, stackStatusReason, nil
+	return Retry, stackData, nil
 }
 
-func (r *AWSReconciler) getCloudFormationStackStatus(svc *cloudformation.CloudFormation, stackName string) (string, string, string, bool) {
+type stackExists bool
+
+func (r *AWSReconciler) getCloudFormationStackStatus(svc *cloudformation.CloudFormation, stackName string) (internalaws.StackData, stackExists) {
 	describeOutput, err := svc.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackName)})
 	if err != nil {
-		return "", "", "", false
+		return internalaws.StackData{}, false
 	}
-	return *describeOutput.Stacks[0].StackId, *describeOutput.Stacks[0].StackStatus, "NoReasonGiven", true
+	return internalaws.StackData{
+		ID:     *describeOutput.Stacks[0].StackId,
+		Name:   stackName,
+		Status: *describeOutput.Stacks[0].StackStatus,
+		Reason: "NoReasonGiven",
+
+		Outputs: describeOutput.Stacks[0].Outputs,
+	}, true
 }
 
 func (r *AWSReconciler) createCloudFormationStack(yaml []byte, svc *cloudformation.CloudFormation, stackName string, log logr.Logger) error {
