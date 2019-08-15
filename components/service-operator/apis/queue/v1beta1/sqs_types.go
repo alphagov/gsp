@@ -34,6 +34,8 @@ type SQSSpec struct {
 
 	// AWS specific subsection of the resource.
 	AWS SQSQueueAWSConfig `json:"aws,omitempty"`
+	// Secret name to be used for storing relevant instance secrets for further use.
+	Secret string `json:"secret,omitempty"`
 }
 
 // SQSStatus defines the observed state of SQS

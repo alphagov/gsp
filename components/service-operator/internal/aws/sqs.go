@@ -8,6 +8,12 @@ import (
 	"github.com/awslabs/goformation/cloudformation/resources"
 )
 
+const (
+	SQSResourceName = "SQSQueue"
+
+	SQSOutputURL = "QueueURL"
+)
+
 type SQS struct {
 	SQSConfig *queue.SQS
 }
@@ -15,8 +21,13 @@ type SQS struct {
 func (s *SQS) Template(stackName string) *cloudformation.Template {
 	template := cloudformation.NewTemplate()
 
-	template.Resources["SQSQueue"] = &resources.AWSSQSQueue{
+	template.Resources[SQSResourceName] = &resources.AWSSQSQueue{
 		QueueName: s.SQSConfig.Spec.AWS.QueueName,
+	}
+
+	template.Outputs[SQSOutputURL] = map[string]interface{}{
+		"Description": "SQSQueue URL to be returned to the user.",
+		"Value":       cloudformation.Ref(SQSResourceName),
 	}
 
 	return template
