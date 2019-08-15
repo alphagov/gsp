@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	database "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	database "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 
 	"github.com/aws/aws-sdk-go/aws"
 	awscloudformation "github.com/aws/aws-sdk-go/service/cloudformation"

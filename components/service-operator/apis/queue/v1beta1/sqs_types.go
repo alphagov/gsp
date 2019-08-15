@@ -23,7 +23,8 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // AWS allows specifying configuration for the Postgres RDS instance
-type SQSQueueAWSConfig struct {
+type AWS struct {
+	// QueueName will define given queue on the provider.
 	QueueName string `json:"queueName"`
 }
 
@@ -33,7 +34,9 @@ type SQSSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// AWS specific subsection of the resource.
-	AWS SQSQueueAWSConfig `json:"aws,omitempty"`
+	AWS AWS `json:"aws,omitempty"`
+	// Secret name to be used for storing relevant instance secrets for further use.
+	Secret string `json:"secret,omitempty"`
 }
 
 // SQSStatus defines the observed state of SQS

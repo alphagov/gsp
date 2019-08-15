@@ -25,7 +25,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	database "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	queue "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 )
 
@@ -34,18 +34,18 @@ type SQSReconciler struct {
 	client.Client
 	Log         logr.Logger
 	ClusterName string
-	sqs         database.SQS
+	sqs         queue.SQS
 }
 
-// +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=sqs,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=sqs/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs/status,verbs=get;update;patch
 
 func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	finalizerName := "stack.sqs.queue.database.gsp.k8s.io"
+	finalizerName := "stack.sqs.queue.queue.gsp.k8s.io"
 	ctx := context.Background()
 	log := r.Log.WithValues("sqs", req.NamespacedName)
 
-	var sqs database.SQS
+	var sqs queue.SQS
 	if err := r.Get(ctx, req.NamespacedName, &sqs); err != nil {
 		log.V(1).Info("unable to fetch SQS Resource - waiting 5 minutes")
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, ignoreNotFound(err)
@@ -89,6 +89,6 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 func (r *SQSReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&database.SQS{}).
+		For(&queue.SQS{}).
 		Complete(r)
 }

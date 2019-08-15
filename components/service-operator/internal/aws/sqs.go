@@ -1,7 +1,7 @@
 package aws
 
 import (
-	database "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	queue "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 
 	awscloudformation "github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/awslabs/goformation/cloudformation"
@@ -9,7 +9,7 @@ import (
 )
 
 type SQS struct {
-	SQSConfig *database.SQS
+	SQSConfig *queue.SQS
 }
 
 func (s *SQS) Template(stackName string) *cloudformation.Template {
