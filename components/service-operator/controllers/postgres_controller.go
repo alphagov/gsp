@@ -21,6 +21,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alphagov/gsp/components/service-operator/internal"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -58,7 +59,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	var postgres database.Postgres
 	if err := r.Get(ctx, req.NamespacedName, &postgres); err != nil {
 		log.V(1).Info("unable to fetch Postgres - waiting 5 minutes")
-		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, ignoreNotFound(err)
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, internal.IgnoreNotFound(err)
 	}
 
 	provisioner := os.Getenv("CLOUD_PROVIDER")
@@ -86,7 +87,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, finalizerName)
 			return result, r.Update(context.Background(), &postgres)
 		case Delete:
-			postgres.ObjectMeta.Finalizers = removeString(postgres.ObjectMeta.Finalizers, finalizerName)
+			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, finalizerName)
 			return result, r.Update(context.Background(), &postgres)
 		default:
 			return result, r.Update(context.Background(), &postgres)

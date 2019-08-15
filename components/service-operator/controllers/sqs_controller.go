@@ -21,6 +21,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alphagov/gsp/components/service-operator/internal"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -48,7 +49,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	var sqs queue.SQS
 	if err := r.Get(ctx, req.NamespacedName, &sqs); err != nil {
 		log.V(1).Info("unable to fetch SQS Resource - waiting 5 minutes")
-		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, ignoreNotFound(err)
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, internal.IgnoreNotFound(err)
 	}
 
 	provisioner := os.Getenv("CLOUD_PROVIDER")
@@ -77,7 +78,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, finalizerName)
 			return result, r.Update(context.Background(), &sqs)
 		case Delete:
-			sqs.ObjectMeta.Finalizers = removeString(sqs.ObjectMeta.Finalizers, finalizerName)
+			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, finalizerName)
 			return result, r.Update(context.Background(), &sqs)
 		default:
 			return result, r.Update(context.Background(), &sqs)

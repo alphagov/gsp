@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/alphagov/gsp/components/service-operator/internal"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -97,7 +98,7 @@ func (r *AWSReconciler) Reconcile(ctx context.Context, req ctrl.Request, deletin
 
 	if !stackExists { // create
 		return Create, stackData, r.createCloudFormationStack(yaml, svc, stackName, log)
-	} else if !isInList(stackData.Status, nonUpdatable...) { // update
+	} else if !internal.IsInList(stackData.Status, nonUpdatable...) { // update
 		return Update, stackData, r.updateCloudFormationStack(yaml, svc, stackName, log)
 	}
 
