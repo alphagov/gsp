@@ -341,6 +341,29 @@ prometheus-operator:
           regex: true
           target_label: node_role
           replacement: cluster-management
+      - job_name: 'node-exporter'
+        scheme: http
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - source_labels: [__address__]
+          target_label: __address__
+          regex: (.*):.*
+          replacement: $1:9100
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
+          regex: true
+          target_label: node_role
+          replacement: worker
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
+          regex: true
+          target_label: node_role
+          replacement: ci
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
+          regex: true
+          target_label: node_role
+          replacement: cluster-management
   grafana:
     adminPassword: "password"
   kubelet:
