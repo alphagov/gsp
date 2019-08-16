@@ -43,54 +43,43 @@ fi
 exec 3>&1 # make stdout available as fd 3 for the result
 exec 1>&2 # redirect all output to stderr for logging
 
-destination=$1
-cd "${destination}"
-
-function latest_code_change_commit() {
-  local commits_to_check
-  local commit_diff
-
-  commits_to_check="$(git rev-list HEAD -n 10)" # assume not more than 10 commits need to be checked
-
-  for commit_sha in ${commits_to_check} ; do
-    commit_diff="$(git diff-tree -p "${commit_sha}")"
-
-    if git verify-commit "${commit_sha}" > /dev/null 2>&1 && [ -z "${commit_diff}" ]; then
-      echo "${commit_sha} is an empty signed commit by GitHub" 1>&2
-      continue
-    fi
-
-    echo "${commit_sha} is the latest code change commit" 1>&2
-    echo "${commit_sha}"
-    return
-  done
-}
-
 function build_query() {
 {
   local org=$1
   local repo=$2
+  local merge_commit_sha=$3
 
   cat <<EOF
 query {
-  viewer {
-    login
-  }
-  organization(login: \"${org}\") {
-    repository(name: \"${repo}\") {
-      pullRequests(last: 40, states: [MERGED]) {
-        nodes {
-          number
-          reviews(last: 10, states: APPROVED) {
-            totalCount
-            nodes {
-              author {
-                login
+  repository(owner: \"${org}\", name: \"${repo}\") {
+    object(oid: \"${merge_commit_sha}\") {
+      ... on Commit {
+        oid
+        associatedPullRequests(first: 1) {
+          nodes {
+            author {
+              login
+            }
+            commits(last: 1) {
+              nodes {
+                commit {
+                  signature {
+                    ... on GpgSignature {
+                      signer {
+                        login
+                      }
+                      keyId
+                      isValid
+                    }
+                  }
+                }
               }
-              state
-              commit {
-                oid
-                abbreviatedOid
+            }
+            reviews(first: 5, states: APPROVED) {
+              nodes {
+                author {
+                  login
+                }
               }
             }
           }
@@ -103,49 +92,51 @@ EOF
 } | tr -d '\n'
 }
 
-function approvals() {
-  local commit_sha=$1
-  local org=$2
-  local repo=$3
-  local token=$4
-  local api_response
+destination=$1
+cd "${destination}"
+head_ref=$(git rev-parse HEAD)
 
-  api_response=$( \
-    curl --header 'Content-Type: application/json' \
-         --header "Authorization: bearer ${token}" \
-         --data "{ \"query\": \"$(build_query "${org}" "${repo}")\"}" \
-         "https://api.github.com/graphql" \
-  )
+api_response=$( \
+  curl --header 'Content-Type: application/json' \
+        --header "Authorization: bearer ${GITHUB_API_TOKEN}" \
+        --data "{ \"query\": \"$(build_query "${organization}" "${repository}" "${head_ref}")\"}" \
+        "https://api.github.com/graphql" \
+)
 
-  echo "${api_response}" \
-    | jq --raw-output .data.organization.repository.pullRequests.nodes[] \
-    | jq --raw-output ".reviews.nodes[] | select(.commit.oid==\"${commit_sha}\")" \
-    | jq --raw-output .author.login \
-    | sort -d
-}
+pr_author=$(echo $api_response | jq ".data.repository.object.associatedPullRequests.nodes[].author.login")
+commit_signature_author=$(echo $api_response | jq ".data.repository.object.associatedPullRequests.nodes[].commits.nodes[0].commit.signature.signer.login")
 
-approvals=$(approvals "$(latest_code_change_commit)" "${organization}" "${repository}" "${github_api_token}")
+if [ $pr_author == $commit_signature_author ]; then
+  echo "OK: PR author matches commit signature author."
+else
+  echo "ERROR: PR author ($pr_author) doesn't match commit signature author ($commit_signature_author)."
+  exit 1
+fi
 
-approval_count=$(\
+approvals=$(echo "${api_response}" | jq --raw-output .data.repository.object.associatedPullRequests.nodes[].reviews.nodes[].author.login | sort -d)
+
+valid_approval_count=$(\
   comm -12 \
     <(echo "${approvers}") \
     <(echo "${approvals}") \
+  | grep -v "${pr_author}" \
   | wc -l \
 )
 
-if [[ "${approval_count}" -lt "${required_approval_count}" ]]; then
-  echo "[FAILURE] You have ${approval_count} GitHub approval(s) and need ${required_approval_count} or more."
+if [[ "${valid_approval_count}" -lt "${required_approval_count}" ]]; then
+  echo "[FAILURE] You have ${valid_approval_count} GitHub approval(s) and need ${required_approval_count} or more."
   echo "[FAILURE]"
-  echo "[FAILURE] The following could provide the required approvals:"
+  echo "[FAILURE] The following people could provide the required approvals:"
 
   comm -23 \
     <(echo "${approvers}") \
     <(echo "${approvals}") \
+  | grep -v "${pr_author}" \
   | xargs -I {} echo "[FAILURE]   - {}"
 
   exit 1
 fi
 
-echo "[SUCCESS] You have ${approval_count} GitHub approval(s) and needed ${required_approval_count} or more."
+echo "[SUCCESS] You have ${valid_approval_count} GitHub approval(s) and needed ${required_approval_count} or more."
 
 cat /original_output >&3
