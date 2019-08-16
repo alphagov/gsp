@@ -56,7 +56,7 @@ var (
 )
 
 func (r *CloudFormationController) Reconcile(log logr.Logger, ctx context.Context, req ctrl.Request, cloudFormationTemplate CloudFormationTemplate, deleting bool) (internal.Action, StackData, error) {
-	stackName := fmt.Sprintf("%s-%s-%s-%s-%s", r.ClusterName, "gsp-service-operator", cloudFormationTemplate.ResourceType(), req.NamespacedName.Namespace, req.NamespacedName.Name)
+	stackName := fmt.Sprintf("%s-%s-%s-%s-%s", r.ClusterName, "gsp-service-operator", cloudFormationTemplate.ResourceType(), req.Namespace, req.Name)
 	// secretName := coalesceString(postgres.Spec.Secret, postgres.Name)
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
