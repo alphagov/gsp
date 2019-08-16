@@ -18,6 +18,7 @@ package aws
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/alphagov/gsp/components/service-operator/internal"
 	"github.com/go-logr/logr"
@@ -164,7 +165,8 @@ func (r *CloudFormationController) updateCloudFormationStack(
 		StackName:    aws.String(stackName),
 		Parameters:   params,
 	})
-	if err != nil {
+	// We want to just ignore it if there are no changes to make but AWS don't strongly type errors so we use string comparison
+	if err != nil && !strings.Contains(err.Error(), "No updates are to be performed") {
 		return fmt.Errorf("error updating stack: %s", err)
 	}
 
