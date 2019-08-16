@@ -1,6 +1,8 @@
 package aws_test
 
 import (
+	"encoding/base64"
+
 	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -10,7 +12,7 @@ import (
 )
 
 var _ = Describe("Utils", func() {
-	It("Should return empty string if key not found", func() {
+	It("Should return nil if key not found", func() {
 		outputs := []*cloudformation.Output{
 			&cloudformation.Output{
 				OutputKey:   aws.String("test-key"),
@@ -18,10 +20,10 @@ var _ = Describe("Utils", func() {
 			},
 		}
 
-		Expect(internalaws.ValueFromOutputs("test-key-2", outputs)).To(Equal(""))
+		Expect(internalaws.ValueFromOutputs("test-key-2", outputs)).To(BeNil())
 	})
 
-	It("Should return value of output that matches key", func() {
+	It("Should return base64 encoded byte array of value of output that matches key", func() {
 		outputs := []*cloudformation.Output{
 			&cloudformation.Output{
 				OutputKey:   aws.String("test-key"),
@@ -29,6 +31,7 @@ var _ = Describe("Utils", func() {
 			},
 		}
 
-		Expect(internalaws.ValueFromOutputs("test-key", outputs)).To(Equal("test-value"))
+		expected := []byte(base64.StdEncoding.EncodeToString([]byte("test-value")))
+		Expect(internalaws.ValueFromOutputs("test-key", outputs)).To(Equal(expected))
 	})
 })

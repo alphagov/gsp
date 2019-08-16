@@ -90,12 +90,12 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 			return result, r.Create(ctx, &newSecret)
 		case internal.Update:
-			err := r.Update(ctx, &sqs)
+			err := r.Update(ctx, &newSecret)
 			if err != nil {
 				return result, err
 			}
 
-			return result, r.Update(ctx, &newSecret)
+			return result, r.Update(ctx, &sqs)
 		case internal.Delete:
 			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, finalizerName)
 			err := r.Update(ctx, &sqs)
@@ -131,7 +131,7 @@ func sqsOutputsToSecret(secretName, namespace string, outputs []*cloudformation.
 				"version":  queue.GroupVersion.Version,
 			},
 		},
-		StringData: map[string]string{
+		Data: map[string][]byte{
 			"QueueURL": internalaws.ValueFromOutputs(internalaws.SQSOutputURL, outputs),
 		},
 	}
