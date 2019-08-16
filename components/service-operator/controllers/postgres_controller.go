@@ -64,6 +64,14 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		postgres.Status.Status = stackData.Status
 		postgres.Status.Reason = stackData.Reason
 
+		for _, event := range stackData.Events {
+			postgres.Status.Events = append(postgres.Status.Events, database.Event{
+				Status: *event.ResourceStatus,
+				Reason: *event.ResourceStatusReason,
+				Time:   event.Timestamp,
+			})
+		}
+
 		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {

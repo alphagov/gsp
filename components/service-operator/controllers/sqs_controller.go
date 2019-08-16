@@ -78,6 +78,14 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		sqs.Status.Status = stackData.Status
 		sqs.Status.Reason = stackData.Reason
 
+		for _, event := range stackData.Events {
+			sqs.Status.Events = append(sqs.Status.Events, queue.Event{
+				Status: *event.ResourceStatus,
+				Reason: *event.ResourceStatusReason,
+				Time:   event.Timestamp,
+			})
+		}
+
 		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {

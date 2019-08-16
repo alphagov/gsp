@@ -73,7 +73,7 @@ func (r *CloudFormationController) Reconcile(log logr.Logger, ctx context.Contex
 
 	svc := cloudformation.New(sess, aws.NewConfig())
 
-	stackData, stackExists := r.getCloudFormationStackStatus(svc, stackName)
+	stackData, stackExists := r.getCloudFormationStackStatus(svc, stackName, log)
 
 	if deleting {
 		// The resource needs deleting
@@ -104,19 +104,26 @@ func (r *CloudFormationController) Reconcile(log logr.Logger, ctx context.Contex
 
 type stackExists bool
 
-func (r *CloudFormationController) getCloudFormationStackStatus(svc *cloudformation.CloudFormation, stackName string) (StackData, stackExists) {
+func (r *CloudFormationController) getCloudFormationStackStatus(svc *cloudformation.CloudFormation, stackName string, log logr.Logger) (StackData, stackExists) {
+	data := StackData{}
 	describeOutput, err := svc.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackName)})
 	if err != nil {
-		return StackData{}, false
+		return data, false
 	}
-	return StackData{
-		ID:     *describeOutput.Stacks[0].StackId,
-		Name:   stackName,
-		Status: *describeOutput.Stacks[0].StackStatus,
-		Reason: "NoReasonGiven",
+	data.ID = *describeOutput.Stacks[0].StackId
+	data.Name = stackName
+	data.Status = *describeOutput.Stacks[0].StackStatus
+	data.Reason = "NoReasonGiven"
+	data.Outputs = describeOutput.Stacks[0].Outputs
 
-		Outputs: describeOutput.Stacks[0].Outputs,
-	}, true
+	eventsOutput, err := svc.DescribeStackEvents(&cloudformation.DescribeStackEventsInput{StackName: aws.String(stackName)})
+	if err != nil {
+		log.Error(err, "unable to retreive stackEvents")
+		return data, true
+	}
+	data.Events = eventsOutput.StackEvents
+
+	return data, true
 }
 
 func (r *CloudFormationController) createCloudFormationStack(

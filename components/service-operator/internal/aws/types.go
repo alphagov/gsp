@@ -10,5 +10,6 @@ type StackData struct {
 	Status string
 	Reason string
 
+	Events  []*awscloudformation.StackEvent
 	Outputs []*awscloudformation.Output
 }
