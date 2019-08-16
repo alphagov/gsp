@@ -33,19 +33,13 @@ import (
 // PostgresReconciler reconciles a Postgres object
 type PostgresReconciler struct {
 	client.Client
-	Log         logr.Logger
-	ClusterName string
-	secretName  string
-	postgres    database.Postgres
+	Log                      logr.Logger
+	CloudFormationController internalaws.CloudFormationController
+	postgres                 database.Postgres
 }
 
-type Action string
-
 const (
-	Create Action = "CREATE"
-	Update Action = "UPDATE"
-	Delete Action = "DELETE"
-	Retry  Action = "RETRY"
+	PostgresFinalizerName = "stack.aurora.postgres.database.gsp.k8s.io"
 )
 
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
@@ -65,14 +59,8 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	provisioner := os.Getenv("CLOUD_PROVIDER")
 	switch provisioner {
 	case "aws":
-		postgresCloudFormation := internalaws.AuroraPostgres{PostgresConfig: &postgres}
-		reconciler := AWSReconciler{
-			Log:            log,
-			ClusterName:    r.ClusterName,
-			ResourceName:   "postgres",
-			CloudFormation: &postgresCloudFormation,
-		}
-		action, stackData, err := reconciler.Reconcile(ctx, req, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
+		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres}
+		action, stackData, err := r.CloudFormationController.Reconcile(log, ctx, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
@@ -80,14 +68,22 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		postgres.Status.Status = stackData.Status
 		postgres.Status.Reason = stackData.Reason
 
+		for _, event := range stackData.Events {
+			postgres.Status.Events = append(postgres.Status.Events, database.Event{
+				Status: *event.ResourceStatus,
+				Reason: *event.ResourceStatusReason,
+				Time:   event.Timestamp,
+			})
+		}
+
 		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {
-		case Create:
-			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, finalizerName)
+		case internal.Create:
+			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, PostgresFinalizerName)
 			return backoff, r.Update(context.Background(), &postgres)
-		case Delete:
-			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, finalizerName)
+		case internal.Delete:
+			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, PostgresFinalizerName)
 			return backoff, r.Update(context.Background(), &postgres)
 		default:
 			return backoff, r.Update(context.Background(), &postgres)

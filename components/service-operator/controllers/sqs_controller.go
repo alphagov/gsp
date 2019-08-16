@@ -39,16 +39,19 @@ import (
 // SQSReconciler reconciles a SQS object
 type SQSReconciler struct {
 	client.Client
-	Log         logr.Logger
-	ClusterName string
-	sqs         queue.SQS
+	Log                      logr.Logger
+	CloudFormationReconciler internalaws.CloudFormationReconciler
+	sqs                      queue.SQS
 }
+
+const (
+	SQSFinalizerName = "stack.sqs.queue.queue.gsp.k8s.io"
+)
 
 // +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs/status,verbs=get;update;patch
 
 func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	finalizerName := "stack.sqs.queue.queue.gsp.k8s.io"
 	ctx := context.Background()
 	log := r.Log.WithValues("sqs", req.NamespacedName)
 
@@ -68,14 +71,8 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	provisioner := os.Getenv("CLOUD_PROVIDER")
 	switch provisioner {
 	case "aws":
-		sqsCloudFormation := internalaws.SQS{SQSConfig: &sqs}
-		reconciler := AWSReconciler{
-			Log:            log,
-			ClusterName:    r.ClusterName,
-			ResourceName:   "sqs",
-			CloudFormation: &sqsCloudFormation,
-		}
-		action, stackData, err := reconciler.Reconcile(ctx, req, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
+		sqsCloudFormationTemplate := internalaws.SQS{SQSConfig: &sqs}
+		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &sqsCloudFormationTemplate, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
@@ -84,26 +81,34 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		sqs.Status.Status = stackData.Status
 		sqs.Status.Reason = stackData.Reason
 
+		for _, event := range stackData.Events {
+			sqs.Status.Events = append(sqs.Status.Events, queue.Event{
+				Status: *event.ResourceStatus,
+				Reason: *event.ResourceStatusReason,
+				Time:   event.Timestamp,
+			})
+		}
+
 		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {
-		case Create:
-			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, finalizerName)
+		case internal.Create:
+			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, SQSFinalizerName)
 			err := r.Update(ctx, &sqs)
 			if err != nil {
 				return backoff, err
 			}
 
 			return backoff, r.Create(ctx, &newSecret)
-		case Update:
+		case internal.Update:
 			err := r.Update(ctx, &sqs)
 			if err != nil {
 				return backoff, err
 			}
 
 			return backoff, r.Update(ctx, &newSecret)
-		case Delete:
-			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, finalizerName)
+		case internal.Delete:
+			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, SQSFinalizerName)
 			err := r.Update(ctx, &sqs)
 			if err != nil {
 				return backoff, err
@@ -137,7 +142,7 @@ func sqsOutputsToSecret(secretName, namespace string, outputs []*cloudformation.
 				"version":  queue.GroupVersion.Version,
 			},
 		},
-		StringData: map[string]string{
+		Data: map[string][]byte{
 			"QueueURL": internalaws.ValueFromOutputs(internalaws.SQSOutputURL, outputs),
 		},
 	}

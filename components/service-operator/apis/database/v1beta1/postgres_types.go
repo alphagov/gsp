@@ -16,6 +16,8 @@ limitations under the License.
 package v1beta1
 
 import (
+	"time"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -26,6 +28,16 @@ import (
 type AWS struct {
 	// InstanceType essentially defines the amount of memory and cpus on the database.
 	InstanceType string `json:"instanceType,omitempty"`
+}
+
+// Event is a single action taken against the resource at any given time.
+type Event struct {
+	// Status of the currently running instance.
+	Status string `json:"status"`
+	// Reason for the current status of the instance.
+	Reason string `json:"reason,omitempty"`
+	// Time of the event cast.
+	Time *time.Time `json:"time"`
 }
 
 // PostgresSpec defines the desired state of Postgres
@@ -50,6 +62,8 @@ type PostgresStatus struct {
 	Status string `json:"status"`
 	// Reason for the current status of the instance.
 	Reason string `json:"reason,omitempty"`
+	// Events will hold more in-depth details of the current state of the instance.
+	Events []Event `json:"events,omitempty"`
 }
 
 // +kubebuilder:object:root=true

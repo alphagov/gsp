@@ -7,6 +7,7 @@ require (
 	github.com/awslabs/goformation v0.0.0-20190320125420-ac0a17860cf1
 	github.com/go-logr/logr v0.1.0
 	github.com/go-logr/zapr v0.1.1 // indirect
+	github.com/golang/mock v1.3.1
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
 	go.uber.org/zap v1.10.0 // indirect
