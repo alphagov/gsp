@@ -8,54 +8,77 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	database "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
+	queue "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	. "github.com/alphagov/gsp/components/service-operator/controllers"
 	"github.com/alphagov/gsp/components/service-operator/internal"
 	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 	internalawsmocks "github.com/alphagov/gsp/components/service-operator/internal/aws/mocks"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/golang/mock/gomock"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-var _ = Describe("PostgresController", func() {
+var _ = Describe("SQSController", func() {
 	var (
-		postgres     database.Postgres
+		sqs          queue.SQS
+		queueName    string
+		secret       core.Secret
+		secretName   string
 		request      reconcile.Request
-		reconciler   PostgresReconciler
+		reconciler   SQSReconciler
 		cfReconciler *internalawsmocks.MockCloudFormationReconciler
 	)
 
 	BeforeEach(func() {
+		queueName, _ = internal.RandomString(8, internal.CharactersLower)
+		secretName, _ = internal.RandomString(8, internal.CharactersLower)
 		request = reconcile.Request{
 			NamespacedName: types.NamespacedName{
 				Namespace: "test",
-				Name:      "test-postgres",
+				Name:      queueName,
 			},
 		}
-		postgres = database.Postgres{
+		sqs = queue.SQS{
 			TypeMeta: metav1.TypeMeta{
-				APIVersion: database.GroupVersion.Group,
-				Kind:       "Postgres",
+				APIVersion: queue.GroupVersion.Group,
+				Kind:       "SQS",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "test-postgres",
+				Name:      queueName,
 				Namespace: "test",
 			},
-			Spec: database.PostgresSpec{
-				AWS: database.AWS{
-					InstanceType: "db.t3.medium",
+			Spec: queue.SQSSpec{
+				AWS: queue.AWS{
+					QueueName: queueName,
 				},
+				Secret: secretName,
 			},
 		}
-		k8sClient.Create(context.TODO(), &postgres)
+		secret = core.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      secretName,
+				Namespace: "test",
+			},
+			Data: map[string][]byte{
+				"QueueURL": []byte("test-queue-url"),
+			},
+		}
+		k8sClient.Create(context.TODO(), &sqs)
 		cfReconciler = internalawsmocks.NewMockCloudFormationReconciler(mockCtrl)
-		reconciler = PostgresReconciler{
+		reconciler = SQSReconciler{
 			Client:                   k8sClient,
 			Log:                      log,
 			CloudFormationReconciler: cfReconciler,
 		}
+	})
+
+	AfterEach(func() {
+		k8sClient.Delete(context.TODO(), &sqs)
+		k8sClient.Delete(context.TODO(), &secret)
 	})
 
 	Context("When using an undefined provisioner", func() {
@@ -96,15 +119,41 @@ var _ = Describe("PostgresController", func() {
 				Expect(result.Requeue).To(BeTrue())
 				Expect(result.RequeueAfter).To(Equal(time.Minute))
 
-				var updatedPostgres database.Postgres
+				var updatedSQS queue.SQS
 				k8sClient.Get(context.TODO(), types.NamespacedName{
 					Namespace: "test",
-					Name:      "test-postgres",
-				}, &updatedPostgres)
+					Name:      queueName,
+				}, &updatedSQS)
 
-				checkPostgresStatusUpdates(stackData, updatedPostgres)
-				Expect(updatedPostgres.Finalizers).To(ContainElement(PostgresFinalizerName))
-				Expect(updatedPostgres.ObjectMeta.DeletionTimestamp).To(BeNil())
+				checkSQSStatusUpdates(stackData, updatedSQS)
+				Expect(updatedSQS.Finalizers).To(ContainElement(SQSFinalizerName))
+				Expect(updatedSQS.ObjectMeta.DeletionTimestamp).To(BeNil())
+			})
+
+			It("Should create a secret with the queue name", func() {
+				url := "https://sqs.eu-west-2.amazonaws.com/1234567890/test-queue"
+				stackData := internalaws.StackData{
+					Outputs: []*cloudformation.Output{
+						&cloudformation.Output{
+							OutputKey:   aws.String("QueueURL"),
+							OutputValue: aws.String(url),
+						},
+					},
+				}
+				cfReconciler.
+					EXPECT().
+					Reconcile(context.TODO(), gomock.Any(), request, gomock.Any(), false).
+					Return(internal.Create, stackData, nil).
+					Times(1)
+
+				_, err := reconciler.Reconcile(request)
+				Expect(err).ToNot(HaveOccurred())
+
+				k8sClient.Get(context.TODO(), types.NamespacedName{
+					Namespace: "test",
+					Name:      secretName,
+				}, &secret)
+				Expect(string(secret.Data["QueueURL"])).To(Equal(url))
 			})
 		})
 
@@ -121,30 +170,32 @@ var _ = Describe("PostgresController", func() {
 					Return(internal.Update, stackData, nil).
 					Times(1)
 
-				postgres.Spec.AWS.InstanceType = "db.m5.large"
-				postgres.ObjectMeta.Finalizers = append(postgres.Finalizers, PostgresFinalizerName)
-				k8sClient.Update(context.TODO(), &postgres)
+				sqs.Spec.AWS.QueueName = "secondary-test-sqs"
+				sqs.ObjectMeta.Finalizers = append(sqs.Finalizers, SQSFinalizerName)
+				k8sClient.Update(context.TODO(), &sqs)
+				k8sClient.Create(context.TODO(), &secret)
 
 				result, err := reconciler.Reconcile(request)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(result.Requeue).To(BeTrue())
 				Expect(result.RequeueAfter).To(Equal(time.Minute))
 
-				var updatedPostgres database.Postgres
+				var updatedSQS queue.SQS
 				k8sClient.Get(context.TODO(), types.NamespacedName{
 					Namespace: "test",
-					Name:      "test-postgres",
-				}, &updatedPostgres)
-				checkPostgresStatusUpdates(stackData, updatedPostgres)
-				Expect(updatedPostgres.ObjectMeta.Finalizers).To(ContainElement(PostgresFinalizerName))
-				Expect(updatedPostgres.ObjectMeta.DeletionTimestamp).To(BeNil())
+					Name:      queueName,
+				}, &updatedSQS)
+				checkSQSStatusUpdates(stackData, updatedSQS)
+				Expect(updatedSQS.ObjectMeta.Finalizers).To(ContainElement(SQSFinalizerName))
+				Expect(updatedSQS.ObjectMeta.DeletionTimestamp).To(BeNil())
 			})
 		})
 
 		Context("When deleting a resource", func() {
 			BeforeEach(func() {
-				postgres.ObjectMeta.Finalizers = append(postgres.Finalizers, PostgresFinalizerName)
-				k8sClient.Update(context.TODO(), &postgres)
+				sqs.ObjectMeta.Finalizers = append(sqs.Finalizers, SQSFinalizerName)
+				k8sClient.Update(context.TODO(), &sqs)
+				k8sClient.Create(context.TODO(), &secret)
 			})
 
 			It("Should delete the kubernetes resource", func() {
@@ -155,26 +206,26 @@ var _ = Describe("PostgresController", func() {
 					Return(internal.Delete, stackData, nil).
 					Times(1)
 
-				k8sClient.Delete(context.TODO(), &postgres)
+				k8sClient.Delete(context.TODO(), &sqs)
 				result, err := reconciler.Reconcile(request)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(result.Requeue).To(BeTrue())
 				Expect(result.RequeueAfter).To(Equal(time.Minute))
 
-				var updatedPostgres database.Postgres
+				var updatedSQS queue.SQS
 				k8sClient.Get(context.TODO(), types.NamespacedName{
 					Namespace: "test",
-					Name:      "test-postgres",
-				}, &updatedPostgres)
-				Expect(updatedPostgres.ObjectMeta.Finalizers).ToNot(ContainElement(PostgresFinalizerName))
-				Expect(updatedPostgres.ObjectMeta.DeletionTimestamp).To(BeNil())
+					Name:      queueName,
+				}, &updatedSQS)
+				Expect(updatedSQS.ObjectMeta.Finalizers).ToNot(ContainElement(SQSFinalizerName))
+				Expect(updatedSQS.ObjectMeta.DeletionTimestamp).To(BeNil())
 			})
 		})
 	})
 })
 
-func checkPostgresStatusUpdates(stackData internalaws.StackData, postgres database.Postgres) {
-	Expect(postgres.Status.ID).To(Equal(stackData.ID))
-	Expect(postgres.Status.Status).To(Equal(stackData.Status))
-	Expect(postgres.Status.Reason).To(Equal(stackData.Reason))
+func checkSQSStatusUpdates(stackData internalaws.StackData, sqs queue.SQS) {
+	Expect(sqs.Status.ID).To(Equal(stackData.ID))
+	Expect(sqs.Status.Status).To(Equal(stackData.Status))
+	Expect(sqs.Status.Reason).To(Equal(stackData.Reason))
 }

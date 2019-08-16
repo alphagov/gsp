@@ -38,7 +38,7 @@ type PostgresReconciler struct {
 }
 
 const (
-	FinalizerName = "stack.aurora.postgres.database.gsp.k8s.io"
+	PostgresFinalizerName = "stack.aurora.postgres.database.gsp.k8s.io"
 )
 
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
@@ -78,10 +78,10 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		switch action {
 		case internal.Create:
-			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, FinalizerName)
+			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, PostgresFinalizerName)
 			return backoff, r.Update(context.Background(), &postgres)
 		case internal.Delete:
-			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, FinalizerName)
+			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, PostgresFinalizerName)
 			return backoff, r.Update(context.Background(), &postgres)
 		default:
 			return backoff, r.Update(context.Background(), &postgres)

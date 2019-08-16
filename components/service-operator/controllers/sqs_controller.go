@@ -40,15 +40,18 @@ import (
 type SQSReconciler struct {
 	client.Client
 	Log                      logr.Logger
-	CloudFormationController internalaws.CloudFormationController
+	CloudFormationReconciler internalaws.CloudFormationReconciler
 	sqs                      queue.SQS
 }
+
+const (
+	SQSFinalizerName = "stack.sqs.queue.queue.gsp.k8s.io"
+)
 
 // +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs/status,verbs=get;update;patch
 
 func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	finalizerName := "stack.sqs.queue.queue.gsp.k8s.io"
 	ctx := context.Background()
 	log := r.Log.WithValues("sqs", req.NamespacedName)
 
@@ -69,7 +72,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	switch provisioner {
 	case "aws":
 		sqsCloudFormationTemplate := internalaws.SQS{SQSConfig: &sqs}
-		action, stackData, err := r.CloudFormationController.Reconcile(ctx, log, req, &sqsCloudFormationTemplate, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
+		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &sqsCloudFormationTemplate, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
@@ -90,7 +93,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		switch action {
 		case internal.Create:
-			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, finalizerName)
+			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, SQSFinalizerName)
 			err := r.Update(ctx, &sqs)
 			if err != nil {
 				return backoff, err
@@ -105,7 +108,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 			return backoff, r.Update(ctx, &sqs)
 		case internal.Delete:
-			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, finalizerName)
+			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, SQSFinalizerName)
 			err := r.Update(ctx, &sqs)
 			if err != nil {
 				return backoff, err

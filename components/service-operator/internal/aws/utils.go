@@ -8,7 +8,7 @@ import (
 func ValueFromOutputs(key string, outputs []*cloudformation.Output) []byte {
 	for _, output := range outputs {
 		if output.OutputKey != nil && *output.OutputKey == key {
-			return []byte([]byte(*output.OutputValue))
+			return []byte(*output.OutputValue)
 		}
 	}
 	return nil
