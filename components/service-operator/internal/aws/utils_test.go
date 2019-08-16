@@ -1,8 +1,6 @@
 package aws_test
 
 import (
-	"encoding/base64"
-
 	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -31,7 +29,7 @@ var _ = Describe("Utils", func() {
 			},
 		}
 
-		expected := []byte(base64.StdEncoding.EncodeToString([]byte("test-value")))
+		expected := []byte([]byte("test-value"))
 		Expect(internalaws.ValueFromOutputs("test-key", outputs)).To(Equal(expected))
 	})
 })
