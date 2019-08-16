@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"fmt"
+
 	database "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal"
 
@@ -15,54 +17,63 @@ const (
 	Family       = "aurora-postgresql10"
 	DefaultClass = "db.r5.large"
 
+	InstanceCount = 2
+
 	charactersUpper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	charactersLower   = "abcdefghijklmnopqrstuvwxyz"
 	charactersNumeric = "0123456789"
 	charactersSpecial = "~=+%^*()[]{}!#$?|"
+
+	PostgresResourceCluster               = "RDSCluster"
+	PostgresResourceInstance              = "RDSDBInstance"
+	PostgresResourceParameterGroup        = "RDSDBParameterGroup"
+	PostgresResourceClusterParameterGroup = "RDSDBClusterParameterGroup"
+
+	PostgresEndpoint     = "Endpoint"
+	PostgresReadEndpoint = "ReadEndpoint"
+	PostgresPort         = "Port"
+	PostgresDBName       = "DBName"
+	PostgresUsername     = "DBUsername"
+	PostgresPassword     = "DBPassword"
+	PostgresEngine       = "Engine"
 )
 
 type AuroraPostgres struct {
 	PostgresConfig *database.Postgres
+	Credentials    internal.BasicAuth
 }
 
 func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
 	template := cloudformation.NewTemplate()
 
-	template.Parameters["MasterUsername"] = map[string]string{
+	template.Parameters[PostgresUsername] = map[string]string{
 		"Type": "String",
 	}
-	template.Parameters["MasterPassword"] = map[string]interface{}{
+	template.Parameters[PostgresPassword] = map[string]interface{}{
 		"Type":   "String",
 		"NoEcho": true,
 	}
 
-	template.Resources["RDSCluster"] = &resources.AWSRDSDBCluster{
+	template.Resources[PostgresResourceCluster] = &resources.AWSRDSDBCluster{
 		Engine:                      Engine,
-		MasterUsername:              cloudformation.Ref("MasterUsername"),
-		MasterUserPassword:          cloudformation.Ref("MasterPassword"),
-		DBClusterParameterGroupName: cloudformation.Ref("RDSDBClusterParameterGroup"),
+		MasterUsername:              cloudformation.Ref(PostgresUsername),
+		MasterUserPassword:          cloudformation.Ref(PostgresPassword),
+		DBClusterParameterGroupName: cloudformation.Ref(PostgresResourceClusterParameterGroup),
 		Tags:                        tags,
 	}
 
-	template.Resources["RDSDBInstance1"] = &resources.AWSRDSDBInstance{
-		DBClusterIdentifier:  cloudformation.Ref("RDSCluster"),
-		DBInstanceClass:      internal.CoalesceString(p.PostgresConfig.Spec.AWS.InstanceType, DefaultClass),
-		Engine:               Engine,
-		PubliclyAccessible:   false,
-		DBParameterGroupName: cloudformation.Ref("RDSDBParameterGroup"),
-		Tags:                 tags,
+	for i := 0; i < InstanceCount; i++ {
+		template.Resources[fmt.Sprintf("%s%d", PostgresResourceInstance, i)] = &resources.AWSRDSDBInstance{
+			DBClusterIdentifier:  cloudformation.Ref(PostgresResourceCluster),
+			DBInstanceClass:      internal.CoalesceString(p.PostgresConfig.Spec.AWS.InstanceType, DefaultClass),
+			Engine:               Engine,
+			PubliclyAccessible:   false,
+			DBParameterGroupName: cloudformation.Ref(PostgresResourceParameterGroup),
+			Tags:                 tags,
+		}
 	}
 
-	template.Resources["RDSDBInstance2"] = &resources.AWSRDSDBInstance{
-		DBClusterIdentifier:  cloudformation.Ref("RDSCluster"),
-		DBInstanceClass:      internal.CoalesceString(p.PostgresConfig.Spec.AWS.InstanceType, DefaultClass),
-		Engine:               Engine,
-		PubliclyAccessible:   false,
-		DBParameterGroupName: cloudformation.Ref("RDSDBParameterGroup"),
-		Tags:                 tags,
-	}
-
-	template.Resources["RDSDBClusterParameterGroup"] = &resources.AWSRDSDBClusterParameterGroup{
+	template.Resources[PostgresResourceClusterParameterGroup] = &resources.AWSRDSDBClusterParameterGroup{
 		Description: "GSP Service Operator Cluster Parameter Group",
 		Family:      Family,
 		Parameters: map[string]string{
@@ -71,7 +82,7 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 		Tags: tags,
 	}
 
-	template.Resources["RDSDBParameterGroup"] = &resources.AWSRDSDBParameterGroup{
+	template.Resources[PostgresResourceParameterGroup] = &resources.AWSRDSDBParameterGroup{
 		Description: "GSP Service Operator Parameter Group",
 		Family:      Family,
 		Parameters: map[string]string{
@@ -80,20 +91,43 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 		Tags: tags,
 	}
 
+	template.Outputs[PostgresEndpoint] = map[string]interface{}{
+		"Description": "Postgres Endpoint used by the application to perform connection.",
+		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "Endpoint.Address"),
+	}
+
+	template.Outputs[PostgresReadEndpoint] = map[string]interface{}{
+		"Description": "Postgres reader Endpoint used by the application to perform connection.",
+		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "ReadEndpoint.Address"),
+	}
+
+	template.Outputs[PostgresPort] = map[string]interface{}{
+		"Description": "Postgres Port used by the application to perform connection.",
+		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "Endpoint.Port"),
+	}
+
+	template.Outputs[PostgresDBName] = map[string]interface{}{
+		"Description": "Postgres Database Name used by the application to perform connection.",
+		"Value":       cloudformation.Ref(PostgresDBName),
+	}
+
+	template.Outputs[PostgresEngine] = map[string]interface{}{
+		"Description": "Engine used by the application to perform connection.",
+		"Value":       cloudformation.Ref(PostgresEngine),
+	}
+
 	return template
 }
 
 func (p *AuroraPostgres) Parameters() ([]*awscloudformation.Parameter, error) {
 	return []*awscloudformation.Parameter{
 		&awscloudformation.Parameter{
-			ParameterKey:   aws.String("MasterUsername"),
-			ParameterValue: aws.String("qwertyuiop"),
-			//      ParameterValue: aws.String(username),
+			ParameterKey:   aws.String(PostgresUsername),
+			ParameterValue: aws.String(p.Credentials.Username),
 		},
 		&awscloudformation.Parameter{
-			ParameterKey:   aws.String("MasterPassword"),
-			ParameterValue: aws.String("qwertyuiop1234567890"),
-			//      ParameterValue: aws.String(password),
+			ParameterKey:   aws.String(PostgresPassword),
+			ParameterValue: aws.String(p.Credentials.Password),
 		},
 	}, nil
 }

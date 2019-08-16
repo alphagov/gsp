@@ -34,14 +34,41 @@ spec:
               description: AWS specific subsection of the resource.
               properties:
                 queueName:
+                  description: QueueName will define given queue on the provider.
                   type: string
               required:
               - queueName
               type: object
+            secret:
+              description: Secret name to be used for storing relevant instance secrets
+                for further use.
+              type: string
           type: object
         status:
           description: SQSStatus defines the observed state of SQS
           properties:
+            events:
+              description: Events will hold more in-depth details of the current state
+                of the instance.
+              items:
+                description: Event is a single action taken against the resource at
+                  any given time.
+                properties:
+                  reason:
+                    description: Reason for the current status of the instance.
+                    type: string
+                  status:
+                    description: Status of the currently running instance.
+                    type: string
+                  time:
+                    description: Time of the event cast.
+                    format: date-time
+                    type: string
+                required:
+                - status
+                - time
+                type: object
+              type: array
             id:
               description: ID of an instance for a reference.
               type: string

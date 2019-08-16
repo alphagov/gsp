@@ -26,37 +26,40 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
+	awscloudformation "github.com/aws/aws-sdk-go/service/cloudformation"
 	goformation "github.com/awslabs/goformation/cloudformation"
 	"github.com/awslabs/goformation/cloudformation/resources"
 )
 
 type CloudFormationTemplate interface {
 	Template(string, []resources.Tag) *goformation.Template
-	Parameters() ([]*cloudformation.Parameter, error)
+	Parameters() ([]*awscloudformation.Parameter, error)
 	ResourceType() string
 }
 
-// CloudFormationController reconciles an AWS object
+type CloudFormationReconciler interface {
+	Reconcile(context.Context, logr.Logger, ctrl.Request, CloudFormationTemplate, bool) (internal.Action, StackData, error)
+}
+
 type CloudFormationController struct {
 	ClusterName string
 }
 
 var (
 	nonUpdatable = []string{
-		cloudformation.StackStatusCreateInProgress,
-		cloudformation.StackStatusRollbackInProgress,
-		cloudformation.StackStatusDeleteInProgress,
-		cloudformation.StackStatusUpdateInProgress,
-		cloudformation.StackStatusUpdateCompleteCleanupInProgress,
-		cloudformation.StackStatusUpdateRollbackInProgress,
-		cloudformation.StackStatusUpdateRollbackCompleteCleanupInProgress,
-		cloudformation.StackStatusReviewInProgress,
-		cloudformation.StackStatusDeleteComplete,
+		awscloudformation.StackStatusCreateInProgress,
+		awscloudformation.StackStatusRollbackInProgress,
+		awscloudformation.StackStatusDeleteInProgress,
+		awscloudformation.StackStatusUpdateInProgress,
+		awscloudformation.StackStatusUpdateCompleteCleanupInProgress,
+		awscloudformation.StackStatusUpdateRollbackInProgress,
+		awscloudformation.StackStatusUpdateRollbackCompleteCleanupInProgress,
+		awscloudformation.StackStatusReviewInProgress,
+		awscloudformation.StackStatusDeleteComplete,
 	}
 )
 
-func (r *CloudFormationController) Reconcile(log logr.Logger, ctx context.Context, req ctrl.Request, cloudFormationTemplate CloudFormationTemplate, deleting bool) (internal.Action, StackData, error) {
+func (r *CloudFormationController) Reconcile(ctx context.Context, log logr.Logger, req ctrl.Request, cloudFormationTemplate CloudFormationTemplate, deleting bool) (internal.Action, StackData, error) {
 	stackName := fmt.Sprintf("%s-%s-%s-%s-%s", r.ClusterName, "gsp-service-operator", cloudFormationTemplate.ResourceType(), req.Namespace, req.Name)
 	// secretName := coalesceString(postgres.Spec.Secret, postgres.Name)
 
@@ -71,17 +74,17 @@ func (r *CloudFormationController) Reconcile(log logr.Logger, ctx context.Contex
 	awsRegion := "eu-west-2"
 	sess.Config.Region = aws.String(awsRegion)
 
-	svc := cloudformation.New(sess, aws.NewConfig())
+	svc := awscloudformation.New(sess, aws.NewConfig())
 
 	stackData, stackExists := r.getCloudFormationStackStatus(svc, stackName, log)
 
 	if deleting {
 		// The resource needs deleting
-		if !stackExists || stackData.Status == cloudformation.StackStatusDeleteComplete {
+		if !stackExists || stackData.Status == awscloudformation.StackStatusDeleteComplete {
 			return internal.Delete, stackData, nil
 		}
 
-		if stackData.Status == cloudformation.StackStatusDeleteInProgress {
+		if stackData.Status == awscloudformation.StackStatusDeleteInProgress {
 			return internal.Retry, stackData, nil
 		}
 
@@ -104,9 +107,9 @@ func (r *CloudFormationController) Reconcile(log logr.Logger, ctx context.Contex
 
 type stackExists bool
 
-func (r *CloudFormationController) getCloudFormationStackStatus(svc *cloudformation.CloudFormation, stackName string, log logr.Logger) (StackData, stackExists) {
+func (r *CloudFormationController) getCloudFormationStackStatus(svc *awscloudformation.CloudFormation, stackName string, log logr.Logger) (StackData, stackExists) {
 	data := StackData{}
-	describeOutput, err := svc.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackName)})
+	describeOutput, err := svc.DescribeStacks(&awscloudformation.DescribeStacksInput{StackName: aws.String(stackName)})
 	if err != nil {
 		return data, false
 	}
@@ -116,7 +119,7 @@ func (r *CloudFormationController) getCloudFormationStackStatus(svc *cloudformat
 	data.Reason = "NoReasonGiven"
 	data.Outputs = describeOutput.Stacks[0].Outputs
 
-	eventsOutput, err := svc.DescribeStackEvents(&cloudformation.DescribeStackEventsInput{StackName: aws.String(stackName)})
+	eventsOutput, err := svc.DescribeStackEvents(&awscloudformation.DescribeStackEventsInput{StackName: aws.String(stackName)})
 	if err != nil {
 		log.Error(err, "unable to retreive stackEvents")
 		return data, true
@@ -129,7 +132,7 @@ func (r *CloudFormationController) getCloudFormationStackStatus(svc *cloudformat
 func (r *CloudFormationController) createCloudFormationStack(
 	yaml []byte,
 	cloudFormationTemplate CloudFormationTemplate,
-	svc *cloudformation.CloudFormation,
+	svc *awscloudformation.CloudFormation,
 	stackName string,
 	log logr.Logger) error {
 	log.V(1).Info("creating stack...", "stackName", stackName)
@@ -139,7 +142,7 @@ func (r *CloudFormationController) createCloudFormationStack(
 		return fmt.Errorf("error creating parameters: %s", err)
 	}
 
-	_, err = svc.CreateStack(&cloudformation.CreateStackInput{
+	_, err = svc.CreateStack(&awscloudformation.CreateStackInput{
 		TemplateBody: aws.String(string(yaml)),
 		StackName:    aws.String(stackName),
 		Parameters:   params,
@@ -156,10 +159,9 @@ func (r *CloudFormationController) createCloudFormationStack(
 func (r *CloudFormationController) updateCloudFormationStack(
 	yaml []byte,
 	cloudFormationTemplate CloudFormationTemplate,
-	svc *cloudformation.CloudFormation,
+	svc *awscloudformation.CloudFormation,
 	stackName string,
 	log logr.Logger) error {
-
 	log.V(1).Info("updating stack...", "stackName", stackName)
 
 	params, err := cloudFormationTemplate.Parameters()
@@ -167,12 +169,13 @@ func (r *CloudFormationController) updateCloudFormationStack(
 		return fmt.Errorf("error creating parameters: %s", err)
 	}
 
-	_, err = svc.UpdateStack(&cloudformation.UpdateStackInput{
+	_, err = svc.UpdateStack(&awscloudformation.UpdateStackInput{
 		TemplateBody: aws.String(string(yaml)),
 		StackName:    aws.String(stackName),
 		Parameters:   params,
 	})
-	// We want to just ignore it if there are no changes to make but AWS don't strongly type errors so we use string comparison
+	// FIXME: We want to just ignore it if there are no changes to make but AWS
+	// don't strongly type errors so we use string comparison.
 	if err != nil && !strings.Contains(err.Error(), "No updates are to be performed") {
 		return fmt.Errorf("error updating stack: %s", err)
 	}
@@ -180,9 +183,9 @@ func (r *CloudFormationController) updateCloudFormationStack(
 	return nil
 }
 
-func (r *CloudFormationController) deleteCloudFormationStack(svc *cloudformation.CloudFormation, stackName string, log logr.Logger) error {
+func (r *CloudFormationController) deleteCloudFormationStack(svc *awscloudformation.CloudFormation, stackName string, log logr.Logger) error {
 	log.V(1).Info("deleting stack...", "stackName", stackName)
-	_, err := svc.DeleteStack(&cloudformation.DeleteStackInput{StackName: aws.String(stackName)})
+	_, err := svc.DeleteStack(&awscloudformation.DeleteStackInput{StackName: aws.String(stackName)})
 	// TODO: delete Secret
 	return err
 }

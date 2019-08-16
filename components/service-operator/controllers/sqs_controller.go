@@ -85,7 +85,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			sqs.Status.Events = append(sqs.Status.Events, queue.Event{
 				Status: *event.ResourceStatus,
 				Reason: *event.ResourceStatusReason,
-				Time:   event.Timestamp,
+				Time:   &metav1.Time{Time: *event.Timestamp},
 			})
 		}
 

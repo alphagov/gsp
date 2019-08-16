@@ -16,8 +16,6 @@ limitations under the License.
 package v1beta1
 
 import (
-	"time"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -37,7 +35,7 @@ type Event struct {
 	// Reason for the current status of the instance.
 	Reason string `json:"reason,omitempty"`
 	// Time of the event cast.
-	Time *time.Time `json:"time"`
+	Time *metav1.Time `json:"time"`
 }
 
 // PostgresSpec defines the desired state of Postgres

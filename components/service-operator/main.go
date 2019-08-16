@@ -73,7 +73,7 @@ func main() {
 	if err = (&controllers.PostgresReconciler{
 		Client:                   mgr.GetClient(),
 		Log:                      ctrl.Log.WithName("controllers").WithName("Postgres"),
-		CloudFormationController: cloudFormationController,
+		CloudFormationReconciler: &cloudFormationController,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Postgres")
 		os.Exit(1)
@@ -81,7 +81,7 @@ func main() {
 	if err = (&controllers.SQSReconciler{
 		Client:                   mgr.GetClient(),
 		Log:                      ctrl.Log.WithName("controllers").WithName("SQS"),
-		CloudFormationController: cloudFormationController,
+		CloudFormationReconciler: &cloudFormationController,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "SQS")
 		os.Exit(1)

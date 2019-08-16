@@ -8,3 +8,8 @@ const (
 	Delete Action = "DELETE"
 	Retry  Action = "RETRY"
 )
+
+type BasicAuth struct {
+	Username string
+	Password string
+}
