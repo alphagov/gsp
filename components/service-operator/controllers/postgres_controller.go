@@ -64,17 +64,17 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		postgres.Status.Status = stackData.Status
 		postgres.Status.Reason = stackData.Reason
 
-		result := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
+		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {
 		case internal.Create:
 			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, finalizerName)
-			return result, r.Update(context.Background(), &postgres)
+			return backoff, r.Update(context.Background(), &postgres)
 		case internal.Delete:
 			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, finalizerName)
-			return result, r.Update(context.Background(), &postgres)
+			return backoff, r.Update(context.Background(), &postgres)
 		default:
-			return result, r.Update(context.Background(), &postgres)
+			return backoff, r.Update(context.Background(), &postgres)
 		}
 
 	default:
