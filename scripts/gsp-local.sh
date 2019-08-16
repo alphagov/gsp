@@ -130,10 +130,10 @@ apply "${manifest_dir}/gsp-cluster/templates/00-aws-auth/"
 apply "${manifest_dir}/gsp-istio/"
 apply "${manifest_dir}/gsp-cluster/"
 
-log "[HACK] Creating Prometheus VirtualService..."
+log "[HACK] Creating Prometheus VirtualService and DestinationRule..."
 apply "${script_dir}/hack/expose-prometheus.yaml"
 
-log "[HACK] Creating Grafana VirtualService..."
+log "[HACK] Creating Grafana VirtualService and DestinationRule..."
 apply "${script_dir}/hack/expose-grafana.yaml"
 
 kubectl cluster-info
