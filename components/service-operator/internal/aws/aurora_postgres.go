@@ -92,3 +92,7 @@ func (p *AuroraPostgres) Parameters() ([]*awscloudformation.Parameter, error) {
 		},
 	}, nil
 }
+
+func (p *AuroraPostgres) ResourceName() string {
+	return "postgres"
+}

@@ -33,20 +33,10 @@ import (
 // PostgresReconciler reconciles a Postgres object
 type PostgresReconciler struct {
 	client.Client
-	Log         logr.Logger
-	ClusterName string
-	secretName  string
-	postgres    database.Postgres
+	Log                      logr.Logger
+	CloudFormationController internalaws.CloudFormationController
+	postgres                 database.Postgres
 }
-
-type Action string
-
-const (
-	Create Action = "CREATE"
-	Update Action = "UPDATE"
-	Delete Action = "DELETE"
-	Retry  Action = "RETRY"
-)
 
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres/status,verbs=get;update;patch
@@ -65,14 +55,8 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	provisioner := os.Getenv("CLOUD_PROVIDER")
 	switch provisioner {
 	case "aws":
-		postgresCloudFormation := internalaws.AuroraPostgres{PostgresConfig: &postgres}
-		reconciler := AWSReconciler{
-			Log:            log,
-			ClusterName:    r.ClusterName,
-			ResourceName:   "postgres",
-			CloudFormation: &postgresCloudFormation,
-		}
-		action, stackData, err := reconciler.Reconcile(ctx, req, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
+		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres}
+		action, stackData, err := r.CloudFormationController.Reconcile(log, ctx, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
@@ -83,10 +67,10 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		result := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {
-		case Create:
+		case internal.Create:
 			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, finalizerName)
 			return result, r.Update(context.Background(), &postgres)
-		case Delete:
+		case internal.Delete:
 			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, finalizerName)
 			return result, r.Update(context.Background(), &postgres)
 		default:

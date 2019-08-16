@@ -36,3 +36,7 @@ func (s *SQS) Template(stackName string) *cloudformation.Template {
 func (s *SQS) Parameters() ([]*awscloudformation.Parameter, error) {
 	return []*awscloudformation.Parameter{}, nil
 }
+
+func (p *SQS) ResourceName() string {
+	return "sqs"
+}

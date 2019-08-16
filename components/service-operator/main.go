@@ -22,6 +22,7 @@ import (
 	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/controllers"
+	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -65,18 +66,22 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.PostgresReconciler{
-		Client:      mgr.GetClient(),
-		Log:         ctrl.Log.WithName("controllers").WithName("Postgres"),
+	cloudFormationController := internalaws.CloudFormationController{
 		ClusterName: clusterName,
+	}
+
+	if err = (&controllers.PostgresReconciler{
+		Client:                   mgr.GetClient(),
+		Log:                      ctrl.Log.WithName("controllers").WithName("Postgres"),
+		CloudFormationController: cloudFormationController,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Postgres")
 		os.Exit(1)
 	}
 	if err = (&controllers.SQSReconciler{
-		Client:      mgr.GetClient(),
-		Log:         ctrl.Log.WithName("controllers").WithName("SQS"),
-		ClusterName: clusterName,
+		Client:                   mgr.GetClient(),
+		Log:                      ctrl.Log.WithName("controllers").WithName("SQS"),
+		CloudFormationController: cloudFormationController,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "SQS")
 		os.Exit(1)

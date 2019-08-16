@@ -39,9 +39,9 @@ import (
 // SQSReconciler reconciles a SQS object
 type SQSReconciler struct {
 	client.Client
-	Log         logr.Logger
-	ClusterName string
-	sqs         queue.SQS
+	Log                      logr.Logger
+	CloudFormationController internalaws.CloudFormationController
+	sqs                      queue.SQS
 }
 
 // +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs,verbs=get;list;watch;create;update;patch;delete
@@ -68,14 +68,8 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	provisioner := os.Getenv("CLOUD_PROVIDER")
 	switch provisioner {
 	case "aws":
-		sqsCloudFormation := internalaws.SQS{SQSConfig: &sqs}
-		reconciler := AWSReconciler{
-			Log:            log,
-			ClusterName:    r.ClusterName,
-			ResourceName:   "sqs",
-			CloudFormation: &sqsCloudFormation,
-		}
-		action, stackData, err := reconciler.Reconcile(ctx, req, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
+		sqsCloudFormationTemplate := internalaws.SQS{SQSConfig: &sqs}
+		action, stackData, err := r.CloudFormationController.Reconcile(log, ctx, req, &sqsCloudFormationTemplate, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
@@ -87,7 +81,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		result := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {
-		case Create:
+		case internal.Create:
 			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, finalizerName)
 			err := r.Update(ctx, &sqs)
 			if err != nil {
@@ -95,14 +89,14 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			}
 
 			return result, r.Create(ctx, &newSecret)
-		case Update:
+		case internal.Update:
 			err := r.Update(ctx, &sqs)
 			if err != nil {
 				return result, err
 			}
 
 			return result, r.Update(ctx, &newSecret)
-		case Delete:
+		case internal.Delete:
 			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, finalizerName)
 			err := r.Update(ctx, &sqs)
 			if err != nil {
