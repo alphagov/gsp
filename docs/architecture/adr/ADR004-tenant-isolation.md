@@ -2,7 +2,7 @@
 
 ## Status
 
-Superceded by [ADR024 - Programme level tenant isolation](ADR024-tenant-isolation.md)
+Superceded by [ADR024 - Soft Multitenancy](ADR024-soft-multitenancy.md)
 
 ## Context
 
