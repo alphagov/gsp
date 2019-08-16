@@ -25,7 +25,7 @@ type AuroraPostgres struct {
 	PostgresConfig *database.Postgres
 }
 
-func (p *AuroraPostgres) Template(stackName string) *cloudformation.Template {
+func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
 	template := cloudformation.NewTemplate()
 
 	template.Parameters["MasterUsername"] = map[string]string{
@@ -41,6 +41,7 @@ func (p *AuroraPostgres) Template(stackName string) *cloudformation.Template {
 		MasterUsername:              cloudformation.Ref("MasterUsername"),
 		MasterUserPassword:          cloudformation.Ref("MasterPassword"),
 		DBClusterParameterGroupName: cloudformation.Ref("RDSDBClusterParameterGroup"),
+		Tags:                        tags,
 	}
 
 	template.Resources["RDSDBInstance1"] = &resources.AWSRDSDBInstance{
@@ -49,6 +50,7 @@ func (p *AuroraPostgres) Template(stackName string) *cloudformation.Template {
 		Engine:               Engine,
 		PubliclyAccessible:   false,
 		DBParameterGroupName: cloudformation.Ref("RDSDBParameterGroup"),
+		Tags:                 tags,
 	}
 
 	template.Resources["RDSDBInstance2"] = &resources.AWSRDSDBInstance{
@@ -57,6 +59,7 @@ func (p *AuroraPostgres) Template(stackName string) *cloudformation.Template {
 		Engine:               Engine,
 		PubliclyAccessible:   false,
 		DBParameterGroupName: cloudformation.Ref("RDSDBParameterGroup"),
+		Tags:                 tags,
 	}
 
 	template.Resources["RDSDBClusterParameterGroup"] = &resources.AWSRDSDBClusterParameterGroup{
@@ -65,6 +68,7 @@ func (p *AuroraPostgres) Template(stackName string) *cloudformation.Template {
 		Parameters: map[string]string{
 			"timezone": "UTC",
 		},
+		Tags: tags,
 	}
 
 	template.Resources["RDSDBParameterGroup"] = &resources.AWSRDSDBParameterGroup{
@@ -73,6 +77,7 @@ func (p *AuroraPostgres) Template(stackName string) *cloudformation.Template {
 		Parameters: map[string]string{
 			"application_name": stackName,
 		},
+		Tags: tags,
 	}
 
 	return template

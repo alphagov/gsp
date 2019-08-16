@@ -27,10 +27,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	goformation "github.com/awslabs/goformation/cloudformation"
+	"github.com/awslabs/goformation/cloudformation/resources"
 )
 
 type CloudFormationTemplate interface {
-	Template(string) *goformation.Template
+	Template(string, []resources.Tag) *goformation.Template
 	Parameters() ([]*cloudformation.Parameter, error)
 	ResourceType() string
 }
@@ -86,7 +87,7 @@ func (r *CloudFormationController) Reconcile(log logr.Logger, ctx context.Contex
 		return internal.Retry, stackData, r.deleteCloudFormationStack(svc, stackName, log)
 	}
 
-	yaml, err := cloudFormationTemplate.Template(stackName).YAML()
+	yaml, err := cloudFormationTemplate.Template(stackName, DefineTags(r.ClusterName, req.Name, req.Namespace, cloudFormationTemplate.ResourceType())).YAML()
 	if err != nil {
 		return internal.Retry, stackData, fmt.Errorf("error serialising template: %s", err)
 	}

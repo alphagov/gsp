@@ -18,11 +18,12 @@ type SQS struct {
 	SQSConfig *queue.SQS
 }
 
-func (s *SQS) Template(stackName string) *cloudformation.Template {
+func (s *SQS) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
 	template := cloudformation.NewTemplate()
 
 	template.Resources[SQSResourceName] = &resources.AWSSQSQueue{
 		QueueName: s.SQSConfig.Spec.AWS.QueueName,
+		Tags:      tags,
 	}
 
 	template.Outputs[SQSOutputURL] = map[string]interface{}{
