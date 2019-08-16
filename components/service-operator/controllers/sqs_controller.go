@@ -69,7 +69,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	switch provisioner {
 	case "aws":
 		sqsCloudFormationTemplate := internalaws.SQS{SQSConfig: &sqs}
-		action, stackData, err := r.CloudFormationController.Reconcile(log, ctx, req, &sqsCloudFormationTemplate, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
+		action, stackData, err := r.CloudFormationController.Reconcile(ctx, log, req, &sqsCloudFormationTemplate, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}

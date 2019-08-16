@@ -34,15 +34,17 @@ import (
 type PostgresReconciler struct {
 	client.Client
 	Log                      logr.Logger
-	CloudFormationController internalaws.CloudFormationController
-	postgres                 database.Postgres
+	CloudFormationReconciler internalaws.CloudFormationReconciler
 }
+
+const (
+	FinalizerName = "stack.aurora.postgres.database.gsp.k8s.io"
+)
 
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres/status,verbs=get;update;patch
 
 func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	finalizerName := "stack.aurora.postgres.database.gsp.k8s.io"
 	ctx := context.Background()
 	log := r.Log.WithValues("postgres", req.NamespacedName)
 
@@ -56,7 +58,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	switch provisioner {
 	case "aws":
 		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres}
-		action, stackData, err := r.CloudFormationController.Reconcile(log, ctx, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
+		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
@@ -76,10 +78,10 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		switch action {
 		case internal.Create:
-			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, finalizerName)
+			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, FinalizerName)
 			return backoff, r.Update(context.Background(), &postgres)
 		case internal.Delete:
-			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, finalizerName)
+			postgres.ObjectMeta.Finalizers = internal.RemoveString(postgres.ObjectMeta.Finalizers, FinalizerName)
 			return backoff, r.Update(context.Background(), &postgres)
 		default:
 			return backoff, r.Update(context.Background(), &postgres)
