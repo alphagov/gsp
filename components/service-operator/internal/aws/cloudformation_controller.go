@@ -27,6 +27,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	awscloudformation "github.com/aws/aws-sdk-go/service/cloudformation"
 	goformation "github.com/awslabs/goformation/cloudformation"
 	"github.com/awslabs/goformation/cloudformation/resources"
 )
@@ -97,6 +98,17 @@ func (r *CloudFormationController) Reconcile(ctx context.Context, log logr.Logge
 	}
 
 	if !stackExists { // create
+		username, err := internal.RandomString(16, internal.CharactersUpper, internal.CharactersLower)
+		if err != nil {
+			return []*awscloudformation.Parameter{}, err
+		}
+
+		password, err := internal.RandomString(32, internal.CharactersUpper, internal.CharactersLower, internal.CharactersNumeric, internal.CharactersSpecial)
+		if err != nil {
+			return []*awscloudformation.Parameter{}, err
+		}
+
+		cloudFormationTemplate
 		return internal.Create, stackData, r.createCloudFormationStack(yaml, cloudFormationTemplate, svc, stackName, log)
 	} else if !internal.IsInList(stackData.Status, nonUpdatable...) { // update
 		return internal.Update, stackData, r.updateCloudFormationStack(yaml, cloudFormationTemplate, svc, stackName, log)
@@ -162,7 +174,6 @@ func (r *CloudFormationController) updateCloudFormationStack(
 	svc *cloudformation.CloudFormation,
 	stackName string,
 	log logr.Logger) error {
-
 	log.V(1).Info("updating stack...", "stackName", stackName)
 
 	params, err := cloudFormationTemplate.Parameters()
@@ -175,7 +186,8 @@ func (r *CloudFormationController) updateCloudFormationStack(
 		StackName:    aws.String(stackName),
 		Parameters:   params,
 	})
-	// We want to just ignore it if there are no changes to make but AWS don't strongly type errors so we use string comparison
+	// FIXME: We want to just ignore it if there are no changes to make but AWS
+	// don't strongly type errors so we use string comparison.
 	if err != nil && !strings.Contains(err.Error(), "No updates are to be performed") {
 		return fmt.Errorf("error updating stack: %s", err)
 	}
