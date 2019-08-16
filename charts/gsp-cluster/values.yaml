@@ -30,6 +30,7 @@ permittedRolesRegex: ""
 githubAPIToken: ""
 
 httpsEgressSafelist: []
+httpEgressSafelist: []
 
 
 # users:
