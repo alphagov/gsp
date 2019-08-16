@@ -78,34 +78,34 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		sqs.Status.Status = stackData.Status
 		sqs.Status.Reason = stackData.Reason
 
-		result := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
+		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {
 		case internal.Create:
 			sqs.ObjectMeta.Finalizers = append(sqs.ObjectMeta.Finalizers, finalizerName)
 			err := r.Update(ctx, &sqs)
 			if err != nil {
-				return result, err
+				return backoff, err
 			}
 
-			return result, r.Create(ctx, &newSecret)
+			return backoff, r.Create(ctx, &newSecret)
 		case internal.Update:
 			err := r.Update(ctx, &newSecret)
 			if err != nil {
-				return result, err
+				return backoff, err
 			}
 
-			return result, r.Update(ctx, &sqs)
+			return backoff, r.Update(ctx, &sqs)
 		case internal.Delete:
 			sqs.ObjectMeta.Finalizers = internal.RemoveString(sqs.ObjectMeta.Finalizers, finalizerName)
 			err := r.Update(ctx, &sqs)
 			if err != nil {
-				return result, err
+				return backoff, err
 			}
 
-			return result, r.Delete(ctx, &secret)
+			return backoff, r.Delete(ctx, &secret)
 		default:
-			return result, r.Update(ctx, &sqs)
+			return backoff, r.Update(ctx, &sqs)
 		}
 
 	default:
