@@ -9,7 +9,6 @@ metadata:
   labels:
     control-plane: {{ .Release.Name }}-service-operator
   name: {{ .Release.Name }}-service-operator-metrics-service
-  namespace: system
 spec:
   ports:
   - name: https
