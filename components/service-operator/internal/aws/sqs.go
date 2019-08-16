@@ -37,6 +37,6 @@ func (s *SQS) Parameters() ([]*awscloudformation.Parameter, error) {
 	return []*awscloudformation.Parameter{}, nil
 }
 
-func (p *SQS) ResourceName() string {
+func (p *SQS) ResourceType() string {
 	return "sqs"
 }
