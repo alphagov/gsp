@@ -61,16 +61,11 @@ var (
 
 func (r *CloudFormationController) Reconcile(ctx context.Context, log logr.Logger, req ctrl.Request, cloudFormationTemplate CloudFormationTemplate, deleting bool) (internal.Action, StackData, error) {
 	stackName := fmt.Sprintf("%s-%s-%s-%s-%s", r.ClusterName, "gsp-service-operator", cloudFormationTemplate.ResourceType(), req.Namespace, req.Name)
-	// secretName := coalesceString(postgres.Spec.Secret, postgres.Name)
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
-	// metadata := ec2metadata.New(sess)
-	// awsRegion, err := metadata.Region()
-	// if err != nil {
-	// 	return ctrl.Result{}, fmt.Errorf("unable to get AWS region from metdata: %s", err)
-	// }
+	// FIXME: We could/should obtain this automatically... At the moment, we have no plans to run this outside of london.
 	awsRegion := "eu-west-2"
 	sess.Config.Region = aws.String(awsRegion)
 
