@@ -7,6 +7,11 @@ metadata:
   name: {{ .Release.Name }}-service-operator-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - secrets
+  - configmaps
+- apiGroups:
   - database.gsp.k8s.io
   resources:
   - postgres

@@ -22,7 +22,7 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// AWS allows specifying configuration for the Postgres RDS instance
+// AWS allows specifying configuration for the SQS queue
 type AWS struct {
 	// QueueName will define given queue on the provider.
 	QueueName string `json:"queueName"`
