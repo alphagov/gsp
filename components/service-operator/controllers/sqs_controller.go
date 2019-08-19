@@ -45,11 +45,11 @@ type SQSReconciler struct {
 }
 
 const (
-	SQSFinalizerName = "stack.sqs.queue.queue.gsp.k8s.io"
+	SQSFinalizerName = "stack.sqs.queue.queue.govsvc.uk"
 )
 
-// +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=queue.gsp.k8s.io,resources=sqs/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=queue.govsvc.uk,resources=sqs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=queue.govsvc.uk,resources=sqs/status,verbs=get;update;patch
 
 func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()

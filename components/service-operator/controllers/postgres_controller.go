@@ -44,11 +44,11 @@ type PostgresReconciler struct {
 }
 
 const (
-	PostgresFinalizerName = "stack.aurora.postgres.database.gsp.k8s.io"
+	PostgresFinalizerName = "stack.aurora.postgres.database.govsvc.uk"
 )
 
-// +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=database.gsp.k8s.io,resources=postgres/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=database.govsvc.uk,resources=postgres,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=database.govsvc.uk,resources=postgres/status,verbs=get;update;patch
 
 func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()

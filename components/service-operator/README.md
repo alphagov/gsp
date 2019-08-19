@@ -34,7 +34,7 @@ Given a configuration file of the form:
 
 ```yaml
 ---
-apiVersion: database.gsp.k8s.io/v1beta1
+apiVersion: database.govsvc.uk/v1beta1
 kind: Postgres
 metadata:
   name: postgres-sample
