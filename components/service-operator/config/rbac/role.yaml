@@ -9,12 +9,9 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - secrets
   - configmaps
-- apiGroups:
-  - database.gsp.k8s.io
-  resources:
-  - postgres
+  - events
+  - secrets
   verbs:
   - create
   - delete
@@ -25,15 +22,9 @@ rules:
   - watch
 - apiGroups:
   - database.gsp.k8s.io
-  resources:
-  - postgres/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
   - queue.gsp.k8s.io
   resources:
+  - postgres
   - sqs
   verbs:
   - create
@@ -44,8 +35,10 @@ rules:
   - update
   - watch
 - apiGroups:
+  - database.gsp.k8s.io
   - queue.gsp.k8s.io
   resources:
+  - postgres/status
   - sqs/status
   verbs:
   - get
