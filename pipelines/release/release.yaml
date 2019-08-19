@@ -13,7 +13,22 @@ resource_types:
     repository: concourse/concourse-pipeline-resource
     tag: "2.2.0"
 
+- name: paas-semver
+  type: docker-image
+  source:
+    repository: governmentpaas/semver-resource
+    tag: latest
+
 resources:
+
+- name: semver
+  type: paas-semver
+  source:
+    driver: s3
+    key: gsp-version
+    bucket: ((readonly_private_bucket_name))
+    region_name: eu-west-2
+    initial_version: '1.1.0'
 
 - name: platform
   type: github
@@ -86,7 +101,7 @@ resources:
     access_token: ((github-api-token))
     release: true
     pre_release: true
-    tag_filter: ((github-release-tag-prefix))v([^v].*)
+    tag_filter: ^((github-release-tag-prefix))v(\d+\.\d+\.\d+)$
 
 - name: pre-release
   type: github-release
@@ -96,7 +111,7 @@ resources:
     access_token: ((github-api-token))
     release: false
     pre_release: true
-    tag_filter: ((github-release-tag-prefix))v([^v].*)
+    tag_filter: ^((github-release-tag-prefix))v(\d+\.\d+\.\d+)$
 
 - name: candidate-release
   type: github-release
@@ -106,7 +121,7 @@ resources:
     access_token: ((github-api-token))
     release: false
     pre_release: true
-    tag_filter: ((github-release-tag-prefix))rc-v([^v].*)
+    tag_filter: ^((github-release-tag-prefix))v(\d+\.\d+\.\d+.*)$
 
 jobs:
 
@@ -143,10 +158,7 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: release
-  - task: version
-    file: platform/pipelines/tasks/bump-semver.yaml
-    params:
-      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
+    - get: semver
   - put: concourse-task-toolbox
     params:
       build: platform/components/concourse-task-toolbox
@@ -165,15 +177,13 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: release
-  - task: version
-    file: platform/pipelines/tasks/bump-semver.yaml
-    params:
-      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
+    - get: semver
   - put: concourse-github-resource
     params:
       build: platform/components/concourse-github-resource
       dockerfile: platform/components/concourse-github-resource/Dockerfile
-      tag_file: version/tag
+      tag_file: semver/version
+      tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
       cache: true
       cache_tag: latest
@@ -188,15 +198,13 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: release
-  - task: version
-    file: platform/pipelines/tasks/bump-semver.yaml
-    params:
-      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
+    - get: semver
   - put: concourse-harbor-resource
     params:
       build: platform/components/concourse-harbor-resource
       dockerfile: platform/components/concourse-harbor-resource/Dockerfile
-      tag_file: version/tag
+      tag_file: semver/version
+      tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
       cache: true
       cache_tag: latest
@@ -211,15 +219,13 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: release
-  - task: version
-    file: platform/pipelines/tasks/bump-semver.yaml
-    params:
-      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
+    - get: semver
   - put: concourse-operator
     params:
       build: platform/components/concourse-operator
       dockerfile: platform/components/concourse-operator/Dockerfile
-      tag_file: version/tag
+      tag_file: semver/version
+      tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
       cache: true
       cache_tag: latest
@@ -234,6 +240,7 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: release
+    - get: semver
   - task: run-tests
     config:
       platform: linux
@@ -260,15 +267,12 @@ jobs:
 
             cd platform/components/service-operator
             make test
-  - task: version
-    file: platform/pipelines/tasks/bump-semver.yaml
-    params:
-      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
   - put: service-operator
     params:
       build: platform/components/service-operator
       dockerfile: platform/components/service-operator/Dockerfile
-      tag_file: version/tag
+      tag_file: semver/version
+      tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
       cache: true
       cache_tag: latest
@@ -310,10 +314,7 @@ jobs:
     - get: service-operator
       passed: [build-service-operator]
       trigger: true
-  - task: version
-    file: platform/pipelines/tasks/bump-semver.yaml
-    params:
-      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
+    - get: semver
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:
@@ -367,7 +368,7 @@ jobs:
       platform: linux
       inputs:
       - name: platform
-      - name: version
+      - name: semver
       - name: cluster-values
       outputs:
       - name: cluster-package
@@ -390,7 +391,7 @@ jobs:
           cp "./cluster-values/values.yaml" "./${CHART_NAME}/values.yaml"
           mkdir -p cluster-package
           APP_VERSION=$(cat ./platform/.git/short_ref)
-          CHART_VERSION=$(cat ./version/tag | sed 's/((github-release-tag-prefix))//g')
+          CHART_VERSION=$(cat ./semver/version)
           echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
           helm package \
             --app-version "${APP_VERSION}" \
@@ -406,7 +407,7 @@ jobs:
       platform: linux
       inputs:
       - name: platform
-      - name: version
+      - name: semver
       outputs:
       - name: istio-package
       params:
@@ -427,7 +428,7 @@ jobs:
           cp -r "./platform/charts/gsp-istio" "./${CHART_NAME}"
           mkdir -p istio-package
           APP_VERSION=$(cat ./platform/.git/short_ref)
-          CHART_VERSION=$(cat ./version/tag | sed 's/((github-release-tag-prefix))//g')
+          CHART_VERSION=$(cat ./semver/version)
           echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
           helm package \
             --app-version "${APP_VERSION}" \
@@ -465,14 +466,14 @@ jobs:
           echo overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
-  - task: rc-version
-    file: platform/pipelines/tasks/bump-semver.yaml
+  - put: semver
     params:
-      DEST_TAG_PREFIX: ((github-release-tag-prefix))rc-v
+      pre: rc
   - put: candidate-release
     params:
-      name: version/name
-      tag: version/tag
+      name: semver/version
+      tag: semver/version
+      tag_prefix: ((github-release-tag-prefix))v
       commitish: platform/.git/ref
       globs:
       - cluster-package/*
@@ -505,14 +506,36 @@ jobs:
             gpg --armor --detach-sign "$file"
             cp ${file}* signed-release/
           done
-  - task: pre-release-version
-    file: platform/pipelines/tasks/bump-semver.yaml
+  - get: semver
     params:
-      DEST_TAG_PREFIX: ((github-release-tag-prefix))v
+      bump: final
   - put: pre-release
     params:
-      name: version/name
-      tag: version/tag
+      name: semver/version
+      tag: semver/version
+      tag_prefix: ((github-release-tag-prefix))v
       commitish: platform/.git/ref
       globs:
       - signed-release/*
+- name: bump-patch-version
+  serial: true
+  serial_groups: [release]
+  plan:
+  - get: pre-release
+    passed: [package]
+    trigger: true
+  - put: semver
+    params:
+      bump: patch
+- name: bump-major
+  serial_groups: [release]
+  plan:
+    - put: semver
+      params:
+        bump: major
+- name: bump-minor
+  serial_groups: [release]
+  plan:
+    - put: semver
+      params:
+        bump: minor
