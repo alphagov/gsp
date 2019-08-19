@@ -19,31 +19,46 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // AWS allows specifying configuration for the Postgres RDS instance
 type AWS struct {
-	DiskSizeGB   int    `json:"diskSizeGB,omitempty"`
+	// InstanceType essentially defines the amount of memory and cpus on the database.
 	InstanceType string `json:"instanceType,omitempty"`
+}
+
+// Event is a single action taken against the resource at any given time.
+type Event struct {
+	// Status of the currently running instance.
+	Status string `json:"status"`
+	// Reason for the current status of the instance.
+	Reason string `json:"reason,omitempty"`
+	// Time of the event cast.
+	Time *metav1.Time `json:"time"`
 }
 
 // PostgresSpec defines the desired state of Postgres
 type PostgresSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// AWS specific subsection of the resource.
 	AWS AWS `json:"aws,omitempty"`
+	// Secret name to be used for storing relevant instance secrets for further use.
+	Secret string `json:"secret,omitempty"`
 }
 
 // PostgresStatus defines the observed state of Postgres
 type PostgresStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
+	// ID of an instance for a reference.
+	ID string `json:"id"`
 	// Status of the currently running instance.
 	Status string `json:"status"`
+	// Reason for the current status of the instance.
+	Reason string `json:"reason,omitempty"`
+	// Events will hold more in-depth details of the current state of the instance.
+	Events []Event `json:"events,omitempty"`
 }
 
 // +kubebuilder:object:root=true

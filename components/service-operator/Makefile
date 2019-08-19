@@ -15,7 +15,7 @@ all: manager
 
 # Run tests
 test: generate fmt vet manifests
-	go test ./api/... ./controllers/... -coverprofile cover.out
+	go test ./apis/... ./controllers/... -coverprofile cover.out
 
 # Build manager binary
 manager: generate fmt vet
@@ -36,7 +36,9 @@ deploy: manifests
 
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	cat config/crd/bases/*.yaml > ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/crd.yaml
+	cp config/rbac/role.yaml ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/role.yaml
 
 # Run go fmt against code
 fmt:
@@ -48,7 +50,7 @@ vet:
 
 # Generate code
 generate: controller-gen
-	$(CONTROLLER_GEN) object:headerFile=./hack/boilerplate.go.txt paths=./api/...
+	$(CONTROLLER_GEN) object:headerFile=./hack/boilerplate.go.txt paths=./apis/...
 
 # Build the docker image
 docker-build: test

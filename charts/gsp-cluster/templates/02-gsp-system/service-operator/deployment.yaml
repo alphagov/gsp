@@ -18,6 +18,7 @@ spec:
   template:
     metadata:
       annotations:
+        prometheus.io/scrape: "true"
         iam.amazonaws.com/role: {{ .Values.global.cluster.name }}-service-operator
       labels:
         control-plane: {{ .Release.Name }}-service-operator
@@ -27,8 +28,13 @@ spec:
         - /manager
         args:
         - --enable-leader-election
+        - --cluster={{ .Values.global.cluster.name }}
         image: "{{ .Values.serviceOperator.image.repository }}:{{ .Values.serviceOperator.image.tag }}"
         name: manager
+        ports:
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
         env:
         - name: CLOUD_PROVIDER
           value: "aws"

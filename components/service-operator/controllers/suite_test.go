@@ -13,16 +13,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package controllers_test
 
 import (
 	"path/filepath"
 	"testing"
 
+	"github.com/go-logr/logr"
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/api/v1beta1"
+	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
+	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -38,9 +41,12 @@ import (
 var cfg *rest.Config
 var k8sClient client.Client
 var testEnv *envtest.Environment
+var log logr.Logger
+var mockCtrl *gomock.Controller
 
 func TestAPIs(t *testing.T) {
 	RegisterFailHandler(Fail)
+	mockCtrl = gomock.NewController(t)
 
 	RunSpecsWithDefaultAndCustomReporters(t,
 		"Controller Suite",
@@ -48,7 +54,8 @@ func TestAPIs(t *testing.T) {
 }
 
 var _ = BeforeSuite(func(done Done) {
-	logf.SetLogger(zap.LoggerTo(GinkgoWriter, true))
+	log = zap.LoggerTo(GinkgoWriter, true)
+	logf.SetLogger(log)
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
@@ -61,6 +68,9 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(cfg).ToNot(BeNil())
 
 	err = databasev1beta1.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = queuev1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:scheme

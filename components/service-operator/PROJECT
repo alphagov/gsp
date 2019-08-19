@@ -1,7 +1,11 @@
 version: "2"
-domain: gsp.k8s.io
+domain: govsvc.uk
 repo: github.com/alphagov/gsp/components/service-operator
+multigroup: true
 resources:
 - group: database
   version: v1beta1
   kind: Postgres
+- group: queue
+  version: v1beta1
+  kind: SQS
