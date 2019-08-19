@@ -60,7 +60,7 @@ var (
 )
 
 func (r *CloudFormationController) Reconcile(ctx context.Context, log logr.Logger, req ctrl.Request, cloudFormationTemplate CloudFormationTemplate, deleting bool) (internal.Action, StackData, error) {
-	stackName := fmt.Sprintf("%s-%s-%s-%s-%s", r.ClusterName, "gsp-service-operator", cloudFormationTemplate.ResourceType(), req.Namespace, req.Name)
+	stackName := fmt.Sprintf("%s-%s-%s-%s", r.ClusterName, cloudFormationTemplate.ResourceType(), req.Namespace, req.Name)
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
