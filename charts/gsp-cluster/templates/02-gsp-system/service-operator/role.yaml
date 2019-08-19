@@ -44,3 +44,23 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - access.govsvc.uk
+  resources:
+  - principal
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - access.govsvc.uk
+  resources:
+  - principal/status
+  verbs:
+  - get
+  - patch
+  - update

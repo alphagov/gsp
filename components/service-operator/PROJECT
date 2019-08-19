@@ -9,3 +9,6 @@ resources:
 - group: queue
   version: v1beta1
   kind: SQS
+- group: access
+  version: v1beta1
+  kind: Principal
