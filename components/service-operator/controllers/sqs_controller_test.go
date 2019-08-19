@@ -52,9 +52,6 @@ var _ = Describe("SQSController", func() {
 				Namespace: "test",
 			},
 			Spec: queue.SQSSpec{
-				AWS: queue.AWS{
-					QueueName: queueName,
-				},
 				Secret: secretName,
 			},
 		}
@@ -170,7 +167,6 @@ var _ = Describe("SQSController", func() {
 					Return(internal.Update, stackData, nil).
 					Times(1)
 
-				sqs.Spec.AWS.QueueName = "secondary-test-sqs"
 				sqs.ObjectMeta.Finalizers = append(sqs.Finalizers, SQSFinalizerName)
 				k8sClient.Update(context.TODO(), &sqs)
 				k8sClient.Create(context.TODO(), &secret)

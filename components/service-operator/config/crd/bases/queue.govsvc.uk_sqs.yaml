@@ -32,12 +32,6 @@ spec:
           properties:
             aws:
               description: AWS specific subsection of the resource.
-              properties:
-                queueName:
-                  description: QueueName will define given queue on the provider.
-                  type: string
-              required:
-              - queueName
               type: object
             secret:
               description: Secret name to be used for storing relevant instance secrets

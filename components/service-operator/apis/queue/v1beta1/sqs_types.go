@@ -24,8 +24,6 @@ import (
 
 // AWS allows specifying configuration for the SQS queue
 type AWS struct {
-	// QueueName will define given queue on the provider.
-	QueueName string `json:"queueName"`
 }
 
 // Event is a single action taken against the resource at any given time.

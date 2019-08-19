@@ -21,8 +21,8 @@ rules:
   - update
   - watch
 - apiGroups:
-  - database.gsp.k8s.io
-  - queue.gsp.k8s.io
+  - database.govsvc.uk
+  - queue.govsvc.uk
   resources:
   - postgres
   - sqs
@@ -35,8 +35,8 @@ rules:
   - update
   - watch
 - apiGroups:
-  - database.gsp.k8s.io
-  - queue.gsp.k8s.io
+  - database.govsvc.uk
+  - queue.govsvc.uk
   resources:
   - postgres/status
   - sqs/status

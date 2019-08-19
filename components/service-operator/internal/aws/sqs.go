@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"fmt"
+
 	queue "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 
 	awscloudformation "github.com/aws/aws-sdk-go/service/cloudformation"
@@ -22,7 +24,7 @@ func (s *SQS) Template(stackName string, tags []resources.Tag) *cloudformation.T
 	template := cloudformation.NewTemplate()
 
 	template.Resources[SQSResourceName] = &resources.AWSSQSQueue{
-		QueueName: s.SQSConfig.Spec.AWS.QueueName,
+		QueueName: fmt.Sprintf("%s-%s-%s", s.SQSConfig.ClusterName, s.SQSConfig.Namespace, s.SQSConfig.Name),
 		Tags:      tags,
 	}
 
