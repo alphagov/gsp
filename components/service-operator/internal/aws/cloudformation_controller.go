@@ -151,8 +151,6 @@ func (r *CloudFormationController) createCloudFormationStack(
 		return fmt.Errorf("error creating stack: %s", err)
 	}
 
-	// TODO: create Secret
-
 	return nil
 }
 
@@ -186,6 +184,5 @@ func (r *CloudFormationController) updateCloudFormationStack(
 func (r *CloudFormationController) deleteCloudFormationStack(svc *awscloudformation.CloudFormation, stackName string, log logr.Logger) error {
 	log.V(1).Info("deleting stack...", "stackName", stackName)
 	_, err := svc.DeleteStack(&awscloudformation.DeleteStackInput{StackName: aws.String(stackName)})
-	// TODO: delete Secret
 	return err
 }

@@ -19,7 +19,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // AWS allows specifying configuration for the Postgres RDS instance
@@ -40,7 +39,6 @@ type Event struct {
 
 // PostgresSpec defines the desired state of Postgres
 type PostgresSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// AWS specific subsection of the resource.
@@ -51,7 +49,6 @@ type PostgresSpec struct {
 
 // PostgresStatus defines the observed state of Postgres
 type PostgresStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// ID of an instance for a reference.
