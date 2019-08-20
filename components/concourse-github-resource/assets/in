@@ -98,7 +98,7 @@ head_ref=$(git rev-parse HEAD)
 
 api_response=$( \
   curl --header 'Content-Type: application/json' \
-        --header "Authorization: bearer ${GITHUB_API_TOKEN}" \
+        --header "Authorization: bearer ${github_api_token}" \
         --data "{ \"query\": \"$(build_query "${organization}" "${repository}" "${head_ref}")\"}" \
         "https://api.github.com/graphql" \
 )
