@@ -14,5 +14,8 @@ dependencies:
 - name: harbor
   repository: https://helm.goharbor.io/
   version: 1.1.1
-digest: sha256:5d06eeb68fdcf28f9852f0514852f67042d964411049e53f744bf9397502d1eb
-generated: "2019-08-27T14:38:52.734318+01:00"
+- name: external-dns
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 2.5.3
+digest: sha256:2ede1c8553d7cabe1595387a118816bf94a99c5d25cf8fcc85291669d8ffea1f
+generated: "2019-08-27T18:43:41.846965+01:00"

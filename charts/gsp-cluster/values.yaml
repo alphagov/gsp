@@ -526,3 +526,14 @@ concourseResources:
     image:
       repository: govsvc/task-toolbox
       tag: latest
+
+external-dns:
+  sources:
+  - istio-gateway
+  provider: aws
+  aws:
+    region: eu-west-2
+    zoneType: public
+  rbac:
+    create: true
+    serviceAccountName: external-dns
