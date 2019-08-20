@@ -78,6 +78,26 @@ generate_user_values: &generate_user_values
   outputs:
   - name: user-values
 
+generate_managed_namespaces_values: &generate_managed_namespaces_values
+  platform: linux
+  params:
+    CONFIG_VALUES_PATH:
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      mkdir -p managed-namespaces-values
+      echo "generating istio gateway values for managed namespaces..."
+      gomplate -d config=${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-gateways.yaml > managed-namespaces-values/gateways-values.yaml
+      echo "generating external-dns values for managed namespaces..."
+      gomplate -d config=${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-external-dns.yaml > managed-namespaces-values/external-dns-values.yaml
+  inputs:
+  - name: platform
+  outputs:
+  - name: managed-namespaces-values
+
 generate_users_terraform: &generate_users_terraform
   platform: linux
   params:
@@ -154,6 +174,7 @@ apply_cluster_chart: &apply_cluster_chart
         --values cluster-values/values.yaml \
         --values user-values/values.yaml \
         --values config/${CONFIG_VALUES_PATH} \
+        --values managed-namespaces-values/external-dns-values.yaml \
         --set "githubAPIToken=${GITHUB_API_TOKEN}" \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
@@ -166,6 +187,7 @@ apply_cluster_chart: &apply_cluster_chart
         --output-dir manifests \
         --values config/${CONFIG_VALUES_PATH} \
         --values cluster-values/gsp-istio-values.yaml \
+        --values managed-namespaces-values/gateways-values.yaml \
         --set global.runningOnAws=true \
         gsp/gsp-istio-*.tgz
       rm -rf manifests/gsp-istio/charts/istio-cni
@@ -189,6 +211,7 @@ apply_cluster_chart: &apply_cluster_chart
       apply manifests/gsp-istio/charts/istio-init
       apply kube-system-manifests/gsp-istio/charts/istio-cni
       apply manifests/gsp-istio/charts/istio
+      apply manifests/gsp-istio/templates
       apply manifests/${CHART_NAME}/templates/01-aws-system/
       apply manifests/
   inputs:
@@ -196,6 +219,7 @@ apply_cluster_chart: &apply_cluster_chart
   - name: config
   - name: user-values
   - name: gsp
+  - name: managed-namespaces-values
 
 check_conformance: &check_conformance
   platform: linux
@@ -631,6 +655,11 @@ jobs:
     - get: cluster-state
       passed: [deploy]
       trigger: true
+  - task: unpack-gsp-release
+    image: task-toolbox
+    config: *unpack_release
+    params:
+      CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - aggregate:
     - task: generate-cluster-values
       image: task-toolbox
@@ -644,6 +673,12 @@ jobs:
         ACCOUNT_ID: ((account-id))
         CLUSTER_NAME: ((cluster-name))
         ACCOUNT_NAME: ((account-name))
+    - task: generate-managed-namespaces-values
+      timeout: 10m
+      config: *generate_managed_namespaces_values
+      image: task-toolbox
+      params:
+        CONFIG_VALUES_PATH: ((config-values-path))
   - task: apply-cluster-chart
     image: task-toolbox
     timeout: 10m
