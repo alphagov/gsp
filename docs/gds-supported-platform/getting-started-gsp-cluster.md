@@ -1,5 +1,9 @@
 # Getting started with a GDS Supported Platform cluster
 
+The GDS Supported Platform (GSP) is a platform to host Government Digital Service (GDS) services. The GSP is based on [Docker](https://docs.docker.com/) and [Kubernetes](https://kubernetes.io/).
+
+These instructions explain how to set up a remote instance of the GSP to host an app.
+
 ## Before you start
 
 You should have:
@@ -7,11 +11,13 @@ You should have:
 - a [Docker image](https://docs.docker.com/engine/reference/commandline/images/) of your app built in line with the [12 factor principles](https://docs.cloud.service.gov.uk/architecture.html#12-factor-application-principles)
 - access to a [Kubernetes cluster](https://github.com/alphagov/gsp/blob/master/docs/gds-supported-platform/troubleshooting_app_errors.md) created by Tech Ops
 
+_TBC: deploying multiple apps on the same cluster that are connected to each other - separate story on how to handle networking_
+
 ## Create a GitHub repository
 
 You must create a repository on GitHub to store your Deployment configuration. The GDS Supported Platform only works with repositories stored on GitHub.
 
-## Request namespace
+## Request a namespace and cluster configuration
 
 Your service team's Site Reliability Engineer (SRE) must [ask GDS Tech Ops](re-GSP-team@digital.cabinet-office.gov.uk) for a new namespace. You must provide the following information:
 
@@ -19,15 +25,64 @@ Your service team's Site Reliability Engineer (SRE) must [ask GDS Tech Ops](re-G
 * the name of the [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) you want to create
 * the email addresses, GitHub usernames, and [GPG public keys](https://www.gnupg.org/gph/en/manual/c14.html) (if applicable) of the users who should get read-only access to the namespace
 
+GDS Tech Ops will create a namespace and a cluster configuration, or `clusterconfig`. The `clusterconfig` contains the following code and default values:
+
+```
+- name: CLUSTER_CONFIG-TEAM_NAME-CONCOURSE_BUILD_PIPELINE
+  owner: alphagov
+  repository: REPO_URL
+  path: ci/build
+```
+You must change the values in the `clusterconfig` to configure the Kubernetes cluster.
+
+## Create a Concourse build pipeline
+
+A Concourse build pipeline enables continuous integration and development, and deploys your app.
+
+1. Create a root directory in your GitHub repository.
+
+1. Create a `ci/build` directory in the new root directory.
+
+1. Create a Concourse build pipeline `.yaml` file in the `ci/build` directory. The `.yaml` file should:
+
+    - define the `github_source`, `harbor_source` and Concourse `resource_types`
+    - create the Docker container resource
+    - create the `build job` that builds all containers and does unit testing
+    - define the `packaging`
+    - generate chart values and the manifest file
+    - create the release job
+
+1. Create a deployment pipeline `.yaml` file in the `ci/build` directory. The deployment pipeline `.yaml` file uses the artifacts created by the Concourse build pipeline.
+
+Refer to the following Concourse documentation for more information on creating Concourse build pipelines:
+
+- [pipelines](https://concourse-ci.org/pipelines.html)
+- [resources](https://concourse-ci.org/resources.html) and [resource types](https://concourse-ci.org/resource-types.html)
+- [jobs](https://concourse-ci.org/jobs.html)
+- [tasks](https://concourse-ci.org/tasks.html)
+- [builds](https://concourse-ci.org/builds.html)
+
 ## Create a Helm chart
 
-The GDS Supported Platform uses a packaging format called [Helm charts](https://helm.sh/docs/developing_charts/). A chart is a collection of files that describe a related set of Kubernetes resources.
+Kubernetes resources describe the configuration of the app that you are running. You define these resources as `.yaml` files and collect them together in a packaging format called a [Helm chart](https://helm.sh/docs/developing_charts/).
 
-You create Helm charts as files in a directory. These files are then packaged into versioned archives that users can deploy.
+You create Helm charts as files in a directory with the following structure:
 
-1. Create a root directory in your GitHub repository. This directory will contain the chart.
+```
+chart/
+├── Chart.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── destinationrule.yaml
+    ├── service.yaml
+    └── virtualservice.yaml
+```
 
-1. Create a `Chart.yaml` file in the root directory with the following code:
+### Create the Helm chart directory and yaml files
+
+1. Create a `chart` directory inside the root directory of the GitHub repository.
+
+1. Create a `Chart.yaml` file in the `chart` directory with the following:
 
     ```
     apiVersion: v1
@@ -39,13 +94,13 @@ You create Helm charts as files in a directory. These files are then packaged in
 
     This file defines metadata about the chart.
 
-1. Create a `templates` directory in the root directory. This directory contains all Kubernetes object definitions.
+1. Create a `templates` directory in the `chart` directory to store the Kubernetes object definitions.
 
-1. Create a `values.yaml` file in the root directory. This file sets the default values for your desired chart variables.
+1. Create a `values.yaml` file in the root directory to set the default values for your desired chart variables.
 
-## Create a Kubernetes Deployment object
+### Create a Kubernetes Deployment resource
 
-You run an app by creating a [Kubernetes Deployment object](https://kubernetes.io/docs/concepts/#kubernetes-objects). This object defines your app and its routes, databases and all other relevant information. You describe a Deployment in a YAML file.
+You run an app in the local GSP instance by creating a [Kubernetes Deployment resource object](https://kubernetes.io/docs/concepts/#kubernetes-objects). This object defines your app and its routes, databases and all other relevant information. You describe a Kubernetes Deployment in a `.yaml` file.
 
 1. Create a `deployment.yaml` file in the `templates` directory. The following example uses an [nginx](https://hub.docker.com/_/nginx/) container image called `myapp`. Replace this nginx container image with your app image:
 
@@ -88,11 +143,11 @@ You run an app by creating a [Kubernetes Deployment object](https://kubernetes.i
 
 1. Check `stdout` to see if the chart rendered correctly.
 
-## Create a service
+### Create a service
 
-By default, your apps are not accessible to the public. To expose them to the public, you must set up a [Service](https://kubernetes.io/docs/concepts/services-networking/service/) and an [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) into the Kubernetes cluster.
+A [Kubernetes `Service`](https://kubernetes.io/docs/concepts/services-networking/service/) defines a set of pods and a policy by which to access and communicate with them.
 
-Setting up a Service creates a stable endpoint that acts like an internal load balancer to send traffic to your Deployment's Pods. To set up a service, create a `service.yaml` file in the `templates` directory with the following code:
+Create a `service.yaml` file in the `templates` directory with the following:
 
 ```
 apiVersion: v1
@@ -115,28 +170,29 @@ spec:
 ```
 Helm automatically populates the `{{ .Release.Name }}` variable when you render the chart.
 
-## Create an Ingress
+### Set up a VirtualService
 
-You must define an [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) to route public internet traffic to the stable endpoint you created when you set up the Service.
+A `VirtualService` is a stable endpoint that acts as an internal load balancer to send traffic to your Deployment's pods.
 
-Create a `ingress.yaml` file in the `templates` directory with the following code:
+Create a `virtualservice.yaml` file in the `templates` directory with the following:
 
 ```
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
 metadata:
-  name: {{ .Release.Name }}-myapp
-  annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: "/"
+  name: {{ .Release.Name }}-web
 spec:
-  rules:
-  - host:  {{ .Release.Name }}.{{ .Values.global.cluster.domain }}
-    http:
-      paths:
-      - backend:
-          serviceName: example-myapp
-          servicePort: 80
-        path: /
+  hosts:
+  - "{{ .Release.Name }}.local.govsandbox.uk"
+  gateways:
+  - "gsp-gsp-cluster.gsp-system"
+  http:
+  - route:
+    - destination:
+        host: {{ .Release.Name }}-web
+        port:
+          number: 3000
+
 ```
 
 ## Deploy your app
@@ -145,14 +201,15 @@ You can deploy your app once Tech Ops has created your namespace and you have cr
 
 - Helm chart
 - Kubernetes Deployment object
-- Service
-- Ingress
+- service
+- virtual service
 
 To deploy your app, commit your changes and push them to GitHub.
 
 Check that your app is live at {{ .Release.Name }}.{{ .Values.global.cluster.domain }}.
 
 ## View your app in the dashboard
+_delete and replace as this does not apply to non-local content_
 
 You can view your app in the [Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) without needing to go through the Service or Ingress that you set up. You do this by using a proxy to access your Kubernetes cluster.
 
