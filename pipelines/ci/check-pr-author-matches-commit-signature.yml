@@ -2,7 +2,7 @@ resources:
 - name: gsp-pr
   type: pull-request
   source:
-    access_token: ((pr-build-status))
+    access_token: ((re-autom8-ci-pr-build-status-github-token))
     repository: alphagov/gsp
   check_every: 1m
 resource_types:
@@ -30,7 +30,7 @@ jobs:
         source:
           repository: govsvc/task-toolbox
       params:
-        GITHUB_TOKEN: ((pr-build-status))
+        GITHUB_TOKEN: ((re-autom8-ci-pr-build-status-github-token))
       run:
         path: bash
         args:
