@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 15,
+  "id": 13,
   "links": [],
   "panels": [
     {
@@ -124,89 +124,6 @@
         "x": 8,
         "y": 0
       },
-      "id": 25,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "expr": "count(node_time{job=\"concourse_node_exporter\", role=\"concourse-worker\"})",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "thresholds": "",
-      "title": "Number of worker nodes",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Prometheus",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 8,
-        "x": 16,
-        "y": 0
-      },
       "id": 26,
       "interval": null,
       "links": [],
@@ -245,7 +162,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "count(node_time{job=\"concourse_node_exporter\", role=\"concourse-web\"})",
+          "expr": "count(up{job=\"gsp-concourse-web\"})",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -265,6 +182,89 @@
         }
       ],
       "valueName": "avg"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "Prometheus",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 25,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": true,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": true
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "expr": "max(concourse_workers_registered{state=\"running\"})",
+          "format": "time_series",
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "title": "Number of worker nodes",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
     },
     {
       "aliasColors": {},
@@ -452,7 +452,7 @@
         "x": 16,
         "y": 2
       },
-      "id": 15,
+      "id": 18,
       "legend": {
         "avg": false,
         "current": false,
@@ -477,25 +477,18 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(container_memory_usage_bytes{container_name!=\"\",pod_name=~\"gsp-concourse-web-.*\"}) by (pod_name)",
+          "expr": "sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~\"gsp-concourse-worker.*\"}) without (container_name)",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "Memory usage - {{pod_name}}",
+          "legendFormat": "CPU usage - {{pod_name}}",
           "refId": "A"
-        },
-        {
-          "expr": " kube_pod_container_resource_requests{resource=\"memory\",pod=~\"gsp-concourse-web.*\"}",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "Memory Request - {{pod}}",
-          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Web memory",
+      "title": "Worker CPU",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -511,7 +504,7 @@
       },
       "yaxes": [
         {
-          "format": "bytes",
+          "format": "percentunit",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -633,7 +626,7 @@
         "x": 8,
         "y": 8
       },
-      "id": 18,
+      "id": 15,
       "legend": {
         "avg": false,
         "current": false,
@@ -658,18 +651,25 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~\"gsp-concourse-worker.*\"}) without (container_name)",
+          "expr": "sum(container_memory_usage_bytes{container_name!=\"\",pod_name=~\"gsp-concourse-web-.*\"}) by (pod_name)",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "CPU usage - {{pod_name}}",
+          "legendFormat": "Memory usage - {{pod_name}}",
           "refId": "A"
+        },
+        {
+          "expr": " kube_pod_container_resource_requests{resource=\"memory\",pod=~\"gsp-concourse-web.*\"}",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "Memory Request - {{pod}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Worker CPU",
+      "title": "Web memory",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -685,7 +685,7 @@
       },
       "yaxes": [
         {
-          "format": "percentunit",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -839,5 +839,5 @@
   "timezone": "",
   "title": "Concourse",
   "uid": "xgwl_AUiz",
-  "version": 3
+  "version": 1
 }
