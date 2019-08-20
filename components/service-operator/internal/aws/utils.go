@@ -39,7 +39,7 @@ func DefineTags(clusterName, resourceName, namespace, resourceType string) []res
 	}
 }
 
-type AssumeRolePolicyDocument struct {
+type PolicyDocument struct {
 	Version   string
 	Statement []PolicyStatement
 }
@@ -48,14 +48,15 @@ type PolicyStatement struct {
 	Effect    string
 	Principal PolicyPrincipal
 	Action    []string
+	Resources []string
 }
 
 type PolicyPrincipal struct {
 	AWS []string
 }
 
-func NewAssumeRolePolicyDocument(principal string) AssumeRolePolicyDocument {
-	return AssumeRolePolicyDocument{
+func NewRolePolicyDocument(principal, resource string, actions []string) PolicyDocument {
+	return PolicyDocument{
 		Version: "2012-10-17",
 		Statement: []PolicyStatement{
 			PolicyStatement{
@@ -63,7 +64,8 @@ func NewAssumeRolePolicyDocument(principal string) AssumeRolePolicyDocument {
 				Principal: PolicyPrincipal{
 					AWS: []string{principal},
 				},
-				Action: []string{"sts:AssumeRole"},
+				Action:    actions,
+				Resources: []string{resource},
 			},
 		},
 	}

@@ -16,8 +16,18 @@ const (
 	SQSOutputURL = "QueueURL"
 )
 
+var (
+	allowedActions = []string{
+		"sqs:SendMessage",
+		"sqs:ReceiveMessage",
+		"sqs:DeleteMessage",
+		"sqs:GetQueueAttributes",
+	}
+)
+
 type SQS struct {
-	SQSConfig *queue.SQS
+	SQSConfig  *queue.SQS
+	IAMRoleARN string
 }
 
 func (s *SQS) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
@@ -28,6 +38,12 @@ func (s *SQS) Template(stackName string, tags []resources.Tag) *cloudformation.T
 		Tags:      tags,
 	}
 
+	template.Resources[PostgresResourceIAMPolicy] = &resources.AWSIAMPolicy{
+		PolicyName:     cloudformation.Join("-", []string{"sqs", "access", cloudformation.GetAtt(SQSResourceName, "QueueName")}),
+		PolicyDocument: NewRolePolicyDocument(s.IAMRoleARN, cloudformation.Ref(PostgresResourceCluster), allowedActions),
+		Roles:          []string{s.IAMRoleARN},
+	}
+
 	template.Outputs[SQSOutputURL] = map[string]interface{}{
 		"Description": "SQSQueue URL to be returned to the user.",
 		"Value":       cloudformation.Ref(SQSResourceName),
@@ -36,7 +52,11 @@ func (s *SQS) Template(stackName string, tags []resources.Tag) *cloudformation.T
 	return template
 }
 
-func (s *SQS) Parameters() ([]*awscloudformation.Parameter, error) {
+func (s *SQS) CreateParameters() ([]*awscloudformation.Parameter, error) {
+	return []*awscloudformation.Parameter{}, nil
+}
+
+func (s *SQS) UpdateParameters() ([]*awscloudformation.Parameter, error) {
 	return []*awscloudformation.Parameter{}, nil
 }
 

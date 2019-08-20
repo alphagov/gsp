@@ -26,7 +26,7 @@ func (s *IAMRole) Template(stackName string, tags []resources.Tag) *cloudformati
 
 	template.Resources[IAMRoleResourceName] = &resources.AWSIAMRole{
 		RoleName:                 s.RoleName,
-		AssumeRolePolicyDocument: NewAssumeRolePolicyDocument(s.RolePrincipal),
+		AssumeRolePolicyDocument: NewRolePolicyDocument(s.RolePrincipal, "*", []string{"sts:AssumeRole"}),
 		PermissionsBoundary:      s.PermissionsBoundary,
 	}
 
@@ -38,7 +38,11 @@ func (s *IAMRole) Template(stackName string, tags []resources.Tag) *cloudformati
 	return template
 }
 
-func (s *IAMRole) Parameters() ([]*awscloudformation.Parameter, error) {
+func (s *IAMRole) CreateParameters() ([]*awscloudformation.Parameter, error) {
+	return []*awscloudformation.Parameter{}, nil
+}
+
+func (s *IAMRole) UpdateParameters() ([]*awscloudformation.Parameter, error) {
 	return []*awscloudformation.Parameter{}, nil
 }
 

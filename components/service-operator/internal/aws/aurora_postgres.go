@@ -2,7 +2,6 @@ package aws
 
 import (
 	"fmt"
-
 	database "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal"
 
@@ -28,6 +27,7 @@ const (
 	PostgresResourceInstance              = "RDSDBInstance"
 	PostgresResourceParameterGroup        = "RDSDBParameterGroup"
 	PostgresResourceClusterParameterGroup = "RDSDBClusterParameterGroup"
+	PostgresResourceIAMPolicy             = "RDSIAMRole"
 
 	PostgresEndpoint     = "Endpoint"
 	PostgresReadEndpoint = "ReadEndpoint"
@@ -40,7 +40,7 @@ const (
 
 type AuroraPostgres struct {
 	PostgresConfig *database.Postgres
-	Credentials    internal.BasicAuth
+	IAMRoleARN     string
 }
 
 func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
@@ -91,6 +91,12 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 		Tags: tags,
 	}
 
+	template.Resources[PostgresResourceIAMPolicy] = &resources.AWSIAMPolicy{
+		PolicyName:     cloudformation.Join("-", []string{"postgres", "access", cloudformation.Ref(PostgresResourceCluster)}),
+		PolicyDocument: NewRolePolicyDocument(p.IAMRoleARN, cloudformation.Ref(PostgresResourceCluster), []string{"rds-data:*"}),
+		Roles:          []string{p.IAMRoleARN},
+	}
+
 	template.Outputs[PostgresEndpoint] = map[string]interface{}{
 		"Description": "Postgres Endpoint used by the application to perform connection.",
 		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "Endpoint.Address"),
@@ -119,15 +125,37 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 	return template
 }
 
-func (p *AuroraPostgres) Parameters() ([]*awscloudformation.Parameter, error) {
+func (p *AuroraPostgres) CreateParameters() ([]*awscloudformation.Parameter, error) {
+	username, err := internal.RandomString(16, internal.CharactersUpper, internal.CharactersLower)
+	if err != nil {
+		return nil, err
+	}
+
+	password, err := internal.RandomString(32, internal.CharactersUpper, internal.CharactersLower, internal.CharactersNumeric, internal.CharactersSpecial)
+	if err != nil {
+		return nil, err
+	}
 	return []*awscloudformation.Parameter{
 		&awscloudformation.Parameter{
 			ParameterKey:   aws.String(PostgresUsername),
-			ParameterValue: aws.String(p.Credentials.Username),
+			ParameterValue: aws.String(username),
 		},
 		&awscloudformation.Parameter{
 			ParameterKey:   aws.String(PostgresPassword),
-			ParameterValue: aws.String(p.Credentials.Password),
+			ParameterValue: aws.String(password),
+		},
+	}, nil
+}
+
+func (p *AuroraPostgres) UpdateParameters() ([]*awscloudformation.Parameter, error) {
+	return []*awscloudformation.Parameter{
+		&awscloudformation.Parameter{
+			ParameterKey:     aws.String(PostgresUsername),
+			UsePreviousValue: aws.Bool(true),
+		},
+		&awscloudformation.Parameter{
+			ParameterKey:     aws.String(PostgresPassword),
+			UsePreviousValue: aws.Bool(true),
 		},
 	}, nil
 }

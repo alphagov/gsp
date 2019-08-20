@@ -32,6 +32,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	access "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
 	queue "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 )
@@ -71,11 +72,19 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	provisioner := os.Getenv("CLOUD_PROVIDER")
 	switch provisioner {
 	case "aws":
-		sqsCloudFormationTemplate := internalaws.SQS{SQSConfig: &sqs}
+		var roles access.PrincipalList
+		err := r.List(ctx, &roles, client.MatchingLabels(map[string]string{access.AccessGroupLabel: sqs.Labels[access.AccessGroupLabel]}))
+		if err != nil || len(roles.Items) != 1 {
+			log.V(1).Info("unable to find unique IAM Role in same gsp-access-group - waiting 5 minutes", "gsp-access-group", r.sqs.Labels[access.AccessGroupLabel])
+			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
+		}
+
+		sqsCloudFormationTemplate := internalaws.SQS{SQSConfig: &sqs, IAMRoleARN: roles.Items[0].Status.ARN}
 		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &sqsCloudFormationTemplate, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
+
 		newSecret := sqsOutputsToSecret(secretName, req.Namespace, stackData.Outputs)
 		sqs.Status.ID = stackData.ID
 		sqs.Status.Status = stackData.Status

@@ -33,7 +33,8 @@ import (
 
 type CloudFormationTemplate interface {
 	Template(string, []resources.Tag) *goformation.Template
-	Parameters() ([]*awscloudformation.Parameter, error)
+	CreateParameters() ([]*awscloudformation.Parameter, error)
+	UpdateParameters() ([]*awscloudformation.Parameter, error)
 	ResourceType() string
 }
 
@@ -132,7 +133,7 @@ func (r *CloudFormationController) createCloudFormationStack(
 	log logr.Logger) error {
 	log.V(1).Info("creating stack...", "stackName", stackName)
 
-	params, err := cloudFormationTemplate.Parameters()
+	params, err := cloudFormationTemplate.CreateParameters()
 	if err != nil {
 		return fmt.Errorf("error creating parameters: %s", err)
 	}
@@ -157,7 +158,7 @@ func (r *CloudFormationController) updateCloudFormationStack(
 	log logr.Logger) error {
 	log.V(1).Info("updating stack...", "stackName", stackName)
 
-	params, err := cloudFormationTemplate.Parameters()
+	params, err := cloudFormationTemplate.UpdateParameters()
 	if err != nil {
 		return fmt.Errorf("error creating parameters: %s", err)
 	}

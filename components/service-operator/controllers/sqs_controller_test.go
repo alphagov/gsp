@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	access "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
 	queue "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	. "github.com/alphagov/gsp/components/service-operator/controllers"
 	"github.com/alphagov/gsp/components/service-operator/internal"
@@ -28,6 +29,7 @@ var _ = Describe("SQSController", func() {
 		queueName    string
 		secret       core.Secret
 		secretName   string
+		principal    access.Principal
 		request      reconcile.Request
 		reconciler   SQSReconciler
 		cfReconciler *internalawsmocks.MockCloudFormationReconciler
@@ -50,6 +52,9 @@ var _ = Describe("SQSController", func() {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      queueName,
 				Namespace: "test",
+				Labels: map[string]string{
+					access.AccessGroupLabel: "test.access.group",
+				},
 			},
 			Spec: queue.SQSSpec{
 				Secret: secretName,
@@ -64,6 +69,20 @@ var _ = Describe("SQSController", func() {
 				"QueueURL": []byte("test-queue-url"),
 			},
 		}
+		principal = access.Principal{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: access.GroupVersion.Group,
+				Kind:       "Principal",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "test",
+				Name:      "test-role",
+				Labels: map[string]string{
+					access.AccessGroupLabel: "test.access.group",
+				},
+			},
+		}
+		k8sClient.Create(context.TODO(), &principal)
 		k8sClient.Create(context.TODO(), &sqs)
 		cfReconciler = internalawsmocks.NewMockCloudFormationReconciler(mockCtrl)
 		reconciler = SQSReconciler{
@@ -76,6 +95,7 @@ var _ = Describe("SQSController", func() {
 	AfterEach(func() {
 		k8sClient.Delete(context.TODO(), &sqs)
 		k8sClient.Delete(context.TODO(), &secret)
+		k8sClient.Delete(context.TODO(), &principal)
 	})
 
 	Context("When using an undefined provisioner", func() {
@@ -151,6 +171,24 @@ var _ = Describe("SQSController", func() {
 					Name:      secretName,
 				}, &secret)
 				Expect(string(secret.Data["QueueURL"])).To(Equal(url))
+			})
+
+			It("Should fail if there is no matching IAM role", func() {
+				stackData := internalaws.StackData{
+					ID:     "test-id",
+					Status: "created",
+					Reason: "because-of-create",
+				}
+				cfReconciler.
+					EXPECT().
+					Reconcile(context.TODO(), gomock.Any(), request, gomock.Any(), false).
+					Return(internal.Create, stackData, nil).
+					Times(1)
+				k8sClient.Delete(context.TODO(), &principal)
+
+				result, _ := reconciler.Reconcile(request)
+				Expect(result.Requeue).To(BeTrue())
+				Expect(result.RequeueAfter).To(Equal(time.Minute * 2))
 			})
 		})
 
