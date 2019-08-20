@@ -45,6 +45,7 @@ generate_cluster_values: &generate_cluster_values
       mkdir -p cluster-values
       echo "fetching cluster-values file from cluster-state..."
       jq -r '.values' ./cluster-state/metadata > ./cluster-values/values.yaml
+      jq -r '.gsp_istio_values' ./cluster-state/metadata > ./cluster-values/gsp-istio-values.yaml
       echo "OK!"
   inputs:
   - name: cluster-state
@@ -164,6 +165,7 @@ apply_cluster_chart: &apply_cluster_chart
         --namespace istio-system \
         --output-dir manifests \
         --values config/${CONFIG_VALUES_PATH} \
+        --values cluster-values/gsp-istio-values.yaml \
         --set global.runningOnAws=true \
         gsp/gsp-istio-*.tgz
       rm -rf manifests/gsp-istio/charts/istio-cni
