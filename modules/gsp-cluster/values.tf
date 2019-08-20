@@ -45,6 +45,7 @@ data "template_file" "values" {
     kiam_agent_key_b64e_pem          = "${base64encode(tls_private_key.kiam_agent.private_key_pem)}"
     cloudwatch_log_shipping_role     = "${aws_iam_role.cloudwatch_log_shipping_role.name}"
     cloudwatch_log_group_name        = "${aws_cloudwatch_log_group.logs.name}"
+    service_operator_boundary_arn    = "${aws_iam_policy.service-operator-managed-role-permissions-boundary.arn}"
 
     permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.harbor.name,

@@ -52,8 +52,32 @@ data "aws_iam_policy_document" "service-operator" {
     ]
 
     resources = [
-      "*" # TODO: revisit this
+      "*",
+    ] # TODO: revisit this
+  }
+
+  statement {
+    actions = [
+      "iam:AttachRolePolicy",
+      "iam:CreatePolicy",
+      "iam:CreateRole",
+      "iam:DeletePolicy",
+      "iam:DeleteRole",
+      "iam:DetachRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:TagRole",
+      "iam:UntagRole",
     ]
+
+    resources = [
+      "*",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PermissionsBoundary"
+      values   = ["${aws_iam_policy.service-operator-managed-role-permissions-boundary.arn}"]
+    }
   }
 }
 
@@ -67,4 +91,26 @@ resource "aws_iam_policy_attachment" "service-operator" {
   name       = "${var.cluster_name}-service-operator"
   roles      = ["${aws_iam_role.gsp-service-operator.name}"]
   policy_arn = "${aws_iam_policy.service-operator.arn}"
+}
+
+data "aws_iam_policy_document" "service-operator-managed-role-permissions-boundary" {
+  statement {
+    actions = [
+      "rds-data:*",
+      "sqs:SendMessage",
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "service-operator-managed-role-permissions-boundary" {
+  name        = "${var.cluster_name}-service-operator-managed-role-permissions-boundary"
+  description = "Permissions boundary for roles created by the service operator"
+  policy      = "${data.aws_iam_policy_document.service-operator-managed-role-permissions-boundary.json}"
 }
