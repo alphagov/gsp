@@ -26,7 +26,7 @@ func (s *IAMRole) Template(stackName string, tags []resources.Tag) *cloudformati
 
 	template.Resources[IAMRoleResourceName] = &resources.AWSIAMRole{
 		RoleName:                 s.RoleName,
-		AssumeRolePolicyDocument: NewRolePolicyDocument(s.RolePrincipal, "*", []string{"sts:AssumeRole"}),
+		AssumeRolePolicyDocument: NewAssumeRolePolicyDocument(s.RolePrincipal),
 		PermissionsBoundary:      s.PermissionsBoundary,
 	}
 

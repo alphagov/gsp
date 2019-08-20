@@ -58,6 +58,9 @@ var (
 		awscloudformation.StackStatusReviewInProgress,
 		awscloudformation.StackStatusDeleteComplete,
 	}
+	capabilities = []*string{
+		aws.String("CAPABILITY_NAMED_IAM"),
+	}
 )
 
 func (r *CloudFormationController) Reconcile(ctx context.Context, log logr.Logger, req ctrl.Request, cloudFormationTemplate CloudFormationTemplate, deleting bool) (internal.Action, StackData, error) {
@@ -139,6 +142,7 @@ func (r *CloudFormationController) createCloudFormationStack(
 	}
 
 	_, err = svc.CreateStack(&awscloudformation.CreateStackInput{
+		Capabilities: capabilities,
 		TemplateBody: aws.String(string(yaml)),
 		StackName:    aws.String(stackName),
 		Parameters:   params,
@@ -164,6 +168,7 @@ func (r *CloudFormationController) updateCloudFormationStack(
 	}
 
 	_, err = svc.UpdateStack(&awscloudformation.UpdateStackInput{
+		Capabilities: capabilities,
 		TemplateBody: aws.String(string(yaml)),
 		StackName:    aws.String(stackName),
 		Parameters:   params,

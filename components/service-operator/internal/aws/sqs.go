@@ -40,7 +40,7 @@ func (s *SQS) Template(stackName string, tags []resources.Tag) *cloudformation.T
 
 	template.Resources[PostgresResourceIAMPolicy] = &resources.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"sqs", "access", cloudformation.GetAtt(SQSResourceName, "QueueName")}),
-		PolicyDocument: NewRolePolicyDocument(s.IAMRoleARN, cloudformation.Ref(PostgresResourceCluster), allowedActions),
+		PolicyDocument: NewRolePolicyDocument(s.IAMRoleARN, []string{cloudformation.Ref(PostgresResourceCluster)}, allowedActions),
 		Roles:          []string{s.IAMRoleARN},
 	}
 

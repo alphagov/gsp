@@ -51,21 +51,46 @@ type PolicyStatement struct {
 	Resources []string
 }
 
+type AssumeRolePolicyDocument struct {
+	Version   string
+	Statement []AssumeRolePolicyStatement
+}
+
+type AssumeRolePolicyStatement struct {
+	Effect    string
+	Principal PolicyPrincipal
+	Action    []string
+}
+
 type PolicyPrincipal struct {
 	AWS []string
 }
 
-func NewRolePolicyDocument(principal, resource string, actions []string) PolicyDocument {
+func NewRolePolicyDocument(principal string, resources, actions []string) PolicyDocument {
 	return PolicyDocument{
 		Version: "2012-10-17",
 		Statement: []PolicyStatement{
-			PolicyStatement{
+			{
 				Effect: "Allow",
 				Principal: PolicyPrincipal{
 					AWS: []string{principal},
 				},
 				Action:    actions,
-				Resources: []string{resource},
+				Resources: resources,
+			},
+		},
+	}
+}
+func NewAssumeRolePolicyDocument(principal string) AssumeRolePolicyDocument {
+	return AssumeRolePolicyDocument{
+		Version: "2012-10-17",
+		Statement: []AssumeRolePolicyStatement{
+			{
+				Effect: "Allow",
+				Principal: PolicyPrincipal{
+					AWS: []string{principal},
+				},
+				Action: []string{"sts:AssumeRole"},
 			},
 		},
 	}

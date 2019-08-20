@@ -19,6 +19,7 @@ import (
 	"flag"
 	"os"
 
+	accessv1beta1 "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
 	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/controllers"
@@ -41,6 +42,7 @@ func init() {
 
 	_ = databasev1beta1.AddToScheme(scheme)
 	_ = queuev1beta1.AddToScheme(scheme)
+	_ = accessv1beta1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -94,6 +96,7 @@ func main() {
 		Client:                   mgr.GetClient(),
 		Log:                      ctrl.Log.WithName("controllers").WithName("Principal"),
 		CloudFormationReconciler: &cloudFormationController,
+		ClusterName:              clusterName,
 		RolePrincipal:            kiamServerRole,
 		PermissionsBoundary:      rolePermissionsBoundary,
 	}).SetupWithManager(mgr); err != nil {
