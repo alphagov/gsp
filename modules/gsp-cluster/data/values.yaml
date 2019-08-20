@@ -151,6 +151,6 @@ prometheus-operator:
           - "alerts-3.monitoring.gds-reliability.engineering"
         scheme: https
 
-service-operator:
+serviceOperator:
   kiamServerRoleARN: ${kiam_server_role_arn}
   permissionsBoundaryARN: ${service_operator_boundary_arn}
