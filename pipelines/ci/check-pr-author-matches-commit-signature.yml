@@ -3,7 +3,6 @@ resources:
   type: pull-request
   source:
     access_token: ((pr-build-status))
-    disable_forks: true
     repository: alphagov/gsp
   check_every: 1m
 resource_types:
