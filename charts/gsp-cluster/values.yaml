@@ -319,6 +319,8 @@ prometheus-operator:
           regex: true
           target_label: node_role
           replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
       - job_name: 'kubelet-cadvisor'
         scheme: https
         tls_config:
@@ -343,6 +345,8 @@ prometheus-operator:
           regex: true
           target_label: node_role
           replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
       - job_name: 'node-exporter'
         scheme: http
         kubernetes_sd_configs:
@@ -366,11 +370,15 @@ prometheus-operator:
           regex: true
           target_label: node_role
           replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
   grafana:
     adminPassword: "password"
+  prometheusOperator:
+    kubeletService:
+      enabled: false
   kubelet:
-     serviceMonitor:
-       https: true
+    enabled: false
   alertmanager:
     enabled: false
 
