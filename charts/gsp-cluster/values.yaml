@@ -367,9 +367,11 @@ prometheus-operator:
           replacement: cluster-management
   grafana:
     adminPassword: "password"
+  prometheusOperator:
+    kubeletService:
+      enabled: false
   kubelet:
-     serviceMonitor:
-       https: true
+    enabled: false
   alertmanager:
     enabled: false
 
