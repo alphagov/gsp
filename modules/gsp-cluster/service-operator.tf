@@ -49,6 +49,7 @@ data "aws_iam_policy_document" "service-operator" {
   statement {
     actions = [
       "rds:*",
+      "sqs:*",
     ]
 
     resources = [
