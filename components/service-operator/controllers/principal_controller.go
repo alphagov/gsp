@@ -64,7 +64,7 @@ func (r *PrincipalReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	provisioner := os.Getenv("CLOUD_PROVIDER")
 	switch provisioner {
 	case "aws":
-		roleName := fmt.Sprintf("%s-%s-%s", r.ClusterName, req.Namespace, principal.ObjectMeta.Name)
+		roleName := fmt.Sprintf("svcop-%s-%s-%s", r.ClusterName, req.Namespace, principal.ObjectMeta.Name)
 
 		principalCloudFormationTemplate := internalaws.IAMRole{
 			RoleConfig:          &principal,

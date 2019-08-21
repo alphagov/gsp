@@ -27,9 +27,6 @@ data "aws_iam_policy_document" "service-operator" {
   statement {
     actions = [
       "ec2:DescribeAccountAttributes",
-
-      # Work around a race condition in Cloudformation where the role exists without the boundary
-      "iam:GetRole",
     ]
 
     resources = [
@@ -65,7 +62,6 @@ data "aws_iam_policy_document" "service-operator" {
       "iam:CreatePolicy",
       "iam:CreateRole",
       "iam:DeletePolicy",
-      "iam:DeleteRole",
       "iam:DeleteRolePolicy",
       "iam:DetachRolePolicy",
       "iam:PutRolePolicy",
@@ -82,6 +78,18 @@ data "aws_iam_policy_document" "service-operator" {
       variable = "iam:PermissionsBoundary"
       values   = ["${aws_iam_policy.service-operator-managed-role-permissions-boundary.arn}"]
     }
+  }
+
+  # No iam:PermissionsBoundary context key set on GetRole, DeleteRole
+  statement {
+    actions = [
+      "iam:GetRole",
+      "iam:DeleteRole",
+    ]
+
+    resources = [
+      "arn:aws:iam::*:role/svcop-${var.cluster_name}-*",
+    ]
   }
 }
 
