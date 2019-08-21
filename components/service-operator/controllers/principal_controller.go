@@ -48,8 +48,8 @@ const (
 	PrincipalFinalizerName = "stack.principal.access.govsvc.uk"
 )
 
-// +kubebuilder:rbac:groups=access.govsvc.uk,resources=principal,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=access.govsvc.uk,resources=principal/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals/status,verbs=get;update;patch
 
 func (r *PrincipalReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
@@ -94,7 +94,7 @@ func (r *PrincipalReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		switch action {
 		case internal.Create:
 			principal.ObjectMeta.Finalizers = append(principal.ObjectMeta.Finalizers, PrincipalFinalizerName)
-			return backoff, r.Create(ctx, &principal)
+			return backoff, r.Update(ctx, &principal)
 		case internal.Delete:
 			principal.ObjectMeta.Finalizers = internal.RemoveString(principal.ObjectMeta.Finalizers, PrincipalFinalizerName)
 			return backoff, r.Update(ctx, &principal)

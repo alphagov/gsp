@@ -23,7 +23,9 @@ rules:
 - apiGroups:
   - database.govsvc.uk
   - queue.govsvc.uk
+  - access.govsvc.uk
   resources:
+  - principals
   - postgres
   - sqs
   verbs:
@@ -37,29 +39,11 @@ rules:
 - apiGroups:
   - database.govsvc.uk
   - queue.govsvc.uk
+  - access.govsvc.uk
   resources:
+  - principals/status
   - postgres/status
   - sqs/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - access.govsvc.uk
-  resources:
-  - principal
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - access.govsvc.uk
-  resources:
-  - principal/status
   verbs:
   - get
   - patch
