@@ -36,3 +36,5 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #031 - Postgres](ADR031-postgres.md)
 - [ADR #032 - SRE permissions](ADR032-sre-permissions.md)
 - [ADR #033 - NLB for mTLS](ADR033-nlb-for-mtls.md)
+- [ADR #034 - Single service operator](ADR034-one-service-operator-different-resource-kinds.md)
+- [ADR #035 - Aurora postgres](ADR035-aurora-postgres.md)
