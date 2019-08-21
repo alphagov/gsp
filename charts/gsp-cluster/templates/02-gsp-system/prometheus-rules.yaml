@@ -33,7 +33,7 @@ spec:
         severity: warning
       annotations:
         message: |
-          Kubelet {{ $labels.instance }} is running {{ $value }} Pods,
+          Kubelet {{`{{ $labels.instance }}`}} is running {{`{{ $value }}`}} Pods,
           which is more than 90% of its capacity.
     - record: az_node_role_resource:allocatable:
       expr: |
@@ -57,7 +57,7 @@ spec:
         severity: warning
       annotations:
         message: |
-          Nodes with role {{ $labels.node_role }} in availability zone
-          {{ $labels.failure_domain_beta_kubernetes_io_zone }} are
-          running {{ $value }} Pods, which is more than 90% of total
+          Nodes with role {{`{{ $labels.node_role }}`}} in availability zone
+          {{`{{ $labels.failure_domain_beta_kubernetes_io_zone }}`}} are
+          running {{`{{ $value }}`}} Pods, which is more than 90% of total
           allocatable capacity.
