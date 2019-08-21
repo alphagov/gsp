@@ -20,6 +20,7 @@ import (
 )
 
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+const AccessGroupLabel = "group.access.govsvc.uk"
 
 // Event is a single action taken against the resource at any given time.
 type Event struct {

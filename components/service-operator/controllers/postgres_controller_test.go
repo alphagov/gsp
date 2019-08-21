@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	access "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
 	database "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	. "github.com/alphagov/gsp/components/service-operator/controllers"
 	"github.com/alphagov/gsp/components/service-operator/internal"
@@ -22,6 +23,7 @@ import (
 var _ = Describe("PostgresController", func() {
 	var (
 		postgres     database.Postgres
+		principal    access.Principal
 		request      reconcile.Request
 		reconciler   PostgresReconciler
 		cfReconciler *internalawsmocks.MockCloudFormationReconciler
@@ -42,6 +44,9 @@ var _ = Describe("PostgresController", func() {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "test-postgres",
 				Namespace: "test",
+				Labels: map[string]string{
+					access.AccessGroupLabel: "test.access.group",
+				},
 			},
 			Spec: database.PostgresSpec{
 				AWS: database.AWS{
@@ -49,7 +54,21 @@ var _ = Describe("PostgresController", func() {
 				},
 			},
 		}
+		principal = access.Principal{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: access.GroupVersion.Group,
+				Kind:       "Principal",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "test",
+				Name:      "test-role",
+				Labels: map[string]string{
+					access.AccessGroupLabel: "test.access.group",
+				},
+			},
+		}
 		k8sClient.Create(context.TODO(), &postgres)
+		k8sClient.Create(context.TODO(), &principal)
 		cfReconciler = internalawsmocks.NewMockCloudFormationReconciler(mockCtrl)
 		reconciler = PostgresReconciler{
 			Client:                   k8sClient,

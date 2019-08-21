@@ -55,19 +55,19 @@ func (mr *MockCloudFormationTemplateMockRecorder) Template(arg0, arg1 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Template", reflect.TypeOf((*MockCloudFormationTemplate)(nil).Template), arg0, arg1)
 }
 
-// Parameters mocks base method
+// CreateParameters mocks base method
 func (m *MockCloudFormationTemplate) Parameters() ([]*cloudformation.Parameter, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Parameters")
+	ret := m.ctrl.Call(m, "CreateParameters")
 	ret0, _ := ret[0].([]*cloudformation.Parameter)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Parameters indicates an expected call of Parameters
+// CreateParameters indicates an expected call of CreateParameters
 func (mr *MockCloudFormationTemplateMockRecorder) Parameters() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Parameters", reflect.TypeOf((*MockCloudFormationTemplate)(nil).Parameters))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateParameters", reflect.TypeOf((*MockCloudFormationTemplate)(nil).Parameters))
 }
 
 // ResourceType mocks base method

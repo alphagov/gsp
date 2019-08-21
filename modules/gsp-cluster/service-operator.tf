@@ -64,6 +64,7 @@ data "aws_iam_policy_document" "service-operator" {
       "iam:DeletePolicy",
       "iam:DeleteRole",
       "iam:DetachRolePolicy",
+      "iam:GetRole",
       "iam:PutRolePolicy",
       "iam:TagRole",
       "iam:UntagRole",

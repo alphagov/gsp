@@ -38,7 +38,11 @@ func (s *IAMRole) Template(stackName string, tags []resources.Tag) *cloudformati
 	return template
 }
 
-func (s *IAMRole) Parameters() ([]*awscloudformation.Parameter, error) {
+func (s *IAMRole) CreateParameters() ([]*awscloudformation.Parameter, error) {
+	return []*awscloudformation.Parameter{}, nil
+}
+
+func (s *IAMRole) UpdateParameters() ([]*awscloudformation.Parameter, error) {
 	return []*awscloudformation.Parameter{}, nil
 }
 

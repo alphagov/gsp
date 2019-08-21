@@ -33,7 +33,8 @@ import (
 
 type CloudFormationTemplate interface {
 	Template(string, []resources.Tag) *goformation.Template
-	Parameters() ([]*awscloudformation.Parameter, error)
+	CreateParameters() ([]*awscloudformation.Parameter, error)
+	UpdateParameters() ([]*awscloudformation.Parameter, error)
 	ResourceType() string
 }
 
@@ -56,6 +57,9 @@ var (
 		awscloudformation.StackStatusUpdateRollbackCompleteCleanupInProgress,
 		awscloudformation.StackStatusReviewInProgress,
 		awscloudformation.StackStatusDeleteComplete,
+	}
+	capabilities = []*string{
+		aws.String("CAPABILITY_NAMED_IAM"),
 	}
 )
 
@@ -132,12 +136,13 @@ func (r *CloudFormationController) createCloudFormationStack(
 	log logr.Logger) error {
 	log.V(1).Info("creating stack...", "stackName", stackName)
 
-	params, err := cloudFormationTemplate.Parameters()
+	params, err := cloudFormationTemplate.CreateParameters()
 	if err != nil {
 		return fmt.Errorf("error creating parameters: %s", err)
 	}
 
 	_, err = svc.CreateStack(&awscloudformation.CreateStackInput{
+		Capabilities: capabilities,
 		TemplateBody: aws.String(string(yaml)),
 		StackName:    aws.String(stackName),
 		Parameters:   params,
@@ -157,12 +162,13 @@ func (r *CloudFormationController) updateCloudFormationStack(
 	log logr.Logger) error {
 	log.V(1).Info("updating stack...", "stackName", stackName)
 
-	params, err := cloudFormationTemplate.Parameters()
+	params, err := cloudFormationTemplate.UpdateParameters()
 	if err != nil {
 		return fmt.Errorf("error creating parameters: %s", err)
 	}
 
 	_, err = svc.UpdateStack(&awscloudformation.UpdateStackInput{
+		Capabilities: capabilities,
 		TemplateBody: aws.String(string(yaml)),
 		StackName:    aws.String(stackName),
 		Parameters:   params,

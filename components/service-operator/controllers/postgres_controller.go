@@ -31,8 +31,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 
+	access "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
 	database "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
-	queue "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
 )
 
@@ -70,30 +70,19 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	provisioner := os.Getenv("CLOUD_PROVIDER")
 	switch provisioner {
 	case "aws":
-		var credentials internal.BasicAuth
-		if secret.Data != nil {
-			credentials = internal.BasicAuth{Username: string(secret.Data["Username"]), Password: string(secret.Data["Password"])}
-		} else {
-			username, err := internal.RandomString(16, internal.CharactersUpper, internal.CharactersLower)
-			if err != nil {
-				return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, err
-			}
-
-			password, err := internal.RandomString(32, internal.CharactersUpper, internal.CharactersLower, internal.CharactersNumeric, internal.CharactersSpecial)
-			if err != nil {
-				return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 5}, err
-			}
-
-			credentials = internal.BasicAuth{Username: username, Password: password}
+		var roles access.PrincipalList
+		err := r.List(ctx, &roles, client.MatchingLabels(map[string]string{access.AccessGroupLabel: postgres.Labels[access.AccessGroupLabel]}))
+		if err != nil || len(roles.Items) != 1 {
+			log.V(1).Info("unable to find unique IAM Role in same gsp-access-group - waiting 5 minutes", "gsp-access-group", postgres.Labels[access.AccessGroupLabel])
+			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
-		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres, Credentials: credentials}
+
+		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres, IAMRoleARN: roles.Items[0].Status.ARN}
 		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
 		newSecret := postgresOutputsToSecret(secretName, req.Namespace, stackData.Outputs)
-		newSecret.Data["Username"] = []byte(credentials.Username)
-		newSecret.Data["Password"] = []byte(credentials.Password)
 
 		postgres.Status.ID = stackData.ID
 		postgres.Status.Status = stackData.Status
@@ -156,8 +145,8 @@ func postgresOutputsToSecret(secretName, namespace string, outputs []*cloudforma
 			Namespace: namespace,
 			Annotations: map[string]string{
 				"operator": "gsp-service-operator",
-				"group":    queue.GroupVersion.Group,
-				"version":  queue.GroupVersion.Version,
+				"group":    database.GroupVersion.Group,
+				"version":  database.GroupVersion.Version,
 			},
 		},
 		Data: map[string][]byte{
