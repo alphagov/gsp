@@ -36,9 +36,9 @@ deploy: manifests
 
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) webhook paths="./..." output:crd:artifacts:config=config/crd/bases
-	cat config/crd/bases/*.yaml > ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/crd.yaml
-	cp config/rbac/role.yaml ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/role.yaml
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) paths="./..." output:crd:artifacts:config=../../charts/gsp-cluster/templates/02-gsp-system/service-operator/crd
+	$(CONTROLLER_GEN) rbac:roleName=fixme-up-before-you-gogo paths="./..." output:rbac:stdout | sed 's/fixme-up-before-you-gogo/{{ .Release.Name }}-service-operator-role/g' > ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/role.yaml
+	cat config/rbac/role-not-patch.yaml >> ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/role.yaml
 
 # Run go fmt against code
 fmt:
