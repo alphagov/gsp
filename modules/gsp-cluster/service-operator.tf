@@ -27,6 +27,9 @@ data "aws_iam_policy_document" "service-operator" {
   statement {
     actions = [
       "ec2:DescribeAccountAttributes",
+
+      # Work around a race condition in Cloudformation where the role exists without the boundary
+      "iam:GetRole",
     ]
 
     resources = [
@@ -63,8 +66,8 @@ data "aws_iam_policy_document" "service-operator" {
       "iam:CreateRole",
       "iam:DeletePolicy",
       "iam:DeleteRole",
+      "iam:DeleteRolePolicy",
       "iam:DetachRolePolicy",
-      "iam:GetRole",
       "iam:PutRolePolicy",
       "iam:TagRole",
       "iam:UntagRole",
