@@ -1,0 +1,22 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: ingress-certificate
+  namespace: {{ .Release.Namespace }}
+spec:
+  secretName: istio-ingressgateway-certs
+  dnsNames:
+  - "ci.{{ .Values.global.cluster.domain }}"
+  - "registry.{{ .Values.global.cluster.domain }}"
+  - "notary.{{ .Values.global.cluster.domain }}"
+  acme:
+    config:
+    - dns01:
+        provider: route53
+      domains:
+      - "ci.{{ .Values.global.cluster.domain }}"
+      - "registry.{{ .Values.global.cluster.domain }}"
+      - "notary.{{ .Values.global.cluster.domain }}"
+  issuerRef:
+    name: letsencrypt-r53
+    kind: ClusterIssuer

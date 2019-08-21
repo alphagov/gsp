@@ -12,7 +12,7 @@ spec:
   hosts:
   - "registry.{{ .Values.global.cluster.domain }}"
   gateways:
-  - "gsp-gsp-cluster.gsp-system"
+  - {{ include "gsp-cluster.fullname" . }}-ingress
   http:
   - match:
     - uri:
@@ -64,7 +64,7 @@ spec:
   hosts:
   - "notary.{{ .Values.global.cluster.domain }}"
   gateways:
-  - "gsp-gsp-cluster.gsp-system"
+  - {{ include "gsp-cluster.fullname" . }}-ingress
   http:
   - route:
     - destination:
