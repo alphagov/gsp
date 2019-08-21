@@ -18,6 +18,8 @@ jobs:
   - get: gsp-pr
     trigger: true
     version: every
+    params:
+      integration_tool: checkout
   - put: gsp-pr
     params:
       path: gsp-pr
