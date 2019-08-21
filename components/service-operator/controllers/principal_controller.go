@@ -81,13 +81,19 @@ func (r *PrincipalReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		principal.Status.Reason = stackData.Reason
 		principal.Status.Name = string(internalaws.ValueFromOutputs(internalaws.IAMRoleName, stackData.Outputs))
 
+		events := []access.Event{}
 		for _, event := range stackData.Events {
-			principal.Status.Events = append(principal.Status.Events, access.Event{
+			reason := "-"
+			if event.ResourceStatusReason != nil {
+				reason = *event.ResourceStatusReason
+			}
+			events = append(events, access.Event{
 				Status: *event.ResourceStatus,
-				Reason: *event.ResourceStatusReason,
+				Reason: reason,
 				Time:   &metav1.Time{Time: *event.Timestamp},
 			})
 		}
+		principal.Status.Events = events
 
 		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
