@@ -88,7 +88,7 @@ data "aws_iam_policy_document" "service-operator" {
     ]
 
     resources = [
-      "arn:aws:iam::*:role/svcop-${var.cluster_name}-*",
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/svcop-${var.cluster_name}-*",
     ]
   }
 }
