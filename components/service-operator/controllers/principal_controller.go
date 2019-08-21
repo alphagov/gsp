@@ -79,7 +79,7 @@ func (r *PrincipalReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		principal.Status.ID = stackData.ID
 		principal.Status.Status = stackData.Status
 		principal.Status.Reason = stackData.Reason
-		principal.Status.ARN = string(internalaws.ValueFromOutputs(internalaws.IAMRoleARN, stackData.Outputs))
+		principal.Status.Name = string(internalaws.ValueFromOutputs(internalaws.IAMRoleName, stackData.Outputs))
 
 		for _, event := range stackData.Events {
 			principal.Status.Events = append(principal.Status.Events, access.Event{

@@ -119,8 +119,8 @@ var _ = Describe("PrincipalController", func() {
 					Reason: "because-of-update",
 					Outputs: []*cloudformation.Output{
 						&cloudformation.Output{
-							OutputKey:   aws.String(internalaws.IAMRoleARN),
-							OutputValue: aws.String("arn:aws:iam::123456789012:role/test-cluster-test-test-role"),
+							OutputKey:   aws.String(internalaws.IAMRoleName),
+							OutputValue: aws.String("test-cluster-test-test-role"),
 						},
 					},
 				}
@@ -144,7 +144,7 @@ var _ = Describe("PrincipalController", func() {
 					Name:      roleName,
 				}, &updatedPrincipal)
 				checkPrincipalStatusUpdates(stackData, updatedPrincipal)
-				Expect(updatedPrincipal.Status.ARN).To(Equal("arn:aws:iam::123456789012:role/test-cluster-test-test-role"))
+				Expect(updatedPrincipal.Status.Name).To(Equal("test-cluster-test-test-role"))
 				Expect(updatedPrincipal.ObjectMeta.Finalizers).To(ContainElement(PrincipalFinalizerName))
 				Expect(updatedPrincipal.ObjectMeta.DeletionTimestamp).To(BeNil())
 			})

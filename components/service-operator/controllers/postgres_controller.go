@@ -77,7 +77,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
 
-		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres, IAMRoleARN: roles.Items[0].Status.ARN}
+		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres, IAMRoleName: roles.Items[0].Status.Name}
 		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err

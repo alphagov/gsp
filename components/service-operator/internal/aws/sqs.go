@@ -1,8 +1,6 @@
 package aws
 
 import (
-	"fmt"
-
 	queue "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 
 	awscloudformation "github.com/aws/aws-sdk-go/service/cloudformation"
@@ -13,7 +11,8 @@ import (
 const (
 	SQSResourceName = "SQSQueue"
 
-	SQSOutputURL = "QueueURL"
+	SQSOutputURL         = "QueueURL"
+	SQSResourceIAMPolicy = "SQSSIAMPolicy"
 )
 
 var (
@@ -26,22 +25,23 @@ var (
 )
 
 type SQS struct {
-	SQSConfig  *queue.SQS
-	IAMRoleARN string
+	SQSConfig   *queue.SQS
+	QueueName   string
+	IAMRoleName string
 }
 
 func (s *SQS) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
 	template := cloudformation.NewTemplate()
 
 	template.Resources[SQSResourceName] = &resources.AWSSQSQueue{
-		QueueName: fmt.Sprintf("%s-%s-%s", s.SQSConfig.ClusterName, s.SQSConfig.Namespace, s.SQSConfig.Name),
+		QueueName: s.QueueName,
 		Tags:      tags,
 	}
 
-	template.Resources[PostgresResourceIAMPolicy] = &resources.AWSIAMPolicy{
+	template.Resources[SQSResourceIAMPolicy] = &resources.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"sqs", "access", cloudformation.GetAtt(SQSResourceName, "QueueName")}),
-		PolicyDocument: NewRolePolicyDocument(s.IAMRoleARN, []string{cloudformation.Ref(PostgresResourceCluster)}, allowedActions),
-		Roles:          []string{s.IAMRoleARN},
+		PolicyDocument: NewRolePolicyDocument([]string{cloudformation.GetAtt(SQSResourceName, "Arn")}, allowedActions),
+		Roles:          []string{s.IAMRoleName},
 	}
 
 	template.Outputs[SQSOutputURL] = map[string]interface{}{

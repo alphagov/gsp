@@ -42,6 +42,7 @@ type SQSReconciler struct {
 	client.Client
 	Log                      logr.Logger
 	CloudFormationReconciler internalaws.CloudFormationReconciler
+	ClusterName              string
 	sqs                      queue.SQS
 }
 
@@ -79,7 +80,12 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
 
-		sqsCloudFormationTemplate := internalaws.SQS{SQSConfig: &sqs, IAMRoleARN: roles.Items[0].Status.ARN}
+		queueName := fmt.Sprintf("%s-%s-%s", r.ClusterName, req.Namespace, req.Name)
+		sqsCloudFormationTemplate := internalaws.SQS{
+			SQSConfig:   &sqs,
+			QueueName:   queueName,
+			IAMRoleName: roles.Items[0].Status.Name,
+		}
 		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &sqsCloudFormationTemplate, !sqs.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err

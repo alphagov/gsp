@@ -40,7 +40,7 @@ const (
 
 type AuroraPostgres struct {
 	PostgresConfig *database.Postgres
-	IAMRoleARN     string
+	IAMRoleName    string
 }
 
 func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
@@ -93,8 +93,8 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 
 	template.Resources[PostgresResourceIAMPolicy] = &resources.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"postgres", "access", cloudformation.Ref(PostgresResourceCluster)}),
-		PolicyDocument: NewRolePolicyDocument(p.IAMRoleARN, []string{cloudformation.Ref(PostgresResourceCluster)}, []string{"rds-data:*"}),
-		Roles:          []string{p.IAMRoleARN},
+		PolicyDocument: NewRolePolicyDocument([]string{cloudformation.Ref(PostgresResourceCluster)}, []string{"rds-data:*"}),
+		Roles:          []string{p.IAMRoleName},
 	}
 
 	template.Outputs[PostgresEndpoint] = map[string]interface{}{

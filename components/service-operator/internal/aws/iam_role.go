@@ -11,7 +11,7 @@ import (
 const (
 	IAMRoleResourceName = "IAMRole"
 
-	IAMRoleARN = "IAMRoleARN"
+	IAMRoleName = "IAMRoleName"
 )
 
 type IAMRole struct {
@@ -30,9 +30,9 @@ func (s *IAMRole) Template(stackName string, tags []resources.Tag) *cloudformati
 		PermissionsBoundary:      s.PermissionsBoundary,
 	}
 
-	template.Outputs[IAMRoleARN] = map[string]interface{}{
+	template.Outputs[IAMRoleName] = map[string]interface{}{
 		"Description": "IAMRole ARN to be returned to the user.",
-		"Value":       cloudformation.GetAtt(IAMRoleResourceName, "Arn"),
+		"Value":       cloudformation.Ref(IAMRoleResourceName),
 	}
 
 	return template
