@@ -402,13 +402,20 @@ concourse:
     additionalVolumeMounts:
     - name: ci-web-configuration
       mountPath: /web-configuration
+    resources:
+      requests:
+        cpu: 100m
+        memory: 1Gi
   monitor:
     create: true
   worker:
     nameOverride: concourse-worker
     replicas: 2
     hardAntiAffinity: true
-    resources: {}
+    resources:
+      requests:
+        cpu: 150m
+        memory: 2Gi
     env:
     - name: CONCOURSE_GARDEN_DNS_PROXY_ENABLE
       value: "false"
