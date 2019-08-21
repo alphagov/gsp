@@ -5,7 +5,7 @@ resource_types:
   type: registry-image
   source:
     repository: "govsvc/concourse-github-resource"
-    tag: "v0.0.3"
+    tag: "gsp-v1.0.91"
 
 - name: concourse-pipeline
   type: docker-image
