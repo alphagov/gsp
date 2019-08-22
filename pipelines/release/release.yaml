@@ -505,8 +505,15 @@ jobs:
           gpg --import key
           echo "signing release tarball..."
           for file in candidate-release/*; do
-            gpg --armor --detach-sign "$file"
-            cp ${file}* signed-release/
+            filesize=$(stat --printf="%s" "${file}")
+            if [[ ${filesize} -gt 0 ]]
+            then
+              echo "signing ${file}..."
+              gpg --armor --detach-sign "$file"
+              cp ${file}* signed-release/
+            else
+              echo "warning: skipping zero-length file: ${file}"
+            fi
           done
   - put: pre-release
     params:
