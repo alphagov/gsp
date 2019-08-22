@@ -77,7 +77,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
 
-		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres, IAMRoleARN: roles.Items[0].Status.ARN}
+		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres, IAMRoleName: roles.Items[0].Status.Name}
 		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
@@ -88,13 +88,19 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		postgres.Status.Status = stackData.Status
 		postgres.Status.Reason = stackData.Reason
 
+		events := []database.Event{}
 		for _, event := range stackData.Events {
-			postgres.Status.Events = append(postgres.Status.Events, database.Event{
+			reason := "-"
+			if event.ResourceStatusReason != nil {
+				reason = *event.ResourceStatusReason
+			}
+			events = append(events, database.Event{
 				Status: *event.ResourceStatus,
-				Reason: *event.ResourceStatusReason,
+				Reason: reason,
 				Time:   &metav1.Time{Time: *event.Timestamp},
 			})
 		}
+		postgres.Status.Events = events
 
 		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 

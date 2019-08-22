@@ -49,6 +49,7 @@ data "aws_iam_policy_document" "service-operator" {
   statement {
     actions = [
       "rds:*",
+      "sqs:*",
     ]
 
     resources = [
@@ -62,9 +63,8 @@ data "aws_iam_policy_document" "service-operator" {
       "iam:CreatePolicy",
       "iam:CreateRole",
       "iam:DeletePolicy",
-      "iam:DeleteRole",
+      "iam:DeleteRolePolicy",
       "iam:DetachRolePolicy",
-      "iam:GetRole",
       "iam:PutRolePolicy",
       "iam:TagRole",
       "iam:UntagRole",
@@ -79,6 +79,18 @@ data "aws_iam_policy_document" "service-operator" {
       variable = "iam:PermissionsBoundary"
       values   = ["${aws_iam_policy.service-operator-managed-role-permissions-boundary.arn}"]
     }
+  }
+
+  # No iam:PermissionsBoundary context key set on GetRole, DeleteRole
+  statement {
+    actions = [
+      "iam:GetRole",
+      "iam:DeleteRole",
+    ]
+
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/svcop-${var.cluster_name}-*",
+    ]
   }
 }
 

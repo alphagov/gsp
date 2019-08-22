@@ -48,8 +48,8 @@ const (
 	PrincipalFinalizerName = "stack.principal.access.govsvc.uk"
 )
 
-// +kubebuilder:rbac:groups=access.govsvc.uk,resources=principal,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=access.govsvc.uk,resources=principal/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals/status,verbs=get;update;patch
 
 func (r *PrincipalReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
@@ -64,7 +64,7 @@ func (r *PrincipalReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	provisioner := os.Getenv("CLOUD_PROVIDER")
 	switch provisioner {
 	case "aws":
-		roleName := fmt.Sprintf("%s-%s-%s", r.ClusterName, req.Namespace, principal.ObjectMeta.Name)
+		roleName := fmt.Sprintf("svcop-%s-%s-%s", r.ClusterName, req.Namespace, principal.ObjectMeta.Name)
 
 		principalCloudFormationTemplate := internalaws.IAMRole{
 			RoleConfig:          &principal,
@@ -79,22 +79,28 @@ func (r *PrincipalReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		principal.Status.ID = stackData.ID
 		principal.Status.Status = stackData.Status
 		principal.Status.Reason = stackData.Reason
-		principal.Status.ARN = string(internalaws.ValueFromOutputs(internalaws.IAMRoleARN, stackData.Outputs))
+		principal.Status.Name = string(internalaws.ValueFromOutputs(internalaws.IAMRoleName, stackData.Outputs))
 
+		events := []access.Event{}
 		for _, event := range stackData.Events {
-			principal.Status.Events = append(principal.Status.Events, access.Event{
+			reason := "-"
+			if event.ResourceStatusReason != nil {
+				reason = *event.ResourceStatusReason
+			}
+			events = append(events, access.Event{
 				Status: *event.ResourceStatus,
-				Reason: *event.ResourceStatusReason,
+				Reason: reason,
 				Time:   &metav1.Time{Time: *event.Timestamp},
 			})
 		}
+		principal.Status.Events = events
 
 		backoff := ctrl.Result{Requeue: true, RequeueAfter: time.Minute}
 
 		switch action {
 		case internal.Create:
 			principal.ObjectMeta.Finalizers = append(principal.ObjectMeta.Finalizers, PrincipalFinalizerName)
-			return backoff, r.Create(ctx, &principal)
+			return backoff, r.Update(ctx, &principal)
 		case internal.Delete:
 			principal.ObjectMeta.Finalizers = internal.RemoveString(principal.ObjectMeta.Finalizers, PrincipalFinalizerName)
 			return backoff, r.Update(ctx, &principal)

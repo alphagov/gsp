@@ -44,8 +44,8 @@ type PrincipalStatus struct {
 	Reason string `json:"reason,omitempty"`
 	// Events will hold more in-depth details of the current state of the instance.
 	Events []Event `json:"events,omitempty"`
-	// ARN of the IAM Principal
-	ARN string `json:"arn"`
+	// Name of the IAM Principal
+	Name string `json:"name"`
 }
 
 // +kubebuilder:object:root=true

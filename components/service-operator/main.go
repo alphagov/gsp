@@ -88,6 +88,7 @@ func main() {
 		Client:                   mgr.GetClient(),
 		Log:                      ctrl.Log.WithName("controllers").WithName("SQS"),
 		CloudFormationReconciler: &cloudFormationController,
+		ClusterName:              clusterName,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "SQS")
 		os.Exit(1)

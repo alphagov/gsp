@@ -14,7 +14,7 @@
   {{- end }}
 {{- end }}
 {{- $defaultedPermittedRolesRegex := .permittedRolesRegex | default "^$" }}
-{{- $permittedRolesRegex := printf "%s|^%s-namespace-%s-.*$" $defaultedPermittedRolesRegex $.Values.global.cluster.name .name }}
+{{- $permittedRolesRegex := printf "%s|^%s-namespace-%s-.*$|^svcop-%s-%s-.*$" $defaultedPermittedRolesRegex $.Values.global.cluster.name .name $.Values.global.cluster.name .name }}
 ---
 apiVersion: v1
 kind: Namespace
