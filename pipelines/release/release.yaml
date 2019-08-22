@@ -93,16 +93,6 @@ resources:
     password: ((dockerhub-password))
     repository: govsvc/task-toolbox
 
-- name: release
-  type: github-release
-  source:
-    owner: alphagov
-    repository: gsp
-    access_token: ((github-api-token))
-    release: true
-    pre_release: true
-    tag_filter: ^((github-release-tag-prefix))v(\d+\.\d+\.\d+)$
-
 - name: pre-release
   type: github-release
   source:
@@ -160,7 +150,6 @@ jobs:
     - get: platform
       passed: [selfupdate]
       trigger: true
-    - get: release
     - get: semver
   - put: concourse-task-toolbox
     params:
@@ -181,7 +170,6 @@ jobs:
     - get: platform
       passed: [selfupdate]
       trigger: true
-    - get: release
     - get: semver
   - put: concourse-github-resource
     params:
@@ -202,7 +190,6 @@ jobs:
     - get: platform
       passed: [selfupdate]
       trigger: true
-    - get: release
     - get: semver
   - put: concourse-harbor-resource
     params:
@@ -223,7 +210,6 @@ jobs:
     - get: platform
       passed: [selfupdate]
       trigger: true
-    - get: release
     - get: semver
   - put: concourse-operator
     params:
@@ -244,7 +230,6 @@ jobs:
     - get: platform
       passed: [selfupdate]
       trigger: true
-    - get: release
     - get: semver
   - task: run-tests
     config:
@@ -291,13 +276,6 @@ jobs:
   - aggregate:
     - get: platform
       trigger: true
-      passed:
-      - build-concourse-task-toolbox
-      - build-concourse-github-resource
-      - build-concourse-harbor-resource
-      - build-concourse-operator
-      - build-service-operator
-    - get: release
       passed:
       - build-concourse-task-toolbox
       - build-concourse-github-resource
