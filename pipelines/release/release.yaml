@@ -149,6 +149,9 @@ jobs:
           branch: ((branch))
           pipeline-name: ((pipeline-name))
           github-release-tag-prefix: ((github-release-tag-prefix))
+  - put: semver
+    params:
+      bump: patch
 
 - name: build-concourse-task-toolbox
   serial: true
@@ -163,6 +166,8 @@ jobs:
     params:
       build: platform/components/concourse-task-toolbox
       dockerfile: platform/components/concourse-task-toolbox/Dockerfile
+      tag_file: semver/version
+      tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
       cache: true
       cache_tag: latest
@@ -466,14 +471,11 @@ jobs:
           echo overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
-  - put: semver
-    params:
-      pre: rc
   - put: candidate-release
     params:
       name: semver/version
       tag: semver/version
-      tag_prefix: ((github-release-tag-prefix))v
+      tag_prefix: ((github-release-tag-prefix))rc-v
       commitish: platform/.git/ref
       globs:
       - cluster-package/*
@@ -506,9 +508,6 @@ jobs:
             gpg --armor --detach-sign "$file"
             cp ${file}* signed-release/
           done
-  - get: semver
-    params:
-      bump: final
   - put: pre-release
     params:
       name: semver/version
@@ -517,25 +516,16 @@ jobs:
       commitish: platform/.git/ref
       globs:
       - signed-release/*
-- name: bump-patch-version
-  serial: true
-  serial_groups: [release]
-  plan:
-  - get: pre-release
-    passed: [package]
-    trigger: true
-  - put: semver
-    params:
-      bump: patch
+
 - name: bump-major
   serial_groups: [release]
   plan:
-    - put: semver
-      params:
-        bump: major
+  - put: semver
+    params:
+      bump: major
 - name: bump-minor
   serial_groups: [release]
   plan:
-    - put: semver
-      params:
-        bump: minor
+  - put: semver
+    params:
+      bump: minor
