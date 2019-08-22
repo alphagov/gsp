@@ -60,7 +60,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     NodeGroupName                       = "worker"
     NodeAutoScalingGroupMinSize         = "${var.worker_count}"
     NodeAutoScalingGroupDesiredCapacity = "${var.worker_count}"
-    NodeAutoScalingGroupMaxSize         = "${var.worker_count + 1}"
+    NodeAutoScalingGroupMaxSize         = "${var.worker_count + 2}"
     NodeInstanceType                    = "${var.worker_instance_type}"
     NodeImageId                         = "${data.aws_ami.node_ami.image_id}"
     NodeVolumeSize                      = "40"
