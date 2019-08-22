@@ -35,14 +35,14 @@ spec:
         message: |
           Kubelet {{`{{ $labels.instance }}`}} is running {{`{{ $value }}`}} Pods,
           which is more than 90% of its capacity.
-    - record: az_node_role_resource:allocatable:
+    - record: "az_node_role_resource:allocatable:"
       expr: |
         sum by(failure_domain_beta_kubernetes_io_zone,node_role,resource) (
           up{job="kubelet"}
             * on(node) group_right(failure_domain_beta_kubernetes_io_zone,node_role)
           kube_node_status_allocatable
         )
-    - record: az_node_role:kubelet_running_pod_count:
+    - record: "az_node_role:kubelet_running_pod_count:"
       expr: |
         sum by(failure_domain_beta_kubernetes_io_zone,node_role) (
           kubelet_running_pod_count
