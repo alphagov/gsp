@@ -2,7 +2,7 @@
 
 ## Status
 
-Pending
+Superseded by [ADR031] and [ADR034]
 
 ## Context
 
