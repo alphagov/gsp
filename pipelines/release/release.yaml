@@ -483,7 +483,7 @@ jobs:
           gpg --import key
           echo "signing release tarball..."
           for file in candidate-release/*; do
-            filesize=$(stat --printf="%s" "${file}")
+            filesize=$(stat -c "%s" "${file}")
             if [[ ${filesize} -gt 0 ]]
             then
               echo "signing ${file}..."
