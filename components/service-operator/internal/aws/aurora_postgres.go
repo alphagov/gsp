@@ -32,10 +32,8 @@ const (
 	PostgresEndpoint     = "Endpoint"
 	PostgresReadEndpoint = "ReadEndpoint"
 	PostgresPort         = "Port"
-	PostgresDBName       = "DBName"
 	PostgresUsername     = "DBUsername"
 	PostgresPassword     = "DBPassword"
-	PostgresEngine       = "Engine"
 )
 
 type AuroraPostgres struct {
@@ -110,16 +108,6 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 	template.Outputs[PostgresPort] = map[string]interface{}{
 		"Description": "Postgres Port used by the application to perform connection.",
 		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "Endpoint.Port"),
-	}
-
-	template.Outputs[PostgresDBName] = map[string]interface{}{
-		"Description": "Postgres Database Name used by the application to perform connection.",
-		"Value":       cloudformation.Ref(PostgresDBName),
-	}
-
-	template.Outputs[PostgresEngine] = map[string]interface{}{
-		"Description": "Engine used by the application to perform connection.",
-		"Value":       cloudformation.Ref(PostgresEngine),
 	}
 
 	return template
