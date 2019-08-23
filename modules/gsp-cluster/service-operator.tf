@@ -63,7 +63,6 @@ data "aws_iam_policy_document" "service-operator" {
       "iam:CreatePolicy",
       "iam:CreateRole",
       "iam:DeletePolicy",
-      "iam:DeleteRolePolicy",
       "iam:DetachRolePolicy",
       "iam:PutRolePolicy",
       "iam:TagRole",
@@ -86,6 +85,7 @@ data "aws_iam_policy_document" "service-operator" {
     actions = [
       "iam:GetRole",
       "iam:DeleteRole",
+      "iam:DeleteRolePolicy"
     ]
 
     resources = [
