@@ -32,14 +32,38 @@ This will create an SQS Queue on AWS named alexs-test-queue, with a message rete
 
 ## How to connect to a created queue
 
+The URL of the Queue will be stored inside the `secret` you specified as `QueueURL`. So. if you make a pod like:
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alexs-test-pod
+  annotations:
+    iam.amazonaws.com/role: svcop-sandbox-gsp-service-operator-test-alexs-test-princ
+spec:
+  containers:
+  - name: myapp-container
+    image: governmentpaas/awscli
+    command: ['sleep', '1000000']
+    volumeMounts:
+    - name: secrets
+      mountPath: /secrets
+  volumes:
+  - name: secrets
+    secret:
+      secretName: alexs-test-queue-secret
+```
+
+You will be able to access the URL of the Queue from inside your pod using `cat /secrets/QueueURL`.
+
 When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ will have been created - in the form of svcop-{cluster}-{namespace}-{resourcename}. Your namespace will have an annotation that allows it to access such roles, so you will just need to annotate your pod to assume the role and then you can simply do this inside:
 ```
-/ # aws sqs send-message --queue-url https://sqs.eu-west-2.amazonaws.com/011571571136/sandbox-sandbox-gsp-service-operator-test-alexs-test-queue --message-body sup --region eu-west-2
+/ # aws sqs send-message --queue-url $(cat /secrets/QueueURL) --message-body sup --region eu-west-2
 {
     "MD5OfMessageBody": "2eeecd72c567401e6988624b179d0b14",
     "MessageId": "ac0f61ca-29a7-4eef-b998-831c7ed37ff3"
 }
-/ # aws sqs receive-message --queue-url https://sqs.eu-west-2.amazonaws.com/011571571136/sandbox-sandbox-gsp-service-operator-test-alexs-test-queue --region eu-west-2
+/ # aws sqs receive-message --queue-url $(cat /secrets/QueueURL) --region eu-west-2
 {
     "Messages": [
         {
