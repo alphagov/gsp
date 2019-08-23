@@ -158,8 +158,6 @@ func postgresOutputsToSecret(secretName, namespace string, outputs []*cloudforma
 		Data: map[string][]byte{
 			"Endpoint": internalaws.ValueFromOutputs(internalaws.PostgresEndpoint, outputs),
 			"Port":     internalaws.ValueFromOutputs(internalaws.PostgresPort, outputs),
-			"DBName":   internalaws.ValueFromOutputs(internalaws.PostgresDBName, outputs),
-			"Engine":   internalaws.ValueFromOutputs(internalaws.PostgresEngine, outputs),
 		},
 	}
 }
