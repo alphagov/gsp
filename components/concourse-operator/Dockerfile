@@ -1,15 +1,32 @@
-# Build the manager binary
 FROM golang:1.11 as builder
+
+# install dep (required when not vendored)
 RUN wget https://github.com/golang/dep/releases/download/v0.5.3/dep-linux-amd64 \
 	&& mv dep-linux-amd64 /bin/dep \
 	&& chmod +x /bin/dep
+
+# install kubebuilder (required for tests)
+RUN wget https://github.com/kubernetes-sigs/kubebuilder/releases/download/v1.0.7/kubebuilder_1.0.7_linux_amd64.tar.gz \
+	&& tar xvzf kubebuilder_1.0.7_linux_amd64.tar.gz \
+	&& mkdir -p /usr/local \
+	&& mv kubebuilder_1.0.7_linux_amd64 /usr/local/kubebuilder
+ENV PATH="${PATH}:/usr/local/kubebuilder/bin"
+
+# setup context
 WORKDIR /go/src/github.com/alphagov/gsp/components/concourse-operator
-COPY Gopkg.lock Gopkg.lock
-COPY Gopkg.toml Gopkg.toml
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+COPY . .
+
+# install dependencies
 RUN dep ensure -vendor-only
-COPY pkg/    pkg/
-COPY cmd/    cmd/
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager github.com/alphagov/gsp/components/concourse-operator/cmd/manager
+
+# run unit tests
+RUN go test -v ./pkg/... ./cmd/...
+
+# build manager
+RUN go build -a -o manager ./cmd/manager
 
 # CA certs
 FROM alpine:3.2 as certs
