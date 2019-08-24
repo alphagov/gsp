@@ -20,7 +20,7 @@ ENV GOARCH=amd64
 COPY . .
 
 # install dependencies
-RUN dep ensure -vendor-only
+RUN sh -c 'if [ -e ./vendor ]; then echo skipping dep ensure as found vendor dir 1>&2; else dep ensure -vendor-only; fi'
 
 # run unit tests
 RUN go test -v ./pkg/... ./cmd/...
