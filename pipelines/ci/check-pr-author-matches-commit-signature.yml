@@ -24,6 +24,8 @@ jobs:
     params:
       path: gsp-pr
       status: pending
+    get_params:
+      integration_tool: checkout
   - task: check
     config:
       platform: linux
