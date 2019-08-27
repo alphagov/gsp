@@ -141,3 +141,8 @@ resource "aws_security_group" "rds-from-worker" {
     source_security_group_id = "${module.k8s-cluster.worker_security_group_id}"
   }
 }
+
+resource "aws_db_subnet_group" "private" {
+  name       = "sandbox-private"
+  subnet_ids = ["${var.private_subnet_ids}"]
+}

@@ -32,6 +32,7 @@ spec:
         - --kiam-server-role-arn={{ .Values.serviceOperator.kiamServerRoleARN }}
         - --role-permissions-boundary-arn={{ .Values.serviceOperator.permissionsBoundaryARN }}
         - --rds-from-worker-security-group={{ .Values.rds-from-worker-security-group }}
+        - --db-subnet-group={{ .Values.private-db-subnet-group }}
         image: "{{ .Values.serviceOperator.image.repository }}:{{ .Values.serviceOperator.image.tag }}"
         name: manager
         ports:

@@ -40,6 +40,7 @@ type AuroraPostgres struct {
 	PostgresConfig *database.Postgres
 	IAMRoleName    string
 	SecurityGroup  string
+	DBSubnetGroup  string
 }
 
 func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
@@ -71,6 +72,7 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 			DBParameterGroupName: cloudformation.Ref(PostgresResourceParameterGroup),
 			Tags:                 tags,
 			VPCSecurityGroups:    []string{p.SecurityGroup},
+			DBSubnetGroupName:    p.DBSubnetGroup,
 		}
 	}
 

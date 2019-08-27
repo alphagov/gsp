@@ -53,11 +53,13 @@ func main() {
 	var kiamServerRole string
 	var rolePermissionsBoundary string
 	var rdsFromWorkerSecurityGroup string
+	var dbSubnetGroup string
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&clusterName, "cluster", "", "The name of the k8s cluster")
 	flag.StringVar(&kiamServerRole, "kiam-server-role-arn", "", "The ARN of the kiam server role")
 	flag.StringVar(&rolePermissionsBoundary, "role-permissions-boundary-arn", "", "The ARN of the permissions boundary to apply to created IAM roles")
 	flag.StringVar(&rdsFromWorkerSecurityGroup, "rds-from-worker-security-group", "", "The name of the security group to apply to created RDS databases")
+	flag.StringVar(&dbSubnetGroup, "db-subnet-group", "", "The name of the DB Subnet Group to apply to created RDS instances")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
 	flag.Parse()
@@ -83,6 +85,7 @@ func main() {
 		Log:                      ctrl.Log.WithName("controllers").WithName("Postgres"),
 		CloudFormationReconciler: &cloudFormationController,
 		SecurityGroup:            rdsFromWorkerSecurityGroup,
+		DBSubnetGroup:            dbSubnetGroup,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Postgres")
 		os.Exit(1)
