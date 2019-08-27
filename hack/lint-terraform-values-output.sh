@@ -96,6 +96,7 @@ helm template \
 		| sed 's/${concourse_teams}/["org:team"]/' \
 	) \
 	--values output/values.yaml \
+	--set 'global.cloudHsm.enabled=true' \
 	"charts/gsp-cluster"
 
 helm template \
