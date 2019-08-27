@@ -1,0 +1,22 @@
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-egress
+spec:
+  order: 100
+  types:
+  - Egress
+  egress:
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: talksToHsm != 'true'
+    destination:
+      nets:
+      - {{ .Values.global.cloudHsm.ip }}/32
+      ports:
+      - 2223
+      - 2224
+      - 2225
+  - action: Allow
+
