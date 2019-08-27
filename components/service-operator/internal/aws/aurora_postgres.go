@@ -61,6 +61,7 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 		DBClusterParameterGroupName: cloudformation.Ref(PostgresResourceClusterParameterGroup),
 		Tags:                        tags,
 		VpcSecurityGroupIds:         []string{p.SecurityGroup},
+		DBSubnetGroupName:           p.DBSubnetGroup,
 	}
 
 	for i := 0; i < InstanceCount; i++ {
