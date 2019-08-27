@@ -37,8 +37,9 @@ const (
 )
 
 type AuroraPostgres struct {
-	PostgresConfig *database.Postgres
-	IAMRoleName    string
+	PostgresConfig   *database.Postgres
+	IAMRoleName      string
+	SecurityGroupARN string
 }
 
 func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
@@ -68,6 +69,7 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 			PubliclyAccessible:   false,
 			DBParameterGroupName: cloudformation.Ref(PostgresResourceParameterGroup),
 			Tags:                 tags,
+			VPCSecurityGroups:    []string{p.SecurityGroupARN},
 		}
 	}
 

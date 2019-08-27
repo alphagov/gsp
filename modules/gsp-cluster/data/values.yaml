@@ -155,3 +155,5 @@ prometheus-operator:
 serviceOperator:
   kiamServerRoleARN: ${kiam_server_role_arn}
   permissionsBoundaryARN: ${service_operator_boundary_arn}
+
+rds-from-worker-security-group-arn: ${rds_from_worker_security_group_arn}

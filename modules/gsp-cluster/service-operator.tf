@@ -127,3 +127,16 @@ resource "aws_iam_policy" "service-operator-managed-role-permissions-boundary" {
   description = "Permissions boundary for roles created by the service operator"
   policy      = "${data.aws_iam_policy_document.service-operator-managed-role-permissions-boundary.json}"
 }
+
+resource "aws_security_group" "rds-from-worker" {
+  name        = "rds_from_worker"
+  description = "Allow SQL traffic from worker nodes to RDS instances"
+  vpc_id      = "${var.vpc_id}"
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    source_security_group_id = "${module.k8s-cluster.worker_security_group_id}"
+  }
+}

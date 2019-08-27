@@ -41,6 +41,7 @@ type PostgresReconciler struct {
 	client.Client
 	Log                      logr.Logger
 	CloudFormationReconciler internalaws.CloudFormationReconciler
+	SecurityGroup            string
 }
 
 const (
@@ -77,7 +78,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
 
-		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres, IAMRoleName: roles.Items[0].Status.Name}
+		postgresCloudFormationTemplate := internalaws.AuroraPostgres{PostgresConfig: &postgres, IAMRoleName: roles.Items[0].Status.Name, SecurityGroupARN: r.SecurityGroup}
 		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
