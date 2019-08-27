@@ -27,6 +27,7 @@ data "aws_iam_policy_document" "service-operator" {
   statement {
     actions = [
       "ec2:DescribeAccountAttributes",
+      "ec2:DescribeSecurityGroups",
     ]
 
     resources = [
