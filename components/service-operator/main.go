@@ -57,7 +57,7 @@ func main() {
 	flag.StringVar(&clusterName, "cluster", "", "The name of the k8s cluster")
 	flag.StringVar(&kiamServerRole, "kiam-server-role-arn", "", "The ARN of the kiam server role")
 	flag.StringVar(&rolePermissionsBoundary, "role-permissions-boundary-arn", "", "The ARN of the permissions boundary to apply to created IAM roles")
-	flag.StringVar(&rdsFromWorkerSecurityGroup, "rds-from-worker-security-group-arn", "", "The ARN of the security group to apply to created RDS databases")
+	flag.StringVar(&rdsFromWorkerSecurityGroup, "rds-from-worker-security-group", "", "The name of the security group to apply to created RDS databases")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
 	flag.Parse()

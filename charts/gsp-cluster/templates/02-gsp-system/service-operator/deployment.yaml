@@ -31,7 +31,7 @@ spec:
         - --cluster={{ .Values.global.cluster.name }}
         - --kiam-server-role-arn={{ .Values.serviceOperator.kiamServerRoleARN }}
         - --role-permissions-boundary-arn={{ .Values.serviceOperator.permissionsBoundaryARN }}
-        - --rds-from-worker-security-group-arn={{ .Values.rds-from-worker-security-group-arn }}
+        - --rds-from-worker-security-group={{ .Values.rds-from-worker-security-group }}
         image: "{{ .Values.serviceOperator.image.repository }}:{{ .Values.serviceOperator.image.tag }}"
         name: manager
         ports:
