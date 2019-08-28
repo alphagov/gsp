@@ -38,3 +38,4 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #033 - NLB for mTLS](ADR033-nlb-for-mtls.md)
 - [ADR #034 - Single service operator](ADR034-one-service-operator-different-resource-kinds.md)
 - [ADR #035 - Aurora postgres](ADR035-aurora-postgres.md)
+- [ADR #036 - CloudHSM isolation](ADR036-hsm-isolation-in-detail.md)
