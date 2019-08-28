@@ -90,7 +90,7 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 	}
 
 	template.Resources[PostgresResourceIAMPolicy] = &resources.AWSIAMPolicy{
-		PolicyName:     cloudformation.Join("-", []string{"postgres", "access", cloudformation.Ref(PostgresResourceCluster)}),
+		PolicyName: cloudformation.Join("-", []string{"postgres", "access", cloudformation.Ref(PostgresResourceCluster)}),
 		PolicyDocument: NewRolePolicyDocument(
 			[]string{
 				cloudformation.Join(
@@ -108,7 +108,7 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 			},
 			[]string{"rds-data:*"},
 		),
-		Roles:          []string{p.IAMRoleName},
+		Roles: []string{p.IAMRoleName},
 	}
 
 	template.Outputs[PostgresEndpoint] = map[string]interface{}{

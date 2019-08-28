@@ -7,6 +7,66 @@ metadata:
   name: {{ .Release.Name }}-service-operator-role
 rules:
 - apiGroups:
+  - access.govsvc.uk
+  resources:
+  - principals
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - access.govsvc.uk
+  resources:
+  - principals/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - database.govsvc.uk
+  resources:
+  - postgres
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - database.govsvc.uk
+  resources:
+  - postgres/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - queue.govsvc.uk
+  resources:
+  - sqs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - queue.govsvc.uk
+  resources:
+  - sqs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - ""
   resources:
   - configmaps
@@ -20,31 +80,3 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - database.govsvc.uk
-  - queue.govsvc.uk
-  - access.govsvc.uk
-  resources:
-  - principals
-  - postgres
-  - sqs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - database.govsvc.uk
-  - queue.govsvc.uk
-  - access.govsvc.uk
-  resources:
-  - principals/status
-  - postgres/status
-  - sqs/status
-  verbs:
-  - get
-  - patch
-  - update
