@@ -73,7 +73,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		var roles access.PrincipalList
 		err := r.List(ctx, &roles, client.MatchingLabels(map[string]string{access.AccessGroupLabel: postgres.Labels[access.AccessGroupLabel]}))
 		if err != nil || len(roles.Items) != 1 {
-			log.V(1).Info("unable to find unique IAM Role in same gsp-access-group - waiting 5 minutes", "gsp-access-group", postgres.Labels[access.AccessGroupLabel])
+			log.V(1).Info("unable to find unique IAM Role in same gsp-access-group - waiting 2 minutes", "gsp-access-group", postgres.Labels[access.AccessGroupLabel])
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
 
