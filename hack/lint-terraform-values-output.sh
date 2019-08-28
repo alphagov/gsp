@@ -35,9 +35,21 @@ global:
     name: sandbox
     privateKey: BEGIN-PRIVATE
     publicKey: BEGIN-PUBLIC
-httpsEgressSafelist:
-- name: hub
-  fqdn: www.integration.signin.service.gov.uk
+egressSafelist:
+- hosts: ["www.integration.signin.service.gov.uk"]
+  ports:
+  - name: verify-integration-https
+    number: 443
+    protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: DNS
+- hosts: ["www.signin.service.gov.uk"]
+  ports:
+  - name: verify-https
+    number: 443
+    protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: DNS
 namespaces:
 - name: verify-metadata-controller
   owner: alphagov
