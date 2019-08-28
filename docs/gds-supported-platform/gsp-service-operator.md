@@ -27,8 +27,7 @@ items:
     labels:
       group.access.govsvc.uk: alexs-test-principal
 ```
-TODO: You can access the queues from gsp-system but not managed namespaces yet so this example is misleading
-This will create an SQS Queue on AWS named alexs-test-queue, with a message retention period of 1 hour, and a maximum message size of 1KiB. It will also ensure you can get access to the created queue.
+This will create an SQS Queue on AWS named alexs-test-queue, with a message retention period of 1 hour, and a maximum message size of 1KiB. It will also ensure you can get access to the created queue. It will store the queue URL in a secret named `alexs-test-queue-secret` that we will use below.
 
 ## How to connect to a created queue
 
