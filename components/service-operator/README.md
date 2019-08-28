@@ -61,3 +61,11 @@ Run the following to update the gsp-cluster chart (parent project) with any mani
 make update-chart
 ```
 
+## Running tests
+
+The simplest way the the tests is as part of the Docker build:
+
+```
+docker build .
+```
+
