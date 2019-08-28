@@ -47,3 +47,17 @@ spec:
 This service operator will create a Postgres database in AWS RDS, and generate
 a secret only available to that namespace, containing all required data.
 
+## Updating manifests and gsp-cluster chart
+
+Run the following to regenerate the CRDs, roles and any other generated artifacts:
+
+```
+make manifests
+```
+
+Run the following to update the gsp-cluster chart (parent project) with any manifests
+
+```
+make update-chart
+```
+
