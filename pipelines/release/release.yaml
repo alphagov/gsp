@@ -231,32 +231,6 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: semver
-  - task: run-tests
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: golang
-          tag: 1.12.7-buster
-      inputs:
-      - name: platform
-      run:
-        path: /bin/bash
-        args:
-          - -euo
-          - pipefail
-          - -c
-          - |
-            echo "prepare kubebuilder setup... see https://book.kubebuilder.io/quick-start.html#installation"
-            os=$(go env GOOS)
-            arch=$(go env GOARCH)
-            curl -sL https://go.kubebuilder.io/dl/2.0.0-beta.0/${os}/${arch} | tar -xz -C /tmp/
-            mv /tmp/kubebuilder_2.0.0-beta.0_${os}_${arch} /usr/local/kubebuilder
-            export PATH=$PATH:/usr/local/kubebuilder/bin
-
-            cd platform/components/service-operator
-            make test
   - put: service-operator
     params:
       build: platform/components/service-operator
