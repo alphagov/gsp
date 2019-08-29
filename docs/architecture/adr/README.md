@@ -39,3 +39,4 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #034 - Single service operator](ADR034-one-service-operator-different-resource-kinds.md)
 - [ADR #035 - Aurora postgres](ADR035-aurora-postgres.md)
 - [ADR #036 - CloudHSM isolation](ADR036-hsm-isolation-in-detail.md)
+- [ADR #037 - Per namespace istio gateways](ADR037-per-namespace-gateways.md)
