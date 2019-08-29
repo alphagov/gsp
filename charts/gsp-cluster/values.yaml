@@ -487,7 +487,15 @@ harbor:
     type: ingress
     tls:
       enabled: false
+  core:
+    replicas: 2
+  registry:
+    replicas: 2
   notary:
+    server:
+      replicas: 4
+    signer:
+      replicas: 4
     tlsCA: ""
     tlsCert: ""
     tlsKey: ""
