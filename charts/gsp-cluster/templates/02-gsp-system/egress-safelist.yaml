@@ -1,15 +1,15 @@
-{{- range $i, $egress := .Values.egressSafelist }}
+{{- range $egress := .Values.egressSafelist }}
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
-  name: {{ $.Release.Name }}-egress-safelist-{{ $i }}
+  name: {{ $.Release.Name }}-egress-safelist-{{ $egress.name }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app.kubernetes.io/name: {{ include "gsp-cluster.name" $ }}-egress-safelist-{{ $i }}
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" $ }}-egress-safelist-{{ $egress.name }}
     helm.sh/chart: {{ include "gsp-cluster.chart" $ }}
     app.kubernetes.io/instance: {{ $.Release.Name }}
     app.kubernetes.io/managed-by: {{ $.Release.Service }}
 spec:
-{{- $egress | toYaml | nindent 2 }}
+{{- $egress.service | toYaml | nindent 2 }}
 {{- end }}

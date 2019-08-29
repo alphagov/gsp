@@ -36,20 +36,24 @@ global:
     privateKey: BEGIN-PRIVATE
     publicKey: BEGIN-PUBLIC
 egressSafelist:
-- hosts: ["www.integration.signin.service.gov.uk"]
-  ports:
-  - name: verify-integration-https
-    number: 443
-    protocol: TCP
-  location: MESH_EXTERNAL
-  resolution: DNS
-- hosts: ["www.signin.service.gov.uk"]
-  ports:
-  - name: verify-https
-    number: 443
-    protocol: TCP
-  location: MESH_EXTERNAL
-  resolution: DNS
+- name: integration-hub
+  service:
+    hosts: ["www.integration.signin.service.gov.uk"]
+    ports:
+    - name: verify-integration-https
+      number: 443
+      protocol: TCP
+    location: MESH_EXTERNAL
+    resolution: DNS
+- name: production-hub
+  service:
+    hosts: ["www.signin.service.gov.uk"]
+    ports:
+    - name: verify-https
+      number: 443
+      protocol: TCP
+    location: MESH_EXTERNAL
+    resolution: DNS
 namespaces:
 - name: verify-metadata-controller
   owner: alphagov
