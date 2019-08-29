@@ -23,6 +23,14 @@ import (
 
 // AWS allows specifying configuration for the SQS queue
 type AWS struct {
+	ContentBasedDeduplication bool `json:"contentBasedDeduplication,omitempty"`
+	DelaySeconds int `json:"delaySeconds,omitempty"`
+	FifoQueue bool `json:"fifoQueue,omitempty"`
+	MaximumMessageSize int `json:"maximumMessageSize,omitempty"`
+	MessageRetentionPeriod int `json:"messageRetentionPeriod,omitempty"`
+	ReceiveMessageWaitTimeSeconds int `json:"receiveMessageWaitTimeSeconds,omitempty"`
+	RedrivePolicy string `json:"redrivePolicy,omitempty"`
+	VisibilityTimeout int `json:"visibilityTimeout,omitempty"`
 }
 
 // Event is a single action taken against the resource at any given time.
