@@ -76,6 +76,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	// FIXME: how to handle cluster name, shouldn't be both flag and envvar
+	if clusterName != "" {
+		os.Setenv("CLUSTER_NAME", clusterName)
+	}
+
 	cloudFormationController := internalaws.CloudFormationController{
 		ClusterName: clusterName,
 	}
@@ -95,6 +100,7 @@ func main() {
 		Log:                      ctrl.Log.WithName("controllers").WithName("SQS"),
 		CloudFormationReconciler: &cloudFormationController,
 		ClusterName:              clusterName,
+		Provisioner:              os.Getenv("CLOUD_PROVIDER"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "SQS")
 		os.Exit(1)

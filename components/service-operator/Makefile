@@ -13,9 +13,20 @@ endif
 
 all: manager update-chart
 
+# Lint
+lint: fmt vet
+	golangci-lint run
+
 # Run tests
-test: generate fmt vet manifests
-	go test ./apis/... ./controllers/... -coverprofile cover.out
+test: generate manifests
+	ginkgo \
+		--failOnPending \
+		--failFast \
+		--requireSuite \
+		--slowSpecThreshold=30 \
+		-cover \
+		-r \
+		./controllers ./apis
 
 # Build manager binary
 manager: generate fmt vet
@@ -52,8 +63,11 @@ vet:
 	go vet ./...
 
 # Generate code
-generate: controller-gen
+generate: controller-gen internal/aws/awsfakes/fake_awsclient.go
 	$(CONTROLLER_GEN) object:headerFile=./hack/boilerplate.go.txt paths=./apis/...
+
+internal/aws/awsfakes/fake_awsclient.go:
+	go generate ./internal/aws
 
 # Build the docker image
 docker-build: test

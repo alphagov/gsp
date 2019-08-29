@@ -8,8 +8,10 @@ require (
 	github.com/go-logr/logr v0.1.0
 	github.com/go-logr/zapr v0.1.1 // indirect
 	github.com/golang/mock v1.3.1
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2 // indirect
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
+	github.com/sanathkr/yaml v0.0.0-20170819201035-0056894fa522
 	go.uber.org/zap v1.10.0 // indirect
 	k8s.io/api v0.0.0-20190409021203-6e4e0e4f393b
 	k8s.io/apimachinery v0.0.0-20190404173353-6a84e37a896d

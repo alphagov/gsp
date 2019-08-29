@@ -14,7 +14,10 @@ ENV PATH=$PATH:/usr/local/kubebuilder/bin
 # and so that source changes don't invalidate our downloaded layer
 COPY go.mod go.mod
 COPY go.sum go.sum
-RUN go mod download
+COPY Makefile Makefile
+RUN go mod download \
+	&& make controller-gen \
+	&& go install github.com/onsi/ginkgo/ginkgo
 
 # Copy the go source
 COPY . .
