@@ -205,6 +205,7 @@ jobs:
 
 - name: build-concourse-operator
   serial: true
+  serial_groups: [build-group-1]
   plan:
   - aggregate:
     - get: platform
@@ -225,6 +226,7 @@ jobs:
 
 - name: build-service-operator
   serial: true
+  serial_groups: [build-group-1]
   plan:
   - aggregate:
     - get: platform
