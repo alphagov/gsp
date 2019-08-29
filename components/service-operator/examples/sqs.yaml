@@ -7,4 +7,5 @@ metadata:
     group.access.govsvc.uk: gsp.examples.test
 spec:
   aws:
-    queueName: sqs-sample
+    maximumMessageSize: 1024
+    messageRetentionPeriod: 3600

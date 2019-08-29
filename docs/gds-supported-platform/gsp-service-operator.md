@@ -15,7 +15,6 @@ items:
       group.access.govsvc.uk: alexs-test-principal
   spec:
     aws:
-      queueName: alexs-test-queue
       messageRetentionPeriod: 3600
       maximumMessageSize: 1024
     secret: alexs-test-queue-secret
