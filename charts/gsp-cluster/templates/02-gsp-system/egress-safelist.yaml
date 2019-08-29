@@ -3,13 +3,8 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
-  name: {{ $.Release.Name }}-egress-safelist-{{ $egress.name }}
+  name: {{ $.Release.Name }}-{{ $egress.name }}
   namespace: {{ $.Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: {{ include "gsp-cluster.name" $ }}-egress-safelist-{{ $egress.name }}
-    helm.sh/chart: {{ include "gsp-cluster.chart" $ }}
-    app.kubernetes.io/instance: {{ $.Release.Name }}
-    app.kubernetes.io/managed-by: {{ $.Release.Service }}
 spec:
 {{- $egress.service | toYaml | nindent 2 }}
 {{- end }}
