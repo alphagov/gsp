@@ -9,3 +9,6 @@ rules:
   verbs: ["list", "get", "watch"]
 - nonResourceURLs: ["*"]
   verbs: ["list", "get"]
+- apiGroups: ["verify.govsvc.uk"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch"]
