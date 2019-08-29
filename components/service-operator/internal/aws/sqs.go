@@ -34,8 +34,16 @@ func (s *SQS) Template(stackName string, tags []resources.Tag) *cloudformation.T
 	template := cloudformation.NewTemplate()
 
 	template.Resources[SQSResourceName] = &resources.AWSSQSQueue{
-		QueueName: s.QueueName,
-		Tags:      tags,
+		QueueName:                     s.QueueName,
+		Tags:                          tags,
+		ContentBasedDeduplication:     s.SQSConfig.Spec.AWS.ContentBasedDeduplication,
+		DelaySeconds:                  s.SQSConfig.Spec.AWS.DelaySeconds,
+		FifoQueue:                     s.SQSConfig.Spec.AWS.FifoQueue,
+		MaximumMessageSize:            s.SQSConfig.Spec.AWS.MaximumMessageSize,
+		MessageRetentionPeriod:        s.SQSConfig.Spec.AWS.MessageRetentionPeriod,
+		ReceiveMessageWaitTimeSeconds: s.SQSConfig.Spec.AWS.ReceiveMessageWaitTimeSeconds,
+		RedrivePolicy:                 s.SQSConfig.Spec.AWS.RedrivePolicy,
+		VisibilityTimeout:             s.SQSConfig.Spec.AWS.VisibilityTimeout,
 	}
 
 	template.Resources[SQSResourceIAMPolicy] = &resources.AWSIAMPolicy{

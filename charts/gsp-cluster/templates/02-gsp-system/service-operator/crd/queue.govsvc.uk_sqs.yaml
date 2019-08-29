@@ -31,8 +31,25 @@ spec:
           description: SQSSpec defines the desired state of SQS
           properties:
             aws:
-              description: AWS specific subsection of the resource.
+              description: 'AWS specific subsection of the resource. See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-sqs-queues.html for more information.'
               type: object
+              properties:
+                contentBasedDeduplication:
+                  type: bool
+                delaySeconds:
+                  type: int
+                fifoQueue:
+                  type: bool
+                maximumMessageSize:
+                  type: int
+                messageRetentionPeriod:
+                  type: int
+                receiveMessageWaitTimeSeconds:
+                  type: int
+                redrivePolicy:
+                  type: string
+                visibilityTimeout:
+                  type: int
             secret:
               description: Secret name to be used for storing relevant instance secrets
                 for further use.
