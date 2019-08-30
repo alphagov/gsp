@@ -39,6 +39,8 @@ const (
 type AuroraPostgres struct {
 	PostgresConfig *database.Postgres
 	IAMRoleName    string
+	SecurityGroup  string
+	DBSubnetGroup  string
 }
 
 func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
@@ -58,6 +60,8 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 		MasterUserPassword:          cloudformation.Ref(PostgresPassword),
 		DBClusterParameterGroupName: cloudformation.Ref(PostgresResourceClusterParameterGroup),
 		Tags:                        tags,
+		VpcSecurityGroupIds:         []string{p.SecurityGroup},
+		DBSubnetGroupName:           p.DBSubnetGroup,
 	}
 
 	for i := 0; i < InstanceCount; i++ {
@@ -68,6 +72,7 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 			PubliclyAccessible:   false,
 			DBParameterGroupName: cloudformation.Ref(PostgresResourceParameterGroup),
 			Tags:                 tags,
+			DBSubnetGroupName:    p.DBSubnetGroup,
 		}
 	}
 

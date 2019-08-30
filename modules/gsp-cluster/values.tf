@@ -46,6 +46,8 @@ data "template_file" "values" {
     cloudwatch_log_shipping_role     = "${aws_iam_role.cloudwatch_log_shipping_role.name}"
     cloudwatch_log_group_name        = "${aws_cloudwatch_log_group.logs.name}"
     service_operator_boundary_arn    = "${aws_iam_policy.service-operator-managed-role-permissions-boundary.arn}"
+    rds_from_worker_security_group   = "${aws_security_group.rds-from-worker.id}"
+    private_db_subnet_group          = "${aws_db_subnet_group.private.id}"
 
     permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.harbor.name,
