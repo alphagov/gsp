@@ -138,7 +138,7 @@ resource "aws_security_group" "rds-from-worker" {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
-    source_security_group_id = "${module.k8s-cluster.worker_security_group_id}"
+    security_groups = ["${module.k8s-cluster.worker_security_group_id}"]
   }
 }
 
