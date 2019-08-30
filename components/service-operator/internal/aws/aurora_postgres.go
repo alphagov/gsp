@@ -72,7 +72,6 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 			PubliclyAccessible:   false,
 			DBParameterGroupName: cloudformation.Ref(PostgresResourceParameterGroup),
 			Tags:                 tags,
-			VPCSecurityGroups:    []string{p.SecurityGroup},
 			DBSubnetGroupName:    p.DBSubnetGroup,
 		}
 	}
