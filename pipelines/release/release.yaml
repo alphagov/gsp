@@ -151,6 +151,7 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: semver
+      passed: [selfupdate]
   - put: concourse-task-toolbox
     params:
       build: platform/components/concourse-task-toolbox
@@ -171,6 +172,7 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: semver
+      passed: [selfupdate]
   - put: concourse-github-resource
     params:
       build: platform/components/concourse-github-resource
@@ -191,6 +193,7 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: semver
+      passed: [selfupdate]
   - put: concourse-harbor-resource
     params:
       build: platform/components/concourse-harbor-resource
@@ -212,6 +215,7 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: semver
+      passed: [selfupdate]
   - put: concourse-operator
     params:
       build: platform/components/concourse-operator
@@ -233,6 +237,7 @@ jobs:
       passed: [selfupdate]
       trigger: true
     - get: semver
+      passed: [selfupdate]
   - put: service-operator
     params:
       build: platform/components/service-operator
@@ -260,20 +265,21 @@ jobs:
       - build-service-operator
     - get: concourse-task-toolbox
       passed: [build-concourse-task-toolbox]
-      trigger: true
     - get: concourse-github-resource
       passed: [build-concourse-github-resource]
-      trigger: true
     - get: concourse-harbor-resource
       passed: [build-concourse-harbor-resource]
-      trigger: true
     - get: concourse-operator
       passed: [build-concourse-operator]
-      trigger: true
     - get: service-operator
       passed: [build-service-operator]
-      trigger: true
     - get: semver
+      passed:
+      - build-concourse-task-toolbox
+      - build-concourse-github-resource
+      - build-concourse-harbor-resource
+      - build-concourse-operator
+      - build-service-operator
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:
