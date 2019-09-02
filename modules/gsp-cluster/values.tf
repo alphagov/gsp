@@ -22,6 +22,7 @@ data "template_file" "values" {
     github_client_id                 = "${jsonencode(var.github_client_id)}"
     github_client_secret             = "${jsonencode(var.github_client_secret)}"
     github_ca_cert                   = "${jsonencode(var.github_ca_cert)}"
+    grafana_iam_role_name            = "${aws_iam_role.grafana.name}"
     harbor_admin_password            = "${jsonencode(random_string.harbor_password.result)}"
     harbor_secret_key                = "${jsonencode(random_string.harbor_secret_key.result)}"
     harbor_bucket_id                 = "${aws_s3_bucket.ci-system-harbor-registry-storage.id}"
@@ -50,10 +51,11 @@ data "template_file" "values" {
     private_db_subnet_group          = "${aws_db_subnet_group.private.id}"
 
     permitted_roles_regex = "^(${join("|", list(
-      aws_iam_role.harbor.name,
-      aws_iam_role.concourse.name,
       aws_iam_role.cloudwatch_log_shipping_role.name,
+      aws_iam_role.concourse.name,
+      aws_iam_role.grafana.name,
       aws_iam_role.gsp-service-operator.name,
+      aws_iam_role.harbor.name,
     ))})$"
   }
 }
