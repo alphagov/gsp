@@ -48,7 +48,12 @@ The figure above illustrates where we think GSP fits on a "PaaS Spectrum":
 
 ## Getting started
 
-- [Getting started with a local GDS Supported Platform development cluster](docs/gds-supported-platform/getting-started-gsp-local.md)
+Come talk to the Automate team. We're on Slack in #re-autom8 and on the east side of the 6th floor.
+
+You also might want to look at how other teams are using GSP:
+
+- [Verify eIDAS proxy node](https://github.com/alphagov/verify-proxy-node/tree/master/ci)
+- [Verify Document Checking Service (private repo)](https://github.com/alphagov/doc-checking)
 
 ## Contributing
 
