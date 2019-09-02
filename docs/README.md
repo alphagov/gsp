@@ -4,7 +4,6 @@
 - [Accessing Concourse](gds-supported-platform/accessing-concourse.md)
 - [Accessing Dashboard](gds-supported-platform/accessing-dashboard.md)
 - [Architecture Decision Records](/docs/architecture/adr)
-- [Getting started with a GDS Supported Platform cluster](/docs/gds-supported-platform/getting-started-gsp-cluster.md)
 - [Getting started with a local GDS Supported Platform development cluster](/docs/gds-supported-platform/getting-started-gsp-local.md)
 - [GSP Architecture](/docs/architecture/gsp-architecture.md)
 - [GSP Architecture Continuous Deployment](/docs/architecture/gsp-architecture-continuous-deployment.md)

@@ -48,7 +48,6 @@ The figure above illustrates where we think GSP fits on a "PaaS Spectrum":
 
 ## Getting started
 
-- [Getting started with a GDS Supported Platform cluster](docs/gds-supported-platform/getting-started-gsp-cluster.md)
 - [Getting started with a local GDS Supported Platform development cluster](docs/gds-supported-platform/getting-started-gsp-local.md)
 
 ## Contributing
