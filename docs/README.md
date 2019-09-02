@@ -10,7 +10,6 @@
 - [GSP Architecture Continuous Deployment](/docs/architecture/gsp-architecture-continuous-deployment.md)
 - [GSP Architecture Cloud Infrastructure](/docs/architecture/gsp-architecture-cloud-infrastructure.md)
 - [GSP Architecture Overview](/docs/architecture/gsp-architecture-overview.md)
-- [GSP Terraform](gds-supported-platform/terraform.md)
 - [Incident Reports](incident-reports)
 - [Making things private in Harbor](gds-supported-platform/making-things-private-in-harbor.md)
 - [Sealing Secrets](gds-supported-platform/sealing-secrets.md)
