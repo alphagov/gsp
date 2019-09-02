@@ -16,7 +16,6 @@ Setting up a local GSP instance should take no more than 2 hours. Contact the GS
 
 <%= warning_text('While setting up or running a local GSP instance, do not:<br>- power down your laptop<br>- put your laptop in standby mode<br>- connect or disconnect the Cisco VPN client') %>
 
-
 ## Install prerequisite software
 
 1. Install [Homebrew](https://brew.sh/) and run `brew update` to make sure you have the latest version of Homebrew.
@@ -92,9 +91,6 @@ Setting up a local GSP instance should take no more than 2 hours. Contact the GS
 
 You now have a local GSP instance you can access using kubectl.
 
-
-
-
 ## Create a Docker image of the `govuk-prototype-kit` app
 
 You must build the `govuk-prototype-kit` app as a [Docker image](https://docs.docker.com/v17.09/engine/userguide/storagedriver/imagesandcontainers/) before you can add the app to your GSP local instance.
@@ -159,7 +155,6 @@ You must build the `govuk-prototype-kit` app as a [Docker image](https://docs.do
 
     You have created a Docker image of the GOV.UK prototype kit app, and built that image in your local GSP instance.
 
-
 ## Create a Helm chart
 
 Kubernetes resources describe the configuration of the app that you are running. You define these resources as `.yaml` files and collect them together in a packaging format called a [Helm chart](https://helm.sh/docs/developing_charts/).
@@ -331,7 +326,8 @@ spec:
       mode: DISABLE
 ```      
 
-You now have a Helm chart which describes how you will deploy your app to the GSP local instance. 
+You now have a Helm chart which describes how you will deploy your app to the GSP local instance.
+
 ## Deploy the app on to the local GSP instance
 
 ### Create and apply deployable manifests
@@ -445,7 +441,6 @@ Once the `service`, `virtualservice`, `destinationrule` and `Deployment` are liv
 
 You must now connect to the app.
 
-
 ## Connect to the app
 
 By default, your app is not accessible outside of the local GSP instance. To connect to the app, you must use [`port-forwarding`](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/).
@@ -470,7 +465,7 @@ By default, your app is not accessible outside of the local GSP instance. To con
 
 You have successfully deployed the `govuk-prototype-kit` app in your local GSP instance.
 
-
+
 ## Destroy the local instance
 
 You should destroy your local GSP instance when you have finished testing your app.
