@@ -16,6 +16,28 @@ data "aws_iam_policy_document" "grafana_cloudwatch" {
 
     resources = ["*"]
   }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:DescribeTags",
+      "ec2:DescribeInstances",
+      "ec2:DescribeRegions",
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "tag:GetResources",
+    ]
+
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "grafana" {
