@@ -59,5 +59,9 @@ data "template_file" "values" {
       aws_iam_role.harbor.name,
       aws_iam_role.external_dns.name,
     ))})$"
+
+    istio_system_permitted_roles_regex = "^(${join("|", list(
+      aws_iam_role.cert_manager.name,
+    ))})$"
   }
 }

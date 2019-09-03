@@ -26,6 +26,7 @@ adminUserARNs: []
 sreRoleARNs: []
 sreUserARNs: []
 permittedRolesRegex: ""
+istioSystemRoleRegex: ""
 
 githubAPIToken: ""
 
