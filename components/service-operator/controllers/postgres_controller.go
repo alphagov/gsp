@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/alphagov/gsp/components/service-operator/internal"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -84,17 +83,28 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
 
+		username, err := internal.RandomString(16, internal.CharactersUpper, internal.CharactersLower)
+		if err != nil {
+			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
+		}
+
+		password, err := internal.RandomString(32, internal.CharactersUpper, internal.CharactersLower, internal.CharactersNumeric, internal.CharactersSpecial)
+		if err != nil {
+			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
+		}
+
 		postgresCloudFormationTemplate := internalaws.AuroraPostgres{
 			PostgresConfig: &postgres,
 			IAMRoleName: roles.Items[0].Status.Name,
 			SecurityGroup: r.SecurityGroup,
 			DBSubnetGroup: r.DBSubnetGroup,
+			MasterUsername: username,
+			MasterPassword: password,
 		}
 		action, stackData, err := r.CloudFormationReconciler.Reconcile(ctx, log, req, &postgresCloudFormationTemplate, !postgres.ObjectMeta.DeletionTimestamp.IsZero())
 		if err != nil {
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
 		}
-		newSecret := postgresOutputsToSecret(secretName, req.Namespace, stackData.Outputs)
 
 		postgres.Status.ID = stackData.ID
 		postgres.Status.Status = stackData.Status
@@ -118,6 +128,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		switch action {
 		case internal.Create:
+			newSecret := getNewSecret(secretName, req.Namespace, username, password, []byte{}, []byte{})
 			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, PostgresFinalizerName)
 			err := r.Update(ctx, &postgres)
 			if err != nil {
@@ -126,6 +137,13 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 			return backoff, r.Create(ctx, &newSecret)
 		case internal.Update:
+			// disregard randomly generated versions and pull from existing secret - we only want those values for creations
+			username = string(secret.Data["Username"])
+			password = string(secret.Data["Password"])
+			endpoint := internalaws.ValueFromOutputs(internalaws.PostgresEndpoint, stackData.Outputs)
+			port := internalaws.ValueFromOutputs(internalaws.PostgresPort, stackData.Outputs)
+			newSecret := getNewSecret(secretName, req.Namespace, username, password, endpoint, port)
+
 			err := r.Update(ctx, &newSecret)
 			if err != nil {
 				return backoff, err
@@ -155,7 +173,7 @@ func (r *PostgresReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func postgresOutputsToSecret(secretName, namespace string, outputs []*cloudformation.Output) core.Secret {
+func getNewSecret(secretName string, namespace string, username string, password string, endpoint []byte, port []byte) core.Secret {
 	return core.Secret{
 		Type: core.SecretTypeOpaque,
 		ObjectMeta: metav1.ObjectMeta{
@@ -168,8 +186,10 @@ func postgresOutputsToSecret(secretName, namespace string, outputs []*cloudforma
 			},
 		},
 		Data: map[string][]byte{
-			"Endpoint": internalaws.ValueFromOutputs(internalaws.PostgresEndpoint, outputs),
-			"Port":     internalaws.ValueFromOutputs(internalaws.PostgresPort, outputs),
+			"Username": []byte(username),
+			"Password": []byte(password),
+			"Endpoint": endpoint,
+			"Port":     port,
 		},
 	}
 }
