@@ -15,7 +15,7 @@ istio-cni:
   - gsp-system
 istio-init:
   certmanager:
-    enabled: false
+    enabled: true
 
 # https://github.com/helm/helm/issues/5135
 # affects anything with a conditional in the istio chart's
