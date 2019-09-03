@@ -17,7 +17,20 @@ data "aws_iam_policy_document" "cert_manager" {
     effect = "Allow"
 
     actions = [
+      "route53:GetChange",
+    ]
+
+    resources = [
+      "arn:aws:route53:::change/*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
       "route53:ListHostedZones",
+      "route53:ListHostedZonesByName",
     ]
 
     resources = [
