@@ -40,3 +40,4 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #035 - Aurora postgres](ADR035-aurora-postgres.md)
 - [ADR #036 - CloudHSM isolation](ADR036-hsm-isolation-in-detail.md)
 - [ADR #037 - Per namespace istio gateways](ADR037-per-namespace-gateways.md)
+- [ADR #038 - SRE Permissions for Istio](ADR038-sre-permissions-istio.md)
