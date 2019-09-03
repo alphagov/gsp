@@ -90,11 +90,12 @@ generate_managed_namespaces_values: &generate_managed_namespaces_values
     - |
       mkdir -p managed-namespaces-values
       echo "generating istio gateway values for managed namespaces..."
-      gomplate -d config=${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-gateways.yaml > managed-namespaces-values/gateways-values.yaml
+      gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-gateways.yaml > managed-namespaces-values/gateways-values.yaml
       echo "generating external-dns values for managed namespaces..."
-      gomplate -d config=${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-external-dns.yaml > managed-namespaces-values/external-dns-values.yaml
+      gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-external-dns.yaml > managed-namespaces-values/external-dns-values.yaml
   inputs:
   - name: platform
+  - name: config
   outputs:
   - name: managed-namespaces-values
 
