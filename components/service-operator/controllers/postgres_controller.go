@@ -26,6 +26,7 @@ import (
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"k8s.io/apimachinery/pkg/labels"
 
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -73,7 +74,11 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	switch provisioner {
 	case "aws":
 		var roles access.PrincipalList
-		err := r.List(ctx, &roles, client.MatchingLabels(map[string]string{access.AccessGroupLabel: postgres.Labels[access.AccessGroupLabel]}))
+		listOptsFunc := func(opts *client.ListOptions) {
+			opts.Namespace = req.Namespace
+			opts.LabelSelector = labels.SelectorFromSet(map[string]string{access.AccessGroupLabel: postgres.Labels[access.AccessGroupLabel]})
+		}
+		err := r.List(ctx, &roles, listOptsFunc)
 		if err != nil || len(roles.Items) != 1 {
 			log.V(1).Info("unable to find unique IAM Role in same gsp-access-group - waiting 2 minutes", "gsp-access-group", postgres.Labels[access.AccessGroupLabel])
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Minute * 2}, err
