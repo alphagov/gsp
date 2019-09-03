@@ -52,7 +52,7 @@ spec:
       namespaceSelector:
         matchLabels:
           namespace: istio-system
-{{- if .ingress.enabled }}
+{{- if (default dict .ingress).enabled }}
     - podSelector:
         matchLabels:
           istio: {{ .name }}-ingressgateway
@@ -61,7 +61,7 @@ spec:
           namespace: {{ .name }}
 {{- end }}
 ---
-{{- if .ingress.enabled }}
+{{- if (default dict .ingress).enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
