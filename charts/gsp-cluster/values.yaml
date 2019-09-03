@@ -374,6 +374,9 @@ prometheus-operator:
           target_label: node
   grafana:
     adminPassword: "password"
+    sidecar:
+      datasources:
+        enabled: true
   prometheusOperator:
     kubeletService:
       enabled: false
