@@ -12,7 +12,7 @@ spec:
   hosts:
   - "ci.{{ .Values.global.cluster.domain }}"
   gateways:
-  - "gsp-gsp-cluster.gsp-system"
+  - {{ include "gsp-cluster.fullname" . }}-ingress
   http:
   - route:
     - destination:

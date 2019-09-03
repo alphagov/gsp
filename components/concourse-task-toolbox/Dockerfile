@@ -29,7 +29,8 @@ RUN apk add --update \
 	py3-pip \
 	mailcap \
 	ncurses \
-	&& pip3 install awscli s3cmd yq \
+	gomplate \
+	&& pip3 install awscli s3cmd yq PyYAML \
 	&& apk -v --purge del py3-pip \
 	&& rm /var/cache/apk/*
 

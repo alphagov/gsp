@@ -1,0 +1,35 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-ingress
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    istio: {{ .Release.Namespace }}-ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    tls:
+      httpsRedirect: true
+    hosts:
+    - "ci.{{ .Values.global.cluster.domain }}"
+    - "registry.{{ .Values.global.cluster.domain }}"
+    - "notary.{{ .Values.global.cluster.domain }}"
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+      privateKey: /etc/istio/ingressgateway-certs/tls.key
+    hosts:
+    - "ci.{{ .Values.global.cluster.domain }}"
+    - "registry.{{ .Values.global.cluster.domain }}"
+    - "notary.{{ .Values.global.cluster.domain }}"

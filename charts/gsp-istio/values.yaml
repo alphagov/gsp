@@ -50,14 +50,14 @@ kiali:
 istiocoredns:
   enabled: false
 certmanager:
-  enabled: false
+  enabled: true
 
 # normal service can now resume
 istio:
   ingress:
     enable: false
   certmanager:
-    enabled: false
+    enabled: true
   istio_cni:
     enabled: true
   tracing:

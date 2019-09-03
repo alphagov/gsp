@@ -1,0 +1,12 @@
+{{- $allNamespaces := prepend (dict "name" "gsp-system" "ingress" (dict "enabled" true)) (datasource "config").namespaces }}
+external-dns:
+  istioIngressGateways:
+{{- range $namespace := $allNamespaces }}
+{{- if (has $namespace "ingress") }}
+{{- if (has $namespace.ingress "enabled") }}
+{{- if $namespace.ingress.enabled }}
+  - {{ $namespace.name }}/{{ $namespace.name }}-ingressgateway
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

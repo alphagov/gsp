@@ -160,3 +160,10 @@ serviceOperator:
 
 RDSFromWorkerSecurityGroup: ${rds_from_worker_security_group}
 privateDBSubnetGroup: ${private_db_subnet_group}
+
+external-dns:
+  zoneIdFilters:
+  - ${cluster_domain_id}
+  txtOwnerId: external-dns-${cluster_name}
+  podAnnotations:
+    iam.amazonaws.com/role: ${external_dns_iam_role_name}
