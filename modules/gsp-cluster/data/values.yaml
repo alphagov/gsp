@@ -24,6 +24,7 @@ devRoleARNs: []
 bootstrapRoleARNs: ${bootstrap_role_arns}
 
 permittedRolesRegex: ${permitted_roles_regex}
+istioSystemRoleRegex: ${istio_system_permitted_roles_regex}
 
 httpsEgressSafelist: []
 httpEgressSafelist: []
