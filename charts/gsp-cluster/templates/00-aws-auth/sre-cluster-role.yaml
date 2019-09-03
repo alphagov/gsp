@@ -64,6 +64,9 @@ rules:
     resources:
     - virtualservices
     - gateways
+    - serviceentries
+    - destinationrules
+    - envoyfilters
     verbs:
     - delete
   - apiGroups: ["authentication.istio.io"]
