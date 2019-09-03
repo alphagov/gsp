@@ -29,7 +29,6 @@ RUN apk add --update \
 	py3-pip \
 	mailcap \
 	ncurses \
-	gomplate \
 	&& pip3 install awscli s3cmd yq PyYAML \
 	&& apk -v --purge del py3-pip \
 	&& rm /var/cache/apk/*
@@ -84,7 +83,6 @@ COPY bin/aws-assume-role /usr/local/bin/
 FROM task-toolbox
 # install kubeseal (sealing kubernetes secrets for storage)
 COPY --from=kubeseal /go/bin/kubeseal /usr/local/bin/
+COPY --from=hairyhenderson/gomplate:v3.5.0-slim /gomplate /bin/gomplate
 ENTRYPOINT ["/bin/bash"]
 CMD []
-
-
