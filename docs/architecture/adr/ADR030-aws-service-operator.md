@@ -2,7 +2,7 @@
 
 ## Status
 
-Superseded by [ADR031] and [ADR034]
+Superceded by [ADR031](ADR031-postgres.md) and [ADR034](ADR034-one-service-operator-different-resource-kinds.md)
 
 ## Context
 
