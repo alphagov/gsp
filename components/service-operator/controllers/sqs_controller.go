@@ -77,7 +77,7 @@ func (r *SQSReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		var roles access.PrincipalList
 		listOptsFunc := func(opts *client.ListOptions) {
 			opts.Namespace = req.Namespace
-			opts.LabelSelector = labels.SelectorFromSet(map[string]string{access.AccessGroupLabel: postgres.Labels[access.AccessGroupLabel]})
+			opts.LabelSelector = labels.SelectorFromSet(map[string]string{access.AccessGroupLabel: sqs.Labels[access.AccessGroupLabel]})
 		}
 		err := r.List(ctx, &roles, listOptsFunc)
 		if err != nil || len(roles.Items) != 1 {
