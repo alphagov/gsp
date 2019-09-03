@@ -9,6 +9,7 @@ data "aws_iam_policy_document" "grafana_cloudwatch" {
     effect = "Allow"
 
     actions = [
+      "cloudwatch:DescribeAlarmsForMetric",
       "cloudwatch:ListMetrics",
       "cloudwatch:GetMetricStatistics",
       "cloudwatch:GetMetricData",
