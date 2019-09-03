@@ -41,6 +41,8 @@ type AuroraPostgres struct {
 	IAMRoleName    string
 	SecurityGroup  string
 	DBSubnetGroup  string
+	MasterUsername string
+	MasterPassword string
 }
 
 func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloudformation.Template {
@@ -135,23 +137,14 @@ func (p *AuroraPostgres) Template(stackName string, tags []resources.Tag) *cloud
 }
 
 func (p *AuroraPostgres) CreateParameters() ([]*awscloudformation.Parameter, error) {
-	username, err := internal.RandomString(16, internal.CharactersUpper, internal.CharactersLower)
-	if err != nil {
-		return nil, err
-	}
-
-	password, err := internal.RandomString(32, internal.CharactersUpper, internal.CharactersLower, internal.CharactersNumeric, internal.CharactersSpecial)
-	if err != nil {
-		return nil, err
-	}
 	return []*awscloudformation.Parameter{
 		&awscloudformation.Parameter{
 			ParameterKey:   aws.String(PostgresUsername),
-			ParameterValue: aws.String(username),
+			ParameterValue: aws.String(p.MasterUsername),
 		},
 		&awscloudformation.Parameter{
 			ParameterKey:   aws.String(PostgresPassword),
-			ParameterValue: aws.String(password),
+			ParameterValue: aws.String(p.MasterPassword),
 		},
 	}, nil
 }
