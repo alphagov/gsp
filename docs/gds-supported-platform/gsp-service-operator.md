@@ -105,6 +105,7 @@ When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-ser
 ## How to connect to a created Postgres database
 
 If you make a pod like the one above:
+
 ```
 apiVersion: v1
 kind: Pod
@@ -127,6 +128,7 @@ spec:
 ```
 
 You will be able to access the login details under /secrets/Endpoint, /secrets/Port, /secrets/Username and /secrets/Password:
+
 ```
 / # cat /secrets/Password
 [redacted]
