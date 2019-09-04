@@ -128,7 +128,7 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		switch action {
 		case internal.Create:
-			newSecret := getNewSecret(secretName, req.Namespace, username, password, []byte{}, []byte{})
+			newSecret := getNewSecret(secretName, req.Namespace, username, password, []byte{}, []byte{}, []byte{})
 			postgres.ObjectMeta.Finalizers = append(postgres.ObjectMeta.Finalizers, PostgresFinalizerName)
 			err := r.Update(ctx, &postgres)
 			if err != nil {
@@ -141,8 +141,9 @@ func (r *PostgresReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			username = string(secret.Data["Username"])
 			password = string(secret.Data["Password"])
 			endpoint := internalaws.ValueFromOutputs(internalaws.PostgresEndpoint, stackData.Outputs)
+			readEndpoint := internalaws.ValueFromOutputs(internalaws.PostgresReadEndpoint, stackData.Outputs)
 			port := internalaws.ValueFromOutputs(internalaws.PostgresPort, stackData.Outputs)
-			newSecret := getNewSecret(secretName, req.Namespace, username, password, endpoint, port)
+			newSecret := getNewSecret(secretName, req.Namespace, username, password, endpoint, readEndpoint, port)
 
 			err := r.Update(ctx, &newSecret)
 			if err != nil {
@@ -173,7 +174,7 @@ func (r *PostgresReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func getNewSecret(secretName string, namespace string, username string, password string, endpoint []byte, port []byte) core.Secret {
+func getNewSecret(secretName string, namespace string, username string, password string, endpoint []byte, readEndpoint []byte, port []byte) core.Secret {
 	return core.Secret{
 		Type: core.SecretTypeOpaque,
 		ObjectMeta: metav1.ObjectMeta{
@@ -186,10 +187,11 @@ func getNewSecret(secretName string, namespace string, username string, password
 			},
 		},
 		Data: map[string][]byte{
-			"Username": []byte(username),
-			"Password": []byte(password),
-			"Endpoint": endpoint,
-			"Port":     port,
+			"Username":     []byte(username),
+			"Password":     []byte(password),
+			"Endpoint":     endpoint,
+			"ReadEndpoint": readEndpoint,
+			"Port":         port,
 		},
 	}
 }
