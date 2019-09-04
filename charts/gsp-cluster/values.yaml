@@ -375,16 +375,12 @@ prometheus-operator:
           target_label: node
   grafana:
     adminPassword: "password"
-    additionalDataSources: |-
-      ---
-      apiVersion: 1
-
-      datasources:
-        - name: Cloudwatch
-          type: cloudwatch
-          jsonData:
-            authType: credentials
-            defaultRegion: eu-west-2
+    additionalDataSources:
+      - name: Cloudwatch
+        type: cloudwatch
+        jsonData:
+          authType: credentials
+          defaultRegion: eu-west-2
   prometheusOperator:
     kubeletService:
       enabled: false
