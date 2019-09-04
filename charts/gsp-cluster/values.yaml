@@ -376,7 +376,15 @@ prometheus-operator:
   grafana:
     adminPassword: "password"
     additionalDataSources: |-
-{{ .Files.Get "datasources/cloudwatch.yaml" | indent 6 }}
+      ---
+      apiVersion: 1
+
+      datasources:
+        - name: Cloudwatch
+          type: cloudwatch
+          jsonData:
+            authType: credentials
+            defaultRegion: eu-west-2
   prometheusOperator:
     kubeletService:
       enabled: false
