@@ -28,9 +28,35 @@ items:
 ```
 This will create an SQS Queue on AWS named alexs-test-queue, with a message retention period of 1 hour, and a maximum message size of 1KiB. It will also ensure you can get access to the created queue. It will store the queue URL in a secret named `alexs-test-queue-secret` that we will use below.
 
+Here's an example of a Postgres database:
+```
+apiVersion: v1
+kind: List
+items:
+- kind: Postgres
+  apiVersion: database.govsvc.uk/v1beta1
+  metadata:
+    name: alexs-test-db
+    namespace: sandbox-gsp-service-operator-test
+    labels:
+      group.access.govsvc.uk: alexs-test-principal
+  spec:
+    aws:
+      instanceType: db.t3.medium
+    secret: alexs-test-db-secret
+- kind: Principal
+  apiVersion: access.govsvc.uk/v1beta1
+  metadata:
+    name: alexs-test-princ
+    namespace: sandbox-gsp-service-operator-test
+    labels:
+      group.access.govsvc.uk: alexs-test-principal
+```
+This will create a Postgres database on AWS including the name alexs-test-db, with an instance type of db.t3.medium. It will ensure you can get access to the created queue via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
+
 ## How to connect to a created queue
 
-The URL of the Queue will be stored inside the `secret` you specified as `QueueURL`. So. if you make a pod like:
+The URL of the Queue will be stored inside the `secret` you specified as `QueueURL`. So, if you make a pod like:
 ```
 apiVersion: v1
 kind: Pod
@@ -72,6 +98,43 @@ When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-ser
         }
     ]
 }
+```
+
+## How to connect to a created Postgres database
+
+If you make a pod like the one above:
+```
+apiVersion: v1
+kind: Pod
+metadata:
+    name: alexs-test-pod
+    annotations:
+        iam.amazonaws.com/role: svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ
+spec:
+    containers:
+    -   name: myapp-container
+        image: governmentpaas/psql
+        command: ['sleep', '1000000']
+        volumeMounts:
+        -   name: secrets
+            mountPath: /secrets
+    volumes:
+    -   name: secrets
+        secret:
+            secretName: alexs-test-db-secret
+```
+
+You will be able to access the login details under /secrets/Endpoint, /secrets/Port, /secrets/Username and /secrets/Password:
+```
+/ # cat /secrets/Password
+[redacted]
+/ # psql -h$(cat /secrets/Endpoint) -p$(cat /secrets/Port) -U$(cat /secrets/Username) postgres
+Password for user [redacted]:
+psql (11.5, server 10.7)
+SSL connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
+Type "help" for help.
+
+postgres=>
 ```
 
 ## How it works
