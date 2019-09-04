@@ -27,7 +27,7 @@ resource "aws_eks_cluster" "eks-cluster" {
   ]
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 
@@ -36,7 +36,7 @@ resource "aws_cloudwatch_log_group" "eks" {
   retention_in_days = 30
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 
