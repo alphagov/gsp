@@ -11,7 +11,7 @@ spec:
   hosts:
   - canary.{{ .Values.global.cluster.domain }}
   gateways:
-  - gsp-gsp-cluster.gsp-system
+  - {{ include "gsp-canary.fullname" . }}-ingress
   http:
     - route:
       - destination:
