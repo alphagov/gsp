@@ -21,7 +21,7 @@ spec:
   - action: Deny
     protocol: TCP
     source:
-      namespaceSelector: namespace notin (verify-metadata-controller, verify-proxy-node-build, verify-proxy-node-integration, verify-proxy-node-prod)
+      namespaceSelector: talksToHsm != 'true'
     destination:
       nets:
       - {{ .Values.global.cloudHsm.ip }}/32

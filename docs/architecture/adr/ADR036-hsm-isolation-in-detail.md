@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted, amended by [ADR039](ADR039-cloudhsm-namespace-network-policy.md)
 
 ## Context
 

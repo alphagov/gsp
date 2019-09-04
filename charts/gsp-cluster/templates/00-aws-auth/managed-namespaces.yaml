@@ -8,6 +8,9 @@ metadata:
   name: {{ .name }}
   labels:
     namespace: {{ .name }}
+{{- if .talksToHsm }}
+    talksToHsm: true
+{{- end }}
   annotations:
     iam.amazonaws.com/permitted: {{ $permittedRolesRegex | quote }}
 {{- end }}
