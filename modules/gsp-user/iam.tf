@@ -54,6 +54,16 @@ resource "aws_iam_role_policy_attachment" "user-defaults-cloudwatch" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "user-defaults-cloudformation" {
+  role       = "${aws_iam_role.user.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "user-defaults-iam" {
+  role       = "${aws_iam_role.user.name}"
+  policy_arn = "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
+}
+
 resource "aws_iam_role_policy_attachment" "user-defaults-view-only" {
   role       = "${aws_iam_role.user.name}"
   policy_arn = "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess"
