@@ -375,9 +375,8 @@ prometheus-operator:
           target_label: node
   grafana:
     adminPassword: "password"
-    sidecar:
-      datasources:
-        enabled: true
+    additionalDataSources:
+      {{ .Files.Get "datasources/cloudwatch.yaml" | indent 6 }}
   prometheusOperator:
     kubeletService:
       enabled: false
