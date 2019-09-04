@@ -29,6 +29,7 @@ items:
 This will create an SQS Queue on AWS named alexs-test-queue, with a message retention period of 1 hour, and a maximum message size of 1KiB. It will also ensure you can get access to the created queue. It will store the queue URL in a secret named `alexs-test-queue-secret` that we will use below.
 
 Here's an example of a Postgres database:
+
 ```
 apiVersion: v1
 kind: List
@@ -52,11 +53,12 @@ items:
     labels:
       group.access.govsvc.uk: alexs-test-principal
 ```
+
 This will create a Postgres database on AWS including the name alexs-test-db, with an instance type of db.t3.medium. It will ensure you can get access to the created queue via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
 
 ## How to connect to a created queue
 
-The URL of the Queue will be stored inside the `secret` you specified as `QueueURL`. So, if you make a pod like:
+The URL of the Queue will be stored inside the `secret` you specified as `QueueURL`. If you make a pod like:
 ```
 apiVersion: v1
 kind: Pod
