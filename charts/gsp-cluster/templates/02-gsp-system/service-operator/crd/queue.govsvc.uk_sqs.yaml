@@ -35,21 +35,21 @@ spec:
               type: object
               properties:
                 contentBasedDeduplication:
-                  type: bool
+                  type: boolean
                 delaySeconds:
-                  type: int
+                  type: integer
                 fifoQueue:
-                  type: bool
+                  type: boolean
                 maximumMessageSize:
-                  type: int
+                  type: integer
                 messageRetentionPeriod:
-                  type: int
+                  type: integer
                 receiveMessageWaitTimeSeconds:
-                  type: int
+                  type: integer
                 redrivePolicy:
                   type: string
                 visibilityTimeout:
-                  type: int
+                  type: integer
             secret:
               description: Secret name to be used for storing relevant instance secrets
                 for further use.
