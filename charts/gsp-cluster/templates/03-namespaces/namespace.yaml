@@ -13,17 +13,6 @@
     {{- end }}
   {{- end }}
 {{- end }}
-{{- $defaultedPermittedRolesRegex := .permittedRolesRegex | default "^$" }}
-{{- $permittedRolesRegex := printf "%s|^svcop-%s-%s-.*$" $defaultedPermittedRolesRegex $.Values.global.cluster.name .name }}
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ .name }}
-  labels:
-    namespace: {{ .name }}
-  annotations:
-    iam.amazonaws.com/permitted: {{ $permittedRolesRegex | quote }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
