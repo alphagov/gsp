@@ -1,0 +1,181 @@
+# This is heavily based on the output from the external-dns chart using the following values.yaml
+#
+# sources:
+# - istio-gateway
+# provider: aws
+# aws:
+#   region: eu-west-2
+#   zoneType: public
+# rbac:
+#   create: true
+#   serviceAccountName: external-dns
+# zoneIdFilters:
+# - ${cluster_domain_id}
+# txtOwnerId: external-dns-${cluster_name}
+# podAnnotations:
+#   iam.amazonaws.com/role: ${external_dns_iam_role_name}
+# istioIngressGateways:
+# - istio-system/ingressgateway
+#
+#
+# The various resources were then updated manually with necessary templating to bring inline with gsp-cluster
+
+
+{{- $allNamespaces := prepend $.Values.namespaces (dict "name" "gsp-system" "ingress" (dict "enabled" true)) }}
+{{- range $allNamespaces }}
+{{- if (default dict .ingress).enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $.Release.Name }}-external-dns
+  namespace: {{ .name }}
+  labels:
+    app.kubernetes.io/name: external-dns
+    helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $.Release.Name }}-external-dns-{{ .name }}
+  labels:
+    app.kubernetes.io/name: external-dns
+    helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $.Release.Name }}-external-dns
+subjects:
+- kind: ServiceAccount
+  name: {{ $.Release.Name }}-external-dns
+  namespace: {{ .name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Release.Name }}-external-dns
+  namespace: {{ .name }}
+  labels:
+    app.kubernetes.io/name: external-dns
+    helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: external-dns
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: external-dns
+        helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        app.kubernetes.io/managed-by: {{ $.Release.Service }}
+      annotations:
+        iam.amazonaws.com/role: {{ $.Values.externalDns.iamRoleName }}
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      serviceAccountName: {{ $.Release.Name }}-external-dns
+      containers:
+      - name: external-dns
+        image: "docker.io/bitnami/external-dns:0.5.15-debian-9-r1"
+        imagePullPolicy: "IfNotPresent"
+        args:
+        # Generic arguments
+        - --log-level=info
+        - --zone-id-filter={{ $.Values.global.cluster.domain_id }}
+        - --policy=upsert-only
+        - --provider=aws
+        - --registry=txt
+        - --interval=1m
+        - --txt-owner-id=external-dns-{{ $.Values.global.cluster.name }}-{{ .name }}
+        - --istio-ingress-gateway={{ .name }}/{{ .name }}-ingressgateway
+        - --source=istio-gateway
+        # AWS arguments
+        - --aws-zone-type=public
+        - --aws-batch-change-size=1000
+        # Azure Arguments
+        # Cloudflare arguments
+        # Google Arguments
+        # Infloblox Arguments
+        # RFC 2136 arguments
+        # PowerDNS arguments
+        # Extra arguments
+        env:
+        # AWS environment variables
+        - name: AWS_DEFAULT_REGION
+          value: eu-west-2
+        # Cloudflare environment variables
+        # CoreDNS environment variables
+        # DigitalOcean environment variables
+        # Google environment variables
+        # Infloblox environment variables
+        # RFC 2136 environment variables
+        # PowerDNS environment variables
+        # Extra environment variables
+        ports:
+        - name: http
+          containerPort: 7979
+        readinessProbe:
+          failureThreshold: 6
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        livenessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        volumeMounts:
+        # AWS mountPath(s)
+        # Azure mountPath(s)
+        # CoreDNS mountPath(s)
+        # Google mountPath(s)
+        # Designate mountPath(s)
+      volumes:
+      # AWS volume(s)
+      # Azure volume(s)
+      # CoreDNS volume(s)
+      # Google volume(s)
+      # Designate volume(s)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-external-dns
+  namespace: {{ .name }}
+  labels:
+    app.kubernetes.io/name: external-dns
+    helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+spec:
+  ports:
+  - name: http
+    port: 7979
+    protocol: TCP
+    targetPort: http
+  selector:
+      app.kubernetes.io/name: external-dns
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  type: ClusterIP
+{{- end}}
+{{- end}}

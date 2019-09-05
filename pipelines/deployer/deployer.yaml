@@ -91,8 +91,6 @@ generate_managed_namespaces_values: &generate_managed_namespaces_values
       mkdir -p managed-namespaces-values
       echo "generating istio gateway values for managed namespaces..."
       gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-gateways.yaml > managed-namespaces-values/gateways-values.yaml
-      echo "generating external-dns values for managed namespaces..."
-      gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-external-dns.yaml > managed-namespaces-values/external-dns-values.yaml
   inputs:
   - name: platform
   - name: config
@@ -175,7 +173,6 @@ apply_cluster_chart: &apply_cluster_chart
         --values cluster-values/values.yaml \
         --values user-values/values.yaml \
         --values config/${CONFIG_VALUES_PATH} \
-        --values managed-namespaces-values/external-dns-values.yaml \
         --set "githubAPIToken=${GITHUB_API_TOKEN}" \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
