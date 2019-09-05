@@ -7,6 +7,8 @@ metadata:
     helm.sh/chart: {{ include "gsp-cluster.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    externaldns.k8s.io/namespace: {{ .Release.Namespace }}
 spec:
   selector:
     istio: {{ .Release.Namespace }}-ingressgateway
