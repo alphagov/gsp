@@ -16,6 +16,7 @@
 #   iam.amazonaws.com/role: ${external_dns_iam_role_name}
 # istioIngressGateways:
 # - istio-system/ingressgateway
+# annotationFilter: externaldns.k8s.io/namespace=my-namespace
 #
 #
 # The various resources were then updated manually with necessary templating to bring inline with gsp-cluster
@@ -97,6 +98,7 @@ spec:
         - --registry=txt
         - --interval=1m
         - --txt-owner-id=external-dns-{{ $.Values.global.cluster.name }}-{{ .name }}
+        - --annotation-filter=externaldns.k8s.io/namespace={{ .name }}
         - --istio-ingress-gateway={{ .name }}/{{ .name }}-ingressgateway
         - --source=istio-gateway
         # AWS arguments
