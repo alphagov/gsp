@@ -60,6 +60,15 @@ rules:
     - get
     - list
     - watch
+  - apiGroups: ["networking.istio.io"]
+    resources:
+    - virtualservices
+    - gateways
+    - serviceentries
+    - destinationrules
+    - envoyfilters
+    verbs:
+    - delete
   - apiGroups: ["authentication.istio.io"]
     resources: ["*"]
     verbs:

@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted, supplemented by [ADR038](ADR038-sre-permissions-istio.md)
 
 ## Context
 
