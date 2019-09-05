@@ -1,0 +1,20 @@
+{{- if .Values.global.runningOnAws }}
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: {{ include "gsp-cluster.fullname" . }}-route53
+  labels:
+    app.kubernetes.io/name: {{ include "gsp-cluster.name" . }}-route53
+    helm.sh/chart: {{ include "gsp-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  hosts:
+  - route53.amazonaws.com
+  ports:
+  - name: https
+    number: 443
+    protocol: TLS
+  location: MESH_EXTERNAL
+  resolution: DNS
+{{- end }}
