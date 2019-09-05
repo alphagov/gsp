@@ -23,6 +23,8 @@ COPY . .
 RUN sh -c 'if [ -e ./vendor ]; then echo skipping dep ensure as found vendor dir 1>&2; else dep ensure -vendor-only; fi'
 
 # run unit tests
+ENV KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=1m
+ENV KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=1m
 RUN go test -v ./pkg/... ./cmd/...
 
 # build manager
