@@ -1,16 +1,20 @@
-package aws
+package cloudformation
 
-import (
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-)
+// helpers for building iam documents in cloudformation
 
-func ValueFromOutputs(key string, outputs []*cloudformation.Output) []byte {
-	for _, output := range outputs {
-		if output.OutputKey != nil && *output.OutputKey == key {
-			return []byte(*output.OutputValue)
-		}
+func NewAssumeRolePolicyDocument(principal string) AssumeRolePolicyDocument {
+	return AssumeRolePolicyDocument{
+		Version: "2012-10-17",
+		Statement: []AssumeRolePolicyStatement{
+			{
+				Effect: "Allow",
+				Principal: PolicyPrincipal{
+					AWS: []string{principal},
+				},
+				Action: []string{"sts:AssumeRole"},
+			},
+		},
 	}
-	return nil
 }
 
 type PolicyDocument struct {
@@ -47,20 +51,6 @@ func NewRolePolicyDocument(resources, actions []string) PolicyDocument {
 				Effect:   "Allow",
 				Action:   actions,
 				Resource: resources,
-			},
-		},
-	}
-}
-func NewAssumeRolePolicyDocument(principal string) AssumeRolePolicyDocument {
-	return AssumeRolePolicyDocument{
-		Version: "2012-10-17",
-		Statement: []AssumeRolePolicyStatement{
-			{
-				Effect: "Allow",
-				Principal: PolicyPrincipal{
-					AWS: []string{principal},
-				},
-				Action: []string{"sts:AssumeRole"},
 			},
 		},
 	}

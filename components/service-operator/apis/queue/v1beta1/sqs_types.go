@@ -17,21 +17,24 @@ package v1beta1
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/alphagov/gsp/components/service-operator/apis"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	internalaws "github.com/alphagov/gsp/components/service-operator/internal/aws"
-	awscloudformation "github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/awslabs/goformation/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/env"
+	"github.com/alphagov/gsp/components/service-operator/internal/object"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/awslabs/goformation/cloudformation/resources"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+func init() {
+	SchemeBuilder.Register(&SQS{}, &SQSList{})
+}
 
 const (
 	SQSResourceName      = "SQSQueue"
 	SQSOutputURL         = "QueueURL"
 	SQSResourceIAMPolicy = "SQSSIAMPolicy"
+	IAMRoleParameterName = "IAMRoleName"
 )
 
 var (
@@ -43,10 +46,39 @@ var (
 	}
 )
 
-var IAMRoleParameterName = "IAMRoleName"
+// ensure implements required interfaces
+var _ cloudformation.Stack = &SQS{}
+var _ cloudformation.StackPolicyAttacher = &SQS{}
+var _ object.SecretNamer = &SQS{}
 
-// ensure implements StackObject
-var _ apis.StackObject = &SQS{}
+// AWS allows specifying configuration for the SQS queue
+type AWS struct {
+	ContentBasedDeduplication     bool   `json:"contentBasedDeduplication,omitempty"`
+	DelaySeconds                  int    `json:"delaySeconds,omitempty"`
+	FifoQueue                     bool   `json:"fifoQueue,omitempty"`
+	MaximumMessageSize            int    `json:"maximumMessageSize,omitempty"`
+	MessageRetentionPeriod        int    `json:"messageRetentionPeriod,omitempty"`
+	ReceiveMessageWaitTimeSeconds int    `json:"receiveMessageWaitTimeSeconds,omitempty"`
+	RedrivePolicy                 string `json:"redrivePolicy,omitempty"`
+	VisibilityTimeout             int    `json:"visibilityTimeout,omitempty"`
+}
+
+// SQSSpec defines the desired state of SQS
+type SQSSpec struct {
+	// AWS specific subsection of the resource.
+	AWS AWS `json:"aws,omitempty"`
+	// Secret name to be used for storing relevant instance secrets for further use.
+	Secret string `json:"secret,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+
+// SQSList contains a list of SQS
+type SQSList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []SQS `json:"items"`
+}
 
 // +kubebuilder:object:root=true
 
@@ -55,24 +87,25 @@ type SQS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   SQSSpec   `json:"spec,omitempty"`
-	Status SQSStatus `json:"status,omitempty"`
+	Spec          SQSSpec `json:"spec,omitempty"`
+	object.Status `json:"status,omitempty"`
 }
 
 // Name returns the name of the SQS cloudformation stack
 func (s *SQS) GetStackName() string {
-	CLUSTER_NAME := os.Getenv("CLUSTER_NAME") // FIXME: this is not right
-	return fmt.Sprintf("%s-%s-%s-%s", CLUSTER_NAME, "sqs", s.Namespace, s.ObjectMeta.Name)
+	return fmt.Sprintf("%s-%s-%s-%s", env.ClusterName(), "sqs", s.Namespace, s.ObjectMeta.Name)
 }
 
 // SecretName returns the name of the secret that will be populated with data
 func (s *SQS) GetSecretName() string {
+	if s.Spec.Secret == "" {
+		return s.GetName()
+	}
 	return s.Spec.Secret
 }
 
 // Template returns a cloudformation Template for provisioning an SQS queue
 func (s *SQS) GetStackTemplate() *cloudformation.Template {
-	CLUSTER_NAME := os.Getenv("CLUSTER_NAME") // FIXME: this is not right
 	template := cloudformation.NewTemplate()
 
 	template.Parameters[IAMRoleParameterName] = map[string]string{
@@ -82,7 +115,7 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 	tags := []resources.Tag{
 		{
 			Key:   "Cluster",
-			Value: CLUSTER_NAME,
+			Value: env.ClusterName(),
 		},
 		{
 			Key:   "Service",
@@ -102,7 +135,7 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 		},
 	}
 
-	queueName := fmt.Sprintf("%s-%s-%s", CLUSTER_NAME, s.Namespace, s.ObjectMeta.Name)
+	queueName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
 	template.Resources[SQSResourceName] = &resources.AWSSQSQueue{
 		QueueName:                     queueName,
 		Tags:                          tags,
@@ -118,7 +151,7 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 
 	template.Resources[SQSResourceIAMPolicy] = &resources.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"sqs", "access", cloudformation.GetAtt(SQSResourceName, "QueueName")}),
-		PolicyDocument: internalaws.NewRolePolicyDocument([]string{cloudformation.GetAtt(SQSResourceName, "Arn")}, allowedActions),
+		PolicyDocument: cloudformation.NewRolePolicyDocument([]string{cloudformation.GetAtt(SQSResourceName, "Arn")}, allowedActions),
 		Roles: []string{
 			cloudformation.Ref(IAMRoleParameterName),
 		},
@@ -129,71 +162,21 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 		"Value":       cloudformation.Ref(SQSResourceName),
 	}
 
+	template.Outputs[IAMRoleParameterName] = map[string]interface{}{
+		"Description": "Name of the IAM role with access to queue",
+		"Value":       cloudformation.Ref(IAMRoleParameterName),
+	}
+
 	return template
 }
 
-// CreateParameters returns any params used during stack creation
-func (s *SQS) GetStackCreateParameters() ([]*awscloudformation.Parameter, error) {
-	return []*awscloudformation.Parameter{}, nil
-}
-
-// UpdateParameters returns any params used during stack update
-func (s *SQS) GetStackUpdateParameters() ([]*awscloudformation.Parameter, error) {
-	return []*awscloudformation.Parameter{}, nil
-}
-
-// SetFromStack updates status fields based on given cloudformation stack
-func (s *SQS) SetStackStatus(state *awscloudformation.Stack, events []*awscloudformation.StackEvent) error {
-	if err := s.Status.Service.SetFromStack(state, events); err != nil {
-		return err
+// GetStackRoleParameters returns additional params based on a target principal resource
+func (s *SQS) GetStackRoleParameters(roleName string) ([]*cloudformation.Parameter, error) {
+	params := []*cloudformation.Parameter{
+		{
+			ParameterKey:   aws.String(IAMRoleParameterName),
+			ParameterValue: aws.String(roleName),
+		},
 	}
-	if err := s.Status.AWS.SetFromStack(state, events); err != nil {
-		return err
-	}
-	return nil
-}
-
-// AWS allows specifying configuration for the SQS queue
-type AWS struct {
-	ContentBasedDeduplication     bool   `json:"contentBasedDeduplication,omitempty"`
-	DelaySeconds                  int    `json:"delaySeconds,omitempty"`
-	FifoQueue                     bool   `json:"fifoQueue,omitempty"`
-	MaximumMessageSize            int    `json:"maximumMessageSize,omitempty"`
-	MessageRetentionPeriod        int    `json:"messageRetentionPeriod,omitempty"`
-	ReceiveMessageWaitTimeSeconds int    `json:"receiveMessageWaitTimeSeconds,omitempty"`
-	RedrivePolicy                 string `json:"redrivePolicy,omitempty"`
-	VisibilityTimeout             int    `json:"visibilityTimeout,omitempty"`
-}
-
-// SQSSpec defines the desired state of SQS
-type SQSSpec struct {
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// AWS specific subsection of the resource.
-	AWS AWS `json:"aws,omitempty"`
-	// Secret name to be used for storing relevant instance secrets for further use.
-	Secret string `json:"secret,omitempty"`
-}
-
-// SQSStatus defines the observed state of SQS
-type SQSStatus struct {
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Generic service status
-	Service apis.ServiceStatus `json:"service"`
-	// AWS specific status
-	AWS apis.AWSServiceStatus `json:"aws,omitempty"`
-}
-
-// +kubebuilder:object:root=true
-
-// SQSList contains a list of SQS
-type SQSList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []SQS `json:"items"`
-}
-
-func init() {
-	SchemeBuilder.Register(&SQS{}, &SQSList{})
+	return params, nil
 }

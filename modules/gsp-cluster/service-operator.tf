@@ -37,6 +37,16 @@ data "aws_iam_policy_document" "service-operator" {
 
   statement {
     actions = [
+      "secretsmanager:*",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    actions = [
       "s3:GetObject",
       "s3:PutObject",
     ]
@@ -86,7 +96,7 @@ data "aws_iam_policy_document" "service-operator" {
     actions = [
       "iam:GetRole",
       "iam:DeleteRole",
-      "iam:DeleteRolePolicy"
+      "iam:DeleteRolePolicy",
     ]
 
     resources = [
@@ -152,9 +162,9 @@ resource "aws_security_group" "rds-from-worker" {
   vpc_id      = "${var.vpc_id}"
 
   ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
     security_groups = ["${module.k8s-cluster.worker_security_group_id}"]
   }
 }

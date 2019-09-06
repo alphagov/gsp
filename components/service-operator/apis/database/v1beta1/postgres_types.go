@@ -16,49 +16,62 @@ limitations under the License.
 package v1beta1
 
 import (
+	"fmt"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/env"
+	"github.com/alphagov/gsp/components/service-operator/internal/object"
 )
 
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
-// AWS allows specifying configuration for the Postgres RDS instance
-type AWS struct {
-	// InstanceType essentially defines the amount of memory and cpus on the database.
-	InstanceType string `json:"instanceType,omitempty"`
+func init() {
+	SchemeBuilder.Register(&Postgres{}, &PostgresList{})
 }
 
-// Event is a single action taken against the resource at any given time.
-type Event struct {
-	// Status of the currently running instance.
-	Status string `json:"status"`
-	// Reason for the current status of the instance.
-	Reason string `json:"reason,omitempty"`
-	// Time of the event cast.
-	Time *metav1.Time `json:"time"`
+const (
+	Engine               = "aurora-postgresql"
+	Family               = "aurora-postgresql10"
+	DefaultClass         = "db.r5.large"
+	DefaultInstanceCount = 2
+
+	PostgresResourceMasterCredentials           = "MasterCredentials"
+	PostgresResourceMasterCredentialsAttachment = "MasterCredentialsAttachment"
+	PostgresResourceCluster                     = "RDSCluster"
+	PostgresResourceInstance                    = "RDSDBInstance"
+	PostgresResourceParameterGroup              = "RDSDBParameterGroup"
+	PostgresResourceClusterParameterGroup       = "RDSDBClusterParameterGroup"
+	PostgresResourceIAMPolicy                   = "RDSIAMRole"
+
+	PostgresEndpoint                = "Endpoint"
+	PostgresReadEndpoint            = "ReadEndpoint"
+	PostgresPort                    = "Port"
+	PostgresUsername                = "DBUsername"
+	PostgresPassword                = "DBPassword"
+	VPCSecurityGroupIDParameterName = "VPCSecurityGroupID"
+	DBSubnetGroupNameParameterName  = "DBSubnetGroup"
+
+	PostgresUsernameOutputName = "Username"
+	PostgresPasswordOutputName = "Password"
+)
+
+var _ cloudformation.Stack = &Postgres{}
+var _ object.SecretNamer = &Postgres{}
+
+// AWS allows specifying configuration for the Postgres RDS instance
+type PostgresAWSSpec struct {
+	// InstanceType essentially defines the amount of memory and cpus on the database.
+	InstanceType string `json:"instanceType,omitempty"`
+	// InstanceCount is the number of database instances in the cluster (defaults to 2 if not set)
+	InstanceCount int `json:"instanceCount,omitempty"`
 }
 
 // PostgresSpec defines the desired state of Postgres
 type PostgresSpec struct {
-	// Important: Run "make" to regenerate code after modifying this file
-
 	// AWS specific subsection of the resource.
-	AWS AWS `json:"aws,omitempty"`
+	AWS PostgresAWSSpec `json:"aws,omitempty"`
 	// Secret name to be used for storing relevant instance secrets for further use.
 	Secret string `json:"secret,omitempty"`
-}
-
-// PostgresStatus defines the observed state of Postgres
-type PostgresStatus struct {
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// ID of an instance for a reference.
-	ID string `json:"id"`
-	// Status of the currently running instance.
-	Status string `json:"status"`
-	// Reason for the current status of the instance.
-	Reason string `json:"reason,omitempty"`
-	// Events will hold more in-depth details of the current state of the instance.
-	Events []Event `json:"events,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -67,9 +80,152 @@ type PostgresStatus struct {
 type Postgres struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
+	object.Status     `json:"status,omitempty"`
 
-	Spec   PostgresSpec   `json:"spec,omitempty"`
-	Status PostgresStatus `json:"status,omitempty"`
+	Spec PostgresSpec `json:"spec,omitempty"`
+}
+
+// GetSecretName returns the name of a secret that will get populated with
+// connection details
+func (p *Postgres) GetSecretName() string {
+	if p.Spec.Secret == "" {
+		return p.GetName()
+	}
+	return p.Spec.Secret
+}
+
+// Name returns the name of the SQS cloudformation stack
+func (p *Postgres) GetStackName() string {
+	return fmt.Sprintf("%s-%s-%s-%s", env.ClusterName(), "postgres", p.GetNamespace(), p.GetName())
+}
+
+// GetStackTemplate implements cloudformation.Stack to serialize the configuration as a cloudformaiton template
+func (p *Postgres) GetStackTemplate() *cloudformation.Template {
+	template := cloudformation.NewTemplate()
+
+	template.Parameters[VPCSecurityGroupIDParameterName] = map[string]interface{}{
+		"Type": "String",
+	}
+	template.Parameters[DBSubnetGroupNameParameterName] = map[string]interface{}{
+		"Type": "String",
+	}
+
+	tags := []cloudformation.Tag{
+		{
+			Key:   "Cluster",
+			Value: env.ClusterName(),
+		},
+		{
+			Key:   "Service",
+			Value: "sqs",
+		},
+		{
+			Key:   "Name",
+			Value: p.GetName(),
+		},
+		{
+			Key:   "Namespace",
+			Value: p.GetNamespace(),
+		},
+		{
+			Key:   "Environment",
+			Value: p.GetNamespace(),
+		},
+	}
+
+	// generate secret in cloudformation not in operator (keeps state in aws)
+	template.Resources[PostgresResourceMasterCredentials] = &cloudformation.AWSSecretsManagerSecret{
+		Description: "Master Credentials for postgres instance",
+		GenerateSecretString: &cloudformation.GenerateSecretString{
+			SecretStringTemplate: `{"username": "master"}`,
+			ExcludeCharacters:    `"@/\'`,
+			GenerateStringKey:    "password",
+			PasswordLength:       32,
+		},
+	}
+
+	// create a reference to the values created in secrets manager
+	masterUsernameSecretRef := cloudformation.Join("", []string{"{{resolve:secretsmanager:", cloudformation.Ref(PostgresResourceMasterCredentials), ":SecretString:username}}"})
+	masterPasswordSecretRef := cloudformation.Join("", []string{"{{resolve:secretsmanager:", cloudformation.Ref(PostgresResourceMasterCredentials), ":SecretString:password}}"})
+
+	template.Resources[PostgresResourceCluster] = &cloudformation.AWSRDSDBCluster{
+		Engine:                      Engine,
+		MasterUsername:              masterUsernameSecretRef,
+		MasterUserPassword:          masterPasswordSecretRef,
+		DBClusterParameterGroupName: cloudformation.Ref(PostgresResourceClusterParameterGroup),
+		Tags:                        tags,
+		VpcSecurityGroupIds: []string{
+			cloudformation.Ref(VPCSecurityGroupIDParameterName),
+		},
+		DBSubnetGroupName: cloudformation.Ref(DBSubnetGroupNameParameterName),
+	}
+
+	template.Resources[PostgresResourceMasterCredentialsAttachment] = &cloudformation.AWSSecretsManagerSecretTargetAttachment{
+		SecretId:   cloudformation.Ref(PostgresResourceMasterCredentials),
+		TargetId:   cloudformation.Ref(PostgresResourceCluster),
+		TargetType: "AWS::RDS::DBCluster",
+	}
+
+	instanceCount := p.Spec.AWS.InstanceCount
+	if instanceCount < 1 {
+		instanceCount = DefaultInstanceCount
+	}
+	for i := 0; i < instanceCount; i++ {
+		template.Resources[fmt.Sprintf("%s%d", PostgresResourceInstance, i)] = &cloudformation.AWSRDSDBInstance{
+			DBClusterIdentifier:  cloudformation.Ref(PostgresResourceCluster),
+			DBInstanceClass:      coalesce(p.Spec.AWS.InstanceType, DefaultClass),
+			Engine:               Engine,
+			PubliclyAccessible:   false,
+			DBParameterGroupName: cloudformation.Ref(PostgresResourceParameterGroup),
+			Tags:                 tags,
+			DBSubnetGroupName:    cloudformation.Ref(DBSubnetGroupNameParameterName),
+		}
+	}
+
+	template.Resources[PostgresResourceClusterParameterGroup] = &cloudformation.AWSRDSDBClusterParameterGroup{
+		Description: "GSP Service Operator Cluster Parameter Group",
+		Family:      Family,
+		Parameters: map[string]string{
+			"timezone": "UTC",
+		},
+		Tags: tags,
+	}
+
+	template.Resources[PostgresResourceParameterGroup] = &cloudformation.AWSRDSDBParameterGroup{
+		Description: "GSP Service Operator Parameter Group",
+		Family:      Family,
+		Parameters: map[string]string{
+			"application_name": p.GetStackName(),
+		},
+		Tags: tags,
+	}
+
+	template.Outputs[PostgresEndpoint] = map[string]interface{}{
+		"Description": "Postgres Endpoint used by the application to perform connection.",
+		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "Endpoint.Address"),
+	}
+
+	template.Outputs[PostgresReadEndpoint] = map[string]interface{}{
+		"Description": "Postgres reader Endpoint used by the application to perform connection.",
+		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "ReadEndpoint.Address"),
+	}
+
+	template.Outputs[PostgresPort] = map[string]interface{}{
+		"Description": "Postgres Port used by the application to perform connection.",
+		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "Endpoint.Port"),
+	}
+
+	template.Outputs[PostgresUsernameOutputName] = map[string]interface{}{
+		"Description": "Postgres master username",
+		"Value":       masterUsernameSecretRef,
+	}
+
+	template.Outputs[PostgresPasswordOutputName] = map[string]interface{}{
+		"Description": "Postgres master password",
+		"Value":       masterPasswordSecretRef,
+	}
+
+	return template
 }
 
 // +kubebuilder:object:root=true
@@ -82,6 +238,11 @@ type PostgresList struct {
 	Items []Postgres `json:"items,omitempty"`
 }
 
-func init() {
-	SchemeBuilder.Register(&Postgres{}, &PostgresList{})
+func coalesce(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }

@@ -1,9 +1,10 @@
-# Build the manager binary
-FROM golang:1.12.5 as builder
+# Build options
 
+# setup go build env
+FROM golang:1.12.5 as builder
 WORKDIR /workspace
 
-
+# install kubebuilder and bundled control-plane for tests
 ENV KUBEBUILDER_VERSION=2.0.0
 RUN wget -nv https://github.com/kubernetes-sigs/kubebuilder/releases/download/v${KUBEBUILDER_VERSION}/kubebuilder_${KUBEBUILDER_VERSION}_linux_amd64.tar.gz \
 	&& tar xvf kubebuilder_${KUBEBUILDER_VERSION}_linux_amd64.tar.gz \
@@ -22,12 +23,34 @@ RUN go mod download \
 # Copy the go source
 COPY . .
 
-# Build and test
-ENV CGO_ENABLED=0
-ENV GOOS=linux
-ENV GOARCH=amd64
-ENV GO111MODULE=on
+# Build and test environment
+ENV CGO_ENABLED="0"
+ENV GOOS="linux"
+ENV GOARCH="amd64"
+ENV GO111MODULE="on"
+
+# Build args for integration testing
+ARG AWS_INTEGRATION="false"
+ENV AWS_INTEGRATION="${AWS_INTEGRATION}"
+ARG AWS_ACCESS_KEY_ID=""
+ENV AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"
+ARG AWS_SECRET_ACCESS_KEY=""
+ENV AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
+ARG AWS_SESSION_TOKEN=""
+ENV AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}"
+ARG AWS_RDS_SECURITY_GROUP_ID
+ENV AWS_RDS_SECURITY_GROUP_ID="${AWS_RDS_SECURITY_GROUP_ID}"
+ARG AWS_RDS_SUBNET_GROUP_NAME
+ENV AWS_RDS_SUBNET_GROUP_NAME="${AWS_RDS_SUBNET_GROUP_NAME}"
+ARG AWS_PRINCIPAL_SERVER_ROLE_ARN
+ENV AWS_PRINCIPAL_SERVER_ROLE_ARN="${AWS_PRINCIPAL_SERVER_ROLE_ARN}"
+ARG AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN
+ENV AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN="${AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN}"
+
+# run tests
 RUN make test
+
+# build binary
 RUN go build -a -o manager main.go
 
 # Use distroless as minimal base image to package the manager binary

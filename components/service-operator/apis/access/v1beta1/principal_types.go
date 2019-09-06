@@ -16,37 +16,33 @@ limitations under the License.
 package v1beta1
 
 import (
+	"fmt"
+
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/env"
+	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-const AccessGroupLabel = "group.access.govsvc.uk"
+// ensure implements required interfaces
+var _ cloudformation.Stack = &Principal{}
+var _ cloudformation.StackOutputWhitelister = &Principal{}
+var _ object.Principal = &Principal{}
 
-// Event is a single action taken against the resource at any given time.
-type Event struct {
-	// Status of the currently running instance.
-	Status string `json:"status"`
-	// Reason for the current status of the instance.
-	Reason string `json:"reason,omitempty"`
-	// Time of the event cast.
-	Time *metav1.Time `json:"time"`
+func init() {
+	SchemeBuilder.Register(&Principal{}, &PrincipalList{})
 }
 
-// PrincipalStatus defines the observed state of Principal
-type PrincipalStatus struct {
-	// Important: Run "make" to regenerate code after modifying this file
+const (
+	IAMRoleResourceName                 = "IAMRole"
+	IAMRoleName                         = "IAMRoleName"
+	IAMRoleParameterName                = "IAMRoleName"
+	IAMRolePrincipalParameterName       = "IAMRolePrincipal"
+	IAMPermissionsBoundaryParameterName = "IAMPermissionsBoundary"
+)
 
-	// ID of an instance for a reference.
-	ID string `json:"id"`
-	// Status of the currently running instance.
-	Status string `json:"status"`
-	// Reason for the current status of the instance.
-	Reason string `json:"reason,omitempty"`
-	// Events will hold more in-depth details of the current state of the instance.
-	Events []Event `json:"events,omitempty"`
-	// Name of the IAM Principal
-	Name string `json:"name"`
-}
+// ensure implements StackObject
+// var _ apis.StackObject = &Principal{}
 
 // +kubebuilder:object:root=true
 
@@ -55,8 +51,50 @@ type Principal struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Status PrincipalStatus `json:"status,omitempty"`
+	object.Status `json:"status,omitempty"`
 }
+
+// GetStackName generates a unique name for the stack
+func (s *Principal) GetStackName() string {
+	return fmt.Sprintf("%s-%s-%s-%s", env.ClusterName(), "principal", s.GetNamespace(), s.GetName())
+}
+
+// GetRoleName returns a generated unique name suitable for use as a role name
+func (s *Principal) GetRoleName() string {
+	return fmt.Sprintf("svcop-%s-%s-%s", env.ClusterName(), s.GetNamespace(), s.GetName())
+}
+
+// GetStackTemplate returns cloudformation to create an IAM role
+func (s *Principal) GetStackTemplate() *cloudformation.Template {
+	template := cloudformation.NewTemplate()
+
+	template.Parameters[IAMRolePrincipalParameterName] = map[string]string{
+		"Type": "String",
+	}
+	template.Parameters[IAMPermissionsBoundaryParameterName] = map[string]string{
+		"Type": "String",
+	}
+
+	template.Resources[IAMRoleResourceName] = &cloudformation.AWSIAMRole{
+		RoleName:                 s.GetRoleName(),
+		AssumeRolePolicyDocument: cloudformation.NewAssumeRolePolicyDocument(cloudformation.Ref(IAMRolePrincipalParameterName)),
+		PermissionsBoundary:      cloudformation.Ref(IAMPermissionsBoundaryParameterName),
+	}
+
+	template.Outputs[IAMRoleName] = map[string]interface{}{
+		"Description": "IAMRole ARN to be returned to the user.",
+		"Value":       cloudformation.Ref(IAMRoleResourceName),
+	}
+
+	return template
+}
+
+// GetStackOutputWhitelist will whitelist any output keys from template that can be shown in resource Status
+func (s *Principal) GetStackOutputWhitelist() []string {
+	return []string{IAMRoleName}
+}
+
+var _ object.PrincipalLister = &PrincipalList{}
 
 // +kubebuilder:object:root=true
 
@@ -67,6 +105,11 @@ type PrincipalList struct {
 	Items           []Principal `json:"items"`
 }
 
-func init() {
-	SchemeBuilder.Register(&Principal{}, &PrincipalList{})
+// GetPrincipals implements object.PrincipalLister
+func (p *PrincipalList) GetPrincipals() []object.Principal {
+	ps := make([]object.Principal, len(p.Items))
+	for i := range p.Items {
+		ps[i] = &p.Items[i]
+	}
+	return ps
 }

@@ -19,14 +19,14 @@ lint: fmt vet
 
 # Run tests
 test: generate manifests
-	ginkgo \
+	ginkgo -v \
 		--failOnPending \
 		--failFast \
 		--requireSuite \
 		--slowSpecThreshold=30 \
 		-cover \
 		-r \
-		./controllers ./apis
+		./controllers ./apis/... ./internal/...
 
 # Build manager binary
 manager: generate fmt vet
@@ -63,11 +63,15 @@ vet:
 	go vet ./...
 
 # Generate code
-generate: controller-gen internal/aws/awsfakes/fake_awsclient.go
+generate: controller-gen internal/aws/sdk/sdkfakes/fake_client.go internal/aws/cloudformation/cloudformationfakes/fake_stack.go
 	$(CONTROLLER_GEN) object:headerFile=./hack/boilerplate.go.txt paths=./apis/...
+	$(CONTROLLER_GEN) object:headerFile=./hack/boilerplate.go.txt paths=./internal/object/status.go
 
-internal/aws/awsfakes/fake_awsclient.go:
-	go generate ./internal/aws
+internal/aws/sdk/sdkfakes/fake_client.go: internal/aws/sdk/client.go
+	go generate ./internal/aws/sdk
+
+internal/aws/cloudformation/cloudformationfakes/fake_stack.go: internal/aws/cloudformation/types.go
+	go generate ./internal/aws/cloudformation
 
 # Build the docker image
 docker-build: test
