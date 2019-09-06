@@ -337,4 +337,14 @@ spec:
               echo "applying manifests from ${SRC_URI} at path ${PATH_TO_MANIFESTS} to ${RELEASE_NAMESPACE}"
               kubectl apply $NS_ARGS -R -f "./src/${PATH_TO_MANIFESTS}"
 {{- end }}
+{{- if .principal }}
+---
+apiVersion: v1
+kind: Principal
+apiVersion: access.govsvc.uk/v1beta1
+metadata:
+  name: {{ .name }}-principal
+  labels:
+    group.access.govsvc.uk: {{ .name }}-principal
+{{- end }}
 {{- end }}
