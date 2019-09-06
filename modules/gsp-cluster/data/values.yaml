@@ -9,6 +9,7 @@ global:
   roles:
     harbor: ${harbor_iam_role_name}
     concourse: ${concourse_iam_role_name}
+    sentry: ${sentry_iam_role_name}
   cloudHsm:
     enabled: false
     ip: "127.0.0.1"
@@ -165,3 +166,15 @@ privateDBSubnetGroup: ${private_db_subnet_group}
 
 externalDns:
   iamRoleName: ${external_dns_iam_role_name}
+
+sentry:
+  web:
+    env:
+    - name: GITHUB_APP_ID
+      value: ${github_client_id}
+    - name: GITHUB_API_SECRET
+      value: ${github_client_secret}
+  filestore:
+    backend: s3
+    s3:
+      bucketName: ${sentry_bucket_name}

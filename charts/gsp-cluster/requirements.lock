@@ -14,5 +14,8 @@ dependencies:
 - name: harbor
   repository: https://helm.goharbor.io/
   version: 1.1.1
-digest: sha256:5d06eeb68fdcf28f9852f0514852f67042d964411049e53f744bf9397502d1eb
-generated: "2019-09-04T18:04:08.072475+01:00"
+- name: sentry
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 2.1.1
+digest: sha256:7b7dccf7236b72af6e57a22b9fb38d0de107ec1b7b4848788996701941acf849
+generated: "2019-09-06T10:44:49.392539+01:00"

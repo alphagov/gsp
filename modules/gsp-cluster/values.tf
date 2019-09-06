@@ -49,7 +49,8 @@ data "template_file" "values" {
     service_operator_boundary_arn    = "${aws_iam_policy.service-operator-managed-role-permissions-boundary.arn}"
     rds_from_worker_security_group   = "${aws_security_group.rds-from-worker.id}"
     private_db_subnet_group          = "${aws_db_subnet_group.private.id}"
-    external_dns_iam_role_name      = "${aws_iam_role.external_dns.name}"
+    external_dns_iam_role_name       = "${aws_iam_role.external_dns.name}"
+    sentry_bucket_name               = "${aws_s3_bucket.gsp-system-sentry-storage.name}"
 
     permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.cloudwatch_log_shipping_role.name,

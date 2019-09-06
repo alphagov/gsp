@@ -536,3 +536,16 @@ concourseResources:
 
 externalDns:
   iamRoleName: ""
+
+sentry:
+  nameOverride: sentry
+  service:
+    type: ClusterIP
+  web:
+    replicacount: 1
+  worker:
+    replicacount: 3
+  cron:
+    replicacount: 3
+  metrics:
+    enabled: true
