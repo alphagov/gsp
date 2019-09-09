@@ -96,6 +96,8 @@ users:
   roleARN: arn:aws:iam::000000072:role/jeff.jefferson
   github: "jefferz83"
   pub: BEGIN-JEFF-KEY
+extraPermissionsDev: []
+extraPermissionsSRE: []
 EOF
 
 helm template \
