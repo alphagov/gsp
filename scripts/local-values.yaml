@@ -6,6 +6,8 @@ global:
   mtls:
     enabled: true
 
+namespaces: []
+
 concourse:
   concourse:
     web:
