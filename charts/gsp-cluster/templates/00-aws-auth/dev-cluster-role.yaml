@@ -67,6 +67,12 @@ rules:
     - get
     - list
     - watch
+  - apiGroups: ["crd.projectcalico.org"]
+    resources: ["*"]
+    verbs:
+    - get
+    - list
+    - watch
   - apiGroups: [""]
     resources: ["services/proxy"]
     verbs:
