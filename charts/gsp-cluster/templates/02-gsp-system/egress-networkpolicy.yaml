@@ -18,5 +18,16 @@ spec:
       - 2223
       - 2224
       - 2225
+  - action: Deny
+    protocol: TCP
+    source:
+      namespaceSelector: talksToHsm != 'true'
+    destination:
+      nets:
+      - {{ .Values.global.cloudHsm.ip }}/32
+      ports:
+      - 2223
+      - 2224
+      - 2225
   - action: Allow
 
