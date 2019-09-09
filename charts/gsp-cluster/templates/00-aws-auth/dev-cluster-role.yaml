@@ -61,6 +61,12 @@ rules:
     - get
     - list
     - watch
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["*"]
+    verbs:
+    - get
+    - list
+    - watch
   - apiGroups: [""]
     resources: ["services/proxy"]
     verbs:
