@@ -9,7 +9,7 @@ metadata:
   labels:
     namespace: {{ .name }}
 {{- if .talksToHsm }}
-    talksToHsm: true
+    talksToHsm: "true"
 {{- end }}
   annotations:
     iam.amazonaws.com/permitted: {{ $permittedRolesRegex | quote }}
