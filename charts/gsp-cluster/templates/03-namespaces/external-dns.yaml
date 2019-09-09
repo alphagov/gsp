@@ -78,8 +78,10 @@ spec:
         helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
         app.kubernetes.io/instance: {{ $.Release.Name }}
         app.kubernetes.io/managed-by: {{ $.Release.Service }}
+{{ if $.Values.global.runningOnAws }}
       annotations:
         iam.amazonaws.com/role: {{ $.Values.externalDns.iamRoleName }}
+{{ end }}
     spec:
       securityContext:
         fsGroup: 1001
