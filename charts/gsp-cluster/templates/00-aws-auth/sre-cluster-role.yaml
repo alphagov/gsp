@@ -115,12 +115,9 @@ rules:
     - get
     - list
     - watch
-  - apiGroups: ["verify.gov.uk"]
-    resources: ["certificaterequests", "metadata"]
-    verbs:
-    - get
-    - list
-    - watch
+{{- range $extraPermission := .Values.extraPermissionsSRE }}
+{{- $extraPermission | toYaml | nindent 2 }}
+{{- end }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
