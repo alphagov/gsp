@@ -84,7 +84,8 @@ rules:
     - list
     - watch
 {{- range $extraPermission := .Values.extraPermissionsDev }}
-{{- $extraPermission | toYaml | nindent 2 }}
+  -
+{{- $extraPermission | toYaml | nindent 4 }}
 {{- end }}
 
 ---
