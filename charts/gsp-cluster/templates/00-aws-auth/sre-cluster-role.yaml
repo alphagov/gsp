@@ -93,6 +93,10 @@ rules:
     - get
     - list
     - watch
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["podmonitors", "prometheusrules", "servicemonitors"]
+    verbs:
+    - delete
   - apiGroups: ["crd.projectcalico.org"]
     resources: ["*"]
     verbs:
