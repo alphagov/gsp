@@ -15,7 +15,7 @@ istio:
       #
       sds:
         # If true, ingress gateway fetches credentials from SDS server to handle TLS connections.
-        enabled: false
+        enabled: true
         # SDS server that watches kubernetes secrets and provisions credentials to ingress gateway.
         # This server runs in the same pod as ingress gateway.
         image: node-agent-k8s
