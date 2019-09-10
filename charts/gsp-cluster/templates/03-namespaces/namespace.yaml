@@ -64,6 +64,7 @@ spec:
   - from: []
 ---
 # Reverse-engineering from istio chart due to some missing logic in istio chart
+# TODO: This Role can be removed when Istio is upgraded to >= 1.2.0
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -75,6 +76,7 @@ rules:
   verbs: ["get", "watch", "list"]
 ---
 # Reverse-engineering from istio chart due to some missing logic in istio chart
+# TODO: This RoleBinding can be removed when Istio is upgraded to >= 1.2.0
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
