@@ -701,6 +701,9 @@ jobs:
   - get: gsp
     passed: [apply]
     trigger: true
+  - get: config
+    passed: [apply]
+    trigger: true
   - task: ping
     image: task-toolbox
     timeout: 20m
@@ -712,6 +715,9 @@ jobs:
   plan:
   - get: task-toolbox
   - get: gsp
+    passed: [apply]
+    trigger: true
+  - get: config
     passed: [apply]
     trigger: true
   - task: check-cloudwatch
@@ -726,6 +732,9 @@ jobs:
   plan:
   - get: task-toolbox
   - get: gsp
+    passed: [apply]
+    trigger: true
+  - get: config
     passed: [apply]
     trigger: true
   - task: check-monitoring-tools
