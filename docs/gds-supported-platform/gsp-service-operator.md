@@ -54,7 +54,7 @@ items:
       group.access.govsvc.uk: alexs-test-principal
 ```
 
-This will create a Postgres database on AWS including the name alexs-test-db, with an instance type of db.t3.medium. It will ensure you can get access to the created queue via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
+This will create a Postgres database on AWS including the name alexs-test-db, with an instance type of db.t3.medium. It will ensure you can get access to the created database via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
 
 ## How to connect to a created queue
 
