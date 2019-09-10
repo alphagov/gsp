@@ -27,7 +27,8 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
-      privateKey: /etc/istio/ingressgateway-certs/tls.key
+      serverCertificate: sds
+      privateKey: sds
+      credentialName: {{ include "gsp-canary.fullname" . }}-ingress-certificate
     hosts:
     - "canary.{{ .Values.global.cluster.domain }}"

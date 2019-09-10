@@ -29,8 +29,9 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
-      privateKey: /etc/istio/ingressgateway-certs/tls.key
+      serverCertificate: sds
+      privateKey: sds
+      credentialName: {{ .Release.Name }}-ingress-certificate
     hosts:
     - "ci.{{ .Values.global.cluster.domain }}"
     - "registry.{{ .Values.global.cluster.domain }}"
