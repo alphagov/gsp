@@ -7,12 +7,12 @@ dependencies:
   version: 0.6.4
 - name: concourse
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 8.2.1
+  version: 8.2.5
 - name: kiam
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.5.1
 - name: harbor
   repository: https://helm.goharbor.io/
   version: 1.1.1
-digest: sha256:5d06eeb68fdcf28f9852f0514852f67042d964411049e53f744bf9397502d1eb
-generated: "2019-09-04T18:04:08.072475+01:00"
+digest: sha256:89582a55cff7c46a4109a923f920a8baa1f38918eb768e7f386dbd103ccabef9
+generated: "2019-09-10T18:01:54.775093+01:00"
