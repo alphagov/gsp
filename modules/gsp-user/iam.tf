@@ -59,6 +59,11 @@ resource "aws_iam_role_policy_attachment" "user-defaults-cloudformation" {
   policy_arn = "arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "user-defaults-aws-support" {
+  role       = "${aws_iam_role.user.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AWSSupportAccess"
+}
+
 resource "aws_iam_role_policy_attachment" "user-defaults-iam" {
   role       = "${aws_iam_role.user.name}"
   policy_arn = "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
