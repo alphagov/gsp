@@ -93,6 +93,22 @@ data "aws_iam_policy_document" "service-operator" {
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/svcop-${var.cluster_name}-*",
     ]
   }
+
+  statement {
+    actions = [
+      "iam:CreateServiceLinkedRole"
+    ]
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
+    ]
+    condition {
+      test = "StringLike"
+      variable = "iam:AWSServiceName"
+      values = [
+        "rds.amazonaws.com"
+      ]
+    }
+  }
 }
 
 resource "aws_iam_policy" "service-operator" {
