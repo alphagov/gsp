@@ -209,15 +209,17 @@ jobs:
       trigger: true
     - get: semver
       passed: [selfupdate]
+  - get: concourse-task-toolbox
+    params:
+      save: true
   - put: concourse-task-toolbox
     params:
       build: platform/components/concourse-task-toolbox
       dockerfile: platform/components/concourse-task-toolbox/Dockerfile
+      load_base: concourse-task-toolbox
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
@@ -239,8 +241,6 @@ jobs:
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
@@ -262,8 +262,6 @@ jobs:
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
@@ -285,8 +283,6 @@ jobs:
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
@@ -308,8 +304,6 @@ jobs:
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
