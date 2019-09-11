@@ -185,14 +185,21 @@ func (r *Controller) reconcileObjectWithContext(ctx context.Context, req ctrl.Re
 	// The object is not being deleted, so we ensure that our finalizer is present
 	object.SetFinalizer(o, Finalizer)
 
-	// lookup the iam role name from a Principal resource with labels
-	roleParams, err := r.getRoleParams(ctx, o)
-	if err != nil {
-		return err
+	// Collect params from environment
+	params := r.Parameters
+
+	// lookup the iam role name params from a Principal resource with
+	// labels if stack is a StackPolicyAttacher (ie it wants to attach a
+	// policy to an existing role)
+	if stackThatAttachesPolicy, ok := o.(StackPolicyAttacher); ok {
+		roleParams, err := r.getRoleParams(ctx, stackThatAttachesPolicy)
+		if err != nil {
+			return err
+		}
+		params = append(params, roleParams...)
 	}
 
 	// append any default params
-	params := append(r.Parameters, roleParams...)
 
 	// create or update stack as required
 	outputs, err := r.CloudFormationClient.Apply(ctx, o, params...)
@@ -200,10 +207,13 @@ func (r *Controller) reconcileObjectWithContext(ctx context.Context, req ctrl.Re
 		return err
 	}
 
-	// create or update secret
-	err = r.updateCredentialsSecret(ctx, o, outputs)
-	if err != nil {
-		return err
+	// create or update secret if this stack is a SecretNamer (ie. it wants
+	// it's cloudformation outputs written to a kubernetes secret)
+	if stackThatWritesToSecret, ok := o.(StackSecretOutputter); ok {
+		err = r.updateCredentialsSecret(ctx, stackThatWritesToSecret, outputs)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -214,20 +224,14 @@ func (r *Controller) reconcileObjectWithContext(ctx context.Context, req ctrl.Re
 // have outputs that need sharing, only Stacks that have both cloudformation
 // outputs defined in their template AND implement object.SecretNamer will
 // result in a secret being created.
-func (r *Controller) updateCredentialsSecret(ctx context.Context, o Stack, outputs Outputs) error {
+func (r *Controller) updateCredentialsSecret(ctx context.Context, o StackSecretOutputter, outputs Outputs) error {
 	if len(outputs) == 0 {
 		// no outputs to write to secret
 		return nil
 	}
-	s, ok := o.(object.SecretNamer)
-	if !ok {
-		// this objects is not a SecretNamer and does not
-		// require writing credentials to a secret
-		return nil
-	}
 	secret := core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      s.GetSecretName(),
+			Name:      o.GetSecretName(),
 			Namespace: o.GetNamespace(),
 		},
 		Data: map[string][]byte{},
@@ -284,16 +288,12 @@ func (r *Controller) updateCredentialsSecret(ctx context.Context, o Stack, outpu
 //        assignment of kiam annotations which would mean this controller would
 //        only need to know instead an IAMPolicy kubernetes object and have a
 //        policy OR (3) something else
-func (r *Controller) getRoleParams(ctx context.Context, o Stack) ([]*Parameter, error) {
-	serviceThatRequiresIAM, ok := o.(StackPolicyAttacher)
-	if !ok {
-		return nil, nil
-	}
+func (r *Controller) getRoleParams(ctx context.Context, o StackPolicyAttacher) ([]*Parameter, error) {
 	list := r.PrincipalListKind.DeepCopyObject().(object.PrincipalLister)
 	listOptsFunc := func(opts *client.ListOptions) {
-		opts.Namespace = serviceThatRequiresIAM.GetNamespace()
+		opts.Namespace = o.GetNamespace()
 		opts.LabelSelector = labels.SelectorFromSet(map[string]string{
-			AccessGroupLabel: serviceThatRequiresIAM.GetLabels()[AccessGroupLabel],
+			AccessGroupLabel: o.GetLabels()[AccessGroupLabel],
 		})
 	}
 	err := r.KubernetesClient.List(ctx, list, listOptsFunc)
@@ -310,7 +310,7 @@ func (r *Controller) getRoleParams(ctx context.Context, o Stack) ([]*Parameter, 
 	}
 	principal := principals[0]
 	// fetch the outputs from the principal's stack
-	params, err := serviceThatRequiresIAM.GetStackRoleParameters(principal.GetRoleName())
+	params, err := o.GetStackRoleParameters(principal.GetRoleName())
 	if err != nil {
 		return nil, err
 	}

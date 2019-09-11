@@ -29,3 +29,13 @@ type StackPolicyAttacher interface {
 type StackOutputWhitelister interface {
 	GetStackOutputWhitelist() []string
 }
+
+// StackSecretOutputter allows a type to return the name of a kubernetes Secret
+// that will be populated with any cloudformation outputs. This is useful when
+// the cloudformation stack returns sensitive information that must be consumed
+// as configuration, for example a username, password and connection string for
+// a database.
+type StackSecretOutputter interface {
+	Stack
+	object.SecretNamer
+}
