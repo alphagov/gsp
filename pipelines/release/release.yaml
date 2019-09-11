@@ -201,6 +201,7 @@ jobs:
 
 - name: build-concourse-task-toolbox
   serial: true
+  serial_groups: [build-concourse-task-toolbox]
   plan:
   - aggregate:
     - get: platform
@@ -222,6 +223,7 @@ jobs:
 
 - name: build-concourse-github-resource
   serial: true
+  serial_groups: [build-concourse-github-resource]
   plan:
   - aggregate:
     - get: platform
@@ -244,6 +246,7 @@ jobs:
 
 - name: build-concourse-harbor-resource
   serial: true
+  serial_groups: [build-concourse-harbor-resource]
   plan:
   - aggregate:
     - get: platform
@@ -266,7 +269,7 @@ jobs:
 
 - name: build-concourse-operator
   serial: true
-  serial_groups: [build-group-1]
+  serial_groups: [build-concourse-operator]
   plan:
   - aggregate:
     - get: platform
@@ -289,7 +292,7 @@ jobs:
 
 - name: build-service-operator
   serial: true
-  serial_groups: [build-group-1]
+  serial_groups: [build-service-operator]
   plan:
   - aggregate:
     - get: platform
@@ -312,17 +315,18 @@ jobs:
 
 - name: package
   serial: true
-  serial_groups: [release]
+  serial_groups:
+    - release
+    - build-concourse-task-toolbox
+    - build-concourse-github-resource
+    - build-concourse-harbor-resource
+    - build-concourse-operator
+    - build-service-operator
   plan:
   - aggregate:
     - get: platform
+      passed: [build-concourse-task-toolbox]
       trigger: true
-      passed:
-      - build-concourse-task-toolbox
-      - build-concourse-github-resource
-      - build-concourse-harbor-resource
-      - build-concourse-operator
-      - build-service-operator
     - get: concourse-task-toolbox
       passed: [build-concourse-task-toolbox]
     - get: concourse-github-resource
@@ -334,12 +338,7 @@ jobs:
     - get: service-operator
       passed: [build-service-operator]
     - get: semver
-      passed:
-      - build-concourse-task-toolbox
-      - build-concourse-github-resource
-      - build-concourse-harbor-resource
-      - build-concourse-operator
-      - build-service-operator
+      passed: [build-concourse-task-toolbox]
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:
