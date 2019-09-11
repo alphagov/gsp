@@ -36,6 +36,64 @@ resources:
     uri: https://github.com/alphagov/gsp.git
     organization: alphagov
     repository: gsp
+    ignore_paths:
+      - components
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: concourse-github-resource-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/concourse-github-resource
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: concourse-harbor-resource-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/concourse-harbor-resource
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: concourse-operator-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/concourse-operator
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: service-operator-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/service-operator
     github_api_token: ((github-api-token))
     approvers: ((github-approvers))
     required_approval_count: 0
@@ -119,9 +177,11 @@ jobs:
   serial: true
   serial_groups: [release]
   plan:
-  - get: platform
-    trigger: true
-  - get: users
+  - in_parallel:
+    - get: platform
+      trigger: true
+    - get: users
+      trigger: true
   - task: generate-trusted-contributors
     file: platform/pipelines/tasks/generate-trusted-contributors.yaml
     params:
@@ -139,147 +199,146 @@ jobs:
           branch: ((branch))
           pipeline-name: ((pipeline-name))
           github-release-tag-prefix: ((github-release-tag-prefix))
-  - put: semver
-    params:
-      bump: patch
 
 - name: build-concourse-task-toolbox
   serial: true
+  serial_groups: [build-concourse-task-toolbox]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: platform
       passed: [selfupdate]
       trigger: true
-    - get: semver
-      passed: [selfupdate]
+    - get: concourse-task-toolbox
+      params:
+        save: true
   - put: concourse-task-toolbox
     params:
       build: platform/components/concourse-task-toolbox
       dockerfile: platform/components/concourse-task-toolbox/Dockerfile
-      tag_file: semver/version
+      load_base: concourse-task-toolbox
+      tag_file: platform/.git/short_ref
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
 - name: build-concourse-github-resource
   serial: true
+  serial_groups: [build-concourse-github-resource]
   plan:
-  - aggregate:
-    - get: platform
-      passed: [selfupdate]
-      trigger: true
-    - get: semver
-      passed: [selfupdate]
+  - get: concourse-github-resource-source
+    trigger: true
   - put: concourse-github-resource
     params:
-      build: platform/components/concourse-github-resource
-      dockerfile: platform/components/concourse-github-resource/Dockerfile
-      tag_file: semver/version
+      build: concourse-github-resource-source/components/concourse-github-resource
+      dockerfile: concourse-github-resource-source/components/concourse-github-resource/Dockerfile
+      tag_file: concourse-github-resource-source/.git/short_ref
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
 - name: build-concourse-harbor-resource
   serial: true
+  serial_groups: [build-concourse-harbor-resource]
   plan:
-  - aggregate:
-    - get: platform
-      passed: [selfupdate]
-      trigger: true
-    - get: semver
-      passed: [selfupdate]
+  - get: concourse-harbor-resource-source
+    trigger: true
   - put: concourse-harbor-resource
     params:
-      build: platform/components/concourse-harbor-resource
-      dockerfile: platform/components/concourse-harbor-resource/Dockerfile
-      tag_file: semver/version
+      build: concourse-harbor-resource-source/components/concourse-harbor-resource
+      dockerfile: concourse-harbor-resource-source/components/concourse-harbor-resource/Dockerfile
+      tag_file: concourse-harbor-resource-source/.git/short_ref
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
 - name: build-concourse-operator
   serial: true
-  serial_groups: [build-group-1]
+  serial_groups: [build-concourse-operator]
   plan:
-  - aggregate:
-    - get: platform
-      passed: [selfupdate]
-      trigger: true
-    - get: semver
-      passed: [selfupdate]
+  - get: concourse-operator-source
+    trigger: true
   - put: concourse-operator
     params:
-      build: platform/components/concourse-operator
-      dockerfile: platform/components/concourse-operator/Dockerfile
-      tag_file: semver/version
+      build: concourse-operator-source/components/concourse-operator
+      dockerfile: concourse-operator-source/components/concourse-operator/Dockerfile
+      tag_file: concourse-operator-source/.git/short_ref
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
 - name: build-service-operator
   serial: true
-  serial_groups: [build-group-1]
+  serial_groups: [build-service-operator]
   plan:
-  - aggregate:
-    - get: platform
-      passed: [selfupdate]
-      trigger: true
-    - get: semver
-      passed: [selfupdate]
+  - get: service-operator-source
+    trigger: true
   - put: service-operator
     params:
-      build: platform/components/service-operator
-      dockerfile: platform/components/service-operator/Dockerfile
-      tag_file: semver/version
+      build: service-operator-source/components/service-operator
+      dockerfile: service-operator-source/components/service-operator/Dockerfile
+      tag_file: service-operator-source/.git/short_ref
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
-      cache: true
-      cache_tag: latest
     get_params:
       skip_download: true
 
-- name: package
+- name: bump-version
   serial: true
-  serial_groups: [release]
+  serial_groups:
+    - release
+    - build-concourse-task-toolbox
+    - build-concourse-github-resource
+    - build-concourse-harbor-resource
+    - build-concourse-operator
+    - build-service-operator
   plan:
-  - aggregate:
+  - in_parallel:
     - get: platform
+      passed: [build-concourse-task-toolbox]
       trigger: true
-      passed:
-      - build-concourse-task-toolbox
-      - build-concourse-github-resource
-      - build-concourse-harbor-resource
-      - build-concourse-operator
-      - build-service-operator
     - get: concourse-task-toolbox
       passed: [build-concourse-task-toolbox]
     - get: concourse-github-resource
       passed: [build-concourse-github-resource]
+      trigger: true
     - get: concourse-harbor-resource
       passed: [build-concourse-harbor-resource]
+      trigger: true
     - get: concourse-operator
       passed: [build-concourse-operator]
+      trigger: true
     - get: service-operator
       passed: [build-service-operator]
+      trigger: true
+  - put: semver
+    params:
+      bump: patch
+
+- name: package
+  serial: true
+  serial_groups:
+    - release
+  plan:
+  - in_parallel:
     - get: semver
-      passed:
-      - build-concourse-task-toolbox
-      - build-concourse-github-resource
-      - build-concourse-harbor-resource
-      - build-concourse-operator
-      - build-service-operator
+      passed: [bump-version]
+      trigger: true
+    - get: platform
+      passed: [bump-version]
+    - get: concourse-task-toolbox
+      passed: [bump-version]
+    - get: concourse-github-resource
+      passed: [bump-version]
+    - get: concourse-harbor-resource
+      passed: [bump-version]
+    - get: concourse-operator
+      passed: [bump-version]
+    - get: service-operator
+      passed: [bump-version]
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:
