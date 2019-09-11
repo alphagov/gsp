@@ -1,3 +1,21 @@
+groups:
+- name: release
+  jobs:
+  - build-concourse-task-toolbox
+  - build-service-operator
+  - build-concourse-operator
+  - build-concourse-github-resource
+  - build-concourse-harbor-resource
+  - bump-version
+  - package
+- name: version
+  jobs:
+  - bump-major
+  - bump-minor
+  - bump-version
+- name: selfupdate
+  jobs:
+  - selfupdate
 
 resource_types:
 
@@ -38,6 +56,20 @@ resources:
     repository: gsp
     ignore_paths:
       - components
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: concourse-task-toolbox-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/concourse-task-toolbox-source
     github_api_token: ((github-api-token))
     approvers: ((github-approvers))
     required_approval_count: 0
@@ -205,18 +237,17 @@ jobs:
   serial_groups: [build-concourse-task-toolbox]
   plan:
   - in_parallel:
-    - get: platform
-      passed: [selfupdate]
+    - get: concourse-task-toolbox-source
       trigger: true
     - get: concourse-task-toolbox
       params:
         save: true
   - put: concourse-task-toolbox
     params:
-      build: platform/components/concourse-task-toolbox
-      dockerfile: platform/components/concourse-task-toolbox/Dockerfile
+      build: concourse-task-toolbox-source/components/concourse-task-toolbox
+      dockerfile: concourse-task-toolbox-source/components/concourse-task-toolbox/Dockerfile
       load_base: concourse-task-toolbox
-      tag_file: platform/.git/short_ref
+      tag_file: concourse-task-toolbox-source/.git/short_ref
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
     get_params:
@@ -298,10 +329,11 @@ jobs:
   plan:
   - in_parallel:
     - get: platform
-      passed: [build-concourse-task-toolbox]
+      passed: [selfupdate]
       trigger: true
     - get: concourse-task-toolbox
       passed: [build-concourse-task-toolbox]
+      trigger: true
     - get: concourse-github-resource
       passed: [build-concourse-github-resource]
       trigger: true
