@@ -42,6 +42,62 @@ resources:
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
 
+- name: concourse-github-resource-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/concourse-github-resource/*
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: concourse-harbor-resource-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/concourse-harbor-resource/*
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: concourse-operator-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/concourse-operator/*
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: service-operator-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/service-operator/*
+    github_api_token: ((github-api-token))
+    approvers: ((github-approvers))
+    required_approval_count: 0
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
 - name: users
   type: github-release
   source:
@@ -170,13 +226,14 @@ jobs:
   - aggregate:
     - get: platform
       passed: [selfupdate]
+    - get: concourse-github-resource-source
       trigger: true
     - get: semver
       passed: [selfupdate]
   - put: concourse-github-resource
     params:
-      build: platform/components/concourse-github-resource
-      dockerfile: platform/components/concourse-github-resource/Dockerfile
+      build: concourse-github-resource-source/components/concourse-github-resource
+      dockerfile: concourse-github-resource-source/components/concourse-github-resource/Dockerfile
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
@@ -191,13 +248,14 @@ jobs:
   - aggregate:
     - get: platform
       passed: [selfupdate]
+    - get: concourse-harbor-resource-source
       trigger: true
     - get: semver
       passed: [selfupdate]
   - put: concourse-harbor-resource
     params:
-      build: platform/components/concourse-harbor-resource
-      dockerfile: platform/components/concourse-harbor-resource/Dockerfile
+      build: concourse-harbor-resource-source/components/concourse-harbor-resource
+      dockerfile: concourse-harbor-resource-source/components/concourse-harbor-resource/Dockerfile
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
@@ -213,13 +271,14 @@ jobs:
   - aggregate:
     - get: platform
       passed: [selfupdate]
+    - get: concourse-operator-source
       trigger: true
     - get: semver
       passed: [selfupdate]
   - put: concourse-operator
     params:
-      build: platform/components/concourse-operator
-      dockerfile: platform/components/concourse-operator/Dockerfile
+      build: concourse-operator-source/components/concourse-operator
+      dockerfile: concourse-operator-source/components/concourse-operator/Dockerfile
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
@@ -235,13 +294,14 @@ jobs:
   - aggregate:
     - get: platform
       passed: [selfupdate]
+    - get: service-operator-source
       trigger: true
     - get: semver
       passed: [selfupdate]
   - put: service-operator
     params:
-      build: platform/components/service-operator
-      dockerfile: platform/components/service-operator/Dockerfile
+      build: service-operator-source/components/service-operator
+      dockerfile: service-operator-source/components/service-operator/Dockerfile
       tag_file: semver/version
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
