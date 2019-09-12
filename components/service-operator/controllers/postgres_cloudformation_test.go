@@ -96,7 +96,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			}).Should(ContainSubstring("xxx-postgres-test-test-db"))
 		})
 
-		By("ensuring a finalizaer is present on resource to prevent deletion", func() { // TODO: move to cloudformation.Controller unit test
+		By("ensuring a finalizer is present on resource to prevent deletion", func() { // TODO: move to cloudformation.Controller unit test
 			Eventually(func() []string {
 				_ = client.Get(ctx, resourceNamespacedName, &pg)
 				return pg.Finalizers
@@ -135,7 +135,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			// TODO
 		})
 
-		By("deleteing resource with kubernetes api", func() {
+		By("deleting resource with kubernetes api", func() {
 			err := client.Get(ctx, resourceNamespacedName, &pg)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(client.Delete(ctx, &pg)).To(Succeed())

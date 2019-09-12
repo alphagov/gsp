@@ -115,7 +115,7 @@ var _ = Describe("SQS Cloudormation Controller", func() {
 			}).Should(ContainSubstring("xxx-sqs-test-test-queue"))
 		})
 
-		By("ensuring a finalizaer is present on resource to prevent deletion", func() {
+		By("ensuring a finalizer is present on resource to prevent deletion", func() {
 			Eventually(func() []string {
 				_ = client.Get(ctx, resourceNamespacedName, &sqs)
 				return sqs.Finalizers
@@ -136,14 +136,14 @@ var _ = Describe("SQS Cloudormation Controller", func() {
 			}).Should(HaveKey("QueueURL"))
 		})
 
-		By("creating a secret with the prinical role name", func() {
+		By("creating a secret with the principal role name", func() {
 			Eventually(func() map[string][]byte {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				return secret.Data
 			}).Should(HaveKey("IAMRoleName"))
 		})
 
-		By("deleteing SQS resource with kubernetes api", func() {
+		By("deleting SQS resource with kubernetes api", func() {
 			err := client.Get(ctx, resourceNamespacedName, &sqs)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(client.Delete(ctx, &sqs)).To(Succeed())

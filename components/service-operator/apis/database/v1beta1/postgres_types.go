@@ -114,7 +114,7 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 		},
 		{
 			Key:   "Service",
-			Value: "sqs",
+			Value: "postgres",
 		},
 		{
 			Key:   "Name",

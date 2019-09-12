@@ -58,7 +58,7 @@ var (
 // reconcile a kubernetes resource type that implements the Stack interface
 // using cloudformation.
 //
-// It should be initialized with the Kind that it will reconcile (ie
+// It should be initialised with the Kind that it will reconcile (ie
 // v1beta1.Postgres{}) any parameters that should always be passed to
 // cloudformation during reconciliation.  Setting parameters here is useful for
 // variables that are based on the environment rather than the resource options,
@@ -130,7 +130,7 @@ func (r *Controller) SetupWithManager(mgr ctrl.Manager) error {
 // +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals/status,verbs=get;update;patch
 
-// Reconcile syncronizes state between the resource and a cloudformation stack
+// Reconcile synchronises state between the resource and a cloudformation stack
 func (r *Controller) Reconcile(req ctrl.Request) (res ctrl.Result, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.ReconcileTimeout)
 	defer cancel()

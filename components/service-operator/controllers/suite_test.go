@@ -108,7 +108,7 @@ func SetupControllerEnv() (client.Client, func()) {
 		controllers.PostgresCloudFormationController(newAWSClient()),
 	}
 
-	// wrap controllers in error checers and register with manager
+	// wrap controllers in error checkers and register with manager
 	for i := range cs {
 		controller := &controllers.ControllerWrapper{
 			Reconciler: cs[i],

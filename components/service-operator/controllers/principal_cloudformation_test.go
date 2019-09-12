@@ -87,7 +87,7 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 			}).Should(ContainSubstring("xxx-principal-test-test-role"))
 		})
 
-		By("ensuring a finalizaer is present on resource to prevent deletion", func() {
+		By("ensuring a finalizer is present on resource to prevent deletion", func() {
 			Eventually(func() []string {
 				_ = client.Get(ctx, resourceNamespacedName, &principal)
 				return principal.Finalizers
@@ -101,7 +101,7 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 			}).Should(BeTrue())
 		})
 
-		By("deleteing resource with kubernetes api", func() {
+		By("deleting resource with kubernetes api", func() {
 			err := client.Get(ctx, resourceNamespacedName, &principal)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(client.Delete(ctx, &principal)).To(Succeed())
