@@ -28,7 +28,7 @@ const (
 var (
 	// DefaultReconcileDeadline is the default timeout for reconcile
 	// context. DeadlineExceeded errors will be retried later.
-	DefaultReconcileDeadline = time.Minute * 5
+	DefaultReconcileDeadline = time.Minute * 1
 	// DefaultRequeueTimeout is the default time when a reconcile needs
 	// requeuing after deadline is hit
 	DefaultRequeueTimeout = time.Second * 1
