@@ -57,6 +57,8 @@ const DeleteComplete = cloudformation.StackStatusDeleteComplete
 const UpdateComplete = cloudformation.StackStatusUpdateComplete
 const CreateFailed = cloudformation.StackStatusCreateFailed
 const DeleteFailed = cloudformation.StackStatusDeleteFailed
+const RollbackFailed = cloudformation.StackStatusRollbackFailed
+const UpdateRollbackFailed = cloudformation.StackStatusUpdateRollbackFailed
 const RollbackComplete = cloudformation.StackStatusRollbackComplete
 const UpdateRollbackComplete = cloudformation.StackStatusUpdateRollbackComplete
 
@@ -364,7 +366,7 @@ func (r *Client) updateStatus(stack Stack) {
 	}
 	// update generic state
 	switch s.AWS.Status {
-	case DeleteFailed, CreateFailed, RollbackComplete, UpdateRollbackComplete:
+	case DeleteFailed, CreateFailed, RollbackFailed, UpdateRollbackFailed, RollbackComplete, UpdateRollbackComplete:
 		s.State = object.ErrorState
 	case DeleteInProgress, DeleteComplete:
 		s.State = object.DeletingState
