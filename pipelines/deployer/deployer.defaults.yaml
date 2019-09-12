@@ -17,6 +17,7 @@ users-trigger: true
 
 disable-destroy: true
 
+config-approvers: []
 config-approval-count: 2
 
 task-toolbox-image: govsvc/task-toolbox
