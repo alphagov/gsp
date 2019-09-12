@@ -71,7 +71,7 @@ resources:
     paths:
       - components/concourse-task-toolbox-source
     github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
+    approvers: ((config-approvers))
     required_approval_count: 1
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))

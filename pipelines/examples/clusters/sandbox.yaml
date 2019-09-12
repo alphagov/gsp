@@ -20,8 +20,8 @@ github-client-secret: "NOTASECRET"
 github-client-id: "NOTID"
 eks-version: "1.12"
 trusted-developer-keys: []
-github-approval-count: 0
-github-approvers: ["chrisfarms"]
+config-approval-count: 0
+config-approvers: ["chrisfarms"]
 disable-destroy: false
 worker-instance-type: t3.medium
 worker-count: 3
