@@ -57,7 +57,7 @@ resources:
     ignore_paths:
       - components
     github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
+    approvers: ((config-approvers))
     required_approval_count: 1
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
@@ -85,7 +85,7 @@ resources:
     paths:
       - components/concourse-github-resource
     github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
+    approvers: ((config-approvers))
     required_approval_count: 1
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
@@ -99,7 +99,7 @@ resources:
     paths:
       - components/concourse-harbor-resource
     github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
+    approvers: ((config-approvers))
     required_approval_count: 1
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
@@ -113,7 +113,7 @@ resources:
     paths:
       - components/concourse-operator
     github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
+    approvers: ((config-approvers))
     required_approval_count: 1
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
@@ -127,7 +127,7 @@ resources:
     paths:
       - components/service-operator
     github_api_token: ((github-api-token))
-    approvers: ((github-approvers))
+    approvers: ((config-approvers))
     required_approval_count: 1
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
