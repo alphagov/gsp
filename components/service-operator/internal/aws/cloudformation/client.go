@@ -348,7 +348,7 @@ func (r *Client) updateStatus(stack Stack) {
 		}
 	}
 	// add any event details
-	if events != nil {
+	if events != nil && len(events) > 0 {
 		s.AWS.Events = []object.AWSEvent{}
 		for _, event := range events {
 			reason := "-"
