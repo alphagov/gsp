@@ -38,6 +38,9 @@ var (
 	// ErrPrincipalNotFound is returned if no Principal (role record) can
 	// be found to attach a policy to
 	ErrPrincipalNotFound = fmt.Errorf("PRINCIPAL_NOT_FOUND")
+	// ErrPrincipalNotReady is returned when a principal has not been fully
+	// provisioned yet.
+	ErrPrincipalNotReady = fmt.Errorf("PRINCIPAL_NOT_READY")
 	// ErrPrincipalMultipleMatches is returned if a label selector matches
 	// multiple principals, which is not currently supported
 	ErrPrincipalMultipleMatches = fmt.Errorf("PRINCIPAL_MULTIPLE_MATCHES")
@@ -309,7 +312,12 @@ func (r *Controller) getRoleParams(ctx context.Context, o StackPolicyAttacher) (
 		return nil, ErrPrincipalMultipleMatches
 	}
 	principal := principals[0]
-	// fetch the outputs from the principal's stack
+	// ensure that the principal role has been provisioned
+	status := principal.GetStatus()
+	if status.State != object.ReadyState {
+		return nil, ErrPrincipalNotReady
+	}
+	// fetch the name from the principal
 	params, err := o.GetStackRoleParameters(principal.GetRoleName())
 	if err != nil {
 		return nil, err

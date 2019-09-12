@@ -41,4 +41,5 @@ type PrincipalLister interface {
 // Principal is the interface shared by all principal types
 type Principal interface {
 	GetRoleName() string
+	StatusReader
 }
