@@ -131,6 +131,7 @@ data "aws_iam_policy_document" "service-operator-managed-role-permissions-bounda
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage",
       "sqs:GetQueueAttributes",
+      "rds:*",
     ]
 
     resources = [
