@@ -167,9 +167,17 @@ func (r *Controller) reconcileWithContext(ctx context.Context, req ctrl.Request)
 		return controllerutil.OperationResultNone, err
 	}
 	// track changes to our object resource and call the main reconcile func
-	return controllerutil.CreateOrUpdate(bg, r.KubernetesClient, o, func() error {
-		return r.reconcileObjectWithContext(ctx, req, o)
+	var reconcileErr error
+	op, updateErr := controllerutil.CreateOrUpdate(bg, r.KubernetesClient, o, func() error {
+		reconcileErr = r.reconcileObjectWithContext(ctx, req, o)
+		return nil // always try to update
 	})
+	if reconcileErr != nil {
+		return op, reconcileErr
+	} else if updateErr != nil {
+		return op, updateErr
+	}
+	return op, nil
 }
 
 // reconcileObjectWithContext is the main loop, it will mutate "o" with any changes required
