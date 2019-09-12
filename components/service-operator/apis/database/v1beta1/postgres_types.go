@@ -41,18 +41,15 @@ const (
 	PostgresResourceInstance                    = "RDSDBInstance"
 	PostgresResourceParameterGroup              = "RDSDBParameterGroup"
 	PostgresResourceClusterParameterGroup       = "RDSDBClusterParameterGroup"
-	PostgresResourceIAMPolicy                   = "RDSIAMRole"
 
-	PostgresEndpoint                = "Endpoint"
-	PostgresReadEndpoint            = "ReadEndpoint"
-	PostgresPort                    = "Port"
-	PostgresUsername                = "DBUsername"
-	PostgresPassword                = "DBPassword"
 	VPCSecurityGroupIDParameterName = "VPCSecurityGroupID"
 	DBSubnetGroupNameParameterName  = "DBSubnetGroup"
 
-	PostgresUsernameOutputName = "Username"
-	PostgresPasswordOutputName = "Password"
+	PostgresEndpoint     = "Endpoint"
+	PostgresReadEndpoint = "ReadEndpoint"
+	PostgresPort         = "Port"
+	PostgresUsername     = "Username"
+	PostgresPassword     = "Password"
 )
 
 var _ cloudformation.Stack = &Postgres{}
@@ -215,12 +212,12 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 		"Value":       cloudformation.GetAtt(PostgresResourceCluster, "Endpoint.Port"),
 	}
 
-	template.Outputs[PostgresUsernameOutputName] = map[string]interface{}{
+	template.Outputs[PostgresUsername] = map[string]interface{}{
 		"Description": "Postgres master username",
 		"Value":       masterUsernameSecretRef,
 	}
 
-	template.Outputs[PostgresPasswordOutputName] = map[string]interface{}{
+	template.Outputs[PostgresPassword] = map[string]interface{}{
 		"Description": "Postgres master password",
 		"Value":       masterPasswordSecretRef,
 	}

@@ -48,8 +48,6 @@ var (
 	ErrMissingKind = fmt.Errorf("MISSING_CONTROLLER_RESOURCE_KIND")
 	// ErrMissingPrincipalKind returned on config error
 	ErrMissingPrincipalKind = fmt.Errorf("MISSING_CONTROLLER_PRINCIPAL_KIND")
-	// ErrMissingLogger returned is logger not present during setup
-	ErrMissingLogger = fmt.Errorf("MISSING_CONTROLLER_LOGGER")
 	// ErrMissingCloudformationClient returned if no cloudformation client setup
 	ErrMissingCloudformationClient = fmt.Errorf("MISSING_CLOUDFORMATION_CLIENT")
 	// ErrMissingAWSClient return on config error

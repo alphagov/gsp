@@ -36,7 +36,6 @@ func init() {
 const (
 	IAMRoleResourceName                 = "IAMRole"
 	IAMRoleName                         = "IAMRoleName"
-	IAMRoleParameterName                = "IAMRoleName"
 	IAMRolePrincipalParameterName       = "IAMRolePrincipal"
 	IAMPermissionsBoundaryParameterName = "IAMPermissionsBoundary"
 )
