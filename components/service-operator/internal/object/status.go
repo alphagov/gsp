@@ -65,11 +65,11 @@ func (s *Status) SetState(state State) {
 // AWSStatus a cloudformation Stack
 type AWSStatus struct {
 	// ID of an instance for a reference.
-	ID string `json:"id"`
+	ID string `json:"id,omitempty"`
 	// Name of an instance for a reference.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 	// Status of the currently running instance.
-	Status string `json:"status"`
+	Status string `json:"status,omitempty"`
 	// Reason for the current status of the instance.
 	Reason string `json:"reason,omitempty"`
 	// Events will hold more in-depth details of the current state of the instance.
@@ -83,9 +83,9 @@ type AWSStatus struct {
 // AWSEvent is a single action taken against the resource at any given time.
 type AWSEvent struct {
 	// Status of the currently running instance.
-	Status string `json:"status"`
+	Status string `json:"status,omitempty"`
 	// Reason for the current status of the instance.
 	Reason string `json:"reason,omitempty"`
 	// Time of the event cast.
-	Time *metav1.Time `json:"time"`
+	Time *metav1.Time `json:"time,omitempty"`
 }

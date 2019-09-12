@@ -70,9 +70,6 @@ spec:
                         description: Time of the event cast.
                         format: date-time
                         type: string
-                    required:
-                    - status
-                    - time
                     type: object
                   type: array
                 id:
@@ -92,10 +89,6 @@ spec:
                 status:
                   description: Status of the currently running instance.
                   type: string
-              required:
-              - id
-              - name
-              - status
               type: object
             state:
               description: Generic service state
