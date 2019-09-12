@@ -28,46 +28,58 @@ spec:
         metadata:
           type: object
         status:
-          description: PrincipalStatus defines the observed state of Principal
+          description: Status is the type shared by most service resources
           properties:
-            events:
-              description: Events will hold more in-depth details of the current state
-                of the instance.
-              items:
-                description: Event is a single action taken against the resource at
-                  any given time.
-                properties:
-                  reason:
-                    description: Reason for the current status of the instance.
+            aws:
+              description: AWS specific status
+              properties:
+                events:
+                  description: Events will hold more in-depth details of the current
+                    state of the instance.
+                  items:
+                    description: AWSEvent is a single action taken against the resource
+                      at any given time.
+                    properties:
+                      reason:
+                        description: Reason for the current status of the instance.
+                        type: string
+                      status:
+                        description: Status of the currently running instance.
+                        type: string
+                      time:
+                        description: Time of the event cast.
+                        format: date-time
+                        type: string
+                    required:
+                    - status
+                    - time
+                    type: object
+                  type: array
+                id:
+                  description: ID of an instance for a reference.
+                  type: string
+                info:
+                  additionalProperties:
                     type: string
-                  status:
-                    description: Status of the currently running instance.
-                    type: string
-                  time:
-                    description: Time of the event cast.
-                    format: date-time
-                    type: string
-                required:
-                - status
-                - time
-                type: object
-              type: array
-            id:
-              description: ID of an instance for a reference.
+                  description: Info shows any outputs returned from GetStackOutputWhitelist
+                  type: object
+                name:
+                  description: Name of an instance for a reference.
+                  type: string
+                reason:
+                  description: Reason for the current status of the instance.
+                  type: string
+                status:
+                  description: Status of the currently running instance.
+                  type: string
+              required:
+              - id
+              - name
+              - status
+              type: object
+            state:
+              description: Generic service state
               type: string
-            name:
-              description: Name of the IAM Principal
-              type: string
-            reason:
-              description: Reason for the current status of the instance.
-              type: string
-            status:
-              description: Status of the currently running instance.
-              type: string
-          required:
-          - id
-          - name
-          - status
           type: object
       type: object
   versions:

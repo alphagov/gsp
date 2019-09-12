@@ -33,6 +33,10 @@ spec:
             aws:
               description: AWS specific subsection of the resource.
               properties:
+                instanceCount:
+                  description: InstanceCount is the number of database instances in
+                    the cluster (defaults to 2 if not set)
+                  type: integer
                 instanceType:
                   description: InstanceType essentially defines the amount of memory
                     and cpus on the database.
@@ -44,42 +48,58 @@ spec:
               type: string
           type: object
         status:
-          description: PostgresStatus defines the observed state of Postgres
+          description: Status is the type shared by most service resources
           properties:
-            events:
-              description: Events will hold more in-depth details of the current state
-                of the instance.
-              items:
-                description: Event is a single action taken against the resource at
-                  any given time.
-                properties:
-                  reason:
-                    description: Reason for the current status of the instance.
+            aws:
+              description: AWS specific status
+              properties:
+                events:
+                  description: Events will hold more in-depth details of the current
+                    state of the instance.
+                  items:
+                    description: AWSEvent is a single action taken against the resource
+                      at any given time.
+                    properties:
+                      reason:
+                        description: Reason for the current status of the instance.
+                        type: string
+                      status:
+                        description: Status of the currently running instance.
+                        type: string
+                      time:
+                        description: Time of the event cast.
+                        format: date-time
+                        type: string
+                    required:
+                    - status
+                    - time
+                    type: object
+                  type: array
+                id:
+                  description: ID of an instance for a reference.
+                  type: string
+                info:
+                  additionalProperties:
                     type: string
-                  status:
-                    description: Status of the currently running instance.
-                    type: string
-                  time:
-                    description: Time of the event cast.
-                    format: date-time
-                    type: string
-                required:
-                - status
-                - time
-                type: object
-              type: array
-            id:
-              description: ID of an instance for a reference.
+                  description: Info shows any outputs returned from GetStackOutputWhitelist
+                  type: object
+                name:
+                  description: Name of an instance for a reference.
+                  type: string
+                reason:
+                  description: Reason for the current status of the instance.
+                  type: string
+                status:
+                  description: Status of the currently running instance.
+                  type: string
+              required:
+              - id
+              - name
+              - status
+              type: object
+            state:
+              description: Generic service state
               type: string
-            reason:
-              description: Reason for the current status of the instance.
-              type: string
-            status:
-              description: Status of the currently running instance.
-              type: string
-          required:
-          - id
-          - status
           type: object
       type: object
   versions:

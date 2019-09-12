@@ -31,8 +31,7 @@ spec:
           description: SQSSpec defines the desired state of SQS
           properties:
             aws:
-              description: 'AWS specific subsection of the resource. See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-sqs-queues.html for more information.'
-              type: object
+              description: AWS specific subsection of the resource.
               properties:
                 contentBasedDeduplication:
                   type: boolean
@@ -50,48 +49,65 @@ spec:
                   type: string
                 visibilityTimeout:
                   type: integer
+              type: object
             secret:
               description: Secret name to be used for storing relevant instance secrets
                 for further use.
               type: string
           type: object
         status:
-          description: SQSStatus defines the observed state of SQS
+          description: Status is the type shared by most service resources
           properties:
-            events:
-              description: Events will hold more in-depth details of the current state
-                of the instance.
-              items:
-                description: Event is a single action taken against the resource at
-                  any given time.
-                properties:
-                  reason:
-                    description: Reason for the current status of the instance.
+            aws:
+              description: AWS specific status
+              properties:
+                events:
+                  description: Events will hold more in-depth details of the current
+                    state of the instance.
+                  items:
+                    description: AWSEvent is a single action taken against the resource
+                      at any given time.
+                    properties:
+                      reason:
+                        description: Reason for the current status of the instance.
+                        type: string
+                      status:
+                        description: Status of the currently running instance.
+                        type: string
+                      time:
+                        description: Time of the event cast.
+                        format: date-time
+                        type: string
+                    required:
+                    - status
+                    - time
+                    type: object
+                  type: array
+                id:
+                  description: ID of an instance for a reference.
+                  type: string
+                info:
+                  additionalProperties:
                     type: string
-                  status:
-                    description: Status of the currently running instance.
-                    type: string
-                  time:
-                    description: Time of the event cast.
-                    format: date-time
-                    type: string
-                required:
-                - status
-                - time
-                type: object
-              type: array
-            id:
-              description: ID of an instance for a reference.
+                  description: Info shows any outputs returned from GetStackOutputWhitelist
+                  type: object
+                name:
+                  description: Name of an instance for a reference.
+                  type: string
+                reason:
+                  description: Reason for the current status of the instance.
+                  type: string
+                status:
+                  description: Status of the currently running instance.
+                  type: string
+              required:
+              - id
+              - name
+              - status
+              type: object
+            state:
+              description: Generic service state
               type: string
-            reason:
-              description: Reason for the current status of the instance.
-              type: string
-            status:
-              description: Status of the currently running instance.
-              type: string
-          required:
-          - id
-          - status
           type: object
       type: object
   versions:
