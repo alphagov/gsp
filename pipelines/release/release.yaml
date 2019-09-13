@@ -509,6 +509,7 @@ jobs:
         - -eu
         - -c
         - |
+          set -o pipefail
           echo "generate overrides for pipeline default values..."
           mkdir -p deployer-package
           echo "copying deployer config to release dir..."
@@ -519,7 +520,7 @@ jobs:
           github-resource-image: $(cat concourse-github-resource/repository)@$(cat concourse-github-resource/digest | cut -d ':' -f 1)
           github-resource-tag: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
           EOF
-          echo overrides.yaml
+          cat overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
   - put: candidate-release
