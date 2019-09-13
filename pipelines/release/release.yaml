@@ -501,6 +501,7 @@ jobs:
       inputs:
       - name: platform
       - name: concourse-task-toolbox
+      - name: concourse-github-resource
       outputs:
       - name: deployer-package
       run:
