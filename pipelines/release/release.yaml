@@ -406,15 +406,18 @@ jobs:
               task:
                 image:
                   repository: $(cat concourse-task-toolbox/repository)
-                  tag: $(cat concourse-task-toolbox/digest | cut -d ':' -f 2)
+                  tag: $(cat concourse-task-toolbox/tag)
+                  digest: $(cat concourse-task-toolbox/digest | cut -d ':' -f 2)
               github:
                 image:
                   repository: $(cat concourse-github-resource/repository)
-                  tag: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
+                  tag: $(cat concourse-github-resource/tag)
+                  digest: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
               harbor:
                 image:
                   repository: $(cat concourse-harbor-resource/repository)
-                  tag: $(cat concourse-harbor-resource/digest | cut -d ':' -f 2)
+                  tag: $(cat concourse-harbor-resource/tag)
+                  digest: $(cat concourse-harbor-resource/digest | cut -d ':' -f 2)
             EOF
             echo "merging with cluster values..."
             spruce merge ./platform/charts/gsp-cluster/values.yaml ./overrides.yaml | tee -a cluster-values/values.yaml
@@ -517,9 +520,9 @@ jobs:
           cp platform/pipelines/deployer/* deployer-package/
           cat << EOF > ./overrides.yaml
           task-toolbox-image: $(cat concourse-task-toolbox/repository)
-          task-toolbox-tag: $(cat concourse-task-toolbox/digest | cut -d ':' -f 2)
+          task-toolbox-tag: $(cat concourse-task-toolbox/tag)
           github-resource-image: $(cat concourse-github-resource/repository)
-          github-resource-tag: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
+          github-resource-tag: $(cat concourse-github-resource/tag)
           EOF
           cat overrides.yaml
           echo "merging with default values..."
