@@ -523,7 +523,7 @@ jobs:
           EOF
           cat overrides.yaml
           echo "merging with default values..."
-          spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee -a ./deployer-package/deployer.defaults.yaml
+          spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee ./deployer-package/deployer.defaults.yaml
   - put: candidate-release
     params:
       name: semver/version
