@@ -104,16 +104,10 @@ api_response=$( \
 )
 
 pr_author=$(echo $api_response | jq ".data.repository.object.associatedPullRequests.nodes[].author.login")
-commit_signature_author=$(echo $api_response | jq ".data.repository.object.associatedPullRequests.nodes[].commits.nodes[0].commit.signature.signer.login")
+commit_signature_author=$(echo $api_response | jq --raw-output ".data.repository.object.associatedPullRequests.nodes[].commits.nodes[0].commit.signature.signer.login")
 
-if [ $pr_author == $commit_signature_author ]; then
-  echo "OK: PR author matches commit signature author."
-else
-  echo "ERROR: PR author ($pr_author) doesn't match commit signature author ($commit_signature_author)."
-  exit 1
-fi
+approvals=$(echo "${api_response}" | jq --raw-output .data.repository.object.associatedPullRequests.nodes[].reviews.nodes[].author.login | grep -v "${commit_signature_author}" | sort -d)
 
-approvals=$(echo "${api_response}" | jq --raw-output .data.repository.object.associatedPullRequests.nodes[].reviews.nodes[].author.login | sort -d)
 
 valid_approval_count=$(\
   comm -12 \
@@ -131,6 +125,7 @@ if [[ "${valid_approval_count}" -lt "${required_approval_count}" ]]; then
   comm -23 \
     <(echo "${approvers}") \
     <(echo "${approvals}") \
+  | grep -v "${commit_signature_author}" \
   | grep -v "${pr_author}" \
   | xargs -I {} echo "[FAILURE]   - {}"
 
