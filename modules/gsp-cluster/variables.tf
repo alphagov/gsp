@@ -120,18 +120,6 @@ variable "k8s_splunk_index" {
   default     = ""
 }
 
-variable "vpc_flow_log_splunk_hec_token" {
-  description = "Splunk HTTP event collector token for authentication"
-  type        = "string"
-  default     = ""
-}
-
-variable "vpc_flow_log_splunk_index" {
-  description = "Name of index to be added as metadata to logs for use in splunk"
-  type        = "string"
-  default     = ""
-}
-
 variable "vpc_id" {
   type = "string"
 }

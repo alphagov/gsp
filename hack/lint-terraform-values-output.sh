@@ -13,8 +13,6 @@ set -eu
 		--var k8s_splunk_index=x \
 		--var hsm_splunk_hec_token=x \
 		--var hsm_splunk_index=x \
-		--var vpc_flow_log_splunk_hec_token=x \
-		--var vpc_flow_log_splunk_index=x \
 		--var github_client_secret=x \
 		--var github_client_id=x \
 		--var cluster_name=x \
