@@ -405,15 +405,15 @@ jobs:
             concourseResources:
               task:
                 image:
-                  repository: $(cat concourse-task-toolbox/repository)@$(cat concourse-task-toolbox/digest | cut -d ':' -f 1)
+                  repository: $(cat concourse-task-toolbox/repository)
                   tag: $(cat concourse-task-toolbox/digest | cut -d ':' -f 2)
               github:
                 image:
-                  repository: $(cat concourse-github-resource/repository)@$(cat concourse-github-resource/digest | cut -d ':' -f 1)
+                  repository: $(cat concourse-github-resource/repository)
                   tag: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
               harbor:
                 image:
-                  repository: $(cat concourse-harbor-resource/repository)@$(cat concourse-harbor-resource/digest | cut -d ':' -f 1)
+                  repository: $(cat concourse-harbor-resource/repository)
                   tag: $(cat concourse-harbor-resource/digest | cut -d ':' -f 2)
             EOF
             echo "merging with cluster values..."
@@ -516,9 +516,9 @@ jobs:
           echo "copying deployer config to release dir..."
           cp platform/pipelines/deployer/* deployer-package/
           cat << EOF > ./overrides.yaml
-          task-toolbox-image: $(cat concourse-task-toolbox/repository)@$(cat concourse-task-toolbox/digest | cut -d ':' -f 1)
+          task-toolbox-image: $(cat concourse-task-toolbox/repository)
           task-toolbox-tag: $(cat concourse-task-toolbox/digest | cut -d ':' -f 2)
-          github-resource-image: $(cat concourse-github-resource/repository)@$(cat concourse-github-resource/digest | cut -d ':' -f 1)
+          github-resource-image: $(cat concourse-github-resource/repository)
           github-resource-tag: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
           EOF
           cat overrides.yaml
