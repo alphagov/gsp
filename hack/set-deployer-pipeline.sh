@@ -17,7 +17,8 @@ $FLY_BIN -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--config "pipelines/deployer/deployer.yaml" \
 	--load-vars-from "pipelines/deployer/deployer.defaults.yaml" \
 	--load-vars-from "${CLUSTER_CONFIG}" \
-	--yaml-var 'config-approvers=[]' \
+	--yaml-var 'config-approvers=[alphagov]' \
+	--yaml-var 'config-approval-count=0' \
 	--yaml-var 'trusted-developer-keys=[]' \
 	--check-creds "$@"
 
