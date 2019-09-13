@@ -530,8 +530,6 @@ resources:
       k8s_splunk_index: ((k8s-splunk-index))
       hsm_splunk_hec_token: ((hsm-splunk-hec-token))
       hsm_splunk_index: ((hsm-splunk-index))
-      vpc_flow_log_splunk_hec_token: ((vpc-flow-log-splunk-hec-token))
-      vpc_flow_log_splunk_index: ((vpc-flow-log-splunk-index))
       eks_version: ((eks-version))
       worker_instance_type: ((worker-instance-type))
       worker_count: ((worker-count))
