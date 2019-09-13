@@ -28,6 +28,7 @@ import (
 	accessv1beta1 "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
 	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
+	storagev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/controllers"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk/sdkfakes"
@@ -85,6 +86,9 @@ func SetupControllerEnv() (client.Client, func()) {
 	err = accessv1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = storagev1beta1.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
 		Scheme: scheme.Scheme,
 	})
@@ -103,6 +107,7 @@ func SetupControllerEnv() (client.Client, func()) {
 
 	// controllers under test
 	cs := []controllers.Controller{
+		controllers.S3CloudFormationController(newAWSClient()),
 		controllers.SQSCloudFormationController(newAWSClient()),
 		controllers.PrincipalCloudFormationController(newAWSClient()),
 		controllers.PostgresCloudFormationController(newAWSClient()),

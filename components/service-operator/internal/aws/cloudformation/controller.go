@@ -129,6 +129,8 @@ func (r *Controller) SetupWithManager(mgr ctrl.Manager) error {
 // +kubebuilder:rbac:groups=database.govsvc.uk,resources=postgres/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=storage.govsvc.uk,resources=s3bucket,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=storage.govsvc.uk,resources=s3bucket/status,verbs=get;update;patch
 
 // Reconcile synchronises state between the resource and a cloudformation stack
 func (r *Controller) Reconcile(req ctrl.Request) (res ctrl.Result, err error) {
