@@ -42,6 +42,7 @@ type AWSIAMPolicy = goresources.AWSIAMPolicy
 type AWSIAMRole = goresources.AWSIAMRole
 type AWSSecretsManagerSecret = goresources.AWSSecretsManagerSecret
 type AWSSecretsManagerSecretTargetAttachment = goresources.AWSSecretsManagerSecretTargetAttachment
+type AWSSQSQueue = goresources.AWSSQSQueue
 type GenerateSecretString = goresources.AWSSecretsManagerSecret_GenerateSecretString
 
 var NewTemplate = goformation.NewTemplate
@@ -52,15 +53,19 @@ var Ref = goformation.Ref
 const CreateInProgress = cloudformation.StackStatusCreateInProgress
 const DeleteInProgress = cloudformation.StackStatusDeleteInProgress
 const UpdateInProgress = cloudformation.StackStatusUpdateInProgress
+const ReviewInProgress = cloudformation.StackStatusReviewInProgress
 const CreateComplete = cloudformation.StackStatusCreateComplete
 const DeleteComplete = cloudformation.StackStatusDeleteComplete
 const UpdateComplete = cloudformation.StackStatusUpdateComplete
 const CreateFailed = cloudformation.StackStatusCreateFailed
 const DeleteFailed = cloudformation.StackStatusDeleteFailed
 const RollbackFailed = cloudformation.StackStatusRollbackFailed
+const RollbackInProgress = cloudformation.StackStatusRollbackInProgress
 const UpdateRollbackFailed = cloudformation.StackStatusUpdateRollbackFailed
 const RollbackComplete = cloudformation.StackStatusRollbackComplete
+const UpdateRollbackInProgress = cloudformation.StackStatusRollbackInProgress
 const UpdateRollbackComplete = cloudformation.StackStatusUpdateRollbackComplete
+const UpdateRollbackCompleteCleanupInProgress = cloudformation.StackStatusUpdateRollbackCompleteCleanupInProgress
 
 var (
 	// capabilities required by cloudformation
