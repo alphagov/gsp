@@ -51,80 +51,95 @@ var _ = Describe("Postgres", func() {
 		Expect(o.GetStackName()).To(HavePrefix("xxx-postgres-default-example"))
 	})
 
-	It("should have inputs for vpc config", func() {
-		t := o.GetStackTemplate()
-		Expect(t.Parameters).To(HaveKey("DBSubnetGroup"))
-		Expect(t.Parameters).To(HaveKey("VPCSecurityGroupID"))
-	})
+	Context("cloudformation", func() {
 
-	It("should have outputs for connection details", func() {
-		t := o.GetStackTemplate()
-		Expect(t.Outputs).To(HaveKey("Endpoint"))
-		Expect(t.Outputs).To(HaveKey("ReadEndpoint"))
-		Expect(t.Outputs).To(HaveKey("Port"))
-		Expect(t.Outputs).To(HaveKey("Username"))
-		Expect(t.Outputs).To(HaveKey("Password"))
-	})
+		It("should have inputs for vpc config", func() {
+			t := o.GetStackTemplate()
+			Expect(t.Parameters).To(HaveKey("DBSubnetGroup"))
+			Expect(t.Parameters).To(HaveKey("VPCSecurityGroupID"))
+		})
 
-	It("should have an RDS cluster resource with sensible defaults", func() {
-		t := o.GetStackTemplate()
-		Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSRDSDBCluster{})))
-		cluster, ok := t.Resources[v1beta1.PostgresResourceCluster].(*cloudformation.AWSRDSDBCluster)
-		Expect(ok).To(BeTrue())
-		Expect(cluster.Engine).To(Equal("aurora-postgresql"))
-		Expect(cluster.DBClusterParameterGroupName).ToNot(BeEmpty())
-		Expect(cluster.VpcSecurityGroupIds).ToNot(BeNil())
-		Expect(cluster.MasterUsername).ToNot(BeEmpty())
-		Expect(cluster.MasterUserPassword).ToNot(BeEmpty())
-		Expect(cluster.Tags).To(Equal(tags))
-	})
+		It("should have outputs for connection details", func() {
+			t := o.GetStackTemplate()
+			Expect(t.Outputs).To(HaveKey("Endpoint"))
+			Expect(t.Outputs).To(HaveKey("ReadEndpoint"))
+			Expect(t.Outputs).To(HaveKey("Port"))
+			Expect(t.Outputs).To(HaveKey("Username"))
+			Expect(t.Outputs).To(HaveKey("Password"))
+		})
 
-	It("should have RDS instance resources with sensible defaults", func() {
-		t := o.GetStackTemplate()
-		Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSRDSDBInstance{})))
-		count := 0
-		for _, r := range t.Resources {
-			instance, ok := r.(*cloudformation.AWSRDSDBInstance)
-			if !ok {
-				continue
-			}
-			count++
-			Expect(instance.PubliclyAccessible).To(BeFalse())
-			Expect(instance.DBInstanceClass).To(Equal("db.r5.large"))
-			Expect(instance.Engine).To(Equal("aurora-postgresql"))
-			Expect(instance.Tags).To(Equal(tags))
-		}
-		Expect(count).To(BeNumerically(">", 0))
-		Expect(count).To(Equal(v1beta1.DefaultInstanceCount))
-	})
+		Context("cluster resource", func() {
 
-	It("should get number of instances from spec.AWS.InstanceCount", func() {
-		o.Spec.AWS.InstanceCount = 3
-		t := o.GetStackTemplate()
-		count := 0
-		for _, r := range t.Resources {
-			_, ok := r.(*cloudformation.AWSRDSDBInstance)
-			if !ok {
-				continue
-			}
-			count++
-		}
-		Expect(count).To(Equal(o.Spec.AWS.InstanceCount))
-	})
+			var cluster *cloudformation.AWSRDSDBCluster
 
-	It("should get instance size from spec.AWS.InstanceType", func() {
-		o.Spec.AWS.InstanceType = "db.t3.medium"
-		t := o.GetStackTemplate()
-		count := 0
-		for _, r := range t.Resources {
-			instance, ok := r.(*cloudformation.AWSRDSDBInstance)
-			if !ok {
-				continue
-			}
-			count++
-			Expect(instance.DBInstanceClass).To(Equal(o.Spec.AWS.InstanceType))
-		}
-		Expect(count).To(BeNumerically(">", 0))
+			JustBeforeEach(func() {
+				t := o.GetStackTemplate()
+				Expect(t.Resources[v1beta1.PostgresResourceCluster]).To(BeAssignableToTypeOf(&cloudformation.AWSRDSDBCluster{}))
+				cluster = t.Resources[v1beta1.PostgresResourceCluster].(*cloudformation.AWSRDSDBCluster)
+			})
+
+			It("should have an RDS cluster resource with sensible defaults", func() {
+				Expect(cluster.Engine).To(Equal("aurora-postgresql"))
+				Expect(cluster.DBClusterParameterGroupName).ToNot(BeEmpty())
+				Expect(cluster.VpcSecurityGroupIds).ToNot(BeNil())
+				Expect(cluster.MasterUsername).ToNot(BeEmpty())
+				Expect(cluster.MasterUserPassword).ToNot(BeEmpty())
+				Expect(cluster.Tags).To(Equal(tags))
+			})
+
+		})
+
+		Context("instance resources", func() {
+
+			var instances []*cloudformation.AWSRDSDBInstance
+
+			JustBeforeEach(func() {
+				t := o.GetStackTemplate()
+				instances = []*cloudformation.AWSRDSDBInstance{}
+				for _, r := range t.Resources {
+					inst, ok := r.(*cloudformation.AWSRDSDBInstance)
+					if !ok {
+						continue
+					}
+					instances = append(instances, inst)
+				}
+			})
+
+			It("should default to 2 instances", func() {
+				Expect(instances).To(HaveLen(2))
+			})
+
+			It("should have RDS instance resources with sensible defaults", func() {
+				for _, instance := range instances {
+					Expect(instance.PubliclyAccessible).To(BeFalse())
+					Expect(instance.DBInstanceClass).To(Equal("db.r5.large"))
+					Expect(instance.Engine).To(Equal("aurora-postgresql"))
+					Expect(instance.Tags).To(Equal(tags))
+				}
+			})
+
+			Context("when spec.aws.instanceCount is set", func() {
+				BeforeEach(func() {
+					o.Spec.AWS.InstanceCount = 3
+				})
+				It("should set number of instances from spec", func() {
+					Expect(instances).To(HaveLen(3))
+				})
+			})
+
+			Context("when spec.aws.instanceType is set", func() {
+				BeforeEach(func() {
+					o.Spec.AWS.InstanceType = "db.t3.medium"
+				})
+				It("should set instances from spec", func() {
+					for _, instance := range instances {
+						Expect(instance.DBInstanceClass).To(Equal("db.t3.medium"))
+					}
+				})
+			})
+
+		})
+
 	})
 
 })
