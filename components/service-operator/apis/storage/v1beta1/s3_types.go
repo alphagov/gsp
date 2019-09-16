@@ -38,9 +38,8 @@ const (
 
 var (
 	allowedActions = []string{
-		"s3:Get*",
-		"s3:Put*",
-		"s3:Delete*",
+		"s3:ListObjects",
+		"s3:*Object",
 	}
 )
 
@@ -131,9 +130,12 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 		Tags:       tags,
 	}
 
+	s3BucketArn := cloudformation.Join("", []string{cloudformation.GetAtt(S3BucketResourceName, "Arn")})
+	s3ResourceArn := cloudformation.Join("", []string{cloudformation.GetAtt(S3BucketResourceName, "Arn"), "/*"})
+
 	template.Resources[S3BucketResourceIAMPolicy] = &cloudformation.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"s3", "access", bucketName}),
-		PolicyDocument: cloudformation.NewRolePolicyDocument([]string{cloudformation.GetAtt(S3BucketResourceName, "Arn")}, allowedActions),
+		PolicyDocument: cloudformation.NewRolePolicyDocument([]string{s3BucketArn, s3ResourceArn}, allowedActions),
 		Roles: []string{
 			cloudformation.Ref(IAMRoleParameterName),
 		},
