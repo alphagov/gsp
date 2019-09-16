@@ -12,3 +12,4 @@ hack/*log
 
 # generated files
 output/
+*.coverprofile
