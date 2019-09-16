@@ -40,6 +40,7 @@ type AWSRDSDBClusterParameterGroup = goresources.AWSRDSDBClusterParameterGroup
 type AWSRDSDBParameterGroup = goresources.AWSRDSDBParameterGroup
 type AWSIAMPolicy = goresources.AWSIAMPolicy
 type AWSIAMRole = goresources.AWSIAMRole
+type AWSS3Bucket = goresources.AWSS3Bucket
 type AWSSecretsManagerSecret = goresources.AWSSecretsManagerSecret
 type AWSSecretsManagerSecretTargetAttachment = goresources.AWSSecretsManagerSecretTargetAttachment
 type GenerateSecretString = goresources.AWSSecretsManagerSecret_GenerateSecretString

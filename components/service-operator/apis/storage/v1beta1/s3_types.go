@@ -22,7 +22,6 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/awslabs/goformation/cloudformation/resources"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -103,7 +102,7 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 		"Type": "String",
 	}
 
-	tags := []resources.Tag{
+	tags := []cloudformation.Tag{
 		{
 			Key:   "Cluster",
 			Value: env.ClusterName(),
@@ -127,12 +126,12 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 	}
 
 	bucketName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
-	template.Resources[S3BucketResourceName] = &resources.AWSS3Bucket{
+	template.Resources[S3BucketResourceName] = &cloudformation.AWSS3Bucket{
 		BucketName: bucketName,
 		Tags:       tags,
 	}
 
-	template.Resources[S3BucketResourceIAMPolicy] = &resources.AWSIAMPolicy{
+	template.Resources[S3BucketResourceIAMPolicy] = &cloudformation.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"s3", "access", bucketName}),
 		PolicyDocument: cloudformation.NewRolePolicyDocument([]string{cloudformation.GetAtt(S3BucketResourceName, "Arn")}, allowedActions),
 		Roles: []string{
