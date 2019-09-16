@@ -317,6 +317,9 @@ func (r *Client) get(ctx context.Context, stack Stack) (*State, error) {
 	if len(describeOutput.Stacks) == 0 {
 		return nil, fmt.Errorf("describeOutput contained no Stacks, potential issue with AWS Client")
 	}
+	if len(describeOutput.Stacks) > 1 {
+		return nil, fmt.Errorf("describeOutput contained multiple Stacks which is unexpected when calling with StackName, potential issue with AWS Client")
+	}
 	state := describeOutput.Stacks[0]
 	if state.StackStatus == nil {
 		return nil, fmt.Errorf("describeOutput contained a nil StackStatus, potential issue with AWS Client")
