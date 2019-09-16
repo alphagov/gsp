@@ -1,4 +1,4 @@
-package aws_test
+package sdk_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestAws(t *testing.T) {
+func TestSDK(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Aws Suite")
 }

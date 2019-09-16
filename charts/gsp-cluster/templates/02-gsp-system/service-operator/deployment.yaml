@@ -28,11 +28,6 @@ spec:
         - /manager
         args:
         - --enable-leader-election
-        - --cluster={{ .Values.global.cluster.name }}
-        - --kiam-server-role-arn={{ .Values.serviceOperator.kiamServerRoleARN }}
-        - --role-permissions-boundary-arn={{ .Values.serviceOperator.permissionsBoundaryARN }}
-        - --rds-from-worker-security-group={{ .Values.RDSFromWorkerSecurityGroup }}
-        - --db-subnet-group={{ .Values.privateDBSubnetGroup }}
         image: "{{ .Values.serviceOperator.image.repository }}:{{ .Values.serviceOperator.image.tag }}"
         name: manager
         ports:
@@ -42,6 +37,16 @@ spec:
         env:
         - name: CLOUD_PROVIDER
           value: "aws"
+        - name: CLUSTER_NAME
+          value: {{ .Values.global.cluster.name | quote }}
+        - name: AWS_RDS_SECURITY_GROUP_ID
+          value: {{ .Values.RDSFromWorkerSecurityGroup | quote }}
+        - name: AWS_RDS_SUBNET_GROUP_NAME
+          value: {{ .Values.privateDBSubnetGroup | quote }}
+        - name: AWS_PRINCIPAL_SERVER_ROLE_ARN
+          value: {{ .Values.serviceOperator.kiamServerRoleARN | quote }}
+        - name: AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN
+          value: {{ .Values.serviceOperator.permissionsBoundaryARN | quote }}
         resources:
           limits:
             cpu: 100m
