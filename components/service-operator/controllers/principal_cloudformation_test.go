@@ -116,14 +116,5 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 			}, timeout).Should(Equal(0))
 		})
 
-		// GC will remove this in a real cluster, but we don't have the hooks installed in our tests :(
-		// By("ensuring secret has been removed", func() {
-		// 	var secretList core.SecretList
-		// 	Eventually(func() int {
-		// 		err := client.List(ctx, &secretList)
-		// 		Expect(err).ToNot(HaveOccurred())
-		// 		return len(secretList.Items)
-		// 	}, time.Second*10).Should(Equal(0))
-		// })
 	})
 })
