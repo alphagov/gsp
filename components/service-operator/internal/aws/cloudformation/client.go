@@ -138,6 +138,7 @@ func (r *Client) validateTemplateParams(t *Template, params []*Parameter) error 
 			// phew found it
 			if *param.ParameterKey == wantedKey {
 				delete(missing, wantedKey)
+				break
 			}
 		}
 	}
