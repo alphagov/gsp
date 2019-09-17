@@ -211,16 +211,16 @@ var _ = Describe("SQS", func() {
 				Expect(doc.Statement).To(HaveLen(1))
 				statement := doc.Statement[0]
 				Expect(statement.Effect).To(Equal("Allow"))
-				Expect(statement.Action).To(And(
-					ContainElement("sqs:ChangeMessageVisibility"),
-					ContainElement("sqs:DeleteMessage"),
-					ContainElement("sqs:GetQueueAttributes"),
-					ContainElement("sqs:GetQueueUrl"),
-					ContainElement("sqs:ListDeadLetterSourceQueues"),
-					ContainElement("sqs:ListQueueTags"),
-					ContainElement("sqs:PurgeQueue"),
-					ContainElement("sqs:ReceiveMessage"),
-					ContainElement("sqs:SendMessage"),
+				Expect(statement.Action).To(ConsistOf(
+					"sqs:ChangeMessageVisibility",
+					"sqs:DeleteMessage",
+					"sqs:GetQueueAttributes",
+					"sqs:GetQueueUrl",
+					"sqs:ListDeadLetterSourceQueues",
+					"sqs:ListQueueTags",
+					"sqs:PurgeQueue",
+					"sqs:ReceiveMessage",
+					"sqs:SendMessage",
 				))
 				Expect(statement.Resource).To(ContainElement(
 					cloudformation.GetAtt(v1beta1.SQSResourceName, "Arn"),
