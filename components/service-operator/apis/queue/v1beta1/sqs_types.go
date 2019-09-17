@@ -155,37 +155,9 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 					"sqs:PurgeQueue",
 					"sqs:ReceiveMessage",
 					"sqs:SendMessage",
-					// "sqs:SetQueueAttributes",
-					// "sqs:AddPermission",
-					// "sqs:CreateQueue",
-					// "sqs:DeleteQueue",
-					// "sqs:RemovePermission",
-					// "sqs:TagQueue",
-					// "sqs:UntagQueue",
 				},
 				Resource: []string{
 					cloudformation.GetAtt(SQSResourceName, "Arn"),
-				},
-			},
-			{
-				// NOTE: this is potentially over scoped.  It's
-				// not possible to scope this to the
-				// queue-level, so everyone can "see" the other
-				// queues :/ but we have experienced issues
-				// (potentially with older versions of the java
-				// sdk) that refused to work unless this was
-				// present
-				Effect: "Allow",
-				Action: []string{
-					"sqs:ListQueues",
-				},
-				Resource: []string{
-					cloudformation.Join(":", []string{
-						"arn:aws:sqs",
-						cloudformation.Ref("AWS::Region"),
-						cloudformation.Ref("AWS::AccountId"),
-						"*",
-					}),
 				},
 			},
 		},
