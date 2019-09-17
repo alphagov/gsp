@@ -23,6 +23,7 @@ spec:
     - "ci.{{ .Values.global.cluster.domain }}"
     - "registry.{{ .Values.global.cluster.domain }}"
     - "notary.{{ .Values.global.cluster.domain }}"
+    - "grafana.{{ .Values.global.cluster.domain }}"
   - port:
       number: 443
       name: https
@@ -36,3 +37,4 @@ spec:
     - "ci.{{ .Values.global.cluster.domain }}"
     - "registry.{{ .Values.global.cluster.domain }}"
     - "notary.{{ .Values.global.cluster.domain }}"
+    - "grafana.{{ .Values.global.cluster.domain }}"

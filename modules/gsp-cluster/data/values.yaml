@@ -155,6 +155,9 @@ prometheus-operator:
   grafana:
     podAnnotations:
       iam.amazonaws.com/role: ${grafana_iam_role_name}
+    ini:
+      server:
+        root_url: https://grafana.${cluster_domain}
 
 serviceOperator:
   kiamServerRoleARN: ${kiam_server_role_arn}

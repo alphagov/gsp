@@ -1,0 +1,21 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-grafana
+  namespace: {{ .Release.Namespace }}
+  labels:
+    chart: {{ .Chart.Name }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  hosts:
+  - "grafana.{{ .Values.global.cluster.domain }}"
+  gateways:
+  - {{ include "gsp-cluster.fullname" . }}-ingress
+  http:
+  - route:
+    - destination:
+        host: gsp-grafana
+        port:
+          number: 80

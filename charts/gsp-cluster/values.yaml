@@ -394,8 +394,8 @@ prometheus-operator:
       GF_AUTH_GOOGLE_ENABLED: "true"
       GF_AUTH_GOOGLE_ALLOW_SIGN_UP: "true"
       GF_AUTH_GOOGLE_ALLOWED_DOMAINS: "digital.cabinet-office.gov.uk"
-#      GF_SECURITY_COOKIE_SECURE: "true"
-#      GF_SESSION_COOKIE_SECURE: "true"
+      GF_SECURITY_COOKIE_SECURE: "true"
+      GF_SESSION_COOKIE_SECURE: "true"
     envFromSecret: grafana
 
   prometheusOperator:
