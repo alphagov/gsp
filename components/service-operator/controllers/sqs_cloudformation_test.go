@@ -129,18 +129,14 @@ var _ = Describe("SQS Cloudormation Controller", func() {
 			}).Should(BeTrue())
 		})
 
-		By("creating a secret with queue connection details", func() {
+		By("creating a secret with credentials", func() {
 			Eventually(func() map[string][]byte {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				return secret.Data
-			}).Should(HaveKey("QueueURL"))
-		})
-
-		By("creating a secret with the principal role name", func() {
-			Eventually(func() map[string][]byte {
-				_ = client.Get(ctx, secretNamespacedName, &secret)
-				return secret.Data
-			}).Should(HaveKey("IAMRoleName"))
+			}).Should(And(
+				HaveKey("QueueURL"),
+				HaveKey("IAMRoleName"),
+			))
 		})
 
 		By("deleting SQS resource with kubernetes api", func() {

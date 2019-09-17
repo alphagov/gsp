@@ -110,25 +110,17 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			}).Should(BeTrue())
 		})
 
-		By("creating a secret with username", func() {
+		By("creating a secret with credentials", func() {
 			Eventually(func() map[string][]byte {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				return secret.Data
-			}).Should(HaveKey("Username"))
-		})
-
-		By("creating a secret with password", func() {
-			Eventually(func() map[string][]byte {
-				_ = client.Get(ctx, secretNamespacedName, &secret)
-				return secret.Data
-			}).Should(HaveKey("Password"))
-		})
-
-		By("creating a secret with endpoint", func() {
-			Eventually(func() map[string][]byte {
-				_ = client.Get(ctx, secretNamespacedName, &secret)
-				return secret.Data
-			}).Should(HaveKey("Endpoint"))
+			}).Should(And(
+				HaveKey("Username"),
+				HaveKey("Password"),
+				HaveKey("Endpoint"),
+				HaveKey("ReadEndpoint"),
+				HaveKey("Port"),
+			))
 		})
 
 		By("connecting to resource", func() {
