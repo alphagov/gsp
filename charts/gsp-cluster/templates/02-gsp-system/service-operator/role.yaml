@@ -69,7 +69,7 @@ rules:
 - apiGroups:
   - storage.govsvc.uk
   resources:
-  - s3bucket
+  - s3buckets
   verbs:
   - create
   - delete
@@ -81,7 +81,7 @@ rules:
 - apiGroups:
   - storage.govsvc.uk
   resources:
-  - s3bucket/status
+  - s3buckets/status
   verbs:
   - get
   - patch
