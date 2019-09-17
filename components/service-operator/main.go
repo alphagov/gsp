@@ -22,6 +22,7 @@ import (
 	accessv1beta1 "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
 	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
+	storagev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/controllers"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -42,6 +43,7 @@ func init() {
 	_ = databasev1beta1.AddToScheme(scheme)
 	_ = queuev1beta1.AddToScheme(scheme)
 	_ = accessv1beta1.AddToScheme(scheme)
+	_ = storagev1beta1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -69,6 +71,7 @@ func run() error {
 		controllers.PrincipalCloudFormationController(c),
 		controllers.PostgresCloudFormationController(c),
 		controllers.SQSCloudFormationController(c),
+		controllers.S3CloudFormationController(c),
 	}
 
 	for _, c := range controllers {

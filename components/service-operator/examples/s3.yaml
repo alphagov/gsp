@@ -1,6 +1,6 @@
 ---
 apiVersion: storage.govsvc.uk/v1beta1
-kind: S3
+kind: S3Bucket
 metadata:
   name: s3-bucket-sample
   labels:
