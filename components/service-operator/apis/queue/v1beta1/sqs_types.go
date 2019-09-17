@@ -37,15 +37,6 @@ const (
 	IAMRoleParameterName = "IAMRoleName"
 )
 
-var (
-	allowedActions = []string{
-		"sqs:SendMessage",
-		"sqs:ReceiveMessage",
-		"sqs:DeleteMessage",
-		"sqs:GetQueueAttributes",
-	}
-)
-
 // ensure implements required interfaces
 var _ cloudformation.Stack = &SQS{}
 var _ cloudformation.StackPolicyAttacher = &SQS{}
@@ -149,9 +140,60 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 		VisibilityTimeout:             s.Spec.AWS.VisibilityTimeout,
 	}
 
+	policy := cloudformation.PolicyDocument{
+		Version: "2012-10-17",
+		Statement: []cloudformation.PolicyStatement{
+			{
+				Effect: "Allow",
+				Action: []string{
+					"sqs:ChangeMessageVisibility",
+					"sqs:DeleteMessage",
+					"sqs:GetQueueAttributes",
+					"sqs:GetQueueUrl",
+					"sqs:ListDeadLetterSourceQueues",
+					"sqs:ListQueueTags",
+					"sqs:PurgeQueue",
+					"sqs:ReceiveMessage",
+					"sqs:SendMessage",
+					// "sqs:SetQueueAttributes",
+					// "sqs:AddPermission",
+					// "sqs:CreateQueue",
+					// "sqs:DeleteQueue",
+					// "sqs:RemovePermission",
+					// "sqs:TagQueue",
+					// "sqs:UntagQueue",
+				},
+				Resource: []string{
+					cloudformation.GetAtt(SQSResourceName, "Arn"),
+				},
+			},
+			{
+				// NOTE: this is potentially over scoped.  It's
+				// not possible to scope this to the
+				// queue-level, so everyone can "see" the other
+				// queues :/ but we have experienced issues
+				// (potentially with older versions of the java
+				// sdk) that refused to work unless this was
+				// present
+				Effect: "Allow",
+				Action: []string{
+					"sqs:ListQueues",
+				},
+				Resource: []string{
+					cloudformation.Join(":", []string{
+						"arn:aws:sqs",
+						cloudformation.Ref("AWS::Region"),
+						cloudformation.Ref("AWS::AccountId"),
+						"*",
+					}),
+				},
+			},
+		},
+	}
+
 	template.Resources[SQSResourceIAMPolicy] = &resources.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"sqs", "access", cloudformation.GetAtt(SQSResourceName, "QueueName")}),
-		PolicyDocument: cloudformation.NewRolePolicyDocument([]string{cloudformation.GetAtt(SQSResourceName, "Arn")}, allowedActions),
+		PolicyDocument: policy,
 		Roles: []string{
 			cloudformation.Ref(IAMRoleParameterName),
 		},

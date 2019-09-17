@@ -107,16 +107,19 @@ data "aws_iam_policy_document" "service-operator" {
 
   statement {
     actions = [
-      "iam:CreateServiceLinkedRole"
+      "iam:CreateServiceLinkedRole",
     ]
+
     resources = [
-      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
     ]
+
     condition {
-      test = "StringLike"
+      test     = "StringLike"
       variable = "iam:AWSServiceName"
+
       values = [
-        "rds.amazonaws.com"
+        "rds.amazonaws.com",
       ]
     }
   }
@@ -138,10 +141,7 @@ data "aws_iam_policy_document" "service-operator-managed-role-permissions-bounda
   statement {
     actions = [
       "rds-data:*",
-      "sqs:SendMessage",
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes",
+      "sqs:*",
       "rds:*",
     ]
 
