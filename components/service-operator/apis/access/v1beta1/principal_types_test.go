@@ -13,11 +13,11 @@ import (
 
 var _ = Describe("Principal", func() {
 
-	var o v1beta1.Principal
+	var principal v1beta1.Principal
 
 	BeforeEach(func() {
 		os.Setenv("CLUSTER_NAME", "xxx") // required for env package
-		o = v1beta1.Principal{
+		principal = v1beta1.Principal{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "example",
 				Namespace: "default",
@@ -29,27 +29,27 @@ var _ = Describe("Principal", func() {
 	})
 
 	It("should return a unique role name", func() {
-		Expect(o.GetRoleName()).To(Equal("svcop-xxx-default-example"))
+		Expect(principal.GetRoleName()).To(Equal("svcop-xxx-default-example"))
 	})
 
 	It("should implement runtime.Object", func() {
-		o2 := o.DeepCopyObject()
+		o2 := principal.DeepCopyObject()
 		Expect(o2).ToNot(BeZero())
 	})
 
 	Context("cloudformation", func() {
 
 		It("should generate a unique stack name prefixed with cluster name", func() {
-			Expect(o.GetStackName()).To(HavePrefix("xxx-principal-default-example"))
+			Expect(principal.GetStackName()).To(HavePrefix("xxx-principal-default-example"))
 		})
 
 		It("should have outputs for role name", func() {
-			t := o.GetStackTemplate()
+			t := principal.GetStackTemplate()
 			Expect(t.Outputs).To(HaveKey("IAMRoleName"))
 		})
 
 		It("should whitelist the IAMRoleName output", func() {
-			whitelist := o.GetStackOutputWhitelist()
+			whitelist := principal.GetStackOutputWhitelist()
 			Expect(whitelist).To(ContainElement("IAMRoleName"))
 		})
 
@@ -58,13 +58,13 @@ var _ = Describe("Principal", func() {
 			var role *cloudformation.AWSIAMRole
 
 			JustBeforeEach(func() {
-				t := o.GetStackTemplate()
+				t := principal.GetStackTemplate()
 				Expect(t.Resources[v1beta1.IAMRoleResourceName]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMRole{}))
 				role = t.Resources[v1beta1.IAMRoleResourceName].(*cloudformation.AWSIAMRole)
 			})
 
 			It("should set unique role name", func() {
-				Expect(role.RoleName).To(Equal(o.GetRoleName()))
+				Expect(role.RoleName).To(Equal(principal.GetRoleName()))
 			})
 
 			It("should set a permissions boundary", func() {

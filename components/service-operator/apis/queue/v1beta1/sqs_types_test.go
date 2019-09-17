@@ -15,12 +15,12 @@ import (
 
 var _ = Describe("SQS", func() {
 
-	var o v1beta1.SQS
+	var sqs v1beta1.SQS
 	var tags []cloudformation.Tag
 
 	BeforeEach(func() {
 		os.Setenv("CLUSTER_NAME", "xxx") // required for env package
-		o = v1beta1.SQS{
+		sqs = v1beta1.SQS{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "example",
 				Namespace: "default",
@@ -40,38 +40,38 @@ var _ = Describe("SQS", func() {
 	})
 
 	It("should default secret name to object name", func() {
-		Expect(o.GetSecretName()).To(Equal("example"))
+		Expect(sqs.GetSecretName()).To(Equal("example"))
 	})
 
 	It("should use secret name from spec.Secret if set ", func() {
-		o.Spec.Secret = "my-target-secret"
-		Expect(o.GetSecretName()).To(Equal("my-target-secret"))
+		sqs.Spec.Secret = "my-target-secret"
+		Expect(sqs.GetSecretName()).To(Equal("my-target-secret"))
 	})
 
 	It("implements runtime.Object", func() {
-		o2 := o.DeepCopyObject()
+		o2 := sqs.DeepCopyObject()
 		Expect(o2).ToNot(BeZero())
 	})
 
 	Context("cloudformation", func() {
 
 		It("should generate a unique stack name prefixed with cluster name", func() {
-			Expect(o.GetStackName()).To(HavePrefix("xxx-sqs-default-example"))
+			Expect(sqs.GetStackName()).To(HavePrefix("xxx-sqs-default-example"))
 		})
 
 		It("should require an IAM role input", func() {
-			t := o.GetStackTemplate()
+			t := sqs.GetStackTemplate()
 			Expect(t.Parameters).To(HaveKey("IAMRoleName"))
 		})
 
 		It("should have outputs for connection details", func() {
-			t := o.GetStackTemplate()
+			t := sqs.GetStackTemplate()
 			Expect(t.Outputs).To(HaveKey("QueueURL"))
 			Expect(t.Outputs).To(HaveKey("IAMRoleName"))
 		})
 
 		It("should map role name to role parameter", func() {
-			params, err := o.GetStackRoleParameters("fake-role")
+			params, err := sqs.GetStackRoleParameters("fake-role")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(params).To(ContainElement(&cloudformation.Parameter{
 				ParameterKey:   aws.String("IAMRoleName"),
@@ -84,7 +84,7 @@ var _ = Describe("SQS", func() {
 			var queue *cloudformation.AWSSQSQueue
 
 			JustBeforeEach(func() {
-				t := o.GetStackTemplate()
+				t := sqs.GetStackTemplate()
 				Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSSQSQueue{})))
 				var ok bool
 				queue, ok = t.Resources[v1beta1.SQSResourceName].(*cloudformation.AWSSQSQueue)
@@ -114,7 +114,7 @@ var _ = Describe("SQS", func() {
 
 			Context("when spec.aws.contentBasedDeduplication is set", func() {
 				BeforeEach(func() {
-					o.Spec.AWS.ContentBasedDeduplication = true
+					sqs.Spec.AWS.ContentBasedDeduplication = true
 				})
 				It("should set queue ContentBasedDeduplication from spec", func() {
 					Expect(queue.ContentBasedDeduplication).To(BeTrue())
@@ -123,7 +123,7 @@ var _ = Describe("SQS", func() {
 
 			Context("when spec.aws.delaySeconds is set", func() {
 				BeforeEach(func() {
-					o.Spec.AWS.DelaySeconds = 5
+					sqs.Spec.AWS.DelaySeconds = 5
 				})
 				It("should set queue DelaySeconds from spec", func() {
 					Expect(queue.DelaySeconds).To(Equal(5))
@@ -132,7 +132,7 @@ var _ = Describe("SQS", func() {
 
 			Context("when spec.aws.fifoQueue is set", func() {
 				BeforeEach(func() {
-					o.Spec.AWS.FifoQueue = true
+					sqs.Spec.AWS.FifoQueue = true
 				})
 				It("should set queue DelaySeconds from spec", func() {
 					Expect(queue.FifoQueue).To(BeTrue())
@@ -141,7 +141,7 @@ var _ = Describe("SQS", func() {
 
 			Context("when spec.aws.maximumMessageSize is set", func() {
 				BeforeEach(func() {
-					o.Spec.AWS.MaximumMessageSize = 101
+					sqs.Spec.AWS.MaximumMessageSize = 101
 				})
 				It("should set queue MaximumMessageSize from spec", func() {
 					Expect(queue.MaximumMessageSize).To(Equal(101))
@@ -150,7 +150,7 @@ var _ = Describe("SQS", func() {
 
 			Context("when spec.aws.messageRetentionPeriod is set", func() {
 				BeforeEach(func() {
-					o.Spec.AWS.MessageRetentionPeriod = 3600
+					sqs.Spec.AWS.MessageRetentionPeriod = 3600
 				})
 				It("should set queue MessageRetentionPeriod from spec", func() {
 					Expect(queue.MessageRetentionPeriod).To(Equal(3600))
@@ -159,7 +159,7 @@ var _ = Describe("SQS", func() {
 
 			Context("when spec.aws.receiveMessageWaitTimeSeconds is set", func() {
 				BeforeEach(func() {
-					o.Spec.AWS.ReceiveMessageWaitTimeSeconds = 60
+					sqs.Spec.AWS.ReceiveMessageWaitTimeSeconds = 60
 				})
 				It("should set queue ReceiveMessageWaitTimeSeconds from spec", func() {
 					Expect(queue.ReceiveMessageWaitTimeSeconds).To(Equal(60))
@@ -169,7 +169,7 @@ var _ = Describe("SQS", func() {
 			Context("when spec.aws.redrivePolicy is set", func() {
 				redriveJSON := `{ "deadLetterTargetArn" : "", "maxReceiveCount" : "" }`
 				BeforeEach(func() {
-					o.Spec.AWS.RedrivePolicy = redriveJSON
+					sqs.Spec.AWS.RedrivePolicy = redriveJSON
 				})
 				It("should set queue RedrivePolicy from spec", func() {
 					Expect(queue.RedrivePolicy).To(Equal(redriveJSON))
@@ -178,7 +178,7 @@ var _ = Describe("SQS", func() {
 
 			Context("when spec.aws.visibilityTimeout is set", func() {
 				BeforeEach(func() {
-					o.Spec.AWS.VisibilityTimeout = 120
+					sqs.Spec.AWS.VisibilityTimeout = 120
 				})
 				It("should set queue VisibilityTimeout from spec", func() {
 					Expect(queue.VisibilityTimeout).To(Equal(120))
@@ -192,7 +192,7 @@ var _ = Describe("SQS", func() {
 			var doc cloudformation.PolicyDocument
 
 			JustBeforeEach(func() {
-				t := o.GetStackTemplate()
+				t := sqs.GetStackTemplate()
 				Expect(t.Resources[v1beta1.SQSResourceIAMPolicy]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMPolicy{}))
 				policy = t.Resources[v1beta1.SQSResourceIAMPolicy].(*cloudformation.AWSIAMPolicy)
 				Expect(policy.PolicyDocument).To(BeAssignableToTypeOf(cloudformation.PolicyDocument{}))
@@ -211,12 +211,20 @@ var _ = Describe("SQS", func() {
 				Expect(doc.Statement).To(HaveLen(1))
 				statement := doc.Statement[0]
 				Expect(statement.Effect).To(Equal("Allow"))
-				Expect(statement.Action).To(ContainElement("sqs:SendMessage"))
-				Expect(statement.Action).To(ContainElement("sqs:ReceiveMessage"))
-				Expect(statement.Action).To(ContainElement("sqs:DeleteMessage"))
-				Expect(statement.Action).To(ContainElement("sqs:GetQueueAttributes"))
-				Expect(statement.Resource).ToNot(BeEmpty())
-				Expect(statement.Resource).ToNot(Equal("*"))
+				Expect(statement.Action).To(And(
+					ContainElement("sqs:ChangeMessageVisibility"),
+					ContainElement("sqs:DeleteMessage"),
+					ContainElement("sqs:GetQueueAttributes"),
+					ContainElement("sqs:GetQueueUrl"),
+					ContainElement("sqs:ListDeadLetterSourceQueues"),
+					ContainElement("sqs:ListQueueTags"),
+					ContainElement("sqs:PurgeQueue"),
+					ContainElement("sqs:ReceiveMessage"),
+					ContainElement("sqs:SendMessage"),
+				))
+				Expect(statement.Resource).To(ContainElement(
+					cloudformation.GetAtt(v1beta1.SQSResourceName, "Arn"),
+				))
 			})
 
 		})
