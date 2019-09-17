@@ -141,8 +141,12 @@ data "aws_iam_policy_document" "service-operator-managed-role-permissions-bounda
   statement {
     actions = [
       "rds-data:*",
-      "sqs:*",
       "rds:*",
+      "s3:*",
+      "sqs:SendMessage",
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
     ]
 
     resources = [

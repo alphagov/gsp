@@ -95,6 +95,12 @@ rules:
     - get
     - list
     - watch
+  - apiGroups: ["storage.govsvc.uk"]
+    resources: ["*"]
+    verbs:
+    - get
+    - list
+    - watch
 {{- range $extraPermission := .Values.extraPermissionsDev }}
   -
 {{- $extraPermission | toYaml | nindent 4 }}

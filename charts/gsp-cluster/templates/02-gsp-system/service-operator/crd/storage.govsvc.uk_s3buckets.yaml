@@ -1,0 +1,98 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  creationTimestamp: null
+  name: s3buckets.storage.govsvc.uk
+spec:
+  group: storage.govsvc.uk
+  names:
+    kind: S3Bucket
+    plural: s3buckets
+  scope: ""
+  validation:
+    openAPIV3Schema:
+      description: S3Bucket is the Schema for the S3Bucket API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: S3BucketSpec defines the desired state of S3Bucket
+          properties:
+            aws:
+              description: AWS specific subsection of the resource.
+              type: object
+            secret:
+              description: Secret name to be used for storing relevant instance secrets
+                for further use.
+              type: string
+          type: object
+        status:
+          description: Status is the type shared by most service resources
+          properties:
+            aws:
+              description: AWS specific status
+              properties:
+                events:
+                  description: Events will hold more in-depth details of the current
+                    state of the instance.
+                  items:
+                    description: AWSEvent is a single action taken against the resource
+                      at any given time.
+                    properties:
+                      reason:
+                        description: Reason for the current status of the instance.
+                        type: string
+                      status:
+                        description: Status of the currently running instance.
+                        type: string
+                      time:
+                        description: Time of the event cast.
+                        format: date-time
+                        type: string
+                    type: object
+                  type: array
+                id:
+                  description: ID of an instance for a reference.
+                  type: string
+                info:
+                  additionalProperties:
+                    type: string
+                  description: Info shows any outputs returned from GetStackOutputWhitelist
+                  type: object
+                name:
+                  description: Name of an instance for a reference.
+                  type: string
+                reason:
+                  description: Reason for the current status of the instance.
+                  type: string
+                status:
+                  description: Status of the currently running instance.
+                  type: string
+              type: object
+            state:
+              description: Generic service state
+              type: string
+          type: object
+      type: object
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

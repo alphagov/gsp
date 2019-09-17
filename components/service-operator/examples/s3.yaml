@@ -1,0 +1,9 @@
+---
+apiVersion: storage.govsvc.uk/v1beta1
+kind: S3
+metadata:
+  name: s3-bucket-sample
+  labels:
+    group.access.govsvc.uk: gsp.examples.test
+spec:
+  aws: {}

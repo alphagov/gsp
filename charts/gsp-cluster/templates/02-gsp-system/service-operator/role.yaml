@@ -67,6 +67,26 @@ rules:
   - patch
   - update
 - apiGroups:
+  - storage.govsvc.uk
+  resources:
+  - s3bucket
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - storage.govsvc.uk
+  resources:
+  - s3bucket/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - ""
   resources:
   - configmaps
