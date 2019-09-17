@@ -377,7 +377,6 @@ prometheus-operator:
         - source_labels: [instance]
           target_label: node
   grafana:
-    adminPassword: "password"
     additionalDataSources:
       - name: Cloudwatch
         type: cloudwatch
