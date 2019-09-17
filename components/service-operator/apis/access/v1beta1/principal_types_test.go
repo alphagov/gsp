@@ -48,9 +48,9 @@ var _ = Describe("Principal", func() {
 			Expect(t.Outputs).To(HaveKey("IAMRoleName"))
 		})
 
-		It("should whitelist the IAMRoleName output", func() {
-			whitelist := principal.GetStackOutputWhitelist()
-			Expect(whitelist).To(ContainElement("IAMRoleName"))
+		It("should safelist the IAMRoleName output", func() {
+			safelist := principal.GetStackOutputWhitelist()
+			Expect(safelist).To(ContainElement("IAMRoleName"))
 		})
 
 		Context("role resource", func() {
