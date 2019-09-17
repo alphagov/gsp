@@ -30,6 +30,9 @@ istioSystemRoleRegex: ""
 
 githubAPIToken: ""
 
+googleOauthClientId: ""
+googleOauthClientSecret: ""
+
 httpsEgressSafelist: []
 httpEgressSafelist: []
 

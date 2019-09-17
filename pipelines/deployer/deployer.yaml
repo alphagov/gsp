@@ -136,6 +136,8 @@ apply_cluster_chart: &apply_cluster_chart
     CLUSTER_PRIVATE_KEY:
     CLUSTER_PUBLIC_KEY:
     CONFIG_VALUES_PATH:
+    GOOGLE_OAUTH_CLIENT_ID:
+    GOOGLE_OAUTH_CLIENT_SECRET:
   run:
     path: /bin/bash
     args:
@@ -174,6 +176,8 @@ apply_cluster_chart: &apply_cluster_chart
         --values user-values/values.yaml \
         --values config/${CONFIG_VALUES_PATH} \
         --set "githubAPIToken=${GITHUB_API_TOKEN}" \
+        --set "googleOauthClientId=${GOOGLE_OAUTH_CLIENT_ID}" \
+        --set "googleOauthClientSecret=${GOOGLE_OAUTH_CLIENT_SECRET}" \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
         --output-dir manifests \
@@ -692,6 +696,8 @@ jobs:
       CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
       CONFIG_VALUES_PATH: ((config-values-path))
+      GOOGLE_OAUTH_CLIENT_ID: ((google-oauth-client-id))
+      GOOGLE_OAUTH_CLIENT_SECRET: ((google-oauth-client-secret))
 
 - name: check-canary
   plan:
