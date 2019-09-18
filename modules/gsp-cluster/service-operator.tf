@@ -61,6 +61,7 @@ data "aws_iam_policy_document" "service-operator" {
     actions = [
       "rds:*",
       "sqs:*",
+      "s3:*",
     ]
 
     resources = [
