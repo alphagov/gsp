@@ -202,9 +202,11 @@ apply_cluster_chart: &apply_cluster_chart
         gsp/gsp-istio-*.tgz
       function apply() {
         echo "applying ${1} from ${CHART_NAME} chart..."
-        until kubectl apply -R -f $1; do
+        kubectl apply -R -f $1 | grep -v "unchanged"
+        until [ "${PIPESTATUS[0]}" == "0" ]; do
           echo "---> ${1} apply failed retrying in 5s..."
           sleep 5
+          kubectl apply -R -f $1 | grep -v "unchanged"
         done
         sleep 5 # FIXME: we should do something smarter than sleep and check for success
         echo "---> ${1} applied OK!"
