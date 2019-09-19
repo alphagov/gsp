@@ -126,6 +126,13 @@ prometheus-operator:
       secrets: [ istio.gsp-prometheus-operator-prometheus ]
       serviceMonitorSelectorNilUsesHelmValues: false
       serviceMonitorSelector: {}
+      storageSpec:
+        volumeClaimTemplate:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+          storageClassName: gp2
       query:
         timeout: 30s
       additionalScrapeConfigs:
