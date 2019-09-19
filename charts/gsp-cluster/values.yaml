@@ -113,10 +113,13 @@ prometheus-operator:
     enabled: false
   kubeEtcd:
     enabled: false
+  service:
+    sessionAffinity: "ClientIP"
   prometheus:
     prometheusSpec:
       externalLabels:
         product: local
+      replicas: 2
       retention: "60d"
       ruleSelectorNilUsesHelmValues: false
       ruleSelector: {}
