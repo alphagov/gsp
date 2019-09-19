@@ -105,7 +105,7 @@ kiam:
 prometheus-operator:
   defaultRules:
     rules:
-      general: false # see templates/general.rules.yaml for replacement
+      general: false # see templates/02-gsp-system/prometheus-rules.yaml for replacement
       alertmanager: false
   kubeControllerManager:
     enabled: false
