@@ -105,7 +105,7 @@ kiam:
 prometheus-operator:
   defaultRules:
     rules:
-      general: false # see templates/general.rules.yaml for replacement
+      general: false # see templates/02-gsp-system/prometheus-rules.yaml for replacement
       alertmanager: false
   kubeControllerManager:
     enabled: false
@@ -113,16 +113,26 @@ prometheus-operator:
     enabled: false
   kubeEtcd:
     enabled: false
+  service:
+    sessionAffinity: "ClientIP"
   prometheus:
     prometheusSpec:
       externalLabels:
         product: local
+      replicas: 2
       retention: "60d"
       ruleSelectorNilUsesHelmValues: false
       ruleSelector: {}
       secrets: [ istio.gsp-prometheus-operator-prometheus ]
       serviceMonitorSelectorNilUsesHelmValues: false
       serviceMonitorSelector: {}
+      storageSpec:
+        volumeClaimTemplate:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+          storageClassName: gp2
       query:
         timeout: 30s
       additionalScrapeConfigs:
