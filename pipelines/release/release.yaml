@@ -69,7 +69,7 @@ resources:
     organization: alphagov
     repository: gsp
     paths:
-      - components/concourse-task-toolbox-source
+      - components/concourse-task-toolbox
     github_api_token: ((github-api-token))
     approvers: ((config-approvers))
     required_approval_count: 1
