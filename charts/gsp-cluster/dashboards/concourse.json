@@ -835,7 +835,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(concourse_builds_errored_total[60m])",
+          "expr": "irate(concourse_builds_errored_total[60m])",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "Build errors - {{pod}}",
