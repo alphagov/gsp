@@ -805,8 +805,8 @@
       "dashes": false,
       "fill": 1,
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 6,
+        "w": 8,
         "x": 0,
         "y": 14
       },
@@ -835,9 +835,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(concourse_builds_errored_total) without (instance, pod)",
+          "expr": "concourse_builds_errored_total",
           "format": "time_series",
           "intervalFactor": 1,
+          "legendFormat": "Build errors - {{pod}}",
           "refId": "A"
         }
       ],
