@@ -362,6 +362,8 @@ prometheus-operator:
           replacement: cluster-management
         - source_labels: [instance]
           target_label: node
+        - target_label: job
+          replacement: kubelet
       - job_name: 'node-exporter'
         scheme: http
         kubernetes_sd_configs:
