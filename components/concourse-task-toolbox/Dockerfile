@@ -1,13 +1,3 @@
-
-# ----------------------kubeseal-------------------------
-
-FROM golang:1.11 AS kubeseal
-ENV CGO_ENABLED=0
-ENV GOOS=linux
-RUN go get github.com/bitnami-labs/sealed-secrets/cmd/kubeseal
-
-#-----------------------------------------------
-
 FROM hashicorp/terraform:0.11.10 AS task-toolbox
 
 RUN apk add --update \
@@ -32,6 +22,12 @@ RUN apk add --update \
 	&& pip3 install awscli s3cmd yq PyYAML \
 	&& apk -v --purge del py3-pip \
 	&& rm /var/cache/apk/*
+
+# install kubeseal
+ENV KUBESEAL_VERSION=0.9.0
+RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-linux-amd64 \
+	&& chmod +x /kubeseal-linux-amd64 \
+	&& mv kubeseal-linux-amd64 /usr/local/bin/kubeseal
 
 # install kubectl
 ENV KUBECTL_VERSION=1.14.0
@@ -81,8 +77,6 @@ COPY bin/aws-assume-role /usr/local/bin/
 # --------------------output------------------------
 
 FROM task-toolbox
-# install kubeseal (sealing kubernetes secrets for storage)
-COPY --from=kubeseal /go/bin/kubeseal /usr/local/bin/
 COPY --from=hairyhenderson/gomplate:v3.5.0-slim /gomplate /bin/gomplate
 ENTRYPOINT ["/bin/bash"]
 CMD []
