@@ -137,6 +137,10 @@ rules:
     - get
     - list
     - watch
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs:
+    - delete
 {{- range $extraPermission := .Values.extraPermissionsSRE }}
   -
 {{- $extraPermission | toYaml | nindent 4 }}
