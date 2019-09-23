@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -o errexit \
+    -o nounset \
+    -o pipefail
+
+echo "configuring kubectl for deployer"
+echo "${KUBERNETES_SERVICE_ACCOUNT}" | jq -r .["ca.crt"] > ca.crt
+kubectl config set-cluster self --server=https://kubernetes.default --certificate-authority=ca.crt
+kubectl config set-credentials deployer --token "${KUBERNETES_TOKEN}"
+kubectl config set-context deployer --user deployer --cluster self
+kubectl config use-context deployer
