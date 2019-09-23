@@ -130,9 +130,7 @@ spec:
 You will be able to access the login details under /secrets/Endpoint, /secrets/Port, /secrets/Username and /secrets/Password:
 
 ```
-/ # cat /secrets/Password
-[redacted]
-/ # psql -h$(cat /secrets/Endpoint) -p$(cat /secrets/Port) -U$(cat /secrets/Username) postgres
+/ # PGPASSWORD=$(cat /secrets/Password) psql -h$(cat /secrets/Endpoint) -p$(cat /secrets/Port) -U$(cat /secrets/Username) postgres
 Password for user [redacted]:
 psql (11.5, server 10.7)
 SSL connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
