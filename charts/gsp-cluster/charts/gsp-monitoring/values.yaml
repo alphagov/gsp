@@ -1,7 +1,8 @@
 prometheus-operator:
   defaultRules:
     rules:
-      general: false # see templates/prometheus-rules.yaml for replacement
+      general: false # see templates/rules-general.yaml for replacement
+      kubernetesSystem: false # see templates/rules-kubernetes-system.yaml for replacement
       alertmanager: false
   kubeControllerManager:
     enabled: false
