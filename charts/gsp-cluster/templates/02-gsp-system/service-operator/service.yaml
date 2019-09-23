@@ -1,3 +1,4 @@
+{{- if .Values.global.runningOnAws }}
 ---
 apiVersion: v1
 kind: Service
@@ -16,3 +17,4 @@ spec:
     targetPort: https
   selector:
     control-plane: {{ .Release.Name }}-service-operator
+{{ end }}

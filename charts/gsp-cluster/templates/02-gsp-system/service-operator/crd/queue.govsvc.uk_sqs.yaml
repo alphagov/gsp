@@ -1,4 +1,4 @@
-
+{{- if .Values.global.runningOnAws }}
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -113,3 +113,4 @@ status:
     plural: ""
   conditions: []
   storedVersions: []
+{{ end }}

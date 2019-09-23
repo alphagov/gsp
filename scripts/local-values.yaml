@@ -8,6 +8,9 @@ global:
 
 namespaces: []
 
+googleOauthClientId: "foo"
+googleOauthClientSecret: "bar"
+
 concourse:
   concourse:
     web:
@@ -29,3 +32,13 @@ harbor:
       hosts:
         core: registry.local.govsandbox.uk
   externalURL: http://registry.local.govsandbox.uk
+
+prometheus-operator:
+  prometheus:
+    prometheusSpec:
+      storageSpec:
+  grafana:
+    persistence:
+      enabled: false
+    env:
+      GF_AUTH_GOOGLE_ENABLED: "false"
