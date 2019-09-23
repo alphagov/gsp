@@ -72,7 +72,7 @@ RUN curl -LO https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/d
 	&& chmod +x aws-iam-authenticator_0.4.0-alpha.1_linux_amd64 \
 	&& mv aws-iam-authenticator_0.4.0-alpha.1_linux_amd64 /usr/local/bin/aws-iam-authenticator
 
-COPY bin/aws-assume-role /usr/local/bin/
+COPY bin/aws-assume-role bin/setup-kube-deployer /usr/local/bin/
 
 # --------------------output------------------------
 
