@@ -118,20 +118,33 @@ spec:
     -   name: myapp-container
         image: governmentpaas/psql
         command: ['sleep', '1000000']
-        volumeMounts:
-        -   name: secrets
-            mountPath: /secrets
-    volumes:
-    -   name: secrets
-        secret:
-            secretName: alexs-test-db-secret
+        env:
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef:
+              name: alexs-test-db-secret
+              key: Endpoint
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              name: alexs-test-db-secret
+              key: Port
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: alexs-test-db-secret
+              key: Username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: alexs-test-db-secret
+              key: Password
 ```
 
-You will be able to access the login details under /secrets/Endpoint, /secrets/Port, /secrets/Username and /secrets/Password:
+You will be able to exec into this pod and get a PostgreSQL prompt.
 
 ```
-/ # PGPASSWORD=$(cat /secrets/Password) psql -h$(cat /secrets/Endpoint) -p$(cat /secrets/Port) -U$(cat /secrets/Username) postgres
-Password for user [redacted]:
+$ gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -c myapp-container -it /usr/bin/psql postgres
 psql (11.5, server 10.7)
 SSL connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
 Type "help" for help.
@@ -139,7 +152,7 @@ Type "help" for help.
 postgres=>
 ```
 
-You should also get the read endpoint in /secrets/ReadEndpoint.
+You could also get the read endpoint using the ReadEndpoint key.
 
 ## How it works
 You don't need to know this to use it, this information is for cluster operators.
