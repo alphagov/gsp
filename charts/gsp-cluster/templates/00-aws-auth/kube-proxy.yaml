@@ -1,3 +1,4 @@
+{{ if .Values.global.runningOnAws }}
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
@@ -96,3 +97,4 @@ spec:
     rollingUpdate:
       maxUnavailable: 10%
     type: RollingUpdate
+{{ end }}
