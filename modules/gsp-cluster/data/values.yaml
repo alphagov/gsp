@@ -160,6 +160,8 @@ gsp-monitoring:
       grafana.ini:
         server:
           root_url: https://grafana.${cluster_domain}
+        users:
+          viewers_can_edit: true
 
 serviceOperator:
   kiamServerRoleARN: ${kiam_server_role_arn}
