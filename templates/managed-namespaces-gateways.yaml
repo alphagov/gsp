@@ -49,6 +49,8 @@ istio:
       externalIPs: []
       serviceAnnotations:
         service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+        service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: |
+          Environment={{ $namespace.name }},Name={{ $namespace.name }}-ingress
       podAnnotations: {}
       type: LoadBalancer #change to NodePort, ClusterIP or LoadBalancer if need be
       #externalTrafficPolicy: Local #change to Local to preserve source IP or Cluster for default behaviour or leave commented out
