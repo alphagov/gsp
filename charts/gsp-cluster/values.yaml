@@ -336,6 +336,31 @@ prometheus-operator:
           target_label: __address__
           regex: (.*):.*
           replacement: $1:61678
+      - job_name: 'kubeproxy'
+        scheme: http
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
+          regex: true
+          target_label: node_role
+          replacement: worker
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
+          regex: true
+          target_label: node_role
+          replacement: ci
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
+          regex: true
+          target_label: node_role
+          replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
+        - source_labels: [__address__]
+          target_label: __address__
+          regex: (.*):.*
+          replacement: $1:10249
       - job_name: 'kubelet'
         scheme: https
         tls_config:
