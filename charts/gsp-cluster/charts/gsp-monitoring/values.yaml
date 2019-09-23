@@ -1,0 +1,366 @@
+prometheus-operator:
+  defaultRules:
+    rules:
+      general: false # see templates/prometheus-rules.yaml for replacement
+      alertmanager: false
+  kubeControllerManager:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeEtcd:
+    enabled: false
+  service:
+    sessionAffinity: "ClientIP"
+  prometheus:
+    prometheusSpec:
+      externalLabels:
+        product: local
+      replicas: 2
+      retention: "60d"
+      ruleSelectorNilUsesHelmValues: false
+      ruleSelector: {}
+      secrets: [ istio.gsp-prometheus-operator-prometheus ]
+      serviceMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelector: {}
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 50Gi
+            storageClassName: gp2
+      query:
+        timeout: 30s
+      additionalScrapeConfigs:
+      - job_name: 'istio-mesh'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-telemetry;prometheus
+      # Scrape config for envoy stats
+      - job_name: 'envoy-stats'
+        metrics_path: /stats/prometheus
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_container_port_name]
+          action: keep
+          regex: '.*-envoy-prom'
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:15090
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod_name
+        metric_relabel_configs:
+        # Exclude some of the envoy metrics that have massive cardinality
+        # This list may need to be pruned further moving forward, as informed
+        # by performance and scalability testing.
+        - source_labels: [ cluster_name ]
+          regex: '(outbound|inbound|prometheus_stats).*'
+          action: drop
+        - source_labels: [ tcp_prefix ]
+          regex: '(outbound|inbound|prometheus_stats).*'
+          action: drop
+        - source_labels: [ listener_address ]
+          regex: '(.+)'
+          action: drop
+        - source_labels: [ http_conn_manager_listener_prefix ]
+          regex: '(.+)'
+          action: drop
+        - source_labels: [ http_conn_manager_prefix ]
+          regex: '(.+)'
+          action: drop
+        - source_labels: [ __name__ ]
+          regex: 'envoy_tls.*'
+          action: drop
+        - source_labels: [ __name__ ]
+          regex: 'envoy_tcp_downstream.*'
+          action: drop
+        - source_labels: [ __name__ ]
+          regex: 'envoy_http_(stats|admin).*'
+          action: drop
+        - source_labels: [ __name__ ]
+          regex: 'envoy_cluster_(lb|retry|bind|internal|max|original).*'
+          action: drop
+      - job_name: 'istio-policy'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-policy;http-monitoring
+      - job_name: 'istio-telemetry'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-telemetry;http-monitoring
+      - job_name: 'pilot'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-pilot;http-monitoring
+      - job_name: 'galley'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-galley;http-monitoring
+      - job_name: 'citadel'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - istio-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: istio-citadel;http-monitoring
+      - job_name: 'kiam-agent'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - gsp-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: gsp-kiam-agent;metrics
+      - job_name: 'kiam-server'
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - gsp-system
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: gsp-kiam-server;metrics
+      - job_name: 'kubernetes-pods-istio-secure'
+        scheme: https
+        tls_config:
+          ca_file: /etc/istio-certs/root-cert.pem
+          cert_file: /etc/istio-certs/cert-chain.pem
+          key_file: /etc/istio-certs/key.pem
+          insecure_skip_verify: true  # prometheus does not support secure naming.
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        # sidecar status annotation is added by sidecar injector and
+        # istio_workload_mtls_ability can be specifically placed on a pod to indicate its ability to receive mtls traffic.
+        - source_labels: [__meta_kubernetes_pod_annotation_sidecar_istio_io_status, __meta_kubernetes_pod_annotation_istio_mtls]
+          action: keep
+          regex: (([^;]+);([^;]*))|(([^;]*);(true))
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scheme]
+          action: drop
+          regex: (http)
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__]  # Only keep address that is host:port
+          action: keep    # otherwise an extra target with ':443' is added for https scheme
+          regex: ([^:]+):(\d+)
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod_name
+      - job_name: 'amazon-vpc-cni'
+        scheme: http
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
+          regex: true
+          target_label: node_role
+          replacement: worker
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
+          regex: true
+          target_label: node_role
+          replacement: ci
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
+          regex: true
+          target_label: node_role
+          replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
+        - source_labels: [__address__]
+          target_label: __address__
+          regex: (.*):.*
+          replacement: $1:61678
+      - job_name: 'kubeproxy'
+        scheme: http
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
+          regex: true
+          target_label: node_role
+          replacement: worker
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
+          regex: true
+          target_label: node_role
+          replacement: ci
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
+          regex: true
+          target_label: node_role
+          replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
+        - source_labels: [__address__]
+          target_label: __address__
+          regex: (.*):.*
+          replacement: $1:10249
+      - job_name: 'kubelet'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
+          regex: true
+          target_label: node_role
+          replacement: worker
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
+          regex: true
+          target_label: node_role
+          replacement: ci
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
+          regex: true
+          target_label: node_role
+          replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
+      - job_name: 'kubelet-cadvisor'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        metrics_path: /metrics/cadvisor
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
+          regex: true
+          target_label: node_role
+          replacement: worker
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
+          regex: true
+          target_label: node_role
+          replacement: ci
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
+          regex: true
+          target_label: node_role
+          replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
+        - target_label: job
+          replacement: kubelet
+      - job_name: 'node-exporter'
+        scheme: http
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - source_labels: [__address__]
+          target_label: __address__
+          regex: (.*):.*
+          replacement: $1:9100
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_worker]
+          regex: true
+          target_label: node_role
+          replacement: worker
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
+          regex: true
+          target_label: node_role
+          replacement: ci
+        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
+          regex: true
+          target_label: node_role
+          replacement: cluster-management
+        - source_labels: [instance]
+          target_label: node
+  grafana:
+    additionalDataSources:
+      - name: Cloudwatch
+        type: cloudwatch
+        jsonData:
+          authType: credentials
+          defaultRegion: eu-west-2
+    persistence:
+      enabled: true
+      type: pvc
+      accessModes:
+      - ReadWriteOnce
+      size: 10Mi
+      storageClassName: gp2
+    env:
+      GF_AUTH_GOOGLE_ENABLED: "true"
+      GF_AUTH_GOOGLE_ALLOW_SIGN_UP: "true"
+      GF_AUTH_GOOGLE_ALLOWED_DOMAINS: "digital.cabinet-office.gov.uk"
+      GF_SECURITY_COOKIE_SECURE: "true"
+      GF_SESSION_COOKIE_SECURE: "true"
+    envFromSecret: grafana
+
+  prometheusOperator:
+    kubeletService:
+      enabled: false
+  kubelet:
+    enabled: false
+  alertmanager:
+    enabled: false

@@ -139,26 +139,27 @@ fluentd-cloudwatch:
   - operator: Exists
     effect: NoSchedule
 
-prometheus-operator:
-  prometheus:
-    prometheusSpec:
-      externalLabels:
-        clustername: ${cluster_domain}
-        product: ${account_name}
-      additionalAlertManagerConfigs:
-      - static_configs:
-        - targets:
-          - "alerts-1.monitoring.gds-reliability.engineering"
-          - "alerts-2.monitoring.gds-reliability.engineering"
-          - "alerts-3.monitoring.gds-reliability.engineering"
-        scheme: https
-  grafana:
-    podAnnotations:
-      iam.amazonaws.com/role: ${grafana_iam_role_name}
-    adminPassword: ${grafana_default_admin_password}
-    grafana.ini:
-      server:
-        root_url: https://grafana.${cluster_domain}
+gsp-monitoring:
+  prometheus-operator:
+    prometheus:
+      prometheusSpec:
+        externalLabels:
+          clustername: ${cluster_domain}
+          product: ${account_name}
+        additionalAlertManagerConfigs:
+        - static_configs:
+          - targets:
+            - "alerts-1.monitoring.gds-reliability.engineering"
+            - "alerts-2.monitoring.gds-reliability.engineering"
+            - "alerts-3.monitoring.gds-reliability.engineering"
+          scheme: https
+    grafana:
+      podAnnotations:
+        iam.amazonaws.com/role: ${grafana_iam_role_name}
+      adminPassword: ${grafana_default_admin_password}
+      grafana.ini:
+        server:
+          root_url: https://grafana.${cluster_domain}
 
 serviceOperator:
   kiamServerRoleARN: ${kiam_server_role_arn}
