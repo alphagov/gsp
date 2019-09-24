@@ -7,6 +7,7 @@ data "template_file" "values" {
     cluster_name                     = "${var.cluster_name}"
     cluster_domain                   = "${var.cluster_domain}"
     cluster_domain_id                = "${var.cluster_domain_id}"
+    egress_ip_addresses              = "${jsonencode(var.egress_ips)}"
     account_name                     = "${var.account_name}"
     account_id                       = "${data.aws_caller_identity.current.account_id}"
     admin_role_arns                  = "${jsonencode(var.admin_role_arns)}"
