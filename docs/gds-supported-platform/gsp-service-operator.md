@@ -65,7 +65,7 @@ kind: Pod
 metadata:
   name: alexs-test-pod
   annotations:
-    iam.amazonaws.com/role: svcop-sandbox-gsp-service-operator-test-alexs-test-princ
+    iam.amazonaws.com/role: svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ
 spec:
   containers:
   - name: myapp-container
