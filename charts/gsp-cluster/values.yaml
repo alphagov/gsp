@@ -161,6 +161,7 @@ concourse:
         logLevel: error
         driver: overlay
     web:
+      xFrameOptions: "allow-from: https://framesplits.cloudapps.digital/"
       logLevel: error
       auth:
         mainTeam:
