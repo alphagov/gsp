@@ -1,0 +1,33 @@
+{{ if .Values.global.runningOnAws }}
+---
+apiVersion: config.istio.io/v1alpha2
+kind: handler
+metadata:
+  name: harbor-api-ip-safelist
+spec:
+  compiledAdapter: listchecker
+  params:
+    overrides:
+{{ .Values.global.cluster.egressIpAddresses | toYaml | indent 4 -}}
+    blacklist: false
+    entryType: IP_ADDRESSES
+---
+apiVersion: config.istio.io/v1alpha2
+kind: instance
+metadata:
+  name: harbor-api-ip-safelist-originip
+spec:
+  compiledTemplate: listentry
+  params:
+    value: origin.ip | ip("0.0.0.0")
+---
+apiVersion: config.istio.io/v1alpha2
+kind: rule
+metadata:
+  name: harbor-api-ip-safelist
+spec:
+  match: source.labels["istio"] == "gsp-system-ingressgateway" && destination.service.name == "gsp-harbor-core" && request.path.startsWith("/api")
+  actions:
+  - handler: harbor-ip-safelist
+    instances: [ harbor-ip-safelist-originip ]
+{{ end }}
