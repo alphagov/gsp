@@ -33,12 +33,20 @@ harbor:
         core: registry.local.govsandbox.uk
   externalURL: http://registry.local.govsandbox.uk
 
-prometheus-operator:
-  prometheus:
-    prometheusSpec:
-      storageSpec:
-  grafana:
-    persistence:
-      enabled: false
-    env:
-      GF_AUTH_GOOGLE_ENABLED: "false"
+
+gsp-monitoring:
+  prometheus-operator:
+    prometheus:
+      prometheusSpec:
+        # This following doesn't do what I'd expect (remove the `storageSpec`
+        # key from the merged output). I think because of this bug:
+        # https://github.com/helm/helm/pull/6080. The fix is merged but is not
+        # part of any release of Helm 2.x. This will probably only by a problem
+        # if running GSP local. In this case you should delete the PVC from
+        # your source tree locally.
+        storageSpec: null
+    grafana:
+      persistence:
+        enabled: false
+      env:
+        GF_AUTH_GOOGLE_ENABLED: "false"

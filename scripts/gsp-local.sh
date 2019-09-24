@@ -34,7 +34,7 @@ function template_all() {
 	# install but rather immediately. This causes the test pods to error
 	# because the chart won't have finished installing by the time the test
 	# runs.
-	rm -rf "${1}/gsp-cluster/charts/prometheus-operator/charts/grafana/templates/tests/"
+	rm -r "${1}/gsp-cluster/charts/gsp-monitoring/charts/prometheus-operator/charts/grafana/templates/tests/"
 }
 
 option=${1}
