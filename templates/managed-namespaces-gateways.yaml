@@ -31,7 +31,7 @@ istio:
         app: istio-ingressgateway
         istio: {{ $namespace.name }}-ingressgateway
       autoscaleEnabled: true
-      autoscaleMin: 1
+      autoscaleMin: 2
       autoscaleMax: 5
       # specify replicaCount when autoscaleEnabled: false
       # replicaCount: 1
@@ -51,9 +51,13 @@ istio:
         service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
         service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: |
           Environment={{ $namespace.name }},Name={{ $namespace.name }}-ingress
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "5"
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "3"
       podAnnotations: {}
       type: LoadBalancer #change to NodePort, ClusterIP or LoadBalancer if need be
-      #externalTrafficPolicy: Local #change to Local to preserve source IP or Cluster for default behaviour or leave commented out
+      externalTrafficPolicy: Local #change to Local to preserve source IP or Cluster for default behaviour or leave commented out
       ports:
         ## You can add custom gateway ports
         # Note that AWS ELB will by default perform health checks on the first port
