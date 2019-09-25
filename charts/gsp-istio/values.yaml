@@ -7,6 +7,7 @@ global:
     accessLogFile: "/dev/stdout"
   outboundTrafficPolicy:
     mode: REGISTRY_ONLY
+  disablePolicyChecks: false
 
 istio-cni:
   tag: release-1.1-20190808-09-16
