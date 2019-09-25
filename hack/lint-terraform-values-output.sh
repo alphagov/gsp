@@ -31,6 +31,7 @@ global:
   cluster:
     domain: fake.com
     name: sandbox
+    egressIpAddresses: ["127.0.0.1", "1.2.3.4"]
     privateKey: BEGIN-PRIVATE
     publicKey: BEGIN-PUBLIC
 egressSafelist:
@@ -110,6 +111,7 @@ helm template \
 		| sed 's/${sre_user_arns}/[]/' \
 		| sed 's/${bootstrap_role_arns}/[]/' \
 		| sed 's/${concourse_teams}/["org:team"]/' \
+		| sed 's/${egress_ip_addresses}/[]/' \
 	) \
 	--values output/values.yaml \
 	--set 'global.cloudHsm.enabled=true' \
