@@ -31,7 +31,13 @@ istio:
         app: istio-ingressgateway
         istio: {{ $namespace.name }}-ingressgateway
       autoscaleEnabled: true
-      autoscaleMin: 2
+      # minimum of 1 per AZ. According to
+      # https://kubernetes.io/docs/setup/best-practices/multiple-zones/#pods-are-spread-across-zones
+      # pods are spread across "failure zones" by default. NLB cross-zone routing isn't in this version
+      # of kubernetes and as we've enabled `externalTrafficPolicy: Local` connections to the NLB in an AZ
+      # that has no ingressgateway results in timeouts. Once k8s 1.14 lands the following annotation solves it
+      # service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled
+      autoscaleMin: 3
       autoscaleMax: 5
       # specify replicaCount when autoscaleEnabled: false
       # replicaCount: 1
@@ -55,6 +61,7 @@ istio:
         service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
         service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "5"
         service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "3"
+        service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
       podAnnotations: {}
       type: LoadBalancer #change to NodePort, ClusterIP or LoadBalancer if need be
       externalTrafficPolicy: Local #change to Local to preserve source IP or Cluster for default behaviour or leave commented out
