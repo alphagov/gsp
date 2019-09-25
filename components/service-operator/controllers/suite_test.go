@@ -41,6 +41,12 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	// +kubebuilder:scaffold:imports
+	
+	"k8s.io/apimachinery/pkg/runtime"
+	k8sschema "k8s.io/apimachinery/pkg/runtime/schema"
+	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1" // TODO: if we remove the meta_v1 line below we won't need this either
+	istioschemas "istio.io/istio/pkg/config/schemas"
+	istiocrd "istio.io/istio/pilot/pkg/config/kube/crd"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -76,6 +82,17 @@ func SetupControllerEnv() (client.Client, func()) {
 	cfg, err := testEnv.Start()
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cfg).ToNot(BeNil())
+
+	istioSchemeBuilder := runtime.NewSchemeBuilder(
+		func(scheme *runtime.Scheme) error {
+			gv := k8sschema.GroupVersion{Group: "networking.istio.io", Version: "v1alpha3"}
+			st := istiocrd.KnownTypes[istioschemas.ServiceEntry.Type]
+			scheme.AddKnownTypes(gv, st.Object, st.Collection)
+			meta_v1.AddToGroupVersion(scheme, gv) // TODO: is this necessary?
+			return nil
+		})
+	err = istioSchemeBuilder.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
 
 	err = databasev1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())

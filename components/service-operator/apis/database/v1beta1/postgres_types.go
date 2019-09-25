@@ -17,12 +17,15 @@ package v1beta1
 
 import (
 	"fmt"
+	"strconv"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
+
+	istio "istio.io/istio/pilot/pkg/config/kube/crd"
 )
 
 func init() {
@@ -223,6 +226,36 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 	}
 
 	return template
+}
+
+// ServiceEntry to whitelist egress access to Postgres port and hosts.
+func (p *Postgres) GetServiceEntry(outputs cloudformation.Outputs) (*istio.ServiceEntry, error) {
+	port, err := strconv.Atoi(outputs[PostgresPort])
+	if err != nil {
+		return nil, err
+	}
+
+	return &istio.ServiceEntry{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("svcop-postgres-%s", p.GetName()),
+			Namespace: p.GetNamespace(),
+		},
+		Spec: map[string]interface{} {
+			"hosts": []string{
+				outputs[PostgresEndpoint],
+				outputs[PostgresReadEndpoint],
+			},
+			"ports": []interface{} {
+				map[string]interface{} {
+					"name": "aurora",
+					"number": port,
+					"protocol": "TLS",
+				},
+			},
+			"location": "MESH_EXTERNAL",
+			"resolution": "DNS",
+		},
+	}, nil
 }
 
 // +kubebuilder:object:root=true

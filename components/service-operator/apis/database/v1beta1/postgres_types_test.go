@@ -1,7 +1,9 @@
 package v1beta1_test
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -45,6 +47,42 @@ var _ = Describe("Postgres", func() {
 	It("should use secret name from spec.Secret if set ", func() {
 		postgres.Spec.Secret = "my-target-secret"
 		Expect(postgres.GetSecretName()).To(Equal("my-target-secret"))
+	})
+
+	It("should base egress whitelisted host name off object name", func() {
+		outputs := cloudformation.Outputs {
+			v1beta1.PostgresEndpoint: "test-endpoint",
+			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
+			v1beta1.PostgresPort: "3306",
+		}
+
+		ret, err := postgres.GetServiceEntry(outputs)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(ret.GetObjectMeta().Name).To(Equal(fmt.Sprintf("svcop-postgres-%s", postgres.GetName())))
+		Expect(ret.GetObjectMeta().Namespace).To(Equal(postgres.GetNamespace()))
+		Expect(ret.GetSpec()["resolution"]).To(Equal("DNS"))
+		Expect(ret.GetSpec()["location"]).To(Equal("MESH_EXTERNAL"))
+		Expect(ret.GetSpec()["hosts"]).To(ContainElement(outputs[v1beta1.PostgresEndpoint]))
+		Expect(ret.GetSpec()["hosts"]).To(ContainElement(outputs[v1beta1.PostgresReadEndpoint]))
+		ports, ok := ret.GetSpec()["ports"].([]interface{})
+		Expect(ok).To(BeTrue())
+		Expect(len(ports)).To(BeNumerically(">", 0))
+		port, ok := ports[0].(map[string]interface{})
+		Expect(port["name"]).To(Equal("aurora"))
+		portnum, err := strconv.Atoi(outputs[v1beta1.PostgresPort])
+		Expect(err).NotTo(HaveOccurred())
+		Expect(port["number"]).To(Equal(portnum))
+		Expect(port["protocol"]).To(Equal("TLS"))
+	})
+
+	It("should error if port is not numeric", func() {
+		outputs := cloudformation.Outputs {
+			v1beta1.PostgresEndpoint: "test-endpoint",
+			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
+			v1beta1.PostgresPort: "asd",
+		}
+		_, err := postgres.GetServiceEntry(outputs)
+		Expect(err).To(HaveOccurred())
 	})
 
 	It("should generate a unique stack name prefixed with cluster name", func() {

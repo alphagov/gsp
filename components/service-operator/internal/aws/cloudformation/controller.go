@@ -227,7 +227,50 @@ func (r *Controller) reconcileObjectWithContext(ctx context.Context, req ctrl.Re
 		}
 	}
 
+	if stackThatWritesServiceEntry, ok := o.(ServiceEntryCreator); ok {
+		err = r.updateServiceEntry(ctx, stackThatWritesServiceEntry, outputs)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
+}
+
+// updateServiceEntry will write any necessary Istio ServiceEntry resource to
+// Kubernetes, so that Istio will allow the tenant's pods to egress to the
+// resource we've created for them.
+func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreator, outputs Outputs) error {
+	serviceEntry, err := o.GetServiceEntry(outputs)
+	if err != nil {
+		return err
+	}
+
+	serviceEntryKey, err := client.ObjectKeyFromObject(serviceEntry)
+	if err != nil {
+		return err
+	}
+	err = r.KubernetesClient.Get(ctx, serviceEntryKey, serviceEntry)
+	if err != nil && !apierrs.IsNotFound(err) {
+		return err
+	}
+	op, err := controllerutil.CreateOrUpdate(ctx, r.KubernetesClient, serviceEntry, func() error {
+		return nil
+	})
+	r.Log.Info("update-service-entry",
+		"service-entry", serviceEntryKey,
+		"op", op,
+		"err", err,
+	)
+	if err != nil {
+		return err
+	}
+	// mark the serviceEntry as owned by the o resource so it gets gc'd
+	if err := controllerutil.SetControllerReference(o, serviceEntry, r.Scheme); err != nil {
+		return err
+	}
+	return nil
+
 }
 
 // updateCredentialsSecret will write any cloudformation outputs to a secret so

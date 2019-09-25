@@ -2,6 +2,8 @@ package cloudformation
 
 import (
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
+
+	istio "istio.io/istio/pilot/pkg/config/kube/crd"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Stack
@@ -38,4 +40,9 @@ type StackOutputWhitelister interface {
 type StackSecretOutputter interface {
 	Stack
 	object.SecretNamer
+}
+
+type ServiceEntryCreator interface {
+	Stack
+	GetServiceEntry(outputs Outputs) (*istio.ServiceEntry, error)
 }

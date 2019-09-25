@@ -2,6 +2,7 @@ package v1beta1_test
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -47,6 +48,28 @@ var _ = Describe("S3Bucket", func() {
 	It("should use secret name from spec.Secret if set ", func() {
 		o.Spec.Secret = "my-target-secret"
 		Expect(o.GetSecretName()).To(Equal("my-target-secret"))
+	})
+
+	It("should base egress whitelisted host name off object name", func() {
+		outputs := cloudformation.Outputs {
+			v1beta1.S3BucketName: "test",
+		}
+
+		ret, err := o.GetServiceEntry(outputs)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(ret.GetObjectMeta().Name).To(Equal(fmt.Sprintf("svcop-s3-%s", o.GetName())))
+		Expect(ret.GetObjectMeta().Namespace).To(Equal(o.GetNamespace()))
+		Expect(ret.GetSpec()["resolution"]).To(Equal("DNS"))
+		Expect(ret.GetSpec()["location"]).To(Equal("MESH_EXTERNAL"))
+		Expect(ret.GetSpec()["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
+		ports, ok := ret.GetSpec()["ports"].([]interface{})
+		Expect(ok).To(BeTrue())
+		Expect(len(ports)).To(BeNumerically(">", 0))
+		port, ok := ports[0].(map[string]interface{})
+		Expect(ok).To(BeTrue())
+		Expect(port["name"]).To(Equal("https"))
+		Expect(port["number"]).To(Equal(443))
+		Expect(port["protocol"]).To(Equal("TLS"))
 	})
 
 	It("implements runtime.Object", func() {

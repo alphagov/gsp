@@ -23,6 +23,8 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	"github.com/aws/aws-sdk-go/aws"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	istio "istio.io/istio/pilot/pkg/config/kube/crd"
 )
 
 func init() {
@@ -200,6 +202,30 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 	}
 
 	return template
+}
+
+// ServiceEntry to whitelist egress access to S3 hostname.
+func (s *S3Bucket) GetServiceEntry(outputs cloudformation.Outputs) (*istio.ServiceEntry, error) {
+	return &istio.ServiceEntry{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("svcop-s3-%s", s.GetName()),
+			Namespace: s.GetNamespace(),
+		},
+		Spec: map[string]interface{} {
+			"hosts": []string{
+				fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[S3BucketName]),
+			},
+			"ports": []interface{} {
+				map[string]interface{} {
+					"name": "https",
+					"number": 443,
+					"protocol": "TLS",
+				},
+			},
+			"location": "MESH_EXTERNAL",
+			"resolution": "DNS",
+		},
+	}, nil
 }
 
 // GetStackRoleParameters returns additional params based on a target principal resource
