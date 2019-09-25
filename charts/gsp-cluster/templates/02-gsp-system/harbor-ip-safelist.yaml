@@ -28,6 +28,6 @@ metadata:
 spec:
   match: source.labels["istio"] == "gsp-system-ingressgateway" && destination.service.name == "gsp-harbor-core" && request.path.startsWith("/api")
   actions:
-  - handler: harbor-ip-safelist
-    instances: [ harbor-ip-safelist-originip ]
+  - handler: harbor-api-ip-safelist
+    instances: [ harbor-api-ip-safelist-originip ]
 {{ end }}
