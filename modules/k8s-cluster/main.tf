@@ -40,14 +40,6 @@ resource "aws_cloudwatch_log_group" "eks" {
   }
 }
 
-data "aws_ami" "node_ami" {
-  owners           = ["amazon"]
-  filter {
-    name = "name"
-    values = ["amazon-eks-node-1.13-v20190814"]
-  }
-}
-
 # As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
 resource "aws_cloudformation_stack" "worker-nodes" {
   name          = "${var.cluster_name}-worker-nodes"
@@ -62,7 +54,6 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     NodeAutoScalingGroupDesiredCapacity = "${var.worker_count}"
     NodeAutoScalingGroupMaxSize         = "${var.worker_count + 2}"
     NodeInstanceType                    = "${var.worker_instance_type}"
-    NodeImageId                         = "${data.aws_ami.node_ami.image_id}"
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
     VpcId                               = "${var.vpc_id}"
@@ -85,7 +76,6 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
     NodeAutoScalingGroupDesiredCapacity = "2"
     NodeAutoScalingGroupMaxSize         = "3"
     NodeInstanceType                    = "t3.medium"
-    NodeImageId                         = "${data.aws_ami.node_ami.image_id}"
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/cluster-management --register-with-taints=node-role.kubernetes.io/cluster-management=:NoSchedule --event-qps=0\""
     VpcId                               = "${var.vpc_id}"
@@ -108,7 +98,6 @@ resource "aws_cloudformation_stack" "ci-nodes" {
     NodeAutoScalingGroupDesiredCapacity = "${var.ci_worker_count}"
     NodeAutoScalingGroupMaxSize         = "${var.ci_worker_count + 1}"
     NodeInstanceType                    = "${var.ci_worker_instance_type}"
-    NodeImageId                         = "${data.aws_ami.node_ami.image_id}"
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule --event-qps=0\""
     VpcId                               = "${var.vpc_id}"
