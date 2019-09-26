@@ -16,6 +16,7 @@ limitations under the License.
 package v1beta1
 
 import (
+	"github.com/concourse/concourse/atc"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -26,9 +27,9 @@ import (
 type PipelineSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	PipelineString string `json:"pipelineString"`
-	Paused         bool   `json:"paused,omitempty"`
-	Exposed        bool   `json:"exposed,omitempty"`
+	Config  atc.Config `json:"config"`
+	Paused  bool       `json:"paused,omitempty"`
+	Exposed bool       `json:"exposed,omitempty"`
 }
 
 // PipelineStatus defines the observed state of Pipeline

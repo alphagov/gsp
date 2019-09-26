@@ -26,10 +26,10 @@ spec:
               type: boolean
             paused:
               type: boolean
-            pipelineString:
-              type: string
+            config:
+              type: object
           required:
-          - pipelineString
+          - config
           type: object
         status:
           type: object

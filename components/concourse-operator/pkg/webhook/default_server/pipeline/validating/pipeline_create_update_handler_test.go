@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/concourse/concourse/atc"
+	"gopkg.in/yaml.v2"
 )
 
 type ValidationTestCase struct {
@@ -88,7 +91,13 @@ func TestPipelineValidation(t *testing.T) {
 
 func testPipelineValidation(tc ValidationTestCase) error {
 	h := &PipelineCreateUpdateHandler{}
-	valid, validationMessage, handlerError := h.Validate([]byte(tc.Pipeline))
+	var config atc.Config
+	unmarshalError := yaml.Unmarshal([]byte(tc.Pipeline), &config)
+	if unmarshalError != nil {
+		return fmt.Errorf("did not expect unmarshalError but got: %v", unmarshalError)
+	}
+
+	valid, validationMessage, handlerError := h.Validate(config)
 	if handlerError != nil {
 		if tc.HandlerErrorContains == "" {
 			return fmt.Errorf("did not expect handlerError but got: %v", handlerError)

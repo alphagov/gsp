@@ -23,6 +23,7 @@ import (
 
 	concoursev1beta1 "github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse/v1beta1"
 	"github.com/concourse/concourse/go-concourse/concourse"
+	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -125,7 +126,12 @@ func (r *ReconcilePipeline) Reconcile(request reconcile.Request) (reconcile.Resu
 
 func (r *ReconcilePipeline) update(teamName string, instance *concoursev1beta1.Pipeline) error {
 	pipelineName := instance.ObjectMeta.Name
-	pipelineYAML := instance.Spec.PipelineString
+
+	pipelineYAML, err := yaml.Marshal(instance.Spec.Config)
+	if err != nil {
+		return err
+	}
+
 	// create a token client
 	// fetch the pipeline yaml version if it exists
 	concourseClient, err := r.newClient(teamName)
@@ -137,7 +143,7 @@ func (r *ReconcilePipeline) update(teamName string, instance *concoursev1beta1.P
 		return fmt.Errorf("couldn't obtain existing pipeline config: %s", err)
 	}
 	// set pipeline
-	_, _, _, err = concourseClient.Team(teamName).CreateOrUpdatePipelineConfig(pipelineName, existingConfigVersion, []byte(pipelineYAML), true)
+	_, _, _, err = concourseClient.Team(teamName).CreateOrUpdatePipelineConfig(pipelineName, existingConfigVersion, pipelineYAML, true)
 	if err != nil {
 		return fmt.Errorf("couldn't CreateOrUpdatePipelineConfig '%s' for team '%s': %s", pipelineName, teamName, err)
 	}
@@ -164,7 +170,7 @@ func (r *ReconcilePipeline) update(teamName string, instance *concoursev1beta1.P
 		}
 	}
 
-	fmt.Println("UPDATED", instance.ObjectMeta.Namespace, instance.ObjectMeta.Name, instance.Spec.PipelineString)
+	fmt.Println("UPDATED", instance.ObjectMeta.Namespace, instance.ObjectMeta.Name, string(pipelineYAML))
 	return nil
 }
 
