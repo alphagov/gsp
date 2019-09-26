@@ -30,16 +30,16 @@ spec:
     task_toolbox: &task_toolbox
       type: docker-image
       source:
-        repository: govsvc/task-toolbox
-        tag: "1.2.0"
+        repository: ((concourse.task-toolbox-image))
+        tag: ((concourse.task-toolbox-tag))
 
     resource_types:
     - name: harbor
       type: docker-image
       privileged: true
       source:
-        repository: govsvc/gsp-harbor-docker-image-resource
-        tag: "0.0.1553882420"
+        repository: ((concourse.harbour-resource-image))
+        tag: ((concourse.harbour-resource-tag))
 
     resources:
     - name: timer
