@@ -1,4 +1,4 @@
-eks-version: "1.13"
+eks-version: "1.14"
 
 config-trigger: true
 config-version: "master"
