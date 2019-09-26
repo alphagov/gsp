@@ -30,8 +30,8 @@ private.
     type: docker-image
     privileged: true
     source:
-      repository: govsvc/gsp-harbor-docker-image-resource
-      tag: "0.0.1553882420"
+      repository: ((concourse.harbour-resource-image))
+      tag: ((concourse.harbour-resource-tag))
 
   resources:
   - name: my-image
