@@ -308,7 +308,7 @@ Resources:
           PropagateAtLaunch: true
     UpdatePolicy:
       AutoScalingRollingUpdate:
-        MaxBatchSize: 1
+        MaxBatchSize: 2
         MinInstancesInService: !Ref NodeAutoScalingGroupDesiredCapacity
         PauseTime: PT5M
 
