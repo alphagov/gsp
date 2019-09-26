@@ -57,10 +57,6 @@ istio:
         service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
         service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: |
           Environment={{ $namespace.name }},Name={{ $namespace.name }}-ingress
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "5"
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "3"
         service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
       podAnnotations: {}
       type: LoadBalancer #change to NodePort, ClusterIP or LoadBalancer if need be
