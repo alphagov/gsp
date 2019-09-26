@@ -38,8 +38,8 @@ spec:
       type: docker-image
       privileged: true
       source:
-        repository: ((concourse.harbour-resource-image))
-        tag: ((concourse.harbour-resource-tag))
+        repository: ((concourse.harbor-resource-image))
+        tag: ((concourse.harbor-resource-tag))
 
     resources:
     - name: timer
