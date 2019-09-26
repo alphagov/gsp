@@ -1,0 +1,16 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: requireimagedigest
+spec:
+  crd:
+    spec:
+      names:
+        kind: RequireImageDigest
+        listKind: RequireImageDigestList
+        plural: requireimagedigests
+        singular: requireimagedigest
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+{{ .Files.Get "policies/digests-on-images/src.rego" | indent 8 }}
