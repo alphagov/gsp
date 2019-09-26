@@ -27,9 +27,10 @@ import (
 type PipelineSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Config  atc.Config `json:"config"`
-	Paused  bool       `json:"paused,omitempty"`
-	Exposed bool       `json:"exposed,omitempty"`
+	Config         atc.Config `json:"config,omitempty"`
+	PipelineString string     `json:"pipelineString,omitempty"`
+	Paused         bool       `json:"paused,omitempty"`
+	Exposed        bool       `json:"exposed,omitempty"`
 }
 
 // PipelineStatus defines the observed state of Pipeline

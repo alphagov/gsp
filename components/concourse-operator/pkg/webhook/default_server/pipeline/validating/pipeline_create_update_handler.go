@@ -23,6 +23,7 @@ import (
 
 	concoursev1beta1 "github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse/v1beta1"
 	"github.com/concourse/concourse/atc"
+	"gopkg.in/yaml.v2"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/inject"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission/types"
@@ -48,7 +49,7 @@ type PipelineCreateUpdateHandler struct {
 	Decoder types.Decoder
 }
 
-func (h *PipelineCreateUpdateHandler) Validate(config atc.Config) (bool, string, error) {
+func (h *PipelineCreateUpdateHandler) Validate(config *atc.Config) (bool, string, error) {
 	warnings, err := h.validationWarnings(config)
 	if err != nil {
 		msg := fmt.Sprintf("unable to parse pipeline: %s", err.Error())
@@ -61,7 +62,7 @@ func (h *PipelineCreateUpdateHandler) Validate(config atc.Config) (bool, string,
 	return true, "ok", nil
 }
 
-func (h *PipelineCreateUpdateHandler) validationWarnings(config atc.Config) ([]string, error) {
+func (h *PipelineCreateUpdateHandler) validationWarnings(config *atc.Config) ([]string, error) {
 	warnings := []string{}
 
 	warningMessages, errorMessages := config.Validate()
@@ -92,7 +93,20 @@ func (h *PipelineCreateUpdateHandler) Handle(ctx context.Context, req types.Requ
 		return admission.ErrorResponse(http.StatusBadRequest, err)
 	}
 
-	allowed, reason, err := h.Validate(obj.Spec.Config)
+	var config atc.Config
+
+	if len(obj.Spec.Config.Jobs) > 0 {
+		config = obj.Spec.Config
+	} else if obj.Spec.PipelineString != "" {
+		err := yaml.Unmarshal([]byte(obj.Spec.PipelineString), &config)
+		if err != nil {
+			return admission.ErrorResponse(http.StatusInternalServerError, err)
+		}
+	} else {
+		return admission.ValidationResponse(false, "need to define `config` or `pipelineString`")
+	}
+
+	allowed, reason, err := h.Validate(&obj.Spec.Config)
 	if err != nil {
 		return admission.ErrorResponse(http.StatusInternalServerError, err)
 	}

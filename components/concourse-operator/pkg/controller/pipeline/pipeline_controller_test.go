@@ -49,6 +49,53 @@ func TestReconcile(t *testing.T) {
 	// stripped off namespace name to determin team name)
 	os.Setenv("CONCOURSE_NAMESPACE_PREFIX", "xxxx-")
 
+	// create a Pipeline resource
+	var config atc.Config
+	pipelineString := `---
+jobs:
+ - name: say-hello
+   task:
+     config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: busybox}
+      run:
+        path: echo
+        args: [hello world]
+`
+	err := yaml.Unmarshal([]byte(pipelineString), &config)
+	g.Expect(err).NotTo(gomega.HaveOccurred())
+
+	pipelineResourceWithConfig := &concoursev1beta1.Pipeline{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "foopipeline",
+			Namespace: "xxxx-myteam",
+		},
+		Spec: concoursev1beta1.PipelineSpec{
+			Config: config,
+		},
+	}
+
+	pipelineResourceWithString := &concoursev1beta1.Pipeline{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "foopipeline",
+			Namespace: "xxxx-myteam",
+		},
+		Spec: concoursev1beta1.PipelineSpec{
+			PipelineString: pipelineString,
+		},
+	}
+
+	// remarshal to get expected pipeline config string
+	pipelineBytes, err := yaml.Marshal(config)
+	g.Expect(err).NotTo(gomega.HaveOccurred())
+
+	testPipeline(pipelineResourceWithConfig, pipelineBytes, g, t)
+	testPipeline(pipelineResourceWithString, []byte(pipelineString), g, t)
+}
+
+func testPipeline(pipelineResource *concoursev1beta1.Pipeline, pipelineBytes []byte, g *gomega.GomegaWithT, t *testing.T) {
 	// setup the Manager and Controller.  Wrap the Controller Reconcile function so it writes each request to a
 	// channel when it is finished.
 	mgr, err := manager.New(cfg, manager.Options{})
@@ -84,38 +131,7 @@ func TestReconcile(t *testing.T) {
 		mgrStopped.Wait()
 	}()
 
-	// create a Pipeline resource
-	var config atc.Config
-	pipelineString := `---
-jobs:
- - name: say-hello
-   task:
-     config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: busybox}
-      run:
-        path: echo
-        args: [hello world]
-`
-	err = yaml.Unmarshal([]byte(pipelineString), &config)
-	g.Expect(err).NotTo(gomega.HaveOccurred())
-
-	pipelineResource := &concoursev1beta1.Pipeline{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "foopipeline",
-			Namespace: "xxxx-myteam",
-		},
-		Spec: concoursev1beta1.PipelineSpec{
-			Config: config,
-		},
-	}
 	err = kubeClient.Create(ctx, pipelineResource)
-	g.Expect(err).NotTo(gomega.HaveOccurred())
-
-	// remarshal to get expected pipeline config string
-	pipelineBytes, err := yaml.Marshal(config)
 	g.Expect(err).NotTo(gomega.HaveOccurred())
 
 	// reconcile should be called

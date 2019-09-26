@@ -28,8 +28,8 @@ spec:
               type: boolean
             config:
               type: object
-          required:
-          - config
+            pipelineString:
+              type: string
           type: object
         status:
           type: object

@@ -97,7 +97,7 @@ func testPipelineValidation(tc ValidationTestCase) error {
 		return fmt.Errorf("did not expect unmarshalError but got: %v", unmarshalError)
 	}
 
-	valid, validationMessage, handlerError := h.Validate(config)
+	valid, validationMessage, handlerError := h.Validate(&config)
 	if handlerError != nil {
 		if tc.HandlerErrorContains == "" {
 			return fmt.Errorf("did not expect handlerError but got: %v", handlerError)

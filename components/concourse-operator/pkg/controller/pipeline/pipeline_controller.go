@@ -126,10 +126,18 @@ func (r *ReconcilePipeline) Reconcile(request reconcile.Request) (reconcile.Resu
 
 func (r *ReconcilePipeline) update(teamName string, instance *concoursev1beta1.Pipeline) error {
 	pipelineName := instance.ObjectMeta.Name
+	var pipelineYAML []byte
+	var err error
 
-	pipelineYAML, err := yaml.Marshal(instance.Spec.Config)
-	if err != nil {
-		return err
+	if len(instance.Spec.Config.Jobs) > 0 {
+		pipelineYAML, err = yaml.Marshal(instance.Spec.Config)
+		if err != nil {
+			return err
+		}
+	} else if instance.Spec.PipelineString != "" {
+		pipelineYAML = []byte(instance.Spec.PipelineString)
+	} else {
+		return fmt.Errorf("need to define `config` or `pipelineString` for pipeline '%s' in team '%s'", pipelineName, teamName)
 	}
 
 	// create a token client
