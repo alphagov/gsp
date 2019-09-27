@@ -9,6 +9,11 @@ rules:
     resources: ["pods"]
     verbs:
     - delete
+  - apiGroups: ["apps"]
+    resources:
+    - replicasets
+    verbs:
+    - delete
   - apiGroups: ["extensions"]
     resources:
     - replicasets
