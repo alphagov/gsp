@@ -9,6 +9,11 @@ rules:
     resources: ["pods"]
     verbs:
     - delete
+  - apiGroups: ["extensions"]
+    resources:
+    - replicasets
+    verbs:
+    - delete
   - apiGroups: [""]
     resources: ["pods/portforward"]
     verbs:
