@@ -22,9 +22,11 @@ import (
 	"time"
 
 	concoursev1beta1 "github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse/v1beta1"
+	"github.com/concourse/concourse/atc"
 	"github.com/concourse/concourse/go-concourse/concourse"
 	fakes "github.com/concourse/concourse/go-concourse/concourse/concoursefakes"
 	"github.com/onsi/gomega"
+	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -47,6 +49,53 @@ func TestReconcile(t *testing.T) {
 	// stripped off namespace name to determin team name)
 	os.Setenv("CONCOURSE_NAMESPACE_PREFIX", "xxxx-")
 
+	// create a Pipeline resource
+	var config atc.Config
+	pipelineString := `---
+jobs:
+ - name: say-hello
+   task:
+     config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: busybox}
+      run:
+        path: echo
+        args: [hello world]
+`
+	err := yaml.Unmarshal([]byte(pipelineString), &config)
+	g.Expect(err).NotTo(gomega.HaveOccurred())
+
+	pipelineResourceWithConfig := &concoursev1beta1.Pipeline{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "foopipeline",
+			Namespace: "xxxx-myteam",
+		},
+		Spec: concoursev1beta1.PipelineSpec{
+			Config: config,
+		},
+	}
+
+	pipelineResourceWithString := &concoursev1beta1.Pipeline{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "foopipeline",
+			Namespace: "xxxx-myteam",
+		},
+		Spec: concoursev1beta1.PipelineSpec{
+			PipelineString: pipelineString,
+		},
+	}
+
+	// remarshal to get expected pipeline config string
+	pipelineBytes, err := yaml.Marshal(config)
+	g.Expect(err).NotTo(gomega.HaveOccurred())
+
+	testPipeline(pipelineResourceWithConfig, pipelineBytes, g, t)
+	testPipeline(pipelineResourceWithString, []byte(pipelineString), g, t)
+}
+
+func testPipeline(pipelineResource *concoursev1beta1.Pipeline, pipelineBytes []byte, g *gomega.GomegaWithT, t *testing.T) {
 	// setup the Manager and Controller.  Wrap the Controller Reconcile function so it writes each request to a
 	// channel when it is finished.
 	mgr, err := manager.New(cfg, manager.Options{})
@@ -82,27 +131,6 @@ func TestReconcile(t *testing.T) {
 		mgrStopped.Wait()
 	}()
 
-	// create a Pipeline resource
-	pipelineResource := &concoursev1beta1.Pipeline{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "foopipeline",
-			Namespace: "xxxx-myteam",
-		},
-		Spec: concoursev1beta1.PipelineSpec{
-			PipelineString: `
-				---
-				platform: linux
-
-				image_resource:
-				  type: docker-image
-				  source: {repository: busybox}
-
-				run:
-				  path: echo
-				  args: [hello world]
-			`,
-		},
-	}
 	err = kubeClient.Create(ctx, pipelineResource)
 	g.Expect(err).NotTo(gomega.HaveOccurred())
 
@@ -127,7 +155,7 @@ func TestReconcile(t *testing.T) {
 	expectedPipelineArgs := &pipelineArgs{
 		Name:       pipelineResource.ObjectMeta.Name,
 		Version:    "",
-		Pipeline:   []byte(pipelineResource.Spec.PipelineString),
+		Pipeline:   pipelineBytes,
 		checkCreds: true,
 	}
 	g.Eventually(func() *pipelineArgs {

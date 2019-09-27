@@ -19,7 +19,7 @@ metadata:
     controller-tools.k8s.io: "1.0"
   name: canary
 spec:
-  pipelineString: |
+  config:
     resources:
     - name: gsp-canary
       type: git

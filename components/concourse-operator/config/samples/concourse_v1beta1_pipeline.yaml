@@ -5,7 +5,7 @@ metadata:
     controller-tools.k8s.io: "1.0"
   name: pipeline-sample
 spec:
-  pipelineString: |
+  config:
     jobs:
     - name: hello-world
       plan:
