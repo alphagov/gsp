@@ -33,3 +33,11 @@ output "eks-log-group-name" {
 output "worker_security_group_id" {
   value = "${aws_cloudformation_stack.worker-nodes.outputs["NodeSecurityGroup"]}"
 }
+
+output "oidc_provider_url" {
+  value = "${aws_iam_openid_connect_provider.eks.url}"
+}
+
+output "oidc_provider_arn" {
+  value = "${aws_iam_openid_connect_provider.eks.arn}"
+}

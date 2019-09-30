@@ -7,6 +7,8 @@ data "template_file" "values" {
     cluster_name                     = "${var.cluster_name}"
     cluster_domain                   = "${var.cluster_domain}"
     cluster_domain_id                = "${var.cluster_domain_id}"
+    cluster_oidc_provider_url        = "${jsonencode(module.k8s-cluster.oidc_provider_url)}"
+    cluster_oidc_provider_arn        = "${jsonencode(module.k8s-cluster.oidc_provider_arn)}"
     egress_ip_addresses              = "${jsonencode(var.egress_ips)}"
     account_name                     = "${var.account_name}"
     account_id                       = "${data.aws_caller_identity.current.account_id}"
