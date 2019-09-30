@@ -31,6 +31,12 @@ resource "aws_eks_cluster" "eks-cluster" {
   }
 }
 
+resource "aws_iam_openid_connect_provider" "eks" {
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = []
+  url             = "${aws_eks_cluster.eks-cluster.identity.0.oidc.0.issuer}"
+}
+
 resource "aws_cloudwatch_log_group" "eks" {
   name              = "/aws/eks/${var.cluster_name}/cluster"
   retention_in_days = 30

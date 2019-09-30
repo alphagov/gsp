@@ -40,6 +40,10 @@ spec:
           value: "aws"
         - name: CLUSTER_NAME
           value: {{ .Values.global.cluster.name | quote }}
+        - name: AWS_OIDC_PROVIDER_URL
+          value: {{ .Values.global.cluster.oidcProviderURL }}
+        - name: AWS_OIDC_PROVIDER_ARN
+          value: {{ .Values.global.cluster.oidcProviderARN }}
         - name: AWS_RDS_SECURITY_GROUP_ID
           value: {{ .Values.RDSFromWorkerSecurityGroup | quote }}
         - name: AWS_RDS_SUBNET_GROUP_NAME

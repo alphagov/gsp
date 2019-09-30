@@ -5,6 +5,8 @@ global:
     domain: ${cluster_domain}
     domain_id: ${cluster_domain_id}
     egressIpAddresses: ${egress_ip_addresses}
+    oidcProviderURL: ${cluster_oidc_provider_url}
+    oidcProviderARN: ${cluster_oidc_provider_arn}
   account:
     name: ${account_name}
   roles:
