@@ -22,14 +22,14 @@ spec:
           type: object
         spec:
           properties:
-            pipelineString:
-              type: string
-            paused:
-              type: boolean
             exposed:
               type: boolean
-          required:
-          - pipelineString
+            paused:
+              type: boolean
+            config:
+              type: object
+            pipelineString:
+              type: string
           type: object
         status:
           type: object
