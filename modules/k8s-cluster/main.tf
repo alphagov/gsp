@@ -66,6 +66,13 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     Subnets                             = "${join(",", var.private_subnet_ids)}"
   }
 
+  timeouts {
+    create = "30m"
+    # rolling worker nodes 1 at a time could be time consuming. Stop concourse going red
+    update = "90m"
+    delete = "30m"
+  }
+
   depends_on = ["aws_eks_cluster.eks-cluster"]
 }
 
