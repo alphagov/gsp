@@ -196,7 +196,7 @@ You run an app in the local GSP instance by creating a [Kubernetes Deployment re
 1. Create a `deployment.yaml` file in the `templates` directory with the following:
 
     ```
-    apiVersion: apps/v1beta2
+    apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: {{ .Release.Name }}-web
