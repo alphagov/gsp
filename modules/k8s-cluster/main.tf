@@ -103,12 +103,8 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     BootstrapArguments  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
     VpcId               = "${var.vpc_id}"
     Subnets             = "${element(data.aws_subnet.private_subnets.*.id, count.index)}"
-    NodeSecurityGroups  = ["${aws_security_group.node.id}", "${aws_security_group.worker.id}"]
-
-    NodeTargetGroups = [
-      "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]}",
-      "${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}",
-    ]
+    NodeSecurityGroups  = "${aws_security_group.node.id},${aws_security_group.worker.id}"
+    NodeTargetGroups    = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
   }
 
   depends_on = ["aws_eks_cluster.eks-cluster"]
