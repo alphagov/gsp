@@ -179,8 +179,7 @@ Resources:
     Properties:
       DesiredCapacity: !Ref NodeAutoScalingGroupDesiredCapacity
       LaunchTemplate:
-        LaunchTemplateSpecification:
-          LaunchTemplateId: !Ref NodeLaunchTemplate
+        LaunchTemplateId: !Ref NodeLaunchTemplate
       MinSize: !Ref NodeAutoScalingGroupMinSize
       MaxSize: !Ref NodeAutoScalingGroupMaxSize
       VPCZoneIdentifier: !Ref Subnets
@@ -190,8 +189,7 @@ Resources:
       #   InstancesDistribution:
       #     OnDemandBaseCapacity: !Ref NodeAutoScalingGroupMinSize
       #   LaunchTemplate:
-      #     LaunchTemplateSpecification:
-      #       LaunchTemplateId: !Ref NodeLaunchTemplate
+      #     LaunchTemplateId: !Ref NodeLaunchTemplate
       #     Overrides:
       #       - InstanceType: m5ad.xlarge
       #       - InstanceType: m5d.xlarge
