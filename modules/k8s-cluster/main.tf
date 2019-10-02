@@ -83,7 +83,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
 }
 
 resource "aws_cloudformation_stack" "worker-nodes-per-az" {
-  count         = "${length(data.aws_subnet.private_subnets.*.id)}"
+  count         = "${length(var.private_subnet_ids)}"
   name          = "${var.cluster_name}-worker-nodes-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
   template_body = "${file("${path.module}/data/nodegroup-v2.yaml")}"
   capabilities  = ["CAPABILITY_IAM"]
