@@ -178,8 +178,9 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       DesiredCapacity: !Ref NodeAutoScalingGroupDesiredCapacity
-      LaunchTemplateSpecification:
-        LaunchTemplateId: !Ref NodeLaunchTemplate
+      LaunchTemplate:
+        LaunchTemplateSpecification:
+          LaunchTemplateId: !Ref NodeLaunchTemplate
       MinSize: !Ref NodeAutoScalingGroupMinSize
       MaxSize: !Ref NodeAutoScalingGroupMaxSize
       VPCZoneIdentifier: !Ref Subnets
