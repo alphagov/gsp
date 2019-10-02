@@ -88,7 +88,7 @@ resource "aws_security_group" "node" {
   }
 }
 
-resource "aws_security_group" "node-egress" {
+resource "aws_security_group_rule" "node-egress" {
   security_group_id = "${aws_security_group.node.id}"
 
   type        = "egress"
@@ -133,7 +133,7 @@ resource "aws_security_group" "worker" {
 }
 
 resource "aws_security_group_rule" "workers-from-public" {
-  security_group_id = "${aws_security_group.worker-node.id}"
+  security_group_id = "${aws_security_group.worker.id}"
 
   type      = "ingress"
   protocol  = "tcp"

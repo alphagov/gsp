@@ -84,14 +84,14 @@ resource "aws_cloudformation_stack" "worker-nodes" {
 
 resource "aws_cloudformation_stack" "worker-nodes-per-az" {
   count         = "${length(data.aws_subnet.private_subnets.*.id)}"
-  name          = "${var.cluster_name}-worker-nodes-${elem(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
+  name          = "${var.cluster_name}-worker-nodes-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
   template_body = "${file("${path.module}/data/nodegroup-v2.yaml")}"
   capabilities  = ["CAPABILITY_IAM"]
 
   parameters = {
     ClusterName                      = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup = "${aws_security_group.controller.id}"
-    NodeGroupName                    = "worker-${elem(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
+    NodeGroupName                    = "worker-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
 
     NodeAutoScalingGroupMinSize         = "${var.extra_workers_per_az_count}"     # "${var.worker_count / 3}"
     NodeAutoScalingGroupDesiredCapacity = "${var.extra_workers_per_az_count}"     # "${var.worker_count / 3}"
@@ -102,8 +102,8 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     NodeVolumeSize      = "40"
     BootstrapArguments  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
     VpcId               = "${var.vpc_id}"
-    Subnets             = "${elem(data.aws_subnet.private_subnets.*.id, count.index)}"
-    NodeSecurityGroups  = "${[aws_security_group.node.id, aws_security_group.worker.id]}"
+    Subnets             = "${element(data.aws_subnet.private_subnets.*.id, count.index)}"
+    NodeSecurityGroups  = ["${aws_security_group.node.id}", "${aws_security_group.worker.id}"]
 
     NodeTargetGroups = [
       "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]}",
