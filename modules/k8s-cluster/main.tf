@@ -4,7 +4,7 @@ data "aws_region" "current" {}
 
 data "aws_subnet" "private_subnets" {
   count = "${length(var.private_subnet_ids)}"
-  id    = "${elem(var.private_subnet_ids, count.index)}"
+  id    = "${element(var.private_subnet_ids, count.index)}"
 }
 
 resource "aws_eks_cluster" "eks-cluster" {
