@@ -299,6 +299,7 @@ prometheus-operator:
   prometheusOperator:
     kubeletService:
       enabled: false
+    configReloaderCpu: 200m
   kubelet:
     enabled: false
   alertmanager:
