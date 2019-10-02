@@ -107,7 +107,7 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     NodeTargetGroups    = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
   }
 
-  depends_on = ["aws_eks_cluster.eks-cluster"]
+  depends_on = ["aws_eks_cluster.eks-cluster", "aws_cloudformation_stack.worker-nodes"]
 }
 
 resource "aws_cloudformation_stack" "kiam-server-nodes" {
