@@ -2,6 +2,11 @@ data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {}
 
+data "aws_subnet" "private_subnets" {
+  count = "${length(var.private_subnet_ids)}"
+  id    = "${elem(var.private_subnet_ids, count.index)}"
+}
+
 resource "aws_eks_cluster" "eks-cluster" {
   name     = "${var.cluster_name}"
   role_arn = "${aws_iam_role.eks-cluster.arn}"
@@ -68,9 +73,42 @@ resource "aws_cloudformation_stack" "worker-nodes" {
 
   timeouts {
     create = "30m"
+
     # rolling worker nodes 1 at a time could be time consuming. Stop concourse going red
     update = "90m"
     delete = "30m"
+  }
+
+  depends_on = ["aws_eks_cluster.eks-cluster"]
+}
+
+resource "aws_cloudformation_stack" "worker-nodes-per-az" {
+  count         = "${length(data.aws_subnet.private_subnets.*.id)}"
+  name          = "${var.cluster_name}-worker-nodes-${elem(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
+  template_body = "${file("${path.module}/data/nodegroup-v2.yaml")}"
+  capabilities  = ["CAPABILITY_IAM"]
+
+  parameters = {
+    ClusterName                      = "${var.cluster_name}"
+    ClusterControlPlaneSecurityGroup = "${aws_security_group.controller.id}"
+    NodeGroupName                    = "worker-${elem(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
+
+    NodeAutoScalingGroupMinSize         = "${var.extra_workers_per_az_count}"     # "${var.worker_count / 3}"
+    NodeAutoScalingGroupDesiredCapacity = "${var.extra_workers_per_az_count}"     # "${var.worker_count / 3}"
+    NodeAutoScalingGroupMaxSize         = "${var.extra_workers_per_az_count + 2}" # "${var.worker_count / 3 + 2}"
+
+    NodeInstanceType    = "${var.worker_instance_type}"
+    NodeInstanceProfile = "${aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]}"
+    NodeVolumeSize      = "40"
+    BootstrapArguments  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
+    VpcId               = "${var.vpc_id}"
+    Subnets             = "${elem(data.aws_subnet.private_subnets.*.id, count.index)}"
+    NodeSecurityGroups  = "${[aws_security_group.node.id, aws_security_group.worker.id]}"
+
+    NodeTargetGroups = [
+      "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]}",
+      "${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}",
+    ]
   }
 
   depends_on = ["aws_eks_cluster.eks-cluster"]

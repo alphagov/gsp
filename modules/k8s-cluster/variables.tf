@@ -32,6 +32,11 @@ variable "worker_count" {
   default = "3"
 }
 
+variable "extra_workers_per_az_count" {
+  type    = "string"
+  default = "0"
+}
+
 variable "ci_worker_instance_type" {
   type    = "string"
   default = "t3.medium"
