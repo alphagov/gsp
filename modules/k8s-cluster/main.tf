@@ -82,6 +82,34 @@ resource "aws_cloudformation_stack" "worker-nodes" {
   depends_on = ["aws_eks_cluster.eks-cluster"]
 }
 
+resource "aws_cloudformation_stack" "worker-nodes-per-az" {
+  count         = "${length(var.private_subnet_ids)}"
+  name          = "${var.cluster_name}-worker-nodes-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
+  template_body = "${file("${path.module}/data/nodegroup-v2.yaml")}"
+  capabilities  = ["CAPABILITY_IAM"]
+
+  parameters = {
+    ClusterName                      = "${var.cluster_name}"
+    ClusterControlPlaneSecurityGroup = "${aws_security_group.controller.id}"
+    NodeGroupName                    = "worker-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
+
+    NodeAutoScalingGroupMinSize         = "${var.extra_workers_per_az_count}"     # "${var.worker_count / 3}"
+    NodeAutoScalingGroupDesiredCapacity = "${var.extra_workers_per_az_count}"     # "${var.worker_count / 3}"
+    NodeAutoScalingGroupMaxSize         = "${var.extra_workers_per_az_count + 2}" # "${var.worker_count / 3 + 2}"
+
+    NodeInstanceType    = "${var.worker_instance_type}"
+    NodeInstanceProfile = "${aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]}"
+    NodeVolumeSize      = "40"
+    BootstrapArguments  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
+    VpcId               = "${var.vpc_id}"
+    Subnets             = "${element(data.aws_subnet.private_subnets.*.id, count.index)}"
+    NodeSecurityGroups  = "${aws_security_group.node.id},${aws_security_group.worker.id}"
+    NodeTargetGroups    = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
+  }
+
+  depends_on = ["aws_eks_cluster.eks-cluster", "aws_cloudformation_stack.worker-nodes"]
+}
+
 resource "aws_cloudformation_stack" "kiam-server-nodes" {
   name          = "${var.cluster_name}-kiam-server-nodes"
   template_body = "${file("${path.module}/data/nodegroup.yaml")}"
