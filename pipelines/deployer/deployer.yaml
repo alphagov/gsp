@@ -537,6 +537,7 @@ resources:
       eks_version: ((eks-version))
       worker_instance_type: ((worker-instance-type))
       worker_count: ((worker-count))
+      extra_workers_per_az_count: ((extra-workers-per-az-count))
       enable_nlb: ((enable-nlb))
       ci_worker_instance_type: ((ci-worker-instance-type))
       ci_worker_count: ((ci-worker-count))

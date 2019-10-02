@@ -8,7 +8,10 @@ resource "aws_security_group" "controller" {
 
   vpc_id = "${var.vpc_id}"
 
-  tags = "${map("Name", "${var.cluster_name}-controller")}"
+  tags = {
+    "Name"                                      = "${var.cluster_name}-controller"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  }
 }
 
 resource "aws_security_group_rule" "controller-apiserver-cidrs" {
@@ -71,4 +74,71 @@ resource "aws_security_group_rule" "ci-nodes-from-vpc" {
   from_port   = 0
   to_port     = 0
   cidr_blocks = ["${data.aws_vpc.private.cidr_block}"]
+}
+
+resource "aws_security_group" "node" {
+  name        = "${var.cluster_name}-node"
+  description = "${var.cluster_name} node security group.  All nodes should be in this security group."
+
+  vpc_id = "${var.vpc_id}"
+
+  tags = {
+    "Name"                                      = "${var.cluster_name}-node"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  }
+}
+
+resource "aws_security_group_rule" "node-egress" {
+  security_group_id = "${aws_security_group.node.id}"
+
+  type        = "egress"
+  protocol    = "-1"
+  from_port   = 0
+  to_port     = 0
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "nodes-from-vpc" {
+  security_group_id = "${aws_security_group.node.id}"
+
+  type      = "ingress"
+  protocol  = "-1"
+  from_port = 0
+  to_port   = 0
+
+  cidr_blocks = ["${data.aws_vpc.private.cidr_block}"]
+}
+
+resource "aws_security_group_rule" "controller-from-nodes" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 443
+  to_port   = 443
+
+  source_security_group_id = "${aws_security_group.node.id}"
+}
+
+resource "aws_security_group" "worker" {
+  name        = "${var.cluster_name}-worker"
+  description = "${var.cluster_name} worker node security group - ie nodes that tenant pods will run on."
+
+  vpc_id = "${var.vpc_id}"
+
+  tags = {
+    "Name"                                      = "${var.cluster_name}-worker"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  }
+}
+
+resource "aws_security_group_rule" "workers-from-public" {
+  security_group_id = "${aws_security_group.worker.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 31390
+  to_port   = 31390
+
+  cidr_blocks = ["0.0.0.0/0"]
 }

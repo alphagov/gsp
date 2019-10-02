@@ -340,8 +340,12 @@ Resources:
 
 Outputs:
 
+  NodeInstanceProfile:
+    Description: The node instance profile ARN
+    Value: !GetAtt NodeInstanceProfile.Arn
+
   NodeInstanceRole:
-    Description: The node instance role
+    Description: The node instance role ARN
     Value: !GetAtt NodeInstanceRole.Arn
 
   NodeSecurityGroup:
