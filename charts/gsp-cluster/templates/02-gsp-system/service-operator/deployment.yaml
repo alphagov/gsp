@@ -54,7 +54,7 @@ spec:
           value: {{ .Values.serviceOperator.permissionsBoundaryARN | quote }}
         resources:
           limits:
-            cpu: 100m
+            cpu: 500m
             memory: 100Mi
           requests:
             cpu: 100m
