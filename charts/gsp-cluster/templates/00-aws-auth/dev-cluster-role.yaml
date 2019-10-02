@@ -111,6 +111,12 @@ rules:
     - get
     - list
     - watch
+  - apiGroups: ["templates.gatekeeper.sh", "constraints.gatekeeper.sh"]
+    resources: ["*"]
+    verbs:
+    - get
+    - list
+    - watch
 {{- range $extraPermission := .Values.extraPermissionsDev }}
   -
 {{- $extraPermission | toYaml | nindent 4 }}
