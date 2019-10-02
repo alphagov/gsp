@@ -82,30 +82,7 @@ istio:
     enabled: false
   gateways:
     istio-ingressgateway:
-      replicaCount: 2
-      autoscaleMin: 2
-      type: NodePort
-      sds:
-        enabled: true
-    istio-egressgateway:
-      enabled: true
-      replicaCount: 2
-      autoscaleMin: 2
-      ports:
-      - port: 80
-        name: http2
-      - port: 443
-        name: https
-        # This is the port where sni routing happens
-      - port: 15443
-        targetPort: 15443
-        name: tls
-      - port: 2223
-        name: tcp-cloudhsm-2223
-      - port: 2224
-        name: tcp-cloudhsm-2224
-      - port: 2225
-        name: tcp-cloudhsm-2225
+      enabled: false
   sidecarInjectorWebhook:
     enableNamespacesByDefault: true
     rewriteAppHTTPProbe: true
