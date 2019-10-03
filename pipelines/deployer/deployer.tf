@@ -58,6 +58,10 @@ variable "worker_count" {
   default = "3"
 }
 
+variable "extra_workers_per_az_count" {
+  type = "string"
+}
+
 variable "ci_worker_instance_type" {
   type    = "string"
   default = "m5d.large"
@@ -130,11 +134,12 @@ module "gsp-cluster" {
     "3.8.110.67/32",     # autom8 concourse
   ]
 
-  eks_version             = "${var.eks_version}"
-  worker_instance_type    = "${var.worker_instance_type}"
-  worker_count            = "${var.worker_count}"
-  ci_worker_instance_type = "${var.ci_worker_instance_type}"
-  ci_worker_count         = "${var.ci_worker_count}"
+  eks_version                = "${var.eks_version}"
+  worker_instance_type       = "${var.worker_instance_type}"
+  worker_count               = "${var.worker_count}"
+  extra_workers_per_az_count = "${var.extra_workers_per_az_count}"
+  ci_worker_instance_type    = "${var.ci_worker_instance_type}"
+  ci_worker_count            = "${var.ci_worker_count}"
 
   vpc_id               = "${module.gsp-network.vpc_id}"
   private_subnet_ids   = "${module.gsp-network.private_subnet_ids}"
