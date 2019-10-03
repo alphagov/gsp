@@ -15,6 +15,10 @@ variable "cluster_domain" {
   type = "string"
 }
 
+variable "extra_zones" {
+  type = "list"
+}
+
 variable "github_client_id" {
   type = "string"
 }
@@ -117,6 +121,8 @@ module "gsp-cluster" {
   cluster_name      = "${var.cluster_name}"
   cluster_domain    = "${var.cluster_domain}"
   cluster_domain_id = "${module.gsp-domain.zone_id}"
+
+  extra_zones = ["${var.extra_zones}"]
 
   admin_role_arns = [
     "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/deployer",

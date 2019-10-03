@@ -18,6 +18,11 @@ variable "cluster_domain_id" {
   type        = "string"
 }
 
+variable "extra_zones" {
+  description = "Extra DNS zones that you want the cluster to manage"
+  type        = "list"
+}
+
 variable "admin_role_arns" {
   type = "list"
 }

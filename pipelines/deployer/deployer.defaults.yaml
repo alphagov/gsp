@@ -22,6 +22,8 @@ config-approval-count: 2
 
 extra-workers-per-az-count: 0
 
+extra-zones: []
+
 task-toolbox-image: govsvc/task-toolbox
 task-toolbox-tag: latest
 

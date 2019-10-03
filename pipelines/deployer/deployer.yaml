@@ -524,6 +524,7 @@ resources:
       account_name: ((account-name))
       cluster_name: ((cluster-name))
       cluster_domain: ((cluster-domain))
+      extra_zones: ((extra-zones))
       cluster_number: ((cluster-number))
       aws_account_role_arn: ((account-role-arn))
       github_client_id: ((github-client-id))
