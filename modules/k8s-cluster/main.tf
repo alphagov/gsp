@@ -79,6 +79,11 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     delete = "30m"
   }
 
+  tags = {
+    "Name"                                      = "${var.cluster_name}-worker-nodes"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  }
+
   depends_on = ["aws_eks_cluster.eks-cluster"]
 }
 
@@ -107,6 +112,11 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     NodeTargetGroups    = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
   }
 
+  tags = {
+    "Name"                                      = "worker-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  }
+
   depends_on = ["aws_eks_cluster.eks-cluster", "aws_cloudformation_stack.worker-nodes"]
 }
 
@@ -129,6 +139,11 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
     Subnets                             = "${join(",", var.private_subnet_ids)}"
   }
 
+  tags = {
+    "Name"                                      = "${var.cluster_name}-kiam-nodes"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  }
+
   depends_on = ["aws_eks_cluster.eks-cluster"]
 }
 
@@ -149,6 +164,11 @@ resource "aws_cloudformation_stack" "ci-nodes" {
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule --event-qps=0\""
     VpcId                               = "${var.vpc_id}"
     Subnets                             = "${join(",", var.private_subnet_ids)}"
+  }
+
+  tags = {
+    "Name"                                      = "${var.cluster_name}-ci-nodes"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
   }
 
   depends_on = ["aws_eks_cluster.eks-cluster"]
