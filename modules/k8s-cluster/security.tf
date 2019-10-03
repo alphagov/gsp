@@ -8,10 +8,10 @@ resource "aws_security_group" "controller" {
 
   vpc_id = "${var.vpc_id}"
 
-  tags = {
-    "Name"                                      = "${var.cluster_name}-controller"
-    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
-  }
+  tags = "${map(
+    "Name", "${var.cluster_name}-controler",
+    "kubernetes.io/cluster/${var.cluster_name}", "owned",
+  )}"
 }
 
 resource "aws_security_group_rule" "controller-apiserver-cidrs" {
@@ -82,10 +82,10 @@ resource "aws_security_group" "node" {
 
   vpc_id = "${var.vpc_id}"
 
-  tags = {
-    "Name"                                      = "${var.cluster_name}-node"
-    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
-  }
+  tags = "${map(
+    "Name", "${var.cluster_name}-node",
+    "kubernetes.io/cluster/${var.cluster_name}", "owned",
+  )}"
 }
 
 resource "aws_security_group_rule" "node-egress" {
@@ -109,6 +109,28 @@ resource "aws_security_group_rule" "nodes-from-vpc" {
   cidr_blocks = ["${data.aws_vpc.private.cidr_block}"]
 }
 
+resource "aws_security_group_rule" "nodes-from-controller" {
+  security_group_id = "${aws_security_group.node.id}"
+
+  type      = "ingress"
+  protocol  = "tcp"
+  from_port = 1025
+  to_port   = 65535
+
+  source_security_group_id = "${aws_security_group.controller.id}"
+}
+
+resource "aws_security_group_rule" "controller-to-nodes" {
+  security_group_id = "${aws_security_group.controller.id}"
+
+  type      = "egress"
+  protocol  = "tcp"
+  from_port = 1025
+  to_port   = 65535
+
+  source_security_group_id = "${aws_security_group.node.id}"
+}
+
 resource "aws_security_group_rule" "controller-from-nodes" {
   security_group_id = "${aws_security_group.controller.id}"
 
@@ -126,10 +148,9 @@ resource "aws_security_group" "worker" {
 
   vpc_id = "${var.vpc_id}"
 
-  tags = {
-    "Name"                                      = "${var.cluster_name}-worker"
-    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
-  }
+  tags = "${map(
+    "Name", "${var.cluster_name}-worker",
+  )}"
 }
 
 resource "aws_security_group_rule" "workers-from-public" {
