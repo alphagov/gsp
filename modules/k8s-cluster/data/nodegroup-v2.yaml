@@ -217,7 +217,7 @@ Resources:
           Arn: !Ref NodeInstanceProfile
         ImageId: !Ref NodeImageId
         InstanceType: !Ref NodeInstanceType
-        SecurityGroups: !Ref NodeSecurityGroups
+        SecurityGroupIds: !Ref NodeSecurityGroups
 
         BlockDeviceMappings:
           - DeviceName: /dev/xvda
