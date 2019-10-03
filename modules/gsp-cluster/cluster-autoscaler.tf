@@ -13,14 +13,25 @@ data "aws_iam_policy_document" "cluster_autoscaler_policy" {
       "autoscaling:DescribeAutoScalingInstances",
       "autoscaling:DescribeLaunchConfigurations",
       "autoscaling:DescribeTags",
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
       "autoscaling:SetDesiredCapacity",
       "autoscaling:TerminateInstanceInAutoScalingGroup",
     ]
 
-    # TODO: can we restrict this to only the ASGs we care about?  we
-    # can't construct the ARN because it has a UUID in it so we'd have
-    # to fish it out of the cloudformation results somehow, or use a
-    # `data.aws_autoscaling_group[s]` resource to identify it
+    condition = {
+      test     = "Null"
+      variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/${var.cluster_name}"
+      values   = ["false"]
+    }
+
     resources = ["*"]
   }
 }
