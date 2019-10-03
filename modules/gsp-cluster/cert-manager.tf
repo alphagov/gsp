@@ -9,8 +9,18 @@ data "aws_iam_policy_document" "cert_manager" {
     ]
 
     resources = [
-      "arn:aws:route53:::hostedzone/${var.cluster_domain_id}"
+      "arn:aws:route53:::hostedzone/${var.cluster_domain_id}",
     ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "route53:ChangeResourceRecordSets",
+    ]
+
+    resources = "${formatlist("arn:aws:route53:::hostedzone/%s", aws_route53_zone.subdomain.*.zone_id)}"
   }
 
   statement {
@@ -21,7 +31,7 @@ data "aws_iam_policy_document" "cert_manager" {
     ]
 
     resources = [
-      "arn:aws:route53:::change/*"
+      "arn:aws:route53:::change/*",
     ]
   }
 
@@ -34,13 +44,13 @@ data "aws_iam_policy_document" "cert_manager" {
     ]
 
     resources = [
-      "*"
+      "*",
     ]
   }
 }
 
 resource "aws_iam_policy" "cert_manager" {
-  name         = "${var.cluster_name}_cert_manager"
+  name        = "${var.cluster_name}_cert_manager"
   description = "Allow cert-manager to use the DNS01 challenge"
 
   policy = "${data.aws_iam_policy_document.cert_manager.json}"
@@ -53,9 +63,11 @@ resource "aws_iam_role" "cert_manager" {
 }
 
 resource "aws_iam_policy_attachment" "cert_manager" {
-  name       = "${var.cluster_name}_cert_manager"
-  roles      = [
+  name = "${var.cluster_name}_cert_manager"
+
+  roles = [
     "${aws_iam_role.cert_manager.name}",
   ]
+
   policy_arn = "${aws_iam_policy.cert_manager.arn}"
 }
