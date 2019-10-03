@@ -211,7 +211,7 @@ Resources:
   NodeLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties:
-      LaunchTemplateName: !Ref NodeGroupName
+      LaunchTemplateName: !Sub ${ClusterName}-${NodeGroupName}
       LaunchTemplateData:
         IamInstanceProfile:
           Arn: !Ref NodeInstanceProfile
