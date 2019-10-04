@@ -8,10 +8,10 @@ resource "aws_security_group" "controller" {
 
   vpc_id = "${var.vpc_id}"
 
-  tags = {
-    "Name"                                      = "${var.cluster_name}-controller"
-    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
-  }
+  tags = "${map(
+    "Name", "${var.cluster_name}-controller",
+    "kubernetes.io/cluster/${var.cluster_name}", "owned",
+  )}"
 }
 
 resource "aws_security_group_rule" "controller-apiserver-cidrs" {
@@ -82,10 +82,10 @@ resource "aws_security_group" "node" {
 
   vpc_id = "${var.vpc_id}"
 
-  tags = {
-    "Name"                                      = "${var.cluster_name}-node"
-    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
-  }
+  tags = "${map(
+    "Name", "${var.cluster_name}-node",
+    "kubernetes.io/cluster/${var.cluster_name}", "owned",
+  )}"
 }
 
 resource "aws_security_group_rule" "node-egress" {
@@ -126,10 +126,9 @@ resource "aws_security_group" "worker" {
 
   vpc_id = "${var.vpc_id}"
 
-  tags = {
-    "Name"                                      = "${var.cluster_name}-worker"
-    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
-  }
+  tags = "${map(
+    "Name", "${var.cluster_name}-worker",
+  )}"
 }
 
 resource "aws_security_group_rule" "workers-from-public" {
