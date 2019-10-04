@@ -9,7 +9,7 @@ resource "aws_security_group" "controller" {
   vpc_id = "${var.vpc_id}"
 
   tags = "${map(
-    "Name", "${var.cluster_name}-controler",
+    "Name", "${var.cluster_name}-controller",
     "kubernetes.io/cluster/${var.cluster_name}", "owned",
   )}"
 }
