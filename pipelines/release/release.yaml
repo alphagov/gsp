@@ -23,7 +23,7 @@ resource_types:
   type: registry-image
   source:
     repository: "govsvc/concourse-github-resource"
-    tag: "gsp-v1.0.91"
+    tag: "gsp-va191b03"
 
 - name: concourse-pipeline
   type: docker-image
