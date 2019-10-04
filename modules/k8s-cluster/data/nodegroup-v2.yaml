@@ -202,6 +202,12 @@ Resources:
         - Key: !Sub kubernetes.io/cluster/${ClusterName}
           Value: owned
           PropagateAtLaunch: true
+        - Key: k8s.io/cluster-autoscaler/enabled
+          Value: true
+          PropagateAtLaunch: true
+        - Key: !Sub k8s.io/cluster-autoscaler/${ClusterName}
+          Value: true
+          PropagateAtLaunch: true
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MaxBatchSize: 2

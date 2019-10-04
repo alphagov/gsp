@@ -40,6 +40,14 @@ notary:
   delegationPassphrase: ${notary_delegation_passphrase}
   delegationKey: ${notary_delegation_key}
 
+cluster-autoscaler:
+  cloudProvider: aws
+  awsRegion: eu-west-2
+  autoDiscovery:
+    clusterName: ${cluster_name}
+  podAnnotations:
+    iam.amazonaws.com/role: ${cluster_autoscaler_role_name}
+
 concourseMainTeamGithubTeams: ${concourse_main_team_github_teams}
 concourse:
   secrets:
