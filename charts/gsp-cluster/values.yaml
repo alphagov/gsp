@@ -65,7 +65,8 @@ cluster-autoscaler:
     balance-similar-node-groups: true
   image:
     tag: v1.14.5 # upgrade this when upgrading kubernetes
-  priorityClassName: system-cluster-critical
+  # we can only set this if cluster-autoscaler is in the kube-system namespace D:
+  # priorityClassName: system-cluster-critical
   serviceMonitor:
     enabled: true
     namespace: gsp-system
