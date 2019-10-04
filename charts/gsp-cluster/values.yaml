@@ -68,6 +68,7 @@ cluster-autoscaler:
   priorityClassName: system-cluster-critical
   serviceMonitor:
     enabled: true
+    namespace: gsp-system
 
 kiam:
   nameOverride:
