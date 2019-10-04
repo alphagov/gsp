@@ -39,13 +39,13 @@ resource "aws_eks_cluster" "eks-cluster" {
 }
 
 resource "aws_iam_openid_connect_provider" "eks" {
-  client_id_list  = ["sts.amazonaws.com"]
+  client_id_list = ["sts.amazonaws.com"]
   # the thumbprint identifies the root CA for the OIDC provider. See
   # https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html
   # in this case, this thumbprint is the thumbprint of the root CA
   # presented by `oidc.eks.eu-west-2.amazonaws.com`; this isn't likely to change
   # I checked and the same thumbprint applies to eu-west-1
-  thumbprint_list = [ "9E99A48A9960B14926BB7F3B02E22DA2B0AB7280" ]
+  thumbprint_list = ["9E99A48A9960B14926BB7F3B02E22DA2B0AB7280"]
   url             = aws_eks_cluster.eks-cluster.identity[0].oidc[0].issuer
 }
 
@@ -128,14 +128,17 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
       var.maximum_workers_per_az_count - 1
     ))
     NodeAutoScalingGroupMaxSize = var.maximum_workers_per_az_count
-    NodeInstanceType            = var.worker_instance_type
-    NodeInstanceProfile         = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
-    NodeVolumeSize              = "40"
-    BootstrapArguments          = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
-    VpcId                       = var.vpc_id
-    Subnets                     = element(data.aws_subnet.private_subnets.*.id, count.index)
-    NodeSecurityGroups          = "${aws_security_group.node.id},${aws_security_group.worker.id}"
-    NodeTargetGroups            = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
+
+    NodeAutoScalingGroupOnDemandPercentageAboveBase = var.worker_on_demand_percentage_above_base
+
+    NodeInstanceType    = var.worker_instance_type
+    NodeInstanceProfile = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
+    NodeVolumeSize      = "40"
+    BootstrapArguments  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
+    VpcId               = var.vpc_id
+    Subnets             = element(data.aws_subnet.private_subnets.*.id, count.index)
+    NodeSecurityGroups  = "${aws_security_group.node.id},${aws_security_group.worker.id}"
+    NodeTargetGroups    = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
   }
 
   depends_on = [

@@ -95,6 +95,11 @@ Parameters:
     Type: Number
     Default: 1
 
+  NodeAutoScalingGroupOnDemandPercentageAboveBase:
+    Description: Percentage of nodes above the base capacity (minimum size) to launch as on-demand (rather than spot instances)
+    Type: Number
+    Default: 100
+
   NodeVolumeSize:
     Description: Node volume size
     Type: Number
@@ -153,6 +158,7 @@ Metadata:
           - NodeAutoScalingGroupMinSize
           - NodeAutoScalingGroupDesiredCapacity
           - NodeAutoScalingGroupMaxSize
+          - NodeAutoScalingGroupOnDemandPercentageAboveBase
           - NodeInstanceType
           - NodeInstanceProfile
           - NodeImageId
@@ -179,16 +185,23 @@ Resources:
       MaxSize: !Ref NodeAutoScalingGroupMaxSize
       VPCZoneIdentifier: !Ref Subnets
       TargetGroupARNs: !Ref NodeTargetGroups
-      # TODO: this is where we can in future provision spot instances
-      # MixedInstancesPolicy:
-      #   InstancesDistribution:
-      #     OnDemandBaseCapacity: !Ref NodeAutoScalingGroupMinSize
-      #   LaunchTemplate:
-      #     LaunchTemplateId: !Ref NodeLaunchTemplate
-      #     Version: !GetAtt NodeLaunchTemplate.LatestVersionNumber
-      #     Overrides:
-      #       - InstanceType: m5a.xlarge
-      #       - InstanceType: m5.xlarge
+      MixedInstancesPolicy:
+        InstancesDistribution:
+          OnDemandBaseCapacity: !Ref NodeAutoScalingGroupMinSize
+          OnDemandPercentageAboveBaseCapacity: !Ref NodeAutoScalingGroupOnDemandPercentageAboveBase
+        LaunchTemplate:
+          LaunchTemplateSpecification:
+            LaunchTemplateId: !Ref NodeLaunchTemplate
+            Version: !GetAtt NodeLaunchTemplate.LatestVersionNumber
+          Overrides:
+            - InstanceType: m5.xlarge
+            - InstanceType: m5d.xlarge
+            - InstanceType: m5a.xlarge
+            - InstanceType: m5ad.xlarge
+            - InstanceType: r5.xlarge
+            - InstanceType: r5d.xlarge
+            - InstanceType: r5a.xlarge
+            - InstanceType: r5ad.xlarge
       Tags:
         - Key: Name
           Value: !Sub ${ClusterName}-${NodeGroupName}

@@ -66,6 +66,10 @@ variable "maximum_workers_per_az_count" {
   type = string
 }
 
+variable "worker_on_demand_percentage_above_base" {
+  type = "string"
+}
+
 variable "ci_worker_instance_type" {
   type    = string
   default = "m5.large"
@@ -161,8 +165,11 @@ module "gsp-cluster" {
   minimum_workers_per_az_count = var.minimum_workers_per_az_count
   desired_workers_per_az_map   = var.desired_workers_per_az_map
   maximum_workers_per_az_count = var.maximum_workers_per_az_count
-  ci_worker_instance_type      = var.ci_worker_instance_type
-  ci_worker_count              = var.ci_worker_count
+
+  worker_on_demand_percentage_above_base = var.worker_on_demand_percentage_above_base
+
+  ci_worker_instance_type = var.ci_worker_instance_type
+  ci_worker_count         = var.ci_worker_count
 
   vpc_id = module.gsp-network.vpc_id
 
