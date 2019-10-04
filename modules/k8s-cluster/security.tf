@@ -109,28 +109,6 @@ resource "aws_security_group_rule" "nodes-from-vpc" {
   cidr_blocks = ["${data.aws_vpc.private.cidr_block}"]
 }
 
-resource "aws_security_group_rule" "nodes-from-controller" {
-  security_group_id = "${aws_security_group.node.id}"
-
-  type      = "ingress"
-  protocol  = "tcp"
-  from_port = 1025
-  to_port   = 65535
-
-  source_security_group_id = "${aws_security_group.controller.id}"
-}
-
-resource "aws_security_group_rule" "controller-to-nodes" {
-  security_group_id = "${aws_security_group.controller.id}"
-
-  type      = "egress"
-  protocol  = "tcp"
-  from_port = 1025
-  to_port   = 65535
-
-  source_security_group_id = "${aws_security_group.node.id}"
-}
-
 resource "aws_security_group_rule" "controller-from-nodes" {
   security_group_id = "${aws_security_group.controller.id}"
 
