@@ -35,3 +35,15 @@ data "aws_iam_policy_document" "cluster_autoscaler_policy" {
     resources = ["*"]
   }
 }
+
+resource "aws_iam_policy" "cluster-autoscaler" {
+  name        = "${var.cluster_name}-cluster-autoscaler"
+  description = "Policy for the cluster autoscaler"
+  policy      = "${data.aws_iam_policy_document.cluster_autoscaler_policy.json}"
+}
+
+resource "aws_iam_policy_attachment" "cluster-autoscaler" {
+  name       = "${var.cluster_name}-cluster-autoscaler"
+  roles      = ["${aws_iam_role.cluster_autoscaler.name}"]
+  policy_arn = "${aws_iam_policy.cluster-autoscaler.arn}"
+}
