@@ -694,7 +694,7 @@ jobs:
   serial: true
   serial_groups: [cluster-modification]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: task-toolbox
     - get: gsp
       passed: [update]
@@ -731,7 +731,7 @@ jobs:
   serial: true
   serial_groups: [cluster-modification]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: gsp
       passed: [deploy]
       trigger: true
@@ -750,7 +750,7 @@ jobs:
     config: *unpack_release
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
-  - aggregate:
+  - in_parallel:
     - task: generate-cluster-values
       image: task-toolbox
       timeout: 10m
