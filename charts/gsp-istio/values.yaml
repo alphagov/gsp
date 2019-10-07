@@ -58,23 +58,39 @@ certmanager:
 istio:
   ingress:
     enable: false
+  galley:
+    replicaCount: 2
   certmanager:
     enabled: true
+    replicaCount: 2
   istio_cni:
     enabled: true
   tracing:
     enabled: true
+  mixer:
+    policy:
+      replicaCount: 2
+      autoscaleMin: 2
+    telemetry:
+      replicaCount: 2
+      autoscaleMin: 2
   pilot:
     traceSampling: "100.0"
+    replicaCount: 2
+    autoscaleMin: 2
   prometheus:
     enabled: false
   gateways:
     istio-ingressgateway:
+      replicaCount: 2
+      autoscaleMin: 2
       type: NodePort
       sds:
         enabled: true
     istio-egressgateway:
       enabled: true
+      replicaCount: 2
+      autoscaleMin: 2
       ports:
       - port: 80
         name: http2
