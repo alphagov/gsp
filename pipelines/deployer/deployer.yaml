@@ -487,6 +487,65 @@ shutdown_workers_task: &shutdown_workers_task
           aws ec2 wait instance-terminated --instance-ids $INSTANCES
         fi
       done
+      echo "deleting 'linux' nodes"
+      kubectl delete node -l 'beta.kubernetes.io/os=linux' || echo "tried and failed to delete nodes, tried my best though and I think that's enough."
+
+detect_drift: &detect_drift
+  platform: linux
+  params:
+    ACCOUNT_ROLE_ARN:
+    CLUSTER_NAME:
+    AWS_REGION: eu-west-2
+    AWS_DEFAULT_REGION: eu-west-2
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      echo "assuming aws deployer role..."
+      AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+      eval "${AWS_CREDS}"
+      echo "checking there is a cluster to drain"
+      if ! (aws eks list-clusters 1>/dev/null && aws eks describe-cluster --name "${CLUSTER_NAME}" 2>/dev/null 1>/dev/null); then
+        echo 'no eks cluster running: skipping drain'
+        exit 0
+      fi
+      echo "fetching kubeconfig from aws..."
+      aws eks update-kubeconfig --name "${CLUSTER_NAME}" --kubeconfig ./kubeconfig
+      export KUBECONFIG=$(pwd)/kubeconfig
+      echo "checking for CloudFormation stacks that belong to this cluster..."
+      CLOUDFORMATION_STACK_NAMES=$(aws cloudformation describe-stacks | jq -r ".Stacks[] | select( .Tags[].Key == \"kubernetes.io/cluster/${CLUSTER_NAME}\")" | jq -r .StackName)
+      for STACK_NAME in $CLOUDFORMATION_STACK_NAMES; do
+        echo "checking drift for $STACK_NAME"
+        aws cloudformation detect-stack-drift --stack-name "$STACK_NAME"
+      done
+      for STACK_NAME in $CLOUDFORMATION_STACK_NAMES; do
+        echo "waiting for drift detection to complete for $STACK_NAME..."
+        DRIFT_DETECTION_ID=$(aws cloudformation detect-stack-drift --stack-name ${STACK_NAME} --query StackDriftDetectionId --output text)
+        while true; do
+          DETECTION_STATUS=$(aws cloudformation describe-stack-drift-detection-status --stack-drift-detection-id ${DRIFT_DETECTION_ID} --query DetectionStatus --output text) 
+          if [ "DETECTION_IN_PROGRESS" = "${DETECTION_STATUS}" ]; then 
+            echo -n "."
+            sleep 1 
+          elif [ "DETECTION_FAILED" = "${DETECTION_STATUS}" ]; then 
+            DETECTION_STATUS_REASON=$(aws cloudformation describe-stack-drift-detection-status --stack-drift-detection-id ${DRIFT_DETECTION_ID} --query DetectionStatusReason --output text)
+            STACK_DRIFT_STATUS=$(aws cloudformation describe-stack-drift-detection-status --stack-drift-detection-id ${DRIFT_DETECTION_ID} --query StackDriftStatus --output text) 
+            echo ${STACK_DRIFT_STATUS}
+            echo "WARNING: ${DETECTION_STATUS_REASON}"
+            break
+          else
+            STACK_DRIFT_STATUS=$(aws cloudformation describe-stack-drift-detection-status --stack-drift-detection-id ${DRIFT_DETECTION_ID} --query StackDriftStatus --output text) 
+            echo ${STACK_DRIFT_STATUS}
+            break
+          fi
+        done
+      done
+      DRIFTED_STACK_NAMES=$(aws cloudformation describe-stacks | jq -r ".Stacks[] | select( .Tags[].Key == \"kubernetes.io/cluster/${CLUSTER_NAME}\")" | select(.DriftInformation.StackDriftStatus == \"DRIFTED\") | jq -r .StackName)
+      for STACK_NAME in $DRIFTED_STACK_NAMES; do
+        echo "drift detected for $STACK_NAME"
+        aws cloudformation describe-stack-resource-drifts --stack-name "$STACK_NAME" --stack-resource-drift-status-filters MODIFIED DELETED
+      done
 
 resource_types:
 - name: terraform
