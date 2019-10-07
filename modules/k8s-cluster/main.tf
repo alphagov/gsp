@@ -93,9 +93,9 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     ClusterControlPlaneSecurityGroup = "${aws_security_group.controller.id}"
     NodeGroupName                    = "worker-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
 
-    NodeAutoScalingGroupMinSize         = "${var.extra_workers_per_az_count}"     # "${var.worker_count / 3}"
-    NodeAutoScalingGroupDesiredCapacity = "${var.extra_workers_per_az_count}"     # "${var.worker_count / 3}"
-    NodeAutoScalingGroupMaxSize         = "${var.extra_workers_per_az_count + 2}" # "${var.worker_count / 3 + 2}"
+    NodeAutoScalingGroupMinSize         = "${var.minimum_workers_per_az_count}"
+    NodeAutoScalingGroupDesiredCapacity = "${var.minimum_workers_per_az_count}"
+    NodeAutoScalingGroupMaxSize         = "${var.maximum_workers_per_az_count}"
 
     NodeInstanceType    = "${var.worker_instance_type}"
     NodeInstanceProfile = "${aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]}"
