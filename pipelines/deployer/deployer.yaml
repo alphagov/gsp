@@ -81,6 +81,7 @@ generate_user_values: &generate_user_values
 generate_managed_namespaces_values: &generate_managed_namespaces_values
   platform: linux
   params:
+    CONFIG_PATH:
     CONFIG_VALUES_PATH:
   run:
     path: /bin/bash
@@ -90,7 +91,7 @@ generate_managed_namespaces_values: &generate_managed_namespaces_values
     - |
       mkdir -p managed-namespaces-values
       echo "generating istio gateway values for managed namespaces..."
-      gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-gateways.yaml > managed-namespaces-values/gateways-values.yaml
+      gomplate -d config=config/${CONFIG_VALUES_PATH} -d cluster=config/${CONFIG_PATH} -f platform/templates/managed-namespaces-gateways.yaml > managed-namespaces-values/gateways-values.yaml
   inputs:
   - name: platform
   - name: config
@@ -679,6 +680,7 @@ jobs:
       config: *generate_managed_namespaces_values
       image: task-toolbox
       params:
+        CONFIG_PATH: ((config-path))
         CONFIG_VALUES_PATH: ((config-values-path))
   - task: apply-cluster-chart
     image: task-toolbox

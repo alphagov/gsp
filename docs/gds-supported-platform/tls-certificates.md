@@ -89,18 +89,17 @@ The line `- "my-custom-domain.example.com"` tells the `Gateway` to
 listen on the virtual host corresponding to the certificate domain
 name.
 
-### Custom domains
+### Providing certificates for custom domains
 
 As the example shows, if you provide your own certificates, you can
 use any custom domain you choose; you do not have to use the cluster
 `govsvc.uk` domain.  To use a custom domain, create a CNAME record
-from your domain to the external load balancer for your namespace.
-
-To find the external load balancer name, run:
-
-    kubectl -n my-namespace get svc my-namespace-ingressgateway
-
-and look under the `EXTERNAL-IP` column.
+from your domain to the external load balancer for your namespace.  We
+provide a convenience record called
+`<namespace>.london.<cluster>.govsvc.uk` for this purpose.  For
+example, if your namespace is called `verify-proxy-node-prod` in the
+`verify` cluster, you would create a CNAME from your custom domain to
+`verify-proxy-node-prod.london.verify.govsvc.uk.`.
 
 [cert-manager]: https://docs.cert-manager.io/en/latest/
 [gsp-canary]: https://github.com/alphagov/gsp/tree/master/components/canary
