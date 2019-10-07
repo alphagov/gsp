@@ -1,7 +1,9 @@
 # Public TLS Certificates
 
-All apps in GSP are protected by TLS.  There are two options for this:
-using cluster-provided certificates, or providing your own.
+All apps in GSP are protected by TLS.  By default, TLS will use a
+cluster-provided certificate.  However, this does not work with custom
+domains (that is, non-`.govsvc.uk` domains).  If you wish to use a
+custom domain, you must provide your own TLS certificate.
 
 ## Using cluster-provided certificates
 
@@ -32,40 +34,46 @@ spec:
 
 > **Note:** cert-manager will need to be able to modify the DNS of the domains listed in the certificate in order to perform the DNS challenge. At the time of writing that only applies to the cluster domain.
 
-## Providing your own certificates
+## Using a custom domain by providing your own certificate
 
-If you want to provide your own certificate, you will need:
+If you want to use a custom domain, you must provide your own
+certificate.  To do this, you must create a:
 
- - a `SealedSecret` resource containing the certificate and key
- - a `Gateway` resource defining the ingress domain
+ - `SealedSecret` resource with the certificate and key
+ - `Gateway` resource to listen on the domain
+ - `CNAME` record from your custom domain to the namespace ingressgateway
 
-We assume:
-
- - you are in a namespace called `my-namespace`
- - your certificate and key are in files called `my-cert.pem` and
-   `my-cert.key`
- - you want to create a `SealedSecret` called `my-custom-cert` in a
-   file called `my-custom-cert.yaml`
- - you are creating the certificate for the `sandbox` cluster
- - the certificate is for `my-custom-domain.example.com`.
+### Create a `SealedSecret` with the certificate and key
 
 To create a `SealedSecret` with your certificate, run:
 
-    kubectl create -n my-namespace secret generic my-custom-cert --dry-run --from-file=cert=my-cert.pem --from-file=key=my-cert.key --output yaml | gds sandbox seal --format yaml > my-custom-cert.yaml
+    kubectl create -n <NAMESPACE> secret generic <CERTNAME> --dry-run --from-file=cert=<CERTFILE> --from-file=key=<KEYFILE> --output yaml | gds <CLUSTER> seal --format yaml
 
-Here is an example of a `Gateway` that uses this certificate:
+Where:
+
+ - `<NAMESPACE>` is your namespace
+ - `<CERTNAME>` is the name you will give to your `SealedSecret`
+ - `<CERTFILE>` and `<KEYFILE>` are the filenames of your certificate
+   and key in PEM format
+ - `<CLUSTER>` is the GSP cluster you are targeting (for example,
+   `verify`)
+
+### Create a `Gateway` to listen on the domain
+
+To use this `SealedSecret`, create a `Gateway` with the following
+yaml:
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: custom-certificate-gateway
-  namespace: my-namespace
+  name: <NAME>
+  namespace: <NAMESPACE>
   annotations:
-    externaldns.k8s.io/namespace: my-namespace
+    externaldns.k8s.io/namespace: <NAMESPACE>
 spec:
   selector:
-    istio: my-namespace-ingressgateway
+    istio: <NAMESPACE>-ingressgateway
   servers:
   - port:
       number: 443
@@ -73,33 +81,25 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      credentialName: my-custom-cert
+      credentialName: <CERTNAME>
     hosts:
-      - "my-custom-domain.example.com"
+      - "<CUSTOM_DOMAIN>"
 ```
 
-The line `istio: my-namespace-ingressgateway` (replace `my-namespace`
-with your actual namespace name) selects the ingressgateway in your
-namespace.
+Where:
 
-The line `credentialName: my-custom-cert` tells the `Gateway` to use
-the `SealedSecret` you created above for TLS termination.
+ - `<NAME>` is the name you will give this `Gateway` resource
+ - `<CUSTOM_DOMAIN>` is the fully-qualified domain name for your
+   custom domain for your certificate (for example,
+   `my-custom-domain.example.com`)
 
-The line `- "my-custom-domain.example.com"` tells the `Gateway` to
-listen on the virtual host corresponding to the certificate domain
-name.
+Note: the line `istio: <NAMESPACE>-ingressgateway` selects the
+ingressgateway in your namespace.
 
-### Providing certificates for custom domains
+### Create a CNAME record from your custom domain to the namespace ingressgateway
 
-As the example shows, if you provide your own certificates, you can
-use any custom domain you choose; you do not have to use the cluster
-`govsvc.uk` domain.  To use a custom domain, create a CNAME record
-from your domain to the external load balancer for your namespace.  We
-provide a convenience record called
-`<namespace>.london.<cluster>.govsvc.uk` for this purpose.  For
-example, if your namespace is called `verify-proxy-node-prod` in the
-`verify` cluster, you would create a CNAME from your custom domain to
-`verify-proxy-node-prod.london.verify.govsvc.uk.`.
+In the DNS configuration for your custom domain, create a CNAME record
+from your custom domain to `<NAMESPACE>.london.<CLUSTER>.govsvc.uk`.
 
 [cert-manager]: https://docs.cert-manager.io/en/latest/
 [gsp-canary]: https://github.com/alphagov/gsp/tree/master/components/canary
