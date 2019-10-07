@@ -468,6 +468,8 @@ shutdown_workers_task: &shutdown_workers_task
       export KUBECONFIG=$(pwd)/kubeconfig
       echo "cordoning all nodes 'linux' nodes..."
       kubectl cordon -l 'beta.kubernetes.io/os=linux'
+      echo "draining all the 'linux' nodes"
+      kubectl drain --delete-local-data --force --ignore-daemonsets --timeout=60s -l 'beta.kubernetes.io/os=linux' || echo "tried to drain nodes and failed, continuing anyway..."
       echo "fetching cluster VPC ID..."
       CLUSTER_VPC_ID=$(aws eks describe-cluster --name "${CLUSTER_NAME}" | jq .cluster.resourcesVpcConfig.vpcId -r)
       echo "checking for ASGs that belong to this cluster..."
