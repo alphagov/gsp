@@ -20,7 +20,8 @@ disable-destroy: true
 config-approvers: []
 config-approval-count: 2
 
-extra-workers-per-az-count: 0
+minimum-workers-per-az-count: 1
+maximum-workers-per-az-count: 5
 
 task-toolbox-image: govsvc/task-toolbox
 task-toolbox-tag: latest

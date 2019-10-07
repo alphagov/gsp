@@ -32,9 +32,14 @@ variable "worker_count" {
   default = "3"
 }
 
-variable "extra_workers_per_az_count" {
+variable "minimum_workers_per_az_count" {
   type    = "string"
-  default = "0"
+  default = "1"
+}
+
+variable "maximum_workers_per_az_count" {
+  type    = "string"
+  default = "5"
 }
 
 variable "ci_worker_instance_type" {
