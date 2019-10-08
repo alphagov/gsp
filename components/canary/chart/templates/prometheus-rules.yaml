@@ -13,7 +13,7 @@ spec:
     rules:
     - alert: CanaryRotationOverdue
       annotations:
-        message: The Canary rotation is overdue. Either the CodeCommit interaction failed or Flux hasn't rolled out the changes yet.
-      expr: time() - max(canary_chart_commit_timestamp{namespace="{{ .Release.Namespace }}"}) without (pod) > 2100
+        message: The Canary rotation is overdue. Check in-cluster concourse.
+      expr: time() - max(canary_chart_commit_timestamp{namespace="{{ .Release.Namespace }}"}) without (pod) > 300
       labels:
         severity: critical
