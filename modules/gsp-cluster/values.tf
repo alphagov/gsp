@@ -55,6 +55,7 @@ data "template_file" "values" {
     private_db_subnet_group          = "${aws_db_subnet_group.private.id}"
     external_dns_iam_role_name       = "${aws_iam_role.external_dns.name}"
     grafana_default_admin_password   = "${random_password.grafana_default_admin_password.result}"
+    eks_version                      = "${var.eks_version}"
 
     permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.cloudwatch_log_shipping_role.name,

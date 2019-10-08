@@ -152,6 +152,7 @@ fluentd-cloudwatch:
 
 gsp-monitoring:
   prometheus-operator:
+    kubeTargetVersionOverride: "${eks_version}"
     prometheus:
       prometheusSpec:
         externalLabels:
