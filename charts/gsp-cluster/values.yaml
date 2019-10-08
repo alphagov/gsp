@@ -72,6 +72,11 @@ cluster-autoscaler:
   serviceMonitor:
     enabled: true
     namespace: gsp-system
+  nodeSelector:
+    node-role.kubernetes.io/cluster-management: ""
+  tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/cluster-management
 
 kiam:
   nameOverride:
