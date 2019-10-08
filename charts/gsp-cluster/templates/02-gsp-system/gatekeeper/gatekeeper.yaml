@@ -348,6 +348,11 @@ spec:
         secret:
           defaultMode: 420
           secretName: gatekeeper-webhook-server-secret
+      nodeSelector:
+        node-role.kubernetes.io/cluster-management: ""
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/cluster-management
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
