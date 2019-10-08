@@ -4,7 +4,7 @@ dependencies:
   version: 5.1.0
 - name: concourse
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 8.2.5
+  version: 8.2.6
 - name: fluentd-cloudwatch
   repository: https://kubernetes-charts-incubator.storage.googleapis.com/
   version: 0.6.4
@@ -14,5 +14,5 @@ dependencies:
 - name: kiam
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.5.1
-digest: sha256:151b4ed228617b41d7793f2edd1eb92039d9b243f87ee4d2c893406ea3a67e6f
-generated: "2019-10-02T10:55:58.447495+01:00"
+digest: sha256:f5466f2ef2cd33a2dc1b0b24f81f274065e9f493d5cddd7666e9eb238dc4579b
+generated: "2019-10-08T11:59:07.584313+01:00"
