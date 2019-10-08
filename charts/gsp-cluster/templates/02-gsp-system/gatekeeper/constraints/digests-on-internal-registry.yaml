@@ -3,7 +3,7 @@ kind: RequireImageDigest
 metadata:
   name: digests-on-internal-registry
 spec:
-  enforcementAction: dryrun
+  enforcementAction: deny
   match:
     kinds:
       - apiGroups: [""]
