@@ -60,19 +60,25 @@ var _ = Describe("Postgres", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(ret.GetObjectMeta().Name).To(Equal(fmt.Sprintf("svcop-postgres-%s", postgres.GetName())))
 		Expect(ret.GetObjectMeta().Namespace).To(Equal(postgres.GetNamespace()))
-		Expect(ret.GetSpec()["resolution"]).To(Equal("DNS"))
-		Expect(ret.GetSpec()["location"]).To(Equal("MESH_EXTERNAL"))
+		Expect(ret.GetSpec()).To(And(
+			HaveKeyWithValue("resolution", "DNS"),
+			HaveKeyWithValue("location", "MESH_EXTERNAL"),
+			HaveKey("hosts"),
+			HaveKey("ports"),
+		))
 		Expect(ret.GetSpec()["hosts"]).To(ContainElement(outputs[v1beta1.PostgresEndpoint]))
 		Expect(ret.GetSpec()["hosts"]).To(ContainElement(outputs[v1beta1.PostgresReadEndpoint]))
-		ports, ok := ret.GetSpec()["ports"].([]interface{})
-		Expect(ok).To(BeTrue())
-		Expect(len(ports)).To(BeNumerically(">", 0))
-		port, ok := ports[0].(map[string]interface{})
-		Expect(port["name"]).To(Equal("aurora"))
+
 		portnum, err := strconv.Atoi(outputs[v1beta1.PostgresPort])
 		Expect(err).NotTo(HaveOccurred())
-		Expect(port["number"]).To(Equal(portnum))
-		Expect(port["protocol"]).To(Equal("TLS"))
+
+		Expect(ret.GetSpec()["ports"]).To(ContainElement(
+			map[string]interface{} {
+				"name": "aurora",
+				"number": portnum,
+				"protocol": "TLS",
+			},
+		))
 	})
 
 	It("should error if port is not numeric", func() {
