@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: '{{ .Release.Name }}-grafana-sli-dashboard'
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  config.json: |-
+{{ .Files.Get "dashboards/slis.json" | indent 4 }}
