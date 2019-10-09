@@ -17,7 +17,6 @@ data "template_file" "values" {
     sre_role_arns                    = "${jsonencode(var.sre_role_arns)}"
     sre_user_arns                    = "${jsonencode(var.sre_user_arns)}"
     bootstrap_role_arns              = "${jsonencode(module.k8s-cluster.bootstrap_role_arns)}"
-    cluster_autoscaler_role_name     = "${aws_iam_role.cluster_autoscaler.name}"
     concourse_admin_password         = "${random_string.concourse_password.result}"
     concourse_teams                  = "${jsonencode(concat(list("main"), var.concourse_teams))}"
     concourse_main_team_github_teams = "${jsonencode(var.concourse_main_team_github_teams)}"
@@ -58,7 +57,6 @@ data "template_file" "values" {
 
     permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.cloudwatch_log_shipping_role.name,
-      aws_iam_role.cluster_autoscaler.name,
       aws_iam_role.concourse.name,
       aws_iam_role.grafana.name,
       aws_iam_role.gsp-service-operator.name,

@@ -45,8 +45,6 @@ cluster-autoscaler:
   awsRegion: eu-west-2
   autoDiscovery:
     clusterName: ${cluster_name}
-  podAnnotations:
-    iam.amazonaws.com/role: ${cluster_autoscaler_role_name}
 
 concourseMainTeamGithubTeams: ${concourse_main_team_github_teams}
 concourse:
