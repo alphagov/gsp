@@ -49,8 +49,8 @@ resource "aws_iam_policy_attachment" "cluster-autoscaler" {
   policy_arn = "${aws_iam_policy.cluster-autoscaler.arn}"
 }
 
-resource "aws_iam_policy_attachment" "cluster-autoscaler-new" {
-  name       = "${var.cluster_name}-cluster-autoscaler-new"
-  roles      = ["${aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRoleName"]}"]
+resource "aws_iam_policy_attachment" "cluster-autoscaler-mgmt" {
+  name       = "${var.cluster_name}-cluster-autoscaler-mgmt"
+  roles      = ["${module.k8s-cluster.kiam-server-node-instance-role-name}"]
   policy_arn = "${aws_iam_policy.cluster-autoscaler.arn}"
 }
