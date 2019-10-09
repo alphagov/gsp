@@ -10,6 +10,6 @@ parameters:
   type: gp2
 provisioner: kubernetes.io/aws-ebs
 reclaimPolicy: Delete
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
 allowVolumeExpansion: true
 {{ end }}
