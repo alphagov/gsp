@@ -1,9 +1,16 @@
 # Public TLS Certificates
 
-All apps in GSP are protected by TLS.  By default, TLS will use a
-cluster-provided certificate.  However, this does not work with custom
-domains (that is, non-`.govsvc.uk` domains).  If you wish to use a
-custom domain, you must provide your own TLS certificate.
+Your GSP app will need a TLS certificate in order to serve HTTPS
+traffic.  There are two options:
+
+ - use a cluster-provided certificate
+ - provide your own certificate
+
+Cluster-provided certificates require less effort because you don't
+need to provision a certificate for yourself.  However, the cluster
+cannot at this point provide certificates for custom domains (that is,
+non-`.govsvc.uk` domains).  If you wish to use a custom domain, you
+must provide your own TLS certificate.
 
 ## Using cluster-provided certificates
 
