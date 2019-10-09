@@ -144,6 +144,7 @@ fluentd-cloudwatch:
 concourse:
   web:
     nameOverride: concourse-web
+    replicas: 2
     additionalVolumes:
     - name: ci-web-configuration
       configMap:
