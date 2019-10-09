@@ -52,35 +52,6 @@ resource "aws_cloudwatch_log_group" "eks" {
 }
 
 # As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
-resource "aws_cloudformation_stack" "worker-nodes" {
-  name          = "${var.cluster_name}-worker-nodes"
-  template_body = "${file("${path.module}/data/nodegroup.yaml")}"
-  capabilities  = ["CAPABILITY_IAM"]
-
-  parameters = {
-    ClusterName                         = "${var.cluster_name}"
-    ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
-    NodeGroupName                       = "worker"
-    NodeAutoScalingGroupMinSize         = "${var.worker_count}"
-    NodeAutoScalingGroupDesiredCapacity = "${var.worker_count}"
-    NodeAutoScalingGroupMaxSize         = "${var.worker_count + 2}"
-    NodeInstanceType                    = "${var.worker_instance_type}"
-    NodeVolumeSize                      = "40"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
-    VpcId                               = "${var.vpc_id}"
-    Subnets                             = "${join(",", var.private_subnet_ids)}"
-  }
-
-  timeouts {
-    create = "30m"
-
-    # rolling worker nodes 1 at a time could be time consuming. Stop concourse going red
-    update = "90m"
-    delete = "30m"
-  }
-
-  depends_on = ["aws_eks_cluster.eks-cluster"]
-}
 
 resource "aws_cloudformation_stack" "worker-nodes-per-az" {
   count         = "${length(var.private_subnet_ids)}"

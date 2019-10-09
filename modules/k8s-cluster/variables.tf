@@ -27,11 +27,6 @@ variable "worker_instance_type" {
   default = "t3.medium"
 }
 
-variable "worker_count" {
-  type    = "string"
-  default = "3"
-}
-
 variable "minimum_workers_per_az_count" {
   type    = "string"
   default = "1"
