@@ -25,16 +25,12 @@ import (
 	storagev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/controllers"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
+	"github.com/alphagov/gsp/components/service-operator/internal/istio"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-
-	k8sschema "k8s.io/apimachinery/pkg/runtime/schema"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	istioschemas "istio.io/istio/pkg/config/schemas"
-	istiocrd "istio.io/istio/pilot/pkg/config/kube/crd"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -44,17 +40,7 @@ var (
 
 func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
-
-	// TODO: WHY?!?!?!
-	istioSchemeBuilder := runtime.NewSchemeBuilder(
-		func(scheme *runtime.Scheme) error {
-			gv := k8sschema.GroupVersion{Group: "networking.istio.io", Version: "v1alpha3"}
-			st := istiocrd.KnownTypes[istioschemas.ServiceEntry.Type]
-			scheme.AddKnownTypes(gv, st.Object, st.Collection)
-			meta_v1.AddToGroupVersion(scheme, gv)
-			return nil
-		})
-	_ = istioSchemeBuilder.AddToScheme(scheme)
+	_ = istio.AddToScheme(scheme)
 
 	_ = databasev1beta1.AddToScheme(scheme)
 	_ = queuev1beta1.AddToScheme(scheme)

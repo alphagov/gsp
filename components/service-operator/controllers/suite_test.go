@@ -33,6 +33,7 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk/sdkfakes"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
+	"github.com/alphagov/gsp/components/service-operator/internal/istio"
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -41,12 +42,6 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	// +kubebuilder:scaffold:imports
-	
-	"k8s.io/apimachinery/pkg/runtime"
-	k8sschema "k8s.io/apimachinery/pkg/runtime/schema"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	istioschemas "istio.io/istio/pkg/config/schemas"
-	istiocrd "istio.io/istio/pilot/pkg/config/kube/crd"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -83,15 +78,7 @@ func SetupControllerEnv() (client.Client, func()) {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cfg).ToNot(BeNil())
 
-	istioSchemeBuilder := runtime.NewSchemeBuilder(
-		func(scheme *runtime.Scheme) error {
-			gv := k8sschema.GroupVersion{Group: "networking.istio.io", Version: "v1alpha3"}
-			st := istiocrd.KnownTypes[istioschemas.ServiceEntry.Type]
-			scheme.AddKnownTypes(gv, st.Object, st.Collection)
-			meta_v1.AddToGroupVersion(scheme, gv)
-			return nil
-		})
-	err = istioSchemeBuilder.AddToScheme(scheme.Scheme)
+	err = istio.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	err = databasev1beta1.AddToScheme(scheme.Scheme)
