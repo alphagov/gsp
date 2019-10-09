@@ -1,0 +1,72 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-sli-rules
+spec:
+  groups:
+  - name: sli.rules
+    rules:
+    - record: "ingressgateway_destination_response_code:requests:rate5m"
+      expr: |
+        sum by(source_workload,source_workload_namespace,
+               destination_workload,destination_workload_namespace,
+               response_code)
+          (rate(istio_requests_total{
+                  request_protocol="http",
+                  source_workload=~".*-ingressgateway"
+                }[5m]))
+    - record: "ingressgateway_destination:successes_per_response:ratio_rate5m"
+      expr: |
+        sum without(response_code)
+          (ingressgateway_destination_response_code:requests:rate5m{response_code!~"5.."})
+        /
+        sum without(response_code)
+          (ingressgateway_destination_response_code:requests:rate5m)
+    - record: "ingressgateway_destination_response_code:requests:rate30m"
+      expr: |
+        sum by(source_workload,source_workload_namespace,
+               destination_workload,destination_workload_namespace,
+               response_code)
+          (rate(istio_requests_total{
+                  request_protocol="http",
+                  source_workload=~".*-ingressgateway"
+                }[30m]))
+    - record: "ingressgateway_destination:successes_per_response:ratio_rate30m"
+      expr: |
+        sum without(response_code)
+          (ingressgateway_destination_response_code:requests:rate30m{response_code!~"5.."})
+        /
+        sum without(response_code)
+          (ingressgateway_destination_response_code:requests:rate30m)
+    - record: "ingressgateway_destination_response_code:requests:rate1h"
+      expr: |
+        sum by(source_workload,source_workload_namespace,
+               destination_workload,destination_workload_namespace,
+               response_code)
+          (rate(istio_requests_total{
+                  request_protocol="http",
+                  source_workload=~".*-ingressgateway"
+                }[1h]))
+    - record: "ingressgateway_destination:successes_per_response:ratio_rate1h"
+      expr: |
+        sum without(response_code)
+          (ingressgateway_destination_response_code:requests:rate1h{response_code!~"5.."})
+        /
+        sum without(response_code)
+          (ingressgateway_destination_response_code:requests:rate1h)
+    - record: "ingressgateway_destination_response_code:requests:rate6h"
+      expr: |
+        sum by(source_workload,source_workload_namespace,
+               destination_workload,destination_workload_namespace,
+               response_code)
+          (rate(istio_requests_total{
+                  request_protocol="http",
+                  source_workload=~".*-ingressgateway"
+                }[6h]))
+    - record: "ingressgateway_destination:successes_per_response:ratio_rate6h"
+      expr: |
+        sum without(response_code)
+          (ingressgateway_destination_response_code:requests:rate6h{response_code!~"5.."})
+        /
+        sum without(response_code)
+          (ingressgateway_destination_response_code:requests:rate6h)
