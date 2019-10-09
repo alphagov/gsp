@@ -183,6 +183,12 @@ resources:
     password: ((dockerhub-password))
     repository: govsvc/task-toolbox
 
+- name: opa
+  type: docker-image
+  source:
+    repository: openpolicyagent/opa
+    tag: 0.14.2
+
 - name: pre-release
   type: github-release
   source:
@@ -356,6 +362,7 @@ jobs:
     - release
   plan:
   - in_parallel:
+    - get: opa
     - get: semver
       passed: [bump-version]
       trigger: true
@@ -371,6 +378,17 @@ jobs:
       passed: [bump-version]
     - get: service-operator
       passed: [bump-version]
+  - task: test-opa-policies
+    image: opa
+    config:
+      platform: linux
+      inputs:
+      - name: platform
+      run:
+        path: /opa
+        args:
+          - test
+          - ./platform/charts/gsp-cluster/policies
   - task: generate-gsp-cluster-values
     image: concourse-task-toolbox
     config:
