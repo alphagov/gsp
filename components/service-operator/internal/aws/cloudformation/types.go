@@ -42,7 +42,10 @@ type StackSecretOutputter interface {
 	object.SecretNamer
 }
 
+// ServiceEntryNamer names a ServiceEntry to hold what are essentially egress
+// firewall rules.
 type ServiceEntryCreator interface {
 	Stack
 	GetServiceEntry(outputs Outputs) (*istio.ServiceEntry, error)
+	GetServiceEntryName() string
 }

@@ -204,6 +204,10 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 	return template
 }
 
+func (s *S3Bucket) GetServiceEntryName() string {
+	return fmt.Sprintf("svcop-s3-%s", s.GetName())
+}
+
 // ServiceEntry to whitelist egress access to S3 hostname.
 func (s *S3Bucket) GetServiceEntry(outputs cloudformation.Outputs) (*istio.ServiceEntry, error) {
 	return &istio.ServiceEntry{

@@ -16,6 +16,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
+
+	istio "istio.io/istio/pilot/pkg/config/kube/crd"
 )
 
 const (
@@ -241,11 +243,13 @@ func (r *Controller) reconcileObjectWithContext(ctx context.Context, req ctrl.Re
 // Kubernetes, so that Istio will allow the tenant's pods to egress to the
 // resource we've created for them.
 func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreator, outputs Outputs) error {
-	serviceEntry, err := o.GetServiceEntry(outputs)
-	if err != nil {
-		return err
+	serviceEntry := &istio.ServiceEntry{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      o.GetServiceEntryName(),
+			Namespace: o.GetNamespace(),
+		},
+		Spec: map[string]interface{} {},
 	}
-
 	serviceEntryKey, err := client.ObjectKeyFromObject(serviceEntry)
 	if err != nil {
 		return err
@@ -255,7 +259,9 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 		return err
 	}
 	op, err := controllerutil.CreateOrUpdate(ctx, r.KubernetesClient, serviceEntry, func() error {
-		return nil
+		newServiceEntry, err := o.GetServiceEntry(outputs)
+		serviceEntry.Spec = newServiceEntry.Spec
+		return err
 	})
 	r.Log.Info("update-service-entry",
 		"service-entry", serviceEntryKey,

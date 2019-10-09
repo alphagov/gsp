@@ -228,6 +228,10 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 	return template
 }
 
+func (p *Postgres) GetServiceEntryName() string {
+        return fmt.Sprintf("svcop-postgres-%s", p.GetName())
+}
+
 // ServiceEntry to whitelist egress access to Postgres port and hosts.
 func (p *Postgres) GetServiceEntry(outputs cloudformation.Outputs) (*istio.ServiceEntry, error) {
 	port, err := strconv.Atoi(outputs[PostgresPort])
