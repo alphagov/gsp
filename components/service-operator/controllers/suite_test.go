@@ -44,7 +44,7 @@ import (
 	
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sschema "k8s.io/apimachinery/pkg/runtime/schema"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1" // TODO: if we remove the meta_v1 line below we won't need this either
+	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	istioschemas "istio.io/istio/pkg/config/schemas"
 	istiocrd "istio.io/istio/pilot/pkg/config/kube/crd"
 )
@@ -88,7 +88,7 @@ func SetupControllerEnv() (client.Client, func()) {
 			gv := k8sschema.GroupVersion{Group: "networking.istio.io", Version: "v1alpha3"}
 			st := istiocrd.KnownTypes[istioschemas.ServiceEntry.Type]
 			scheme.AddKnownTypes(gv, st.Object, st.Collection)
-			meta_v1.AddToGroupVersion(scheme, gv) // TODO: is this necessary?
+			meta_v1.AddToGroupVersion(scheme, gv)
 			return nil
 		})
 	err = istioSchemeBuilder.AddToScheme(scheme.Scheme)
