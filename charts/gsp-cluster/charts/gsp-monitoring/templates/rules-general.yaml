@@ -9,7 +9,7 @@ spec:
     - alert: TargetDown
       annotations:
         message: '{{`{{ $value }}`}}% of the {{`{{ $labels.job }}`}} targets are down.'
-      expr: 100 * (avg without(instance, pod) (up)) < 90
+      expr: 100 * (avg without(instance, pod) (1 - up)) > 10
       for: 10m
       labels:
         severity: warning
