@@ -712,7 +712,7 @@ jobs:
     trigger: true
   - task: ping
     image: task-toolbox
-    timeout: 20m
+    timeout: 5m
     config: *check_canary
     params:
       CLUSTER_DOMAIN: ((cluster-domain))
