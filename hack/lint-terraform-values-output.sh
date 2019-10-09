@@ -114,6 +114,7 @@ helm template \
 		| sed 's/${bootstrap_role_arns}/[]/' \
 		| sed 's/${concourse_teams}/["org:team"]/' \
 		| sed 's/${egress_ip_addresses}/[]/' \
+		| sed 's/${eks_version}/1.14/' \
 	) \
 	--values output/values.yaml \
 	--set 'global.cloudHsm.enabled=true' \

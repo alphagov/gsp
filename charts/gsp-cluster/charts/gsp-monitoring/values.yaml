@@ -281,13 +281,6 @@ prometheus-operator:
         jsonData:
           authType: credentials
           defaultRegion: eu-west-2
-    persistence:
-      enabled: true
-      type: pvc
-      accessModes:
-      - ReadWriteOnce
-      size: 10Mi
-      storageClassName: gp2
     env:
       GF_AUTH_GOOGLE_ENABLED: "true"
       GF_AUTH_GOOGLE_ALLOW_SIGN_UP: "true"
