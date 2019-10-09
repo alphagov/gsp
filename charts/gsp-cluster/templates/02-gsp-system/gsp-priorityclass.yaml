@@ -1,0 +1,15 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: gsp-critical
+# This PriorityClass exists because the admission controller won't let
+# you use `system-cluster-critical` in non-`kube-system` namespaces,
+# but we still have pods we want to run in gsp-system at high priority
+# level.  We create a priority class with the highest-allowed
+# userspace priority value (which is still lower than
+# system-cluster-critical) as a workaround.
+# See also https://github.com/kubernetes/kubernetes/issues/60596
+description: |
+  Used for GSP critical pods that must run in the cluster.
+value: 1000000000
+
