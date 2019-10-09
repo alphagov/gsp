@@ -58,6 +58,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
   capabilities  = ["CAPABILITY_IAM"]
 
   parameters = {
+    NodeImageId                         = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
     ClusterName                         = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
     NodeGroupName                       = "worker"
@@ -89,6 +90,7 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
   capabilities  = ["CAPABILITY_IAM"]
 
   parameters = {
+    NodeImageId                      = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
     ClusterName                      = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup = "${aws_security_group.controller.id}"
     NodeGroupName                    = "worker-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
@@ -116,6 +118,7 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
   capabilities  = ["CAPABILITY_IAM"]
 
   parameters = {
+    NodeImageId                         = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
     ClusterName                         = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
     NodeGroupName                       = "kiam"
@@ -138,6 +141,7 @@ resource "aws_cloudformation_stack" "ci-nodes" {
   capabilities  = ["CAPABILITY_IAM"]
 
   parameters = {
+    NodeImageId                         = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
     ClusterName                         = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
     NodeGroupName                       = "ci"
