@@ -66,6 +66,8 @@ spec:
         - mountPath: /tmp/cert
           name: cert
           readOnly: true
+      # concourse-webhook-service is a validatingwebhook so we don't want it to disapper
+      priorityClassName: gsp-critical
       serviceAccountName: {{ template "pipelineOperator.serviceAccountName" . }}
       terminationGracePeriodSeconds: 10
       volumes:

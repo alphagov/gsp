@@ -8,6 +8,11 @@ global:
   outboundTrafficPolicy:
     mode: REGISTRY_ONLY
   disablePolicyChecks: false
+  # istio-galley is a validatingwebhook and istio-sidecar-injector is
+  # a mutating webhook so we don't want them to
+  # disappear. unfortunately the istio helm chart only lets you set
+  # priorityClassName for all services at once
+  priorityClassName: gsp-critical
 
 istio-cni:
   tag: release-1.1-20190808-09-16
@@ -84,6 +89,7 @@ istio:
     istio-ingressgateway:
       enabled: false
   sidecarInjectorWebhook:
+    replicaCount: 2
     enableNamespacesByDefault: true
     rewriteAppHTTPProbe: true
   kiali:

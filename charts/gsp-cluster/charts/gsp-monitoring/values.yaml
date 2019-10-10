@@ -293,6 +293,9 @@ prometheus-operator:
     kubeletService:
       enabled: false
     configReloaderCpu: 200m
+    # prometheus-operator runs a validating webhook for
+    # PrometheusRules; let's try to ensure that it runs all the time
+    priorityClassName: gsp-critical
   kubelet:
     enabled: false
   alertmanager:
