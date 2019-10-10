@@ -70,7 +70,10 @@ func SetupControllerEnv() (client.Client, func()) {
 	logf.SetLogger(log)
 
 	testEnv := &envtest.Environment{
-		CRDDirectoryPaths: []string{filepath.Join("..", "config", "crd", "bases")},
+		CRDDirectoryPaths: []string{
+			filepath.Join("..", "config", "crd"),
+			filepath.Join("..", "config", "crd", "bases"),
+		},
 	}
 
 	var err error
