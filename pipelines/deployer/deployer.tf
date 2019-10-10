@@ -81,6 +81,10 @@ variable "eks_version" {
   type        = "string"
 }
 
+variable "worker_eks_version" {
+  type = "string"
+}
+
 variable "enable_nlb" {
   type    = "string"
   default = "0"
@@ -139,6 +143,7 @@ module "gsp-cluster" {
   ]
 
   eks_version                  = "${var.eks_version}"
+  worker_eks_version           = "${var.worker_eks_version}"
   worker_instance_type         = "${var.worker_instance_type}"
   worker_count                 = "${var.worker_count}"
   minimum_workers_per_az_count = "${var.minimum_workers_per_az_count}"

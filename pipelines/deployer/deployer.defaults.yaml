@@ -1,4 +1,5 @@
 eks-version: "1.14"
+worker-eks-version: "1.14"
 
 config-trigger: true
 config-version: "master"
