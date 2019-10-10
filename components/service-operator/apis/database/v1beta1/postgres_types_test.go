@@ -1,7 +1,6 @@
 package v1beta1_test
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
