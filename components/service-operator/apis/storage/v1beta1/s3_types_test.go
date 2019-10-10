@@ -52,7 +52,7 @@ var _ = Describe("S3Bucket", func() {
 
 	It("should base egress whitelisted host name off object name", func() {
 		name := o.GetServiceEntryName()
-		Expect(name).To(Equal(fmt.Sprintf("svcop-s3-%s", o.GetName())))
+		Expect(name).To(Equal(o.GetName()))
 
 		outputs := cloudformation.Outputs{
 			v1beta1.S3BucketName: "test",

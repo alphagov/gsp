@@ -51,7 +51,7 @@ var _ = Describe("Postgres", func() {
 
 	It("should base egress whitelisted host name off object name", func() {
 		name := postgres.GetServiceEntryName()
-		Expect(name).To(Equal(fmt.Sprintf("svcop-postgres-%s", postgres.GetName())))
+		Expect(name).To(Equal(postgres.GetName()))
 
 		outputs := cloudformation.Outputs{
 			v1beta1.PostgresEndpoint:     "test-endpoint",

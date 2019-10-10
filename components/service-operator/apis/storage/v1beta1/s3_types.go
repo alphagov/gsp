@@ -206,7 +206,7 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 
 func (s *S3Bucket) GetServiceEntryName() string {
 	if s.Spec.ServiceEntry == "" {
-		return fmt.Sprintf("svcop-s3-%s", s.GetName())
+		return s.GetName()
 	}
 	return s.Spec.ServiceEntry
 }

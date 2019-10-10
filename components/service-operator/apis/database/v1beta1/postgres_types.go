@@ -230,7 +230,7 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 
 func (p *Postgres) GetServiceEntryName() string {
 	if p.Spec.ServiceEntry == "" {
-		return fmt.Sprintf("svcop-postgres-%s", p.GetName())
+		return p.GetName()
 	}
 	return p.Spec.ServiceEntry
 }
