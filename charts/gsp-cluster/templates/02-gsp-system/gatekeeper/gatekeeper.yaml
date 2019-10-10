@@ -342,6 +342,7 @@ spec:
         - mountPath: /certs
           name: cert
           readOnly: true
+      priorityClassName: gsp-critical
       terminationGracePeriodSeconds: 60
       volumes:
       - name: cert
