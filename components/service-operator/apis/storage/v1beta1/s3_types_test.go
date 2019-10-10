@@ -51,22 +51,23 @@ var _ = Describe("S3Bucket", func() {
 	})
 
 	It("should base egress whitelisted host name off object name", func() {
+		name := o.GetServiceEntryName()
+		Expect(name).To(Equal(fmt.Sprintf("svcop-s3-%s", o.GetName())))
+
 		outputs := cloudformation.Outputs {
 			v1beta1.S3BucketName: "test",
 		}
 
-		ret, err := o.GetServiceEntry(outputs)
+		spec, err := o.GetServiceEntrySpec(outputs)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(ret.GetObjectMeta().Name).To(Equal(fmt.Sprintf("svcop-s3-%s", o.GetName())))
-		Expect(ret.GetObjectMeta().Namespace).To(Equal(o.GetNamespace()))
-		Expect(ret.GetSpec()).To(And(
+		Expect(spec).To(And(
 			HaveKeyWithValue("resolution", "DNS"),
 			HaveKeyWithValue("location", "MESH_EXTERNAL"),
 			HaveKey("hosts"),
 			HaveKey("ports"),
 		))
-		Expect(ret.GetSpec()["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
-		Expect(ret.GetSpec()["ports"]).To(ContainElement(
+		Expect(spec["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
+		Expect(spec["ports"]).To(ContainElement(
 			map[string]interface{} {
 				"name": "https",
 				"number": 443,

@@ -24,8 +24,6 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
-
-	istio "istio.io/istio/pilot/pkg/config/kube/crd"
 )
 
 func init() {
@@ -233,32 +231,26 @@ func (p *Postgres) GetServiceEntryName() string {
 }
 
 // ServiceEntry to whitelist egress access to Postgres port and hosts.
-func (p *Postgres) GetServiceEntry(outputs cloudformation.Outputs) (*istio.ServiceEntry, error) {
+func (p *Postgres) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[string]interface{}, error) {
 	port, err := strconv.Atoi(outputs[PostgresPort])
 	if err != nil {
 		return nil, err
 	}
 
-	return &istio.ServiceEntry{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("svcop-postgres-%s", p.GetName()),
-			Namespace: p.GetNamespace(),
+	return map[string]interface{} {
+		"hosts": []string{
+			outputs[PostgresEndpoint],
+			outputs[PostgresReadEndpoint],
 		},
-		Spec: map[string]interface{} {
-			"hosts": []string{
-				outputs[PostgresEndpoint],
-				outputs[PostgresReadEndpoint],
+		"ports": []interface{} {
+			map[string]interface{} {
+				"name": "aurora",
+				"number": port,
+				"protocol": "TLS",
 			},
-			"ports": []interface{} {
-				map[string]interface{} {
-					"name": "aurora",
-					"number": port,
-					"protocol": "TLS",
-				},
-			},
-			"location": "MESH_EXTERNAL",
-			"resolution": "DNS",
 		},
+		"location": "MESH_EXTERNAL",
+		"resolution": "DNS",
 	}, nil
 }
 

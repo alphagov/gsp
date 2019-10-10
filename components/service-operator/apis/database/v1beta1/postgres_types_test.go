@@ -50,29 +50,30 @@ var _ = Describe("Postgres", func() {
 	})
 
 	It("should base egress whitelisted host name off object name", func() {
+		name := postgres.GetServiceEntryName()
+		Expect(name).To(Equal(fmt.Sprintf("svcop-postgres-%s", postgres.GetName())))
+
 		outputs := cloudformation.Outputs {
 			v1beta1.PostgresEndpoint: "test-endpoint",
 			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
 			v1beta1.PostgresPort: "3306",
 		}
 
-		ret, err := postgres.GetServiceEntry(outputs)
+		spec, err := postgres.GetServiceEntrySpec(outputs)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(ret.GetObjectMeta().Name).To(Equal(fmt.Sprintf("svcop-postgres-%s", postgres.GetName())))
-		Expect(ret.GetObjectMeta().Namespace).To(Equal(postgres.GetNamespace()))
-		Expect(ret.GetSpec()).To(And(
+		Expect(spec).To(And(
 			HaveKeyWithValue("resolution", "DNS"),
 			HaveKeyWithValue("location", "MESH_EXTERNAL"),
 			HaveKey("hosts"),
 			HaveKey("ports"),
 		))
-		Expect(ret.GetSpec()["hosts"]).To(ContainElement(outputs[v1beta1.PostgresEndpoint]))
-		Expect(ret.GetSpec()["hosts"]).To(ContainElement(outputs[v1beta1.PostgresReadEndpoint]))
+		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.PostgresEndpoint]))
+		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.PostgresReadEndpoint]))
 
 		portnum, err := strconv.Atoi(outputs[v1beta1.PostgresPort])
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(ret.GetSpec()["ports"]).To(ContainElement(
+		Expect(spec["ports"]).To(ContainElement(
 			map[string]interface{} {
 				"name": "aurora",
 				"number": portnum,
@@ -87,7 +88,7 @@ var _ = Describe("Postgres", func() {
 			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
 			v1beta1.PostgresPort: "asd",
 		}
-		_, err := postgres.GetServiceEntry(outputs)
+		_, err := postgres.GetServiceEntrySpec(outputs)
 		Expect(err).To(HaveOccurred())
 	})
 

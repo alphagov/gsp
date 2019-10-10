@@ -248,7 +248,6 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 			Name:      o.GetServiceEntryName(),
 			Namespace: o.GetNamespace(),
 		},
-		Spec: map[string]interface{} {},
 	}
 	serviceEntryKey, err := client.ObjectKeyFromObject(serviceEntry)
 	if err != nil {
@@ -259,9 +258,12 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 		return err
 	}
 	op, err := controllerutil.CreateOrUpdate(ctx, r.KubernetesClient, serviceEntry, func() error {
-		newServiceEntry, err := o.GetServiceEntry(outputs)
-		serviceEntry.Spec = newServiceEntry.Spec
-		return err
+		serviceEntrySpec, err := o.GetServiceEntrySpec(outputs)
+		if err != nil {
+			return err
+		}
+		serviceEntry.Spec = serviceEntrySpec
+		return nil
 	})
 	r.Log.Info("update-service-entry",
 		"service-entry", serviceEntryKey,
