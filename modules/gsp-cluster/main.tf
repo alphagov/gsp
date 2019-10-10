@@ -11,6 +11,7 @@ module "k8s-cluster" {
   ci_worker_count              = "${var.ci_worker_count}"
   ci_worker_instance_type      = "${var.ci_worker_instance_type}"
   eks_version                  = "${var.eks_version}"
+  worker_eks_version           = "${var.worker_eks_version}"
 
   apiserver_allowed_cidrs = ["${concat(
       formatlist("%s/32", var.egress_ips),

@@ -22,6 +22,10 @@ variable "eks_version" {
   type = "string"
 }
 
+variable "worker_eks_version" {
+  type = "string"
+}
+
 variable "worker_instance_type" {
   type    = "string"
   default = "t3.medium"

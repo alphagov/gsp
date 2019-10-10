@@ -536,6 +536,7 @@ resources:
       hsm_splunk_hec_token: ((hsm-splunk-hec-token))
       hsm_splunk_index: ((hsm-splunk-index))
       eks_version: ((eks-version))
+      worker_eks_version: ((worker-eks-version))
       worker_instance_type: ((worker-instance-type))
       worker_count: ((worker-count))
       minimum_workers_per_az_count: ((minimum-workers-per-az-count))

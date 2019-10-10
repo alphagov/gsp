@@ -26,6 +26,10 @@ variable "eks_version" {
   type = "string"
 }
 
+variable "worker_eks_version" {
+  type = "string"
+}
+
 variable "dev_user_arns" {
   description = "A list of user ARNs that will be mapped to the cluster dev role"
   type        = "list"

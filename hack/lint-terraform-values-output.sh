@@ -19,6 +19,7 @@ set -eu
 		--var cluster_domain=x \
 		--var aws_account_role_arn=x \
 		--var eks_version=x \
+		--var worker_eks_version=x \
 		--var minimum_workers_per_az_count=1 \
 		--var maximum_workers_per_az_count=3 \
 )
