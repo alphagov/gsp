@@ -7,5 +7,5 @@ metadata:
   labels:
     grafana_dashboard: "1"
 data:
-  config.json: |-
+  concourse.json: |-
 {{ .Files.Get "dashboards/concourse.json" | indent 4 }}
