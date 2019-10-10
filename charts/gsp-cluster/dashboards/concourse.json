@@ -956,7 +956,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(increase(concourse_builds_finished{team=\"main\", pipeline=\"cd-smoke-test\", status=\"failed\"}[15m]))",
+          "expr": "sum(increase(concourse_builds_finished{team=\"main\", pipeline=\"cd-smoke-test\", status=\"failed\"}[2m]))",
           "format": "time_series",
           "instant": true,
           "intervalFactor": 1,
