@@ -106,6 +106,8 @@ type S3BucketSpec struct {
 	AWS AWS `json:"aws,omitempty"`
 	// Secret name to be used for storing relevant instance secrets for further use.
 	Secret string `json:"secret,omitempty"`
+	// ServiceEntry name to be used for storing the egress firewall rule to allow tenant access to the bucket
+	ServiceEntry string `json:"serviceEntry,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -203,23 +205,26 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 }
 
 func (s *S3Bucket) GetServiceEntryName() string {
-	return fmt.Sprintf("svcop-s3-%s", s.GetName())
+	if s.Spec.ServiceEntry == "" {
+		return fmt.Sprintf("svcop-s3-%s", s.GetName())
+	}
+	return s.Spec.ServiceEntry
 }
 
 // ServiceEntry to whitelist egress access to S3 hostname.
 func (s *S3Bucket) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[string]interface{}, error) {
-	return map[string]interface{} {
+	return map[string]interface{}{
 		"hosts": []string{
 			fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[S3BucketName]),
 		},
-		"ports": []interface{} {
-			map[string]interface{} {
-				"name": "https",
-				"number": 443,
+		"ports": []interface{}{
+			map[string]interface{}{
+				"name":     "https",
+				"number":   443,
 				"protocol": "TLS",
 			},
 		},
-		"location": "MESH_EXTERNAL",
+		"location":   "MESH_EXTERNAL",
 		"resolution": "DNS",
 	}, nil
 }

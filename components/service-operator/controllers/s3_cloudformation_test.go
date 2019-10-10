@@ -11,6 +11,7 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	istio "istio.io/istio/pilot/pkg/config/kube/crd"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -37,6 +38,7 @@ var _ = Describe("S3Bucket Cloudformation Controller", func() {
 		var (
 			name                   = fmt.Sprintf("test-bucket-%s", time.Now().Format("20060102150405"))
 			secretName             = "test-secret"
+			serviceEntryName       = fmt.Sprintf("svcop-s3-%s", name)
 			principalName          = "test-role"
 			namespace              = "test"
 			resourceNamespacedName = types.NamespacedName{
@@ -46,6 +48,10 @@ var _ = Describe("S3Bucket Cloudformation Controller", func() {
 			secretNamespacedName = types.NamespacedName{
 				Namespace: namespace,
 				Name:      secretName,
+			}
+			serviceEntryNamespacedName = types.NamespacedName{
+				Namespace: namespace,
+				Name:      serviceEntryName,
 			}
 			principal = access.Principal{
 				TypeMeta: metav1.TypeMeta{
@@ -76,7 +82,8 @@ var _ = Describe("S3Bucket Cloudformation Controller", func() {
 					Secret: secretName,
 				},
 			}
-			secret core.Secret
+			secret       core.Secret
+			serviceEntry istio.ServiceEntry
 		)
 
 		By("creating a prequisite Principal resource with kubernetes api", func() {
@@ -141,6 +148,18 @@ var _ = Describe("S3Bucket Cloudformation Controller", func() {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				return secret.Data
 			}).Should(HaveKey("IAMRoleName"))
+		})
+
+		By("creating a service entry with the endpoints", func() {
+			Eventually(func() map[string]interface{} {
+				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
+				return serviceEntry.Spec
+			}).Should(And(
+				HaveKey("hosts"),
+				HaveKey("ports"),
+				HaveKey("location"),
+				HaveKey("resolution"),
+			))
 		})
 
 		By("deleting S3Bucket resource with Kubernetes api", func() {

@@ -1,12 +1,13 @@
 package istio
 
 import (
+	istiocrd "istio.io/istio/pilot/pkg/config/kube/crd"
+	istioschemas "istio.io/istio/pkg/config/schemas"
+	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sschema "k8s.io/apimachinery/pkg/runtime/schema"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	istioschemas "istio.io/istio/pkg/config/schemas"
-	istiocrd "istio.io/istio/pilot/pkg/config/kube/crd"
 )
+
 func AddToScheme(scheme *runtime.Scheme) error {
 	istioSchemeBuilder := runtime.NewSchemeBuilder(
 		func(scheme *runtime.Scheme) error {

@@ -54,7 +54,7 @@ var _ = Describe("S3Bucket", func() {
 		name := o.GetServiceEntryName()
 		Expect(name).To(Equal(fmt.Sprintf("svcop-s3-%s", o.GetName())))
 
-		outputs := cloudformation.Outputs {
+		outputs := cloudformation.Outputs{
 			v1beta1.S3BucketName: "test",
 		}
 
@@ -68,9 +68,9 @@ var _ = Describe("S3Bucket", func() {
 		))
 		Expect(spec["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
 		Expect(spec["ports"]).To(ContainElement(
-			map[string]interface{} {
-				"name": "https",
-				"number": 443,
+			map[string]interface{}{
+				"name":     "https",
+				"number":   443,
 				"protocol": "TLS",
 			},
 		))

@@ -70,6 +70,8 @@ type PostgresSpec struct {
 	AWS PostgresAWSSpec `json:"aws,omitempty"`
 	// Secret name to be used for storing relevant instance secrets for further use.
 	Secret string `json:"secret,omitempty"`
+	// ServiceEntry name to be used for storing the egress firewall rule to allow tenant access to the database
+	ServiceEntry string `json:"serviceEntry,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -227,7 +229,10 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 }
 
 func (p *Postgres) GetServiceEntryName() string {
-        return fmt.Sprintf("svcop-postgres-%s", p.GetName())
+	if p.Spec.ServiceEntry == "" {
+		return fmt.Sprintf("svcop-postgres-%s", p.GetName())
+	}
+	return p.Spec.ServiceEntry
 }
 
 // ServiceEntry to whitelist egress access to Postgres port and hosts.
@@ -237,19 +242,19 @@ func (p *Postgres) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[stri
 		return nil, err
 	}
 
-	return map[string]interface{} {
+	return map[string]interface{}{
 		"hosts": []string{
 			outputs[PostgresEndpoint],
 			outputs[PostgresReadEndpoint],
 		},
-		"ports": []interface{} {
-			map[string]interface{} {
-				"name": "aurora",
-				"number": port,
+		"ports": []interface{}{
+			map[string]interface{}{
+				"name":     "aurora",
+				"number":   port,
 				"protocol": "TLS",
 			},
 		},
-		"location": "MESH_EXTERNAL",
+		"location":   "MESH_EXTERNAL",
 		"resolution": "DNS",
 	}, nil
 }

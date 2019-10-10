@@ -53,10 +53,10 @@ var _ = Describe("Postgres", func() {
 		name := postgres.GetServiceEntryName()
 		Expect(name).To(Equal(fmt.Sprintf("svcop-postgres-%s", postgres.GetName())))
 
-		outputs := cloudformation.Outputs {
-			v1beta1.PostgresEndpoint: "test-endpoint",
+		outputs := cloudformation.Outputs{
+			v1beta1.PostgresEndpoint:     "test-endpoint",
 			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
-			v1beta1.PostgresPort: "3306",
+			v1beta1.PostgresPort:         "3306",
 		}
 
 		spec, err := postgres.GetServiceEntrySpec(outputs)
@@ -74,19 +74,19 @@ var _ = Describe("Postgres", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(spec["ports"]).To(ContainElement(
-			map[string]interface{} {
-				"name": "aurora",
-				"number": portnum,
+			map[string]interface{}{
+				"name":     "aurora",
+				"number":   portnum,
 				"protocol": "TLS",
 			},
 		))
 	})
 
 	It("should error if port is not numeric", func() {
-		outputs := cloudformation.Outputs {
-			v1beta1.PostgresEndpoint: "test-endpoint",
+		outputs := cloudformation.Outputs{
+			v1beta1.PostgresEndpoint:     "test-endpoint",
 			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
-			v1beta1.PostgresPort: "asd",
+			v1beta1.PostgresPort:         "asd",
 		}
 		_, err := postgres.GetServiceEntrySpec(outputs)
 		Expect(err).To(HaveOccurred())
