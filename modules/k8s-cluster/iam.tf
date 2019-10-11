@@ -98,7 +98,7 @@ resource "aws_iam_policy" "ssm-minimal" {
 
 resource "aws_iam_role_policy_attachment" "worker-nodes-ssm" {
   policy_arn = "${aws_iam_policy.ssm-minimal.arn}"
-  role = "${replace(aws_iam_role.worker-nodes-role.arn, "role/", "")}"
+  role = "${aws_iam_role.worker-nodes-role.name}"
 }
 
 resource "aws_iam_role_policy_attachment" "kiam-nodes-ssm" {
