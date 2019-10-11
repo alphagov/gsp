@@ -51,37 +51,58 @@ resource "aws_cloudwatch_log_group" "eks" {
   }
 }
 
-# As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
-resource "aws_cloudformation_stack" "worker-nodes" {
-  name          = "${var.cluster_name}-worker-nodes"
-  template_body = "${file("${path.module}/data/nodegroup.yaml")}"
-  capabilities  = ["CAPABILITY_IAM"]
+data "aws_iam_policy_document" "worker-nodes-assume-role-policy" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
 
-  parameters = {
-    NodeImageId                         = "/aws/service/eks/optimized-ami/${var.worker_eks_version}/amazon-linux-2/recommended/image_id"
-    ClusterName                         = "${var.cluster_name}"
-    ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
-    NodeGroupName                       = "worker"
-    NodeAutoScalingGroupMinSize         = "0"
-    NodeAutoScalingGroupDesiredCapacity = "0"
-    NodeAutoScalingGroupMaxSize         = "0"
-    NodeInstanceType                    = "${var.worker_instance_type}"
-    NodeVolumeSize                      = "40"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
-    VpcId                               = "${var.vpc_id}"
-    Subnets                             = "${join(",", var.private_subnet_ids)}"
+    principals = {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
   }
-
-  timeouts {
-    create = "30m"
-
-    # rolling worker nodes 1 at a time could be time consuming. Stop concourse going red
-    update = "90m"
-    delete = "30m"
-  }
-
-  depends_on = ["aws_eks_cluster.eks-cluster"]
 }
+
+resource "aws_iam_role" "worker-nodes-role" {
+  name               = "${var.cluster_name}-worker-nodes-role"
+  assume_role_policy = "${data.aws_iam_policy_document.worker-nodes-assume-role-policy.json}"
+}
+
+resource "aws_iam_instance_profile" "worker-nodes-profile" {
+  name = "${var.cluster_name}-worker-nodes-profile"
+  role = "${aws_iam_role.worker-nodes-role.name}"
+}
+
+resource "aws_iam_role_policy_attachment" "worker-nodes-eks-worker-policy-attachment" {
+  role       = "${aws_iam_role.worker-nodes-role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "worker-nodes-eks-cni-policy-attachment" {
+  role       = "${aws_iam_role.worker-nodes-role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}
+
+resource "aws_iam_role_policy_attachment" "worker-nodes-ecr-ro-policy-attachment" {
+  role       = "${aws_iam_role.worker-nodes-role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_lb_target_group" "worker-nodes-http-target-group" {
+  name     = "worker-nodes-http-target-group"
+  port     = 31380
+  protocol = "HTTP"
+  vpc_id   = "${var.vpc_id}"
+}
+
+resource "aws_lb_target_group" "worker-nodes-tcp-target-group" {
+  name     = "worker-nodes-tcp-target-group"
+  port     = 31390
+  protocol = "TCP"
+  vpc_id   = "${var.vpc_id}"
+}
+
+# As per https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
 resource "aws_cloudformation_stack" "worker-nodes-per-az" {
   count         = "${length(var.private_subnet_ids)}"
   name          = "${var.cluster_name}-worker-nodes-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
@@ -99,16 +120,16 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     NodeAutoScalingGroupMaxSize         = "${var.maximum_workers_per_az_count}"
 
     NodeInstanceType    = "${var.worker_instance_type}"
-    NodeInstanceProfile = "${aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]}"
+    NodeInstanceProfile = "${aws_iam_instance_profile.worker-nodes-profile.arn}"
     NodeVolumeSize      = "40"
     BootstrapArguments  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
     VpcId               = "${var.vpc_id}"
     Subnets             = "${element(data.aws_subnet.private_subnets.*.id, count.index)}"
     NodeSecurityGroups  = "${aws_security_group.node.id},${aws_security_group.worker.id}"
-    NodeTargetGroups    = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
+    NodeTargetGroups    = "${aws_lb_target_group.worker-nodes-http-target-group.arn},${aws_lb_target_group.worker-nodes-tcp-target-group.arn}"
   }
 
-  depends_on = ["aws_eks_cluster.eks-cluster", "aws_cloudformation_stack.worker-nodes"]
+  depends_on = ["aws_eks_cluster.eks-cluster"]
 }
 
 resource "aws_cloudformation_stack" "kiam-server-nodes" {

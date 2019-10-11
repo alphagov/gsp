@@ -47,7 +47,7 @@ resource "aws_iam_role_policy_attachment" "eks-service-policy" {
 }
 
 data "aws_arn" "worker-nodes-role" {
-  arn = "${aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"]}"
+  arn = "${aws_iam_role.worker-nodes-role.arn}"
 }
 
 data "aws_arn" "kiam-server-nodes-role" {
