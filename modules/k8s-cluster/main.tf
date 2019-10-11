@@ -62,9 +62,9 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     ClusterName                         = "${var.cluster_name}"
     ClusterControlPlaneSecurityGroup    = "${aws_security_group.controller.id}"
     NodeGroupName                       = "worker"
-    NodeAutoScalingGroupMinSize         = "${var.worker_count}"
-    NodeAutoScalingGroupDesiredCapacity = "${var.worker_count}"
-    NodeAutoScalingGroupMaxSize         = "${var.worker_count + 2}"
+    NodeAutoScalingGroupMinSize         = "0"
+    NodeAutoScalingGroupDesiredCapacity = "0"
+    NodeAutoScalingGroupMaxSize         = "0"
     NodeInstanceType                    = "${var.worker_instance_type}"
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
@@ -82,7 +82,6 @@ resource "aws_cloudformation_stack" "worker-nodes" {
 
   depends_on = ["aws_eks_cluster.eks-cluster"]
 }
-
 resource "aws_cloudformation_stack" "worker-nodes-per-az" {
   count         = "${length(var.private_subnet_ids)}"
   name          = "${var.cluster_name}-worker-nodes-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"

@@ -53,11 +53,6 @@ variable "worker_instance_type" {
   default = "m5d.large"
 }
 
-variable "worker_count" {
-  type    = "string"
-  default = "3"
-}
-
 variable "minimum_workers_per_az_count" {
   type = "string"
 }
@@ -145,7 +140,6 @@ module "gsp-cluster" {
   eks_version                  = "${var.eks_version}"
   worker_eks_version           = "${var.worker_eks_version}"
   worker_instance_type         = "${var.worker_instance_type}"
-  worker_count                 = "${var.worker_count}"
   minimum_workers_per_az_count = "${var.minimum_workers_per_az_count}"
   maximum_workers_per_az_count = "${var.maximum_workers_per_az_count}"
   ci_worker_instance_type      = "${var.ci_worker_instance_type}"

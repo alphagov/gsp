@@ -54,11 +54,6 @@ variable "sre_user_arns" {
   default     = []
 }
 
-variable "worker_count" {
-  type    = "string"
-  default = "2"
-}
-
 variable "worker_instance_type" {
   type    = "string"
   default = "t3.medium"
