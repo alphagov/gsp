@@ -17,7 +17,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var _ = Describe("SQS Cloudormation Controller", func() {
+var _ = Describe("SQSCloudFormationController", func() {
 
 	var timeout time.Duration = time.Minute * 15
 	var client client.Client

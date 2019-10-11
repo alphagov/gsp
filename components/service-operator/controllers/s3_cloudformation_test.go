@@ -18,7 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var _ = Describe("S3Bucket Cloudformation Controller", func() {
+var _ = Describe("S3CloudFormationController", func() {
 
 	var timeout time.Duration = time.Minute * 15
 	var client client.Client
