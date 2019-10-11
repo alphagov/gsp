@@ -27,5 +27,5 @@ bin
 vendor/
 
 # ignore manifests (they are used to generate the chart)
-/config/crd
+/config/crd/bases
 /config/webhook

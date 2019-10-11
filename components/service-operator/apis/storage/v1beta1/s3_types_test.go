@@ -2,6 +2,7 @@ package v1beta1_test
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -47,6 +48,38 @@ var _ = Describe("S3Bucket", func() {
 	It("should use secret name from spec.Secret if set ", func() {
 		o.Spec.Secret = "my-target-secret"
 		Expect(o.GetSecretName()).To(Equal("my-target-secret"))
+	})
+
+	If("should default service entry name to object name", func() {
+		Expect(o.GetServiceEntryName()).To(Equal(o.GetName()))
+	})
+
+	It("should use service entry name from spec.ServiceEntry if set", func() {
+		o.Spec.ServiceEntry = "my-target-service-entry"
+		Expect(o.GetServiceEntryName()).To(Equal("my-target-service-entry"))
+	})
+
+	It("should produce the correct service entry", func() {
+		outputs := cloudformation.Outputs{
+			v1beta1.S3BucketName: "test",
+		}
+
+		spec, err := o.GetServiceEntrySpec(outputs)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(spec).To(And(
+			HaveKeyWithValue("resolution", "DNS"),
+			HaveKeyWithValue("location", "MESH_EXTERNAL"),
+			HaveKey("hosts"),
+			HaveKey("ports"),
+		))
+		Expect(spec["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
+		Expect(spec["ports"]).To(ContainElement(
+			map[string]interface{}{
+				"name":     "https",
+				"number":   443,
+				"protocol": "TLS",
+			},
+		))
 	})
 
 	It("implements runtime.Object", func() {

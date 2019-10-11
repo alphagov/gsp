@@ -39,3 +39,11 @@ type StackSecretOutputter interface {
 	Stack
 	object.SecretNamer
 }
+
+// ServiceEntryCreator names a ServiceEntry to hold what are essentially egress
+// firewall rules.
+type ServiceEntryCreator interface {
+	Stack
+	GetServiceEntryName() string
+	GetServiceEntrySpec(outputs Outputs) (map[string]interface{}, error)
+}

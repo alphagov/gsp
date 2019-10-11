@@ -33,6 +33,7 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk/sdkfakes"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
+	"github.com/alphagov/gsp/components/service-operator/internal/istio"
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -69,13 +70,19 @@ func SetupControllerEnv() (client.Client, func()) {
 	logf.SetLogger(log)
 
 	testEnv := &envtest.Environment{
-		CRDDirectoryPaths: []string{filepath.Join("..", "config", "crd", "bases")},
+		CRDDirectoryPaths: []string{
+			filepath.Join("..", "config", "crd"),
+			filepath.Join("..", "config", "crd", "bases"),
+		},
 	}
 
 	var err error
 	cfg, err := testEnv.Start()
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cfg).ToNot(BeNil())
+
+	err = istio.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
 
 	err = databasev1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())

@@ -17,6 +17,7 @@ package v1beta1
 
 import (
 	"fmt"
+	"strconv"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -54,6 +55,7 @@ const (
 
 var _ cloudformation.Stack = &Postgres{}
 var _ object.SecretNamer = &Postgres{}
+var _ object.ServiceEntryCreator = &Postgres{}
 
 // AWS allows specifying configuration for the Postgres RDS instance
 type PostgresAWSSpec struct {
@@ -69,6 +71,8 @@ type PostgresSpec struct {
 	AWS PostgresAWSSpec `json:"aws,omitempty"`
 	// Secret name to be used for storing relevant instance secrets for further use.
 	Secret string `json:"secret,omitempty"`
+	// ServiceEntry name to be used for storing the egress firewall rule to allow tenant access to the database
+	ServiceEntry string `json:"serviceEntry,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -223,6 +227,37 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 	}
 
 	return template
+}
+
+func (p *Postgres) GetServiceEntryName() string {
+	if p.Spec.ServiceEntry == "" {
+		return p.GetName()
+	}
+	return p.Spec.ServiceEntry
+}
+
+// ServiceEntry to whitelist egress access to Postgres port and hosts.
+func (p *Postgres) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[string]interface{}, error) {
+	port, err := strconv.Atoi(outputs[PostgresPort])
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"hosts": []string{
+			outputs[PostgresEndpoint],
+			outputs[PostgresReadEndpoint],
+		},
+		"ports": []interface{}{
+			map[string]interface{}{
+				"name":     "aurora",
+				"number":   port,
+				"protocol": "TLS",
+			},
+		},
+		"location":   "MESH_EXTERNAL",
+		"resolution": "DNS",
+	}, nil
 }
 
 // +kubebuilder:object:root=true

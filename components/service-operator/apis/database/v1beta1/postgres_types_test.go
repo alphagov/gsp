@@ -2,6 +2,7 @@ package v1beta1_test
 
 import (
 	"os"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -45,6 +46,55 @@ var _ = Describe("Postgres", func() {
 	It("should use secret name from spec.Secret if set ", func() {
 		postgres.Spec.Secret = "my-target-secret"
 		Expect(postgres.GetSecretName()).To(Equal("my-target-secret"))
+	})
+
+	It("should default service entry name to object name", func() {
+		Expect(postgres.GetServiceEntryName()).To(Equal(postgres.GetName()))
+	})
+
+	It("should use service entry name from spec.ServiceEntry if set", func() {
+		postgres.Spec.ServiceEntry = "my-target-service-entry"
+		Expect(postgres.GetServiceEntryName()).To(Equal("my-target-service-entry"))
+	})
+
+	It("should produce the correct service entry", func() {
+		outputs := cloudformation.Outputs{
+			v1beta1.PostgresEndpoint:     "test-endpoint",
+			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
+			v1beta1.PostgresPort:         "3306",
+		}
+
+		spec, err := postgres.GetServiceEntrySpec(outputs)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(spec).To(And(
+			HaveKeyWithValue("resolution", "DNS"),
+			HaveKeyWithValue("location", "MESH_EXTERNAL"),
+			HaveKey("hosts"),
+			HaveKey("ports"),
+		))
+		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.PostgresEndpoint]))
+		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.PostgresReadEndpoint]))
+
+		portnum, err := strconv.Atoi(outputs[v1beta1.PostgresPort])
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(spec["ports"]).To(ContainElement(
+			map[string]interface{}{
+				"name":     "aurora",
+				"number":   portnum,
+				"protocol": "TLS",
+			},
+		))
+	})
+
+	It("should error if port is not numeric", func() {
+		outputs := cloudformation.Outputs{
+			v1beta1.PostgresEndpoint:     "test-endpoint",
+			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
+			v1beta1.PostgresPort:         "asd",
+		}
+		_, err := postgres.GetServiceEntrySpec(outputs)
+		Expect(err).To(HaveOccurred())
 	})
 
 	It("should generate a unique stack name prefixed with cluster name", func() {

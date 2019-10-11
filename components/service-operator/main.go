@@ -25,6 +25,7 @@ import (
 	storagev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/controllers"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
+	"github.com/alphagov/gsp/components/service-operator/internal/istio"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -39,6 +40,7 @@ var (
 
 func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
+	_ = istio.AddToScheme(scheme)
 
 	_ = databasev1beta1.AddToScheme(scheme)
 	_ = queuev1beta1.AddToScheme(scheme)

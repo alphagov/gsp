@@ -67,7 +67,7 @@ func NewHappyClient() *FakeClient {
 			stack.Outputs = append(stack.Outputs, &cloudformation.Output{
 				Description: aws.String(v.Description),
 				OutputKey:   aws.String(k),
-				OutputValue: aws.String("FAKE_VALUE"),
+				OutputValue: aws.String("0"),
 			})
 		}
 	}
