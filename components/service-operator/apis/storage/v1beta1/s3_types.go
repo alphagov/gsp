@@ -95,7 +95,7 @@ var (
 var _ cloudformation.Stack = &S3Bucket{}
 var _ cloudformation.StackPolicyAttacher = &S3Bucket{}
 var _ object.SecretNamer = &S3Bucket{}
-var _ object.ServiceEntryCreator = &S3Bucket{}
+var _ cloudformation.ServiceEntryCreator = &S3Bucket{}
 
 // AWS allows specifying configuration for the S3Bucket
 type AWS struct {
