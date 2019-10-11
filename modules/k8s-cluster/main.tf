@@ -51,50 +51,6 @@ resource "aws_cloudwatch_log_group" "eks" {
   }
 }
 
-data "aws_iam_policy_document" "worker-nodes-assume-role-policy" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    principals = {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "worker-nodes-role" {
-  name               = "${var.cluster_name}-worker-nodes-role"
-  assume_role_policy = "${data.aws_iam_policy_document.worker-nodes-assume-role-policy.json}"
-}
-
-resource "aws_iam_instance_profile" "worker-nodes-profile" {
-  name = "${var.cluster_name}-worker-nodes-profile"
-  role = "${aws_iam_role.worker-nodes-role.name}"
-}
-
-resource "aws_iam_role_policy_attachment" "worker-nodes-eks-worker-policy-attachment" {
-  role       = "${aws_iam_role.worker-nodes-role.name}"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "worker-nodes-eks-cni-policy-attachment" {
-  role       = "${aws_iam_role.worker-nodes-role.name}"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-}
-
-resource "aws_iam_role_policy_attachment" "worker-nodes-ecr-ro-policy-attachment" {
-  role       = "${aws_iam_role.worker-nodes-role.name}"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
-resource "aws_lb_target_group" "worker-nodes-http-target-group" {
-  name     = "worker-nodes-http-target-group"
-  port     = 31380
-  protocol = "HTTP"
-  vpc_id   = "${var.vpc_id}"
-}
-
 resource "aws_lb_target_group" "worker-nodes-tcp-target-group" {
   name     = "worker-nodes-tcp-target-group"
   port     = 31390
@@ -126,7 +82,7 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     VpcId               = "${var.vpc_id}"
     Subnets             = "${element(data.aws_subnet.private_subnets.*.id, count.index)}"
     NodeSecurityGroups  = "${aws_security_group.node.id},${aws_security_group.worker.id}"
-    NodeTargetGroups    = "${aws_lb_target_group.worker-nodes-http-target-group.arn},${aws_lb_target_group.worker-nodes-tcp-target-group.arn}"
+    NodeTargetGroups    = "${aws_lb_target_group.worker-nodes-tcp-target-group.arn}"
   }
 
   depends_on = ["aws_eks_cluster.eks-cluster"]
