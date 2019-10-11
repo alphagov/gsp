@@ -387,9 +387,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: namespace-default
-  labels:
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
   annotations:
     externaldns.k8s.io/namespace: {{ .name }}
 spec:
