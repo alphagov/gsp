@@ -311,12 +311,17 @@ jobs:
   serial: true
   serial_groups: [build-service-operator]
   plan:
-  - get: service-operator-source
-    trigger: true
+  - in_parallel:
+    - get: service-operator-source
+      trigger: true
+    - get: service-operator
+      params:
+        save: true
   - put: service-operator
     params:
       build: service-operator-source/components/service-operator
       dockerfile: service-operator-source/components/service-operator/Dockerfile
+      load_base: service-operator
       tag_file: service-operator-source/.git/short_ref
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
