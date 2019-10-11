@@ -363,5 +363,58 @@ spec:
               kubectl config use-context deployer
               echo "applying manifests from ${SRC_URI} at path ${PATH_TO_MANIFESTS} to ${RELEASE_NAMESPACE}"
               kubectl apply $NS_ARGS -R -f "./src/${PATH_TO_MANIFESTS}"
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: namespace-default
+  namespace: {{ .name }}
+spec:
+  secretName: namespace-default-certificate
+  dnsNames:
+  - "{{ .name }}.{{ .Values.global.cluster.domain }}"
+  acme:
+    config:
+    - dns01:
+        provider: route53
+      domains:
+      - "{{ .name }}.{{ .Values.global.cluster.domain }}"
+  issuerRef:
+    name: letsencrypt-r53
+    kind: ClusterIssuer
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: namespace-default
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    externaldns.k8s.io/namespace: {{ .name }}
+spec:
+  selector:
+    istio: {{ .name }}-ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    tls:
+      httpsRedirect: true
+    hosts:
+    - "{{ .name }}.{{ .Values.global.cluster.domain }}"
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      serverCertificate: sds
+      privateKey: sds
+      credentialName: namespace-default-certificate
+    hosts:
+    - "{{ .name }}.{{ .Values.global.cluster.domain }}"
+
 {{- end }}
 {{- end }}
