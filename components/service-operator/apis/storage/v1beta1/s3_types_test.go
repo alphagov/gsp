@@ -50,10 +50,16 @@ var _ = Describe("S3Bucket", func() {
 		Expect(o.GetSecretName()).To(Equal("my-target-secret"))
 	})
 
-	It("should base egress whitelisted host name off object name", func() {
-		name := o.GetServiceEntryName()
-		Expect(name).To(Equal(o.GetName()))
+	If("should default service entry name to object name", func() {
+		Expect(o.GetServiceEntryName()).To(Equal(o.GetName()))
+	})
 
+	It("should use service entry name from spec.ServiceEntry if set", func() {
+		o.Spec.ServiceEntry = "my-target-service-entry"
+		Expect(o.GetServiceEntryName()).To(Equal("my-target-service-entry"))
+	})
+
+	It("should produce the correct service entry", func() {
 		outputs := cloudformation.Outputs{
 			v1beta1.S3BucketName: "test",
 		}

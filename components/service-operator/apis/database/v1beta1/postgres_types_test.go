@@ -48,10 +48,16 @@ var _ = Describe("Postgres", func() {
 		Expect(postgres.GetSecretName()).To(Equal("my-target-secret"))
 	})
 
-	It("should base egress whitelisted host name off object name", func() {
-		name := postgres.GetServiceEntryName()
-		Expect(name).To(Equal(postgres.GetName()))
+	It("should default service entry name to object name", func() {
+		Expect(postgres.GetServiceEntryName()).To(Equal(postgres.GetName()))
+	})
 
+	It("should use service entry name from spec.ServiceEntry if set", func() {
+		postgres.Spec.ServiceEntry = "my-target-service-entry"
+		Expect(postgres.GetServiceEntryName()).To(Equal("my-target-service-entry"))
+	})
+
+	It("should produce the correct service entry", func() {
 		outputs := cloudformation.Outputs{
 			v1beta1.PostgresEndpoint:     "test-endpoint",
 			v1beta1.PostgresReadEndpoint: "test-read-endpoint",

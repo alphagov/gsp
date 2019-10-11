@@ -55,6 +55,7 @@ const (
 
 var _ cloudformation.Stack = &Postgres{}
 var _ object.SecretNamer = &Postgres{}
+var _ object.ServiceEntryCreator = &Postgres{}
 
 // AWS allows specifying configuration for the Postgres RDS instance
 type PostgresAWSSpec struct {
