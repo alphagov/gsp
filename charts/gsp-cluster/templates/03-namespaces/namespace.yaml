@@ -372,13 +372,13 @@ metadata:
 spec:
   secretName: namespace-default-certificate
   dnsNames:
-  - "{{ .name }}.{{ .Values.global.cluster.domain }}"
+  - "{{ .name }}.{{ $.Values.global.cluster.domain }}"
   acme:
     config:
     - dns01:
         provider: route53
       domains:
-      - "{{ .name }}.{{ .Values.global.cluster.domain }}"
+      - "{{ .name }}.{{ $.Values.global.cluster.domain }}"
   issuerRef:
     name: letsencrypt-r53
     kind: ClusterIssuer
@@ -403,7 +403,7 @@ spec:
     tls:
       httpsRedirect: true
     hosts:
-    - "{{ .name }}.{{ .Values.global.cluster.domain }}"
+    - "{{ .name }}.{{ $.Values.global.cluster.domain }}"
   - port:
       number: 443
       name: https
@@ -414,7 +414,7 @@ spec:
       privateKey: sds
       credentialName: namespace-default-certificate
     hosts:
-    - "{{ .name }}.{{ .Values.global.cluster.domain }}"
+    - "{{ .name }}.{{ $.Values.global.cluster.domain }}"
 
 {{- end }}
 {{- end }}
