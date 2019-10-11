@@ -50,7 +50,7 @@ var _ = Describe("S3Bucket", func() {
 		Expect(o.GetSecretName()).To(Equal("my-target-secret"))
 	})
 
-	If("should default service entry name to object name", func() {
+	It("should default service entry name to object name", func() {
 		Expect(o.GetServiceEntryName()).To(Equal(o.GetName()))
 	})
 
