@@ -163,6 +163,13 @@ var _ = Describe("S3CloudFormationController", func() {
 			))
 		})
 
+		By("creating a service entry with an owner reference", func() {
+			Eventually(func() []metav1.OwnerReference {
+				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
+				return serviceEntry.ObjectMeta.OwnerReferences
+			}).Should(HaveLen(1))
+		})
+
 		By("deleting S3Bucket resource with Kubernetes api", func() {
 			err := client.Get(ctx, resourceNamespacedName, &bucket)
 			Expect(err).ToNot(HaveOccurred())

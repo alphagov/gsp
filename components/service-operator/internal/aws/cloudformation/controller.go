@@ -263,6 +263,10 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 			return err
 		}
 		serviceEntry.Spec = serviceEntrySpec
+		// mark the serviceEntry as owned by the o resource so it gets gc'd
+		if err := controllerutil.SetControllerReference(o, serviceEntry, r.Scheme); err != nil {
+			return err
+		}
 		return nil
 	})
 	r.Log.Info("update-service-entry",
@@ -271,10 +275,6 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 		"err", err,
 	)
 	if err != nil {
-		return err
-	}
-	// mark the serviceEntry as owned by the o resource so it gets gc'd
-	if err := controllerutil.SetControllerReference(o, serviceEntry, r.Scheme); err != nil {
 		return err
 	}
 	return nil
@@ -316,6 +316,10 @@ func (r *Controller) updateCredentialsSecret(ctx context.Context, o StackSecretO
 		for key, value := range outputs {
 			secret.Data[key] = []byte(value)
 		}
+		// mark the secret as owned by the o resource so it gets gc'd
+		if err := controllerutil.SetControllerReference(o, &secret, r.Scheme); err != nil {
+			return err
+		}
 		return nil
 	})
 	r.Log.Info("update-secret",
@@ -324,10 +328,6 @@ func (r *Controller) updateCredentialsSecret(ctx context.Context, o StackSecretO
 		"err", err,
 	)
 	if err != nil {
-		return err
-	}
-	// mark the secret as owned by the o resource so it gets gc'd
-	if err := controllerutil.SetControllerReference(o, &secret, r.Scheme); err != nil {
 		return err
 	}
 	return nil

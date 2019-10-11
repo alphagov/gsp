@@ -62,7 +62,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 				Spec: database.PostgresSpec{
 					Secret:       secretName,
 					ServiceEntry: serviceEntryName,
-					AWS:          database.PostgresAWSSpec{
+					AWS: database.PostgresAWSSpec{
 						InstanceCount: 1,
 						InstanceType:  "db.t3.medium",
 					},
@@ -141,6 +141,13 @@ var _ = Describe("PostgresCloudFormationController", func() {
 				HaveKey("location"),
 				HaveKey("resolution"),
 			))
+		})
+
+		By("creating a service entry with an owner reference", func() {
+			Eventually(func() []metav1.OwnerReference {
+				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
+				return serviceEntry.ObjectMeta.OwnerReferences
+			}).Should(HaveLen(1))
 		})
 
 		By("connecting to resource", func() {
