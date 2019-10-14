@@ -62,6 +62,7 @@ var _ = Describe("S3Bucket", func() {
 	It("should produce the correct service entry", func() {
 		outputs := cloudformation.Outputs{
 			v1beta1.S3BucketName: "test",
+			v1beta1.S3BucketURL: "testing"
 		}
 
 		spec, err := o.GetServiceEntrySpec(outputs)
@@ -72,7 +73,7 @@ var _ = Describe("S3Bucket", func() {
 			HaveKey("hosts"),
 			HaveKey("ports"),
 		))
-		Expect(spec["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
+		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.S3BucketURL]))
 		Expect(spec["ports"]).To(ContainElement(
 			map[string]interface{}{
 				"name":     "https",
@@ -100,8 +101,11 @@ var _ = Describe("S3Bucket", func() {
 
 		It("should have outputs for connection details", func() {
 			t := o.GetStackTemplate()
-			Expect(t.Outputs).To(HaveKey("S3BucketName"))
-			Expect(t.Outputs).To(HaveKey("IAMRoleName"))
+			Expect(t.Outputs).To(And(
+				HaveKey("S3BucketName"),
+				HaveKey("S3BucketURL"),
+				HaveKey("IAMRoleName")
+			))
 		})
 
 		It("should map role name to role parameter", func() {
