@@ -26,8 +26,8 @@ var _ = Describe("S3CloudFormationController", func() {
 
 		var (
 			name                   = fmt.Sprintf("test-bucket-%s", time.Now().Format("20060102150405"))
-			secretName             = "test-secret"
-			serviceEntryName       = "test-service-entry"
+			secretName             = "test-s3-secret"
+			serviceEntryName       = "test-s3-service-entry"
 			principalName          = "test-role"
 			namespace              = "test"
 			resourceNamespacedName = types.NamespacedName{

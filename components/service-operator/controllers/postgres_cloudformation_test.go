@@ -25,8 +25,8 @@ var _ = Describe("PostgresCloudFormationController", func() {
 
 		var (
 			name                   = fmt.Sprintf("test-db-%s", time.Now().Format("20060102150405"))
-			secretName             = "test-secret"
-			serviceEntryName       = "test-service-entry"
+			secretName             = "test-postgres-secret"
+			serviceEntryName       = "test-postgres-service-entry"
 			namespace              = "test"
 			resourceNamespacedName = types.NamespacedName{
 				Namespace: namespace,
