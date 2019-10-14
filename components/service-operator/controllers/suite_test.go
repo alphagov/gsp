@@ -72,7 +72,7 @@ func TestAPIs(t *testing.T) {
 // of the controller which can be used to inspect Reconcile errors and a
 // teardown function that should be called after the test is complete.
 // It is probably not practical to run this in parallel
-func SetupControllerEnv() (client.Client, func()) {
+func SetupControllerEnv() (cln.Client, func()) {
 	os.Setenv("CLOUD_PROVIDER", "aws")
 	os.Setenv("CLUSTER_NAME", "xxx")
 	ctx := context.Background()
