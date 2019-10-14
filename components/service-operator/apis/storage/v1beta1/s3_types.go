@@ -205,8 +205,8 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 			[]string{
 				"https://",
 				cloudformation.Ref(S3BucketURL),
-				".s3.eu-west-2.amazonaws.com"
-			}
+				".s3.eu-west-2.amazonaws.com",
+			},
 		),
 	}
 
@@ -229,7 +229,7 @@ func (s *S3Bucket) GetServiceEntryName() string {
 func (s *S3Bucket) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[string]interface{}, error) {
 	return map[string]interface{}{
 		"hosts": []string{
-			outputs[S3BucketURL],
+			fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[S3BucketName]),
 		},
 		"ports": []interface{}{
 			map[string]interface{}{

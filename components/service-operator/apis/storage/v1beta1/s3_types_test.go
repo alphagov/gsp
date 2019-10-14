@@ -73,7 +73,7 @@ var _ = Describe("S3Bucket", func() {
 			HaveKey("hosts"),
 			HaveKey("ports"),
 		))
-		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.S3BucketURL]))
+		Expect(spec["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
 		Expect(spec["ports"]).To(ContainElement(
 			map[string]interface{}{
 				"name":     "https",
