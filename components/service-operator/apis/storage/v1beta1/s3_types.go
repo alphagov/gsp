@@ -32,6 +32,7 @@ func init() {
 const (
 	S3BucketResourceName      = "S3Bucket"
 	S3BucketName              = "S3BucketName"
+	S3BucketURL               = "S3BucketURL"
 	S3BucketResourceIAMPolicy = "S3BucketIAMPolicy"
 	IAMRoleParameterName      = "IAMRoleName"
 )
@@ -195,6 +196,11 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 	template.Outputs[S3BucketName] = map[string]interface{}{
 		"Description": "S3Bucket name to be returned to the user.",
 		"Value":       cloudformation.Ref(S3BucketResourceName),
+	}
+
+	template.Outputs[S3BucketURL] = map[string]interface{}{
+		"Description": "Bucket URL to be returned to the user.",
+		"Value": fmt.Sprintf("https://%s.s3.eu-west-2.amazonaws.com", bucketName),
 	}
 
 	template.Outputs[IAMRoleParameterName] = map[string]interface{}{
