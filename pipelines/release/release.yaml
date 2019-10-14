@@ -252,7 +252,7 @@ jobs:
     params:
       build: concourse-task-toolbox-source/components/concourse-task-toolbox
       dockerfile: concourse-task-toolbox-source/components/concourse-task-toolbox/Dockerfile
-      load_base: concourse-task-toolbox
+      cache_from: concourse-task-toolbox
       tag_file: concourse-task-toolbox-source/.git/short_ref
       tag_prefix: ((github-release-tag-prefix))v
       tag_as_latest: true
