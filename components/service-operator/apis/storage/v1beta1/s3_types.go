@@ -200,14 +200,7 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 
 	template.Outputs[S3BucketURL] = map[string]interface{}{
 		"Description": "Bucket URL to be returned to the user.",
-		"Value": cloudformation.Join(
-			"",
-			[]string{
-				"https://",
-				cloudformation.Ref(S3BucketURL),
-				".s3.eu-west-2.amazonaws.com",
-			},
-		),
+		"Value": fmt.Sprintf("https://%s.s3.eu-west-2.amazonaws.com", bucketName),
 	}
 
 	template.Outputs[IAMRoleParameterName] = map[string]interface{}{
