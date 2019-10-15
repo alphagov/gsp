@@ -1,0 +1,7 @@
+######################
+# this dockerfile is intended to be run from the concourse pipeline
+# ######################
+FROM gcr.io/distroless/static:latest
+WORKDIR /
+COPY ./rootfs/workspace/manager .
+ENTRYPOINT ["/manager"]

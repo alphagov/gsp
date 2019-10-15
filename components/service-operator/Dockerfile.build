@@ -47,15 +47,7 @@ ENV AWS_PRINCIPAL_SERVER_ROLE_ARN="${AWS_PRINCIPAL_SERVER_ROLE_ARN}"
 ARG AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN
 ENV AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN="${AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN}"
 
-# run tests
-RUN make test
+# Build binaries
+RUN make controllers/controllers.test manager
 
-# build binary
-RUN go build -a -o manager main.go
 
-# Use distroless as minimal base image to package the manager binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:latest
-WORKDIR /
-COPY --from=builder /workspace/manager .
-ENTRYPOINT ["/manager"]
