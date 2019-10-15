@@ -1,3 +1,5 @@
+{{ if .Values.gatekeeper.enabled }}
+---
 apiVersion: config.gatekeeper.sh/v1alpha1
 kind: Config
 metadata:
@@ -9,3 +11,4 @@ spec:
       - group: ""
         version: "v1"
         kind: "Pod"
+{{ end }}

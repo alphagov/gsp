@@ -33,6 +33,8 @@ harbor:
         core: registry.local.govsandbox.uk
   externalURL: http://registry.local.govsandbox.uk
 
+gatekeeper:
+  enabled: false
 
 gsp-monitoring:
   prometheus-operator:

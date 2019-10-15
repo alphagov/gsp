@@ -270,3 +270,6 @@ concourseResources:
 
 externalDns:
   iamRoleName: ""
+
+gatekeeper:
+  enabled: true

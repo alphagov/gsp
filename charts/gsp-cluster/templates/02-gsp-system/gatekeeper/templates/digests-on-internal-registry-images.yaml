@@ -1,3 +1,5 @@
+{{ if .Values.gatekeeper.enabled }}
+---
 apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
@@ -14,3 +16,4 @@ spec:
     - target: admission.k8s.gatekeeper.sh
       rego: |
 {{ .Files.Get "policies/digests-on-images/src.rego" | indent 8 }}
+{{ end }}
