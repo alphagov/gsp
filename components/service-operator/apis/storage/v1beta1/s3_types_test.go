@@ -103,7 +103,7 @@ var _ = Describe("S3Bucket", func() {
 			t := o.GetStackTemplate()
 			Expect(t.Outputs).To(And(
 				HaveKey("S3BucketName"),
-				HaveKeyWithValue("S3BucketURL", fmt.Sprintf("https://%s.s3.eu-west-2.amazonaws.com", t.Outputs[v1beta1.S3BucketName])),
+				HaveKey("S3BucketURL"),
 				HaveKey("IAMRoleName"),
 			))
 		})
