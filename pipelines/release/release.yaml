@@ -170,7 +170,7 @@ resources:
     repository: govsvc/concourse-operator
 
 - name: service-operator
-  type: docker-image
+  type: registry-image
   source:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
@@ -314,19 +314,85 @@ jobs:
   - in_parallel:
     - get: service-operator-source
       trigger: true
-    - get: service-operator
-      params:
-        save: true
-  - put: service-operator
+  - task: build-base
+    privileged: true
+    output_mapping: {image: build-image}
     params:
-      build: service-operator-source/components/service-operator
-      dockerfile: service-operator-source/components/service-operator/Dockerfile
-      load_base: service-operator
-      tag_file: service-operator-source/.git/short_ref
-      tag_prefix: ((github-release-tag-prefix))v
-      tag_as_latest: true
-    get_params:
-      skip_download: true
+      CONTEXT: service-operator-source/components/service-operator
+      DOCKERFILE: service-operator-source/components/service-operator/Dockerfile.build
+      UNPACK_ROOTFS: "true"
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source: {repository: vito/oci-build-task, tag: master}
+      inputs:
+      - name: service-operator-source
+      outputs:
+      - name: image
+      caches: [{path: cache}]
+      run: {path: build}
+  - in_parallel:
+    - task: unit-tests
+      image: build-image
+      config:
+        platform: linux
+        run:
+          dir: "/workspace"
+          path: bash
+          args: ["-c", "make unit"]
+    - task: s3-controller-tests
+      image: build-image
+      params:
+        TEST_ARGS: --focus=.*S3.*
+      config:
+        platform: linux
+        run:
+          dir: "/workspace"
+          path: bash
+          args: ["-c", "make integration"]
+    - task: sqs-controller-tests
+      image: build-image
+      params:
+        TEST_ARGS: --focus=.*SQS.*
+      config:
+        platform: linux
+        run:
+          dir: "/workspace"
+          path: bash
+          args: ["-c", "make integration"]
+    - task: postgres-controller-tests
+      image: build-image
+      params:
+        TEST_ARGS: --focus=.*Postgres.*
+      config:
+        platform: linux
+        run:
+          dir: "/workspace"
+          path: bash
+          args: ["-c", "make integration"]
+    - task: build-manager
+      privileged: true
+      output_mapping: {image: manager-image}
+      config:
+        platform: linux
+        image_resource:
+          type: registry-image
+          source: {repository: vito/oci-build-task, tag: master}
+        inputs:
+        - name: service-operator-source
+        - name: build-image
+          path: service-operator-source/components/service-operator/
+        outputs:
+        - name: image
+        caches:
+        - path: cache
+        params:
+          CONTEXT: service-operator-source/components/service-operator
+          DOCKERFILE: service-operator-source/components/service-operator/Dockerfile.manager
+        run: {path: build}
+  - put: service-operator
+    params: {image: manager-image/image.tar}
 
 - name: bump-version
   serial: true
