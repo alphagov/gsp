@@ -1,3 +1,5 @@
+{{ if .Values.gatekeeper.enabled }}
+---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: RequireImageDigest
 metadata:
@@ -10,3 +12,4 @@ spec:
         kinds: ["Pod"]
   parameters:
     registry: "registry.{{ .Values.global.cluster.domain }}"
+{{ end }}

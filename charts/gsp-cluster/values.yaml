@@ -21,6 +21,10 @@ global:
   ci:
     privateKey: ""
     publicKey: ""
+  concourse:
+    enabled: true
+  harbor:
+    enabled: true
 
 adminRoleARNs: []
 adminUserARNs: []
@@ -270,3 +274,6 @@ concourseResources:
 
 externalDns:
   iamRoleName: ""
+
+gatekeeper:
+  enabled: true
