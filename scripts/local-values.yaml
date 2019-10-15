@@ -5,6 +5,10 @@ global:
     domain: "local.govsandbox.uk"
   mtls:
     enabled: true
+  concourse:
+    enabled: false
+  harbor:
+    enabled: false
 
 namespaces: []
 

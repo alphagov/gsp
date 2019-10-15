@@ -21,6 +21,10 @@ global:
   ci:
     privateKey: ""
     publicKey: ""
+  concourse:
+    enabled: true
+  harbor:
+    enabled: true
 
 adminRoleARNs: []
 adminUserARNs: []
