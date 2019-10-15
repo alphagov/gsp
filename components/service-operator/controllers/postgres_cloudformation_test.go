@@ -14,12 +14,23 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var _ = Describe("PostgresCloudFormationController", func() {
 
 	var timeout time.Duration = time.Minute * 30
+	var client client.Client
 	var ctx context.Context = context.Background()
+	var teardown func()
+
+	BeforeEach(func() {
+		client, teardown = SetupControllerEnv()
+	})
+
+	AfterEach(func() {
+		teardown()
+	})
 
 	It("Should create and destroy an Postgres database", func() {
 
