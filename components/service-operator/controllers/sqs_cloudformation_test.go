@@ -26,7 +26,7 @@ var _ = Describe("SQSCloudFormationController", func() {
 		var (
 			name                   = fmt.Sprintf("test-queue-%s", time.Now().Format("20060102150405"))
 			secretName             = "test-sqs-secret"
-			principalName          = "test-role"
+			principalName          = "test-sqs-role"
 			namespace              = "test"
 			resourceNamespacedName = types.NamespacedName{
 				Namespace: namespace,
