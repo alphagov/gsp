@@ -37,23 +37,12 @@ import (
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
-	cln "sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	// +kubebuilder:scaffold:imports
 )
-
-var client cln.Client
-var teardown func()
-
-var _ = BeforeSuite(func() {
-	client, teardown = SetupControllerEnv()
-})
-
-var _ = AfterSuite(func() {
-	teardown()
-})
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
@@ -72,7 +61,7 @@ func TestAPIs(t *testing.T) {
 // of the controller which can be used to inspect Reconcile errors and a
 // teardown function that should be called after the test is complete.
 // It is probably not practical to run this in parallel
-func SetupControllerEnv() (cln.Client, func()) {
+func SetupControllerEnv() (client.Client, func()) {
 	os.Setenv("CLOUD_PROVIDER", "aws")
 	os.Setenv("CLUSTER_NAME", "xxx")
 	ctx := context.Background()
