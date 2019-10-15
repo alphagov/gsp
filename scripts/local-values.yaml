@@ -43,6 +43,7 @@ gatekeeper:
 gsp-monitoring:
   prometheus-operator:
     prometheus:
+      replicas: 1
       prometheusSpec:
         # This following doesn't do what I'd expect (remove the `storageSpec`
         # key from the merged output). I think because of this bug:
@@ -56,3 +57,21 @@ gsp-monitoring:
         enabled: false
       env:
         GF_AUTH_GOOGLE_ENABLED: "false"
+
+istio:
+  galley:
+    replicaCount: 1
+  certmanager:
+    replicaCount: 1
+  mixer:
+    policy:
+      replicaCount: 1
+      autoscaleMin: 1
+    telemetry:
+      replicaCount: 1
+      autoscaleMin: 1
+  pilot:
+    replicaCount: 1
+    autoscaleMin: 1
+  sidecarInjectorWebhook:
+    replicaCount: 1
