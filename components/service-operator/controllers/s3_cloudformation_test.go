@@ -170,6 +170,13 @@ var _ = Describe("S3CloudFormationController", func() {
 			}).Should(HaveLen(1))
 		})
 
+		By("creating a service entry with the correct exportTo annotation", func() {
+			Eventually(func() map[string]string {
+				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
+				return serviceEntry.Annotations
+			}).Should(HaveKeyWithValue("networking.istio.io/exportTo", "."))
+		})
+
 		By("deleting S3Bucket resource with Kubernetes api", func() {
 			err := client.Get(ctx, resourceNamespacedName, &bucket)
 			Expect(err).ToNot(HaveOccurred())
