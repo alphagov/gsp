@@ -18,19 +18,35 @@ lint: fmt vet
 	golangci-lint run
 
 # Run tests
-test: generate manifests
-	ginkgo -v \
+test: unit integration
+
+# Run all tests except controller tests
+unit:
+	ginkgo -v -r -p \
 		--failOnPending \
 		--failFast \
 		--requireSuite \
 		--slowSpecThreshold=30 \
-		-cover \
-		-r \
-		./controllers ./apis/... ./internal/...
+		${TEST_ARGS} \
+		./apis/... ./internal/...
+
+# Build and run controller tests
+integration: controllers/controllers.test
+	ginkgo -v -r \
+		--failOnPending \
+		--failFast \
+		--requireSuite \
+		--slowSpecThreshold=30 \
+		${TEST_ARGS} \
+		./controllers/controllers.test
+
+# Compile the integration tests
+controllers/controllers.test: generate manifests
+	ginkgo build ./controllers
 
 # Build manager binary
 manager: generate fmt vet
-	go build -o bin/manager main.go
+	go build -a -o bin/manager main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet
@@ -60,7 +76,7 @@ fmt:
 
 # Run go vet against code
 vet:
-	go vet ./...
+	go vet -lostcancel=false ./...
 
 # Generate code
 generate: controller-gen internal/aws/sdk/sdkfakes/fake_client.go internal/aws/cloudformation/cloudformationfakes/fake_stack.go

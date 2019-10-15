@@ -63,10 +63,19 @@ make update-chart
 
 ## Running tests
 
-The simplest way the the tests is as part of the Docker build. This will run the tests with mocked clients:
+The simplest way the the tests is to run them from the build image in Docker
 
 ```
-docker build .
+./hack/test_in_docker.sh
+```
+
+The controller tests can be a bit slow as they require a control-plane. You can
+pass test args through to the test runner to focus only tests that match a regex.
+
+For example to only run tests that contain "SQS":
+
+```
+./hack/test_in_docker.sh --focus=".*SQS.*"
 ```
 
 To run the tests against a real AWS account you can set `AWS_INTEGRATION=true`
@@ -76,7 +85,6 @@ environment for running tests against the sandbox account and can be combined
 with the gds cli to execute the tests:
 
 ```
-gds aws gsp-sandbox-admin -- ./hack/test_integration.sh
+AWS_INTEGRATION=true gds aws gsp-sandbox-admin -- ./hack/test_in_docker.sh
 ```
-
 
