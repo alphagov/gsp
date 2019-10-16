@@ -133,7 +133,7 @@ When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-ser
 
 ## How to connect to a created bucket
 
-The URL of the Bucket will be stored inside the `secret` you specified as `S3BucketURL`. If you make a pod like:
+The URL of the Bucket will be stored inside the `secret` you specified as `S3BucketURL`, and the name will be in the `S3BucketName` key. If you make a pod like:
 ```
 apiVersion: v1
 kind: Pod
@@ -146,13 +146,12 @@ spec:
   - name: myapp-container
     image: governmentpaas/awscli
     command: ['sleep', '1000000']
-    volumeMounts:
-    - name: secrets
-      mountPath: /secrets
-  volumes:
-  - name: secrets
-    secret:
-      secretName: alexs-test-bucket-secret
+    env:
+    - name: S3_BUCKET_NAME
+      valueFrom:
+        secretKeyRef:
+          name: alexs-test-bucket-secret
+          key: S3BucketName
 ```
 
 You will be able to access the URL of the Bucket from inside your pod using `cat /secrets/S3BucketURL`.
@@ -161,9 +160,9 @@ When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-ser
 
 ```
 / # echo hello > world
-/ # aws s3 cp ./world s3://$(cat /secrets/S3BucketName)/world --region eu-west-2
+/ # aws s3 cp ./world s3://$S3_BUCKET_NAME/world --region eu-west-2
 upload: ./world to s3://sandbox-sandbox-gsp-service-operator-test-alexs-test-bucket/world
-/ # aws s3 cp s3://$(cat /secrets/S3BucketName)/world ./downloaded --region eu-west-2
+/ # aws s3 cp s3://$S3_BUCKET_NAME/world ./downloaded --region eu-west-2
 download: s3://sandbox-sandbox-gsp-service-operator-test-alexs-test-bucket/world to ./downloaded
 / # cat downloaded
 hello
