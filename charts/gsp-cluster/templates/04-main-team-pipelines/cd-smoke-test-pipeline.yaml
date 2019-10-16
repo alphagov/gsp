@@ -8,7 +8,7 @@ metadata:
   namespace: {{ .Values.global.account.name }}-main
 spec:
   exposed: true
-  pipelineString: |
+  config:
 
     harbor_source: &harbor_source
       username: ((harbor.harbor_username))
