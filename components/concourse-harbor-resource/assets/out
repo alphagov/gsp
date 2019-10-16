@@ -1,5 +1,11 @@
 #!/bin/bash
 
+function log() {
+	echo 1>&2 "$1"
+}
+
+log "starting harbor resource..."
+
 set -euo pipefail
 shopt -s expand_aliases
 
@@ -9,47 +15,49 @@ exec 1>&2 # redirect all output to stderr for logging
 context="${1}"
 
 if [ -z "${context}" ]; then
-	echo "usage: $0 <path/to/context>"
+	log "usage: $0 <path/to/context>"
 	exit 1
 fi
 
 # add jq into our path
 PATH="/usr/local/bin:${PATH}"
 
+log "writing payload to temp file"
 payload=$(mktemp /tmp/resource-in.XXXXXX)
-
 cat > "${payload}" <&0
 
 cd "${context}"
 
+log "loading repository config..."
 repository=$(jq -r '.source.repository // ""' < "${payload}")
 username=$(jq -r '.source.username // ""' < "${payload}")
 password=$(jq -r '.source.password // ""' < "${payload}")
 
+log "parsing resporitory uri..."
 repository_array=$(echo -n "${repository}" | tr '/' '\n')
 
+log "validating repository uri..."
 if [ "$(echo "${repository_array}" | tr '/' '\n' | wc -l | awk '{print $1}')" -ne "3" ]; then
-	echo "'repository' needs to be a gun (<registry>/<project>/<image>), got: ${repository}"
+	log "'repository' needs to be a gun (<registry>/<project>/<image>), got: ${repository}"
 	exit 1
 fi
 
+log "determining project name..."
 project_name=$(echo -n "${repository_array}" | head -n2 | tail -n1)
 
+log "loading harbor config..."
 harbor_url=$(jq -r '.source.harbor.url // ""' < "${payload}")
 notary_url=$(jq -r '.source.notary.url // ""' < "${payload}")
-
 root_key=$(jq -r '.source.notary.root_key // ""' < "${payload}") # root key
 delegate_key=$(jq -r '.source.notary.delegate_key // ""' < "${payload}") # delegate / ci key
-
 harbor_public=$(jq -r '.source.harbor.public // "true"' < "${payload}")
 harbor_enable_content_trust=$(jq -r '.source.harbor.enable_content_trust // "true"' < "${payload}")
 harbor_prevent_vul=$(jq -r '.source.harbor.prevent_vul // "true"' < "${payload}")
 harbor_severity=$(jq -r '.source.harbor.severity // "medium"' < "${payload}")
 harbor_auto_scan=$(jq -r '.source.harbor.auto_scan // "true"' < "${payload}")
 
-
+log "loading notary config..."
 NOTARY_AUTH=$(echo -n "${username}:${password}" | base64)
-
 NOTARY_ROOT_PASSPHRASE=$(jq -r '.source.notary.passphrase.root // ""' < "${payload}")
 NOTARY_SNAPSHOT_PASSPHRASE=$(jq -r '.source.notary.passphrase.snapshot // ""' < "${payload}")
 NOTARY_TARGETS_PASSPHRASE=$(jq -r '.source.notary.passphrase.targets // ""' < "${payload}")
@@ -64,8 +72,8 @@ alias hurl='curl --fail -u "${username}:${password}" -H "Accept: application/jso
 alias dockernotary='notary -s ${DOCKER_CONTENT_TRUST_SERVER} -d ~/.docker/trust'
 
 function clean_up_notary() {
-	echo "  =====> leaving the current state is most likely to damage this project on notary"
-	echo "  =====> cleaning up notary setup"
+	log "  =====> leaving the current state is most likely to damage this project on notary"
+	log "  =====> cleaning up notary setup"
 	dockernotary delete "${1}" --remote
 	exit 1
 }
@@ -120,47 +128,47 @@ function update_project() {
 	EOF
 }
 
-echo "  =====> create or update '${project_name}'"
+log "  =====> create or update '${project_name}'"
 if project_exits "${project_name}"; then
-	echo "  =====> project does exist... updating"
+	log "  =====> project does exist... updating"
 	update_project "${project_name}" "$(get_project_id ${project_name})"
 else
-	echo "  =====> project does NOT exist... creating"
+	log "  =====> project does NOT exist... creating"
 	create_project "${project_name}"
 fi
 
 if [[ "${harbor_enable_content_trust}" == "true" ]]; then
-  echo "  =====> importing root key"
+  log "  =====> importing root key"
   echo "${root_key}" > /tmp/root.key
   dockernotary key import /tmp/root.key --role root
 
-  echo "  =====> importing delegate key"
+  log "  =====> importing delegate key"
   echo "${delegate_key}" > /tmp/ci.key
   dockernotary key import /tmp/ci.key --role ci
 
   dockernotary key list
 
-  echo "  =====> checking if delegation for repository is on the listing"
+  log "  =====> checking if delegation for repository is on the listing"
   if ! dockernotary delegation list "${repository}" > /dev/null 2>&1; then
-    echo "  =====> initialising repo: ${repository}"
+    log "  =====> initialising repo: ${repository}"
     dockernotary init "${repository}" -p || clean_up_notary "${repository}"
 
-    echo "  =====> moving snapshot key to server"
+    log "  =====> moving snapshot key to server"
     dockernotary key rotate "${repository}" snapshot -r || clean_up_notary "${repository}"
 
-    echo "  =====> creating ci csr"
+    log "  =====> creating ci csr"
     openssl req -new -sha256 -key /tmp/ci.key -out /tmp/ci.csr -subj "/C=/ST=/L=/O=GDS/OU=/CN=ci" || clean_up_notary "${repository}"
 
-    echo "  =====> creating cert from csr and key - expiry: 10 years"
+    log "  =====> creating cert from csr and key - expiry: 10 years"
     openssl x509 -req -sha256 -days 3650 -in /tmp/ci.csr -signkey /tmp/ci.key -out /tmp/ci.crt || clean_up_notary "${repository}"
 
-    echo "  =====> delegating to ci key"
+    log "  =====> delegating to ci key"
     dockernotary delegation add "${repository}" targets/releases /tmp/ci.crt --all-paths -p || clean_up_notary "${repository}"
   fi
   export DOCKER_CONTENT_TRUST=1
 fi
 
-echo "  =====> moving on to docker-image-resource"
+log "  =====> moving on to docker-image-resource"
 
 # Revert concourse weirdness
 exec 1>&3
