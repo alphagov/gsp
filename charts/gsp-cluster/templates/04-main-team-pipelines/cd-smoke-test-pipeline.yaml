@@ -66,6 +66,7 @@ spec:
     jobs:
     - name: build
       serial: true
+      serial_groups: [smoke-test]
       plan:
       - get: timer
         trigger: true
@@ -81,6 +82,7 @@ spec:
 
     - name: deploy
       serial: true
+      serial_groups: [smoke-test]
       plan:
       - get: src
         passed: ["build"]
