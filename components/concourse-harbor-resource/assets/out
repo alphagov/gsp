@@ -34,16 +34,17 @@ username=$(jq -r '.source.username // ""' < "${payload}")
 password=$(jq -r '.source.password // ""' < "${payload}")
 
 log "parsing resporitory uri..."
-repository_array=$(echo -n "${repository}" | tr '/' '\n')
+echo "${repository}" | tr '/' '\n' > repository_array
 
 log "validating repository uri..."
-if [ "$(echo "${repository_array}" | tr '/' '\n' | wc -l | awk '{print $1}')" -ne "3" ]; then
+if [ "$(wc -l < repository_array | awk '{print $1}')" -ne "3" ]; then
 	log "'repository' needs to be a gun (<registry>/<project>/<image>), got: ${repository}"
 	exit 1
 fi
 
 log "determining project name..."
-project_name=$(echo -n "${repository_array}" | head -n2 | tail -n1)
+project_name=$(sed -n '2p' < repository_array)
+echo "project: ${project_name}"
 
 log "loading harbor config..."
 harbor_url=$(jq -r '.source.harbor.url // ""' < "${payload}")
