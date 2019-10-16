@@ -43,7 +43,6 @@ gatekeeper:
 gsp-monitoring:
   prometheus-operator:
     prometheus:
-      replicas: 1
       prometheusSpec:
         # This following doesn't do what I'd expect (remove the `storageSpec`
         # key from the merged output). I think because of this bug:
@@ -52,6 +51,7 @@ gsp-monitoring:
         # if running GSP local. In this case you should delete the PVC from
         # your source tree locally.
         storageSpec: null
+        replicas: 1
     grafana:
       persistence:
         enabled: false
