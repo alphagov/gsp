@@ -46,8 +46,41 @@ resource "aws_iam_role_policy_attachment" "eks-service-policy" {
   role       = "${aws_iam_role.eks-cluster.name}"
 }
 
-data "aws_arn" "worker-nodes-role" {
-  arn = "${aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"]}"
+data "aws_iam_policy_document" "worker-nodes-assume-role-policy" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals = {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "worker-nodes-role" {
+  name               = "${var.cluster_name}-worker-nodes-role"
+  assume_role_policy = "${data.aws_iam_policy_document.worker-nodes-assume-role-policy.json}"
+}
+
+resource "aws_iam_instance_profile" "worker-nodes-profile" {
+  name = "${var.cluster_name}-worker-nodes-profile"
+  role = "${aws_iam_role.worker-nodes-role.name}"
+}
+
+resource "aws_iam_role_policy_attachment" "worker-nodes-eks-worker-policy-attachment" {
+  role       = "${aws_iam_role.worker-nodes-role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "worker-nodes-eks-cni-policy-attachment" {
+  role       = "${aws_iam_role.worker-nodes-role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}
+
+resource "aws_iam_role_policy_attachment" "worker-nodes-ecr-ro-policy-attachment" {
+  role       = "${aws_iam_role.worker-nodes-role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 data "aws_arn" "kiam-server-nodes-role" {
@@ -65,7 +98,7 @@ resource "aws_iam_policy" "ssm-minimal" {
 
 resource "aws_iam_role_policy_attachment" "worker-nodes-ssm" {
   policy_arn = "${aws_iam_policy.ssm-minimal.arn}"
-  role = "${replace(data.aws_arn.worker-nodes-role.resource, "role/", "")}"
+  role = "${aws_iam_role.worker-nodes-role.name}"
 }
 
 resource "aws_iam_role_policy_attachment" "kiam-nodes-ssm" {
