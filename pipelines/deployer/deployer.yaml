@@ -210,12 +210,6 @@ apply_cluster_chart: &apply_cluster_chart
         echo "---> ${1} applied OK!"
       }
       apply manifests/${CHART_NAME}/templates/00-aws-auth/
-      # BEGIN: Temporary hack to remove mutated jobs
-      kubectl delete jobs -n istio-system istio-init-crd-certmanager-10
-      kubectl delete jobs -n istio-system istio-init-crd-certmanager-11
-      kubectl delete jobs -n istio-system istio-init-crd-10
-      kubectl delete jobs -n istio-system istio-init-crd-11
-      # END
       apply manifests/gsp-istio/charts/istio-init
       apply kube-system-manifests/gsp-istio/charts/istio-cni
       apply manifests/gsp-istio/charts/istio
