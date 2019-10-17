@@ -198,8 +198,7 @@ concourse:
       enablePipelineAuditing: true
       enableTeamAuditing: true
   persistence:
-    worker:
-      size: 128Gi
+    enabled: false
   postgresql:
     persistence:
       size: 64Gi
