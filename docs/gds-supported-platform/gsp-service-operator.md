@@ -1,7 +1,9 @@
 # Using GSP Service Operator
 
 ## How to use it
-GSP Service Operator is a tool we use to allow GSP users to write kubeyaml resources that will generate SQS Queues or Databases (via Principal objects for access control). Here's an example of an SQS Queue:
+GSP Service Operator is a tool we use to allow GSP users to write kubeyaml resources that will generate SQS Queues or S3 Buckets (access control via Principal objects), or RDS databases (Postgres, access control via credentials we provide).
+
+Here's an example of an SQS Queue:
 ```yaml
 apiVersion: v1
 kind: List
@@ -27,6 +29,33 @@ items:
       group.access.govsvc.uk: alexs-test-principal
 ```
 This will create an SQS Queue on AWS named alexs-test-queue, with a message retention period of 1 hour, and a maximum message size of 1KiB. It will also ensure you can get access to the created queue. It will store the queue URL in a secret named `alexs-test-queue-secret` that we will use below.
+
+Here's an example of an S3 Bucket:
+
+```
+apiVersion: v1
+kind: List
+items:
+- apiVersion: storage.govsvc.uk/v1beta1
+  kind: S3Bucket
+  metadata:
+    labels:
+      group.access.govsvc.uk: alexs-test-principal
+    name: alexs-test-bucket
+    namespace: sandbox-gsp-service-operator-test
+  spec:
+    aws: {}
+    secret: alexs-test-bucket-secret
+- kind: Principal
+  apiVersion: access.govsvc.uk/v1beta1
+  metadata:
+    name: alexs-test-princ
+    namespace: sandbox-gsp-service-operator-test
+    labels:
+      group.access.govsvc.uk: alexs-test-principal
+```
+
+This will create an S3 Bucket on AWS including the name alexs-test-bucket. It will ensure you can get access to the created bucket via the IAM Role created by the Principal. It will store the created bucket name and URL inside the specified secret.
 
 Here's an example of a Postgres database:
 
@@ -100,6 +129,43 @@ When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-ser
         }
     ]
 }
+```
+
+## How to connect to a created bucket
+
+The URL of the Bucket will be stored inside the `secret` you specified as `S3BucketURL`, and the name will be in the `S3BucketName` key. If you make a pod like:
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alexs-test-pod
+  annotations:
+    iam.amazonaws.com/role: svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ
+spec:
+  containers:
+  - name: myapp-container
+    image: governmentpaas/awscli
+    command: ['sleep', '1000000']
+    env:
+    - name: S3_BUCKET_NAME
+      valueFrom:
+        secretKeyRef:
+          name: alexs-test-bucket-secret
+          key: S3BucketName
+```
+
+You will be able to access the URL of the Bucket from inside your pod using `cat /secrets/S3BucketURL`.
+
+When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ will have been created - in the form of svcop-{cluster}-{namespace}-{resourcename}. Your namespace will have an annotation that allows it to access such roles, so you will just need to annotate your pod to assume the role and then do this (for this example we will use `gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -it /bin/ash`):
+
+```
+/ # echo hello > world
+/ # aws s3 cp ./world s3://$S3_BUCKET_NAME/world --region eu-west-2
+upload: ./world to s3://sandbox-sandbox-gsp-service-operator-test-alexs-test-bucket/world
+/ # aws s3 cp s3://$S3_BUCKET_NAME/world ./downloaded --region eu-west-2
+download: s3://sandbox-sandbox-gsp-service-operator-test-alexs-test-bucket/world to ./downloaded
+/ # cat downloaded
+hello
 ```
 
 ## How to connect to a created Postgres database
