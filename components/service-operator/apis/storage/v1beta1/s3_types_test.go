@@ -72,6 +72,7 @@ var _ = Describe("S3Bucket", func() {
 			HaveKeyWithValue("location", "MESH_EXTERNAL"),
 			HaveKey("hosts"),
 			HaveKey("ports"),
+			HaveKeyWithValue("exportTo", "."),
 		))
 		Expect(spec["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
 		Expect(spec["ports"]).To(ContainElement(

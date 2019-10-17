@@ -263,9 +263,6 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 			return err
 		}
 		serviceEntry.Spec = serviceEntrySpec
-		serviceEntry.Annotations = map[string]string {
-			"networking.istio.io/exportTo": ".",
-		}
 		// mark the serviceEntry as owned by the o resource so it gets gc'd
 		if err := controllerutil.SetControllerReference(o, serviceEntry, r.Scheme); err != nil {
 			return err

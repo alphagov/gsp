@@ -140,6 +140,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 				HaveKey("ports"),
 				HaveKey("location"),
 				HaveKey("resolution"),
+				HaveKey("exportTo"),
 			))
 		})
 
@@ -148,13 +149,6 @@ var _ = Describe("PostgresCloudFormationController", func() {
 				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
 				return serviceEntry.ObjectMeta.OwnerReferences
 			}).Should(HaveLen(1))
-		})
-
-		By("creating a service entry with the correct exportTo annotation", func() {
-			Eventually(func() map[string]string {
-				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
-				return serviceEntry.Annotations
-			}).Should(HaveKeyWithValue("networking.istio.io/exportTo", "."))
 		})
 
 		By("connecting to resource", func() {
