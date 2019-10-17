@@ -250,9 +250,6 @@ secrets:
   public_certificate: ""
   private_key: ""
 
-letsencrypt:
-  email: automate-team@digital.cabinet-office.gov.uk
-
 # concourse resource image references available in-cluster
 # this lets users follow our upstream builds.
 # these values will be converted into a Secret available
