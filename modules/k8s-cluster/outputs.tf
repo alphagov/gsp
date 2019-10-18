@@ -11,11 +11,11 @@ output "kiam-server-node-instance-role-name" {
 }
 
 output "bootstrap_role_arns" {
-  value = "${list(aws_iam_role.worker-nodes-role.arn, aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.ci-nodes.outputs["NodeInstanceRole"])}"
+  value = "${list(aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"], aws_cloudformation_stack.ci-nodes.outputs["NodeInstanceRole"])}"
 }
 
 output "worker_tcp_target_group_arn" {
-  value = "${aws_lb_target_group.worker-nodes-tcp-target-group.arn}"
+  value = "${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
 }
 
 output "eks-log-group-arn" {
