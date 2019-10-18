@@ -140,6 +140,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 				HaveKey("ports"),
 				HaveKey("location"),
 				HaveKey("resolution"),
+				HaveKey("exportTo"),
 			))
 		})
 

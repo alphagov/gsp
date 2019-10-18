@@ -160,6 +160,7 @@ var _ = Describe("S3CloudFormationController", func() {
 				HaveKey("ports"),
 				HaveKey("location"),
 				HaveKey("resolution"),
+				HaveKey("exportTo"),
 			))
 		})
 

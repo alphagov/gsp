@@ -233,6 +233,7 @@ func (s *S3Bucket) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[stri
 		},
 		"location":   "MESH_EXTERNAL",
 		"resolution": "DNS",
+		"exportTo": ".",
 	}, nil
 }
 
