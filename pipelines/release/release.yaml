@@ -48,6 +48,18 @@ resources:
     region_name: eu-west-2
     initial_version: '1.1.0'
 
+- name: full-gsp
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    github_api_token: ((github-api-token))
+    approvers: ((config-approvers))
+    required_approval_count: 1
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
 - name: platform
   type: github
   source:
@@ -444,6 +456,61 @@ jobs:
             EOF
             echo "merging with cluster values..."
             spruce merge ./platform/charts/gsp-cluster/values.yaml ./overrides.yaml | tee -a cluster-values/values.yaml
+  - task: pick-platform-version
+    image: concourse-task-toolbox
+    config:
+      platform: linux
+      inputs:
+      - name: full-gsp
+      - name: platform
+      - name: service-operator-source
+      - name: concourse-task-toolbox-source
+      - name: concourse-operator-source
+      - name: concourse-github-resource-source
+      - name: concourse-harbor-resource-source
+      outputs:
+      - name: platform-version
+      run:
+        path: /usr/bin/python3
+        args:
+        - -c
+        - |
+          import os
+          import subprocess
+          import sys
+
+          os.mkdirs("platform-version", exist_ok=True)
+
+          print("Picking platform version...")
+          partial_repos = [
+              "platform",
+              "service-operator-source",
+              "concourse-task-toolbox-source",
+              "concourse-operator-source",
+              "concourse-github-resource-source",
+              "concourse-harbor-resource-source"
+          ]
+          hashes = set(map(lambda r: open(f"{r}/.git/ref").read(), partial_repos))
+
+          proc = subprocess.Popen(
+              ['git', 'log', '--format=%H'],
+              env={'GIT_DIR': 'full-gsp/.git'},
+              stdout=subprocess.PIPE
+          )
+          while True:
+              line = proc.stdout.readline().decode('ascii')
+              if not line:
+                  sys.stderr.write("Did not get line when running git-log through full-gsp\n")
+                  sys.exit(1)
+              if line in hashes:
+                  proc.terminate()
+                  break
+
+          line = line.strip()
+          print(f"Picked {line}")
+          with open('platform-version/ref', 'w') as f:
+              f.write(line)
+
   - task: package-gsp-cluster
     image: concourse-task-toolbox
     config:
@@ -452,6 +519,7 @@ jobs:
       - name: platform
       - name: semver
       - name: cluster-values
+      - name: platform-version
       outputs:
       - name: cluster-package
       params:
@@ -472,7 +540,7 @@ jobs:
           cp -r "./platform/charts/gsp-cluster" "./${CHART_NAME}"
           cp "./cluster-values/values.yaml" "./${CHART_NAME}/values.yaml"
           mkdir -p cluster-package
-          APP_VERSION=$(cat ./platform/.git/short_ref)
+          APP_VERSION=$(cat ./platform-version/ref)
           CHART_VERSION=$(cat ./semver/version)
           echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
           helm package \
@@ -490,6 +558,7 @@ jobs:
       inputs:
       - name: platform
       - name: semver
+      - name: platform-version
       outputs:
       - name: istio-package
       params:
@@ -509,7 +578,7 @@ jobs:
           CHART_NAME=$(yq . < ./platform/charts/gsp-istio/Chart.yaml | jq -r .name)
           cp -r "./platform/charts/gsp-istio" "./${CHART_NAME}"
           mkdir -p istio-package
-          APP_VERSION=$(cat ./platform/.git/short_ref)
+          APP_VERSION=$(cat ./platform-version/ref)
           CHART_VERSION=$(cat ./semver/version)
           echo "generating signed (${KEY_ID}) helm package for ${CHART_NAME} at app-version: '${APP_VERSION}' chart-version: '${CHART_VERSION}'..."
           helm package \
@@ -555,7 +624,7 @@ jobs:
       name: semver/version
       tag: semver/version
       tag_prefix: ((github-release-tag-prefix))rc-v
-      commitish: platform/.git/ref
+      commitish: platform-version/ref
       globs:
       - cluster-package/*
       - deployer-package/*
@@ -599,7 +668,7 @@ jobs:
       name: semver/version
       tag: semver/version
       tag_prefix: ((github-release-tag-prefix))v
-      commitish: platform/.git/ref
+      commitish: platform-version/ref
       globs:
       - signed-release/*
 
