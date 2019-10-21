@@ -8,7 +8,7 @@ dependencies:
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: global.concourse.enabled
   - name: "fluentd-cloudwatch"
-    version: 0.6.4
+    version: 0.9.1
     repository: https://kubernetes-charts-incubator.storage.googleapis.com/
     condition: global.runningOnAws
   - name: "harbor"
