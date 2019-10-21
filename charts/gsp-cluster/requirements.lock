@@ -7,12 +7,12 @@ dependencies:
   version: 8.2.6
 - name: fluentd-cloudwatch
   repository: https://kubernetes-charts-incubator.storage.googleapis.com/
-  version: 0.6.4
+  version: 0.9.1
 - name: harbor
   repository: https://helm.goharbor.io/
   version: 1.1.3
 - name: kiam
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.5.1
-digest: sha256:f5466f2ef2cd33a2dc1b0b24f81f274065e9f493d5cddd7666e9eb238dc4579b
-generated: "2019-10-08T11:59:07.584313+01:00"
+digest: sha256:81b49485dcf95563c118feb5675dda66c981e6d1b69b655508f18712368fbe28
+generated: "2019-10-21T15:28:39.400804+01:00"
