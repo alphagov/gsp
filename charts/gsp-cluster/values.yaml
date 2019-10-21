@@ -143,6 +143,7 @@ fluentd-cloudwatch:
   tolerations:
     - key: node-role.kubernetes.io/master
       effect: NoSchedule
+  priorityClassName: gsp-critical
 
 concourse:
   web:
