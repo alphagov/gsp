@@ -383,6 +383,7 @@ jobs:
     - get: semver
       passed: [bump-version]
       trigger: true
+    - get: full-gsp
     - get: platform
       passed: [bump-version]
     - get: concourse-task-toolbox
