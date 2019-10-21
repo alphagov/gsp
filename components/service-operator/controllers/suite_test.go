@@ -74,7 +74,7 @@ func SetupControllerEnv() (client.Client, func()) {
 			filepath.Join("..", "config", "crd"),
 			filepath.Join("..", "config", "crd", "bases"),
 		},
-		ControlPlaneStartTimeout: 40 * time.Second,
+		ControlPlaneStartTimeout: 2 * time.Minute,
 	}
 
 	var err error
