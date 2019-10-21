@@ -71,7 +71,7 @@ var _ = Describe("Postgres", func() {
 			HaveKeyWithValue("location", "MESH_EXTERNAL"),
 			HaveKey("hosts"),
 			HaveKey("ports"),
-			HaveKeyWithValue("exportTo", "."),
+			HaveKey("exportTo"),
 		))
 		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.PostgresEndpoint]))
 		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.PostgresReadEndpoint]))
@@ -85,6 +85,11 @@ var _ = Describe("Postgres", func() {
 				"number":   portnum,
 				"protocol": "TLS",
 			},
+		))
+
+		Expect(spec["exportTo"]).To(And(
+			HaveLen(1),
+			ContainElement("."),
 		))
 	})
 

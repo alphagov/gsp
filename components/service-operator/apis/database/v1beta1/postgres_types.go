@@ -257,7 +257,7 @@ func (p *Postgres) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[stri
 		},
 		"location":   "MESH_EXTERNAL",
 		"resolution": "DNS",
-		"exportTo": ".",
+		"exportTo": []string{"."},
 	}, nil
 }
 
