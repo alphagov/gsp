@@ -48,18 +48,6 @@ resources:
     region_name: eu-west-2
     initial_version: '1.1.0'
 
-- name: full-gsp
-  type: github
-  source:
-    uri: https://github.com/alphagov/gsp.git
-    organization: alphagov
-    repository: gsp
-    github_api_token: ((github-api-token))
-    approvers: ((config-approvers))
-    required_approval_count: 1
-    branch: ((branch))
-    commit_verification_keys: ((trusted-developer-keys))
-
 - name: platform
   type: github
   source:
@@ -383,7 +371,6 @@ jobs:
     - get: semver
       passed: [bump-version]
       trigger: true
-    - get: full-gsp
     - get: platform
       passed: [bump-version]
     - get: concourse-task-toolbox
@@ -462,7 +449,6 @@ jobs:
     config:
       platform: linux
       inputs:
-      - name: full-gsp
       - name: platform
       - name: service-operator-source
       - name: concourse-task-toolbox-source
