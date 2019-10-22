@@ -45,7 +45,6 @@ generate_cluster_values: &generate_cluster_values
       mkdir -p cluster-values
       echo "fetching cluster-values file from cluster-state..."
       jq -r '.values' ./cluster-state/metadata > ./cluster-values/values.yaml
-      jq -r '.gsp_istio_values' ./cluster-state/metadata > ./cluster-values/gsp-istio-values.yaml
       echo "OK!"
   inputs:
   - name: cluster-state
@@ -166,6 +165,14 @@ apply_cluster_chart: &apply_cluster_chart
       echo "fetching release tag"
       RELEASE_TAG=$(cat gsp/tag)
       echo "RELEASE_TAG=${RELEASE_TAG}"
+      ### TODO Temporary. Remove once no longer needed
+      echo "### Temporary. Removing old istio-managed certmanager"
+      kubectl -n istio-system delete job.batch/istio-init-crd-certmanager-10
+      kubectl -n istio-system delete job.batch/istio-init-crd-certmanager-10-1.3.3
+      kubectl -n istio-system delete job.batch/istio-init-crd-certmanager-11
+      kubectl -n istio-system delete job.batch/istio-init-crd-certmanager-11-1.3.3
+      kubectl -n istio-system delete deployment.apps/certmanager
+      ### TODO End Temporary
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       mkdir -p kube-system-manifests
@@ -188,7 +195,6 @@ apply_cluster_chart: &apply_cluster_chart
         --namespace istio-system \
         --output-dir manifests \
         --values config/${CONFIG_VALUES_PATH} \
-        --values cluster-values/gsp-istio-values.yaml \
         --values managed-namespaces-values/gateways-values.yaml \
         --set global.runningOnAws=true \
         gsp/gsp-istio-*.tgz
@@ -202,7 +208,9 @@ apply_cluster_chart: &apply_cluster_chart
         gsp/gsp-istio-*.tgz
       function apply() {
         echo "applying ${1} from ${CHART_NAME} chart..."
-        until kubectl apply -R -f $1; do
+        # TODO remove `--validate=false` from the following line
+        #      when k8s >= 1.15
+        until kubectl apply --validate=false -R -f $1; do
           echo "---> ${1} apply failed retrying in 5s..."
           sleep 5
         done
@@ -213,7 +221,6 @@ apply_cluster_chart: &apply_cluster_chart
       apply manifests/gsp-istio/charts/istio-init
       apply kube-system-manifests/gsp-istio/charts/istio-cni
       apply manifests/gsp-istio/charts/istio
-      apply manifests/gsp-istio/templates
       apply manifests/${CHART_NAME}/templates/01-aws-system/
       apply manifests/
   inputs:

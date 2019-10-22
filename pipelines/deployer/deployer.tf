@@ -170,11 +170,6 @@ output "values" {
   value     = "${module.gsp-cluster.values}"
 }
 
-output "gsp_istio_values" {
-  sensitive = true
-  value     = "${module.gsp-cluster.gsp_istio_values}"
-}
-
 output "vpc_id" {
   value = "${module.gsp-network.vpc_id}"
 }

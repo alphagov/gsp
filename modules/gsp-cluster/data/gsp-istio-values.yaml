@@ -1,4 +1,0 @@
-istio:
-  certmanager:
-    podAnnotations:
-      iam.amazonaws.com/role: ${cert_manager_role_name}

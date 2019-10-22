@@ -19,9 +19,6 @@ istio-cni:
   - istio-system
   - kube-system
   - gsp-system
-istio-init:
-  certmanager:
-    enabled: true
 
 # https://github.com/helm/helm/issues/5135
 # affects anything with a conditional in the istio chart's
@@ -56,16 +53,13 @@ kiali:
 istiocoredns:
   enabled: false
 certmanager:
-  enabled: true
+  enabled: false
 
 # normal service can now resume
 istio:
   ingress:
     enable: false
   galley:
-    replicaCount: 2
-  certmanager:
-    enabled: true
     replicaCount: 2
   istio_cni:
     enabled: true

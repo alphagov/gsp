@@ -55,6 +55,7 @@ data "template_file" "values" {
     external_dns_iam_role_name       = "${aws_iam_role.external_dns.name}"
     grafana_default_admin_password   = "${random_password.grafana_default_admin_password.result}"
     eks_version                      = "${var.eks_version}"
+    cert_manager_role_name           = "${aws_iam_role.cert_manager.name}"
 
     permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.cloudwatch_log_shipping_role.name,
@@ -63,9 +64,6 @@ data "template_file" "values" {
       aws_iam_role.gsp-service-operator.name,
       aws_iam_role.harbor.name,
       aws_iam_role.external_dns.name,
-    ))})$"
-
-    istio_system_permitted_roles_regex = "^(${join("|", list(
       aws_iam_role.cert_manager.name,
     ))})$"
   }

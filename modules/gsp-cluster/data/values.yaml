@@ -27,7 +27,6 @@ devRoleARNs: []
 bootstrapRoleARNs: ${bootstrap_role_arns}
 
 permittedRolesRegex: ${permitted_roles_regex}
-istioSystemRoleRegex: ${istio_system_permitted_roles_regex}
 
 httpsEgressSafelist: []
 httpEgressSafelist: []
@@ -182,3 +181,7 @@ privateDBSubnetGroup: ${private_db_subnet_group}
 
 externalDns:
   iamRoleName: ${external_dns_iam_role_name}
+
+cert-manager:
+  podAnnotations:
+    iam.amazonaws.com/role: ${cert_manager_role_name}
