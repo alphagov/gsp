@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import collections
 import os
 import subprocess
 import sys
@@ -14,30 +15,23 @@ partial_repos = [
     "concourse-github-resource-source",
     "concourse-harbor-resource-source"
 ]
-commits_known_by = {open(f"{r}/.git/ref").read(): [] for r in partial_repos}
 
+repo_map = collections.Counter()
 for partial_repo in partial_repos:
     proc = subprocess.Popen(
         ['git', 'log', '--format=%H'],
         env={'GIT_DIR': f'{partial_repo}/.git'},
         stdout=subprocess.PIPE
     )
-    seen_commits = set()
-    while len(seen_commits) < len(list(commits_known_by.keys())):
-        line = proc.stdout.readline().decode('ascii')
+    while True:
+        line = proc.stdout.readline()
         if not line:
             break
-        if line in commits_known_by:
-            seen_commits.update([line])
-            commits_known_by[line].append(partial_repo)
+        repo_map[partial_repo] += 1
 
-# Pick the only commit which has one repo knowing about it
-obscure_commits = list(filter(lambda i: len(i[1]) == 1, commits_known_by.items()))
-if len(obscure_commits) != 1:
-    sys.stderr.write(f"More or less than one commit was found in a single repository\n")
-    sys.exit(1)
-
-(commit, _), = obscure_commits
+repo, _ = repo_map.most_common()[0]
+with open(f"{repo}/.git/ref") as f:
+	commit = f.read()
 
 print(f"Picked {commit}")
 with open('platform-version/ref', 'w') as f:
