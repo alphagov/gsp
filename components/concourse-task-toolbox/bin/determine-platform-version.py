@@ -15,7 +15,7 @@ partial_repos = [
     "concourse-harbor-resource-source"
 ]
 
-repo_map = collections.Counter()
+commit_map = collections.Counter()
 for partial_repo in partial_repos:
     with open(f"{partial_repo}/.git/ref") as f:
         commit = f.read()
@@ -26,11 +26,9 @@ for partial_repo in partial_repos:
         stdout=subprocess.PIPE
     )
     stdoutdata, _ = proc.communicate()
-    repo_map[partial_repo] = int(stdoutdata)
+    commit_map[commit] = int(stdoutdata)
 
-repo, _ = repo_map.most_common()[0]
-with open(f"{repo}/.git/ref") as f:
-    commit = f.read()
+commit, _ = commit_map.most_common()[0]
 
 print(f"Picked {commit}")
 with open('platform-version/ref', 'w') as f:
