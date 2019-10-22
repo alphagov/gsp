@@ -562,11 +562,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "1 - kubelet_volume_stats_available_bytes{persistentvolumeclaim=~\"concourse-work-dir.*\"} / kubelet_volume_stats_capacity_bytes",
+          "expr": "node_filesystem_avail_bytes{node_role=\"ci\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "Used disk space - {{persistentvolumeclaim}}",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
@@ -574,7 +574,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Worker disk usage",
+      "title": "Worker available disk space",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -591,11 +591,11 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "percentunit",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
-          "max": "1",
-          "min": "0",
+          "max": null,
+          "min": null,
           "show": true
         },
         {
