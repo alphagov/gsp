@@ -183,7 +183,7 @@ concourse:
       ephemeral: true
       baggageclaim:
         logLevel: error
-        driver: overlay
+        driver: btrfs
     web:
       xFrameOptions: "allow-from: https://framesplits.cloudapps.digital/"
       logLevel: error
