@@ -20,7 +20,7 @@ for partial_repo in partial_repos:
     with open(f"{partial_repo}/.git/ref") as f:
         commit = f.read()
     proc = subprocess.Popen(
-    	# This could probably use 'HEAD' instead of reading .git/ref
+        # This could probably use 'HEAD' instead of reading .git/ref
         ['git', 'rev-list', '--count', commit.strip()],
         env={'GIT_DIR': f'{partial_repo}/.git'},
         stdout=subprocess.PIPE
