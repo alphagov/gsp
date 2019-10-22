@@ -67,6 +67,12 @@ RUN wget https://github.com/geofffranks/spruce/releases/download/v${SPRUCE_VERSI
 	&& mv spruce-linux-amd64 /bin/spruce \
 	&& chmod +x /bin/spruce
 
+# install klar (cli for clair)
+ENV KLAR_VERSION=2.4.0
+RUN wget https://github.com/optiopay/klar/releases/download/v${KLAR_VERSION}/klar-${KLAR_VERSION}-linux-amd64 \
+	&& mv klar-${KLAR_VERSION}-linux-amd64 /bin/klar \
+	&& chmod +x /bin/klar
+
 # install aws-iam-authenticator
 RUN curl -LO https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/0.4.0-alpha.1/aws-iam-authenticator_0.4.0-alpha.1_linux_amd64 \
 	&& chmod +x aws-iam-authenticator_0.4.0-alpha.1_linux_amd64 \

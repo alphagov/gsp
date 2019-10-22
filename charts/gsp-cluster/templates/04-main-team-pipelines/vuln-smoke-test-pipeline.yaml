@@ -1,0 +1,63 @@
+---
+apiVersion: concourse.k8s.io/v1beta1
+kind: Pipeline
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: vuln-smoke-test
+  namespace: {{ .Values.global.account.name }}-main
+spec:
+  exposed: true
+  config:
+
+    task_toolbox: &task_toolbox
+      type: docker-image
+      source:
+        repository: ((concourse.task-toolbox-image))
+        tag: ((concourse.task-toolbox-tag))
+
+    resources:
+    - name: daily
+      type: time
+      icon: update
+      source:
+        interval: 1d
+
+    jobs:
+    - name: build
+      serial: true
+      serial_groups: [smoke-test]
+      plan:
+      - task: report-vulnerabilities
+        timeout: 2m
+        config:
+          platform: linux
+          image_resource: *task_toolbox
+          inputs:
+          - name: manifests
+          params:
+            KUBERNETES_SERVICE_ACCOUNT: ((namespace-deployer))
+            KUBERNETES_TOKEN: ((namespace-deployer.token))
+            KUBERNETES_API: kubernetes.default.svc
+            JSON_OUTPUT: "true"
+            IGNORE_UNFIXED: "true"
+            CLAIR_OUTPUT: "high"
+            CLAIR_ADDR: "localhost:6060"
+          run:
+            path: /bin/bash
+            args:
+            - -eu
+            - -c
+            - |
+              echo "configuring kubectl"
+              echo "${KUBERNETES_SERVICE_ACCOUNT}" | jq -r .["ca.crt"] > ca.crt
+              kubectl config set-cluster self --server=https://kubernetes.default --certificate-authority=ca.crt
+              kubectl config set-credentials deployer --token "${KUBERNETES_TOKEN}"
+              kubectl config set-context deployer --user deployer --cluster self
+              kubectl config use-context deployer
+
+              CONTAINER_IMAGES=$(ks get po --all-namespaces -o json | jq .items[].spec.containers[].image -r | sed s#docker.io/## | sort | uniq)
+              for image in $CONTAINER_IMAGES; do
+                klar $image | jq "{name: \"$image\", scan: .}"
+              done
+
