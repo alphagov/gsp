@@ -2,7 +2,6 @@
 import collections
 import os
 import subprocess
-import sys
 
 os.makedirs("platform-version", exist_ok=True)
 
@@ -19,19 +18,16 @@ partial_repos = [
 repo_map = collections.Counter()
 for partial_repo in partial_repos:
     proc = subprocess.Popen(
-        ['git', 'log', '--format=%H'],
+        ['git', 'rev-list', '--count', 'HEAD'],
         env={'GIT_DIR': f'{partial_repo}/.git'},
         stdout=subprocess.PIPE
     )
-    while True:
-        line = proc.stdout.readline()
-        if not line:
-            break
-        repo_map[partial_repo] += 1
+    stdoutdata, _ = proc.communicate()
+    repo_map[partial_repo] = int(stdoutdata)
 
 repo, _ = repo_map.most_common()[0]
 with open(f"{repo}/.git/ref") as f:
-	commit = f.read()
+    commit = f.read()
 
 print(f"Picked {commit}")
 with open('platform-version/ref', 'w') as f:
