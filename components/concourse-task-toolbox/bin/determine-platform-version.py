@@ -17,8 +17,11 @@ partial_repos = [
 
 repo_map = collections.Counter()
 for partial_repo in partial_repos:
+    with open(f"{partial_repo}/.git/ref") as f:
+        commit = f.read()
     proc = subprocess.Popen(
-        ['git', 'rev-list', '--count', 'HEAD'],
+    	# This could probably use 'HEAD' instead of reading .git/ref
+        ['git', 'rev-list', '--count', commit.strip()],
         env={'GIT_DIR': f'{partial_repo}/.git'},
         stdout=subprocess.PIPE
     )
