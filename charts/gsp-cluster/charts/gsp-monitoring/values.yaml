@@ -18,6 +18,7 @@ prometheus-operator:
         product: local
       replicas: 2
       retention: "60d"
+      retentionSize: "45GB"
       ruleSelectorNilUsesHelmValues: false
       ruleSelector: {}
       secrets: [ istio.gsp-prometheus-operator-prometheus ]
