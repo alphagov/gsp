@@ -25,12 +25,6 @@ metadata:
   name: sandbox-gsp-canary-ingress
   namespace: sandbox-main
 spec:
-  acme:
-    config:
-    - dns01:
-        provider: route53
-      domains:
-      - canary.london.sandbox.govsvc.uk
   dnsNames:
   - canary.london.sandbox.govsvc.uk
   issuerRef:

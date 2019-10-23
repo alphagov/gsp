@@ -19,3 +19,6 @@ dependencies:
     version: 2.5.1
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: global.runningOnAws
+  - name: "cert-manager"
+    version: v0.10.1
+    repository: https://charts.jetstack.io/

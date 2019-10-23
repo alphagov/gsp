@@ -14,5 +14,8 @@ dependencies:
 - name: kiam
   repository: https://kubernetes-charts.storage.googleapis.com/
   version: 2.5.1
-digest: sha256:81b49485dcf95563c118feb5675dda66c981e6d1b69b655508f18712368fbe28
-generated: "2019-10-21T15:28:39.400804+01:00"
+- name: cert-manager
+  repository: https://charts.jetstack.io/
+  version: v0.10.1
+digest: sha256:c6ca27ffa41686e9244dd4f4d244cf5612f3ccf179bc3d32534d1e692166e307
+generated: "2019-10-22T19:35:30.142446+01:00"

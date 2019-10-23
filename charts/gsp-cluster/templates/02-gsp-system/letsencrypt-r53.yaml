@@ -8,8 +8,15 @@ spec:
     email: automate-team@digital.cabinet-office.gov.uk
     privateKeySecretRef:
       name: letsencrypt-r53
+    ### TODO Deprecated. Remove once all certificate resources have been upgraded
     dns01:
       providers:
       - name: route53
+        route53:
+          region: eu-west-2
+    ### TODO end deprecated block
+    solvers:
+    - selector: {}
+      dns01:
         route53:
           region: eu-west-2

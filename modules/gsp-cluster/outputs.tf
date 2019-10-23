@@ -10,8 +10,3 @@ output "values" {
   sensitive = true
   value     = "${data.template_file.values.rendered}"
 }
-
-output "gsp_istio_values" {
-  sensitive = true
-  value = "${data.template_file.istio_values.rendered}"
-}
