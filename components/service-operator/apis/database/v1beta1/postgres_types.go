@@ -237,28 +237,43 @@ func (p *Postgres) GetServiceEntryName() string {
 }
 
 // ServiceEntry to whitelist egress access to Postgres port and hosts.
-func (p *Postgres) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[string]interface{}, error) {
+func (p *Postgres) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[string]interface{}, error) {
 	port, err := strconv.Atoi(outputs[PostgresPort])
 	if err != nil {
 		return nil, err
 	}
-
-	return map[string]interface{}{
-		"hosts": []string{
-			outputs[PostgresEndpoint],
-			outputs[PostgresReadEndpoint],
-		},
-		"ports": []interface{}{
-			map[string]interface{}{
-				"name":     "aurora",
-				"number":   port,
-				"protocol": "TLS",
+	specs := []map[string]interface{}{
+		{
+			"hosts": []string{
+				outputs[PostgresEndpoint],
 			},
+			"ports": []interface{}{
+				map[string]interface{}{
+					"name":     "aurora",
+					"number":   port,
+					"protocol": "TCP",
+				},
+			},
+			"location":   "MESH_EXTERNAL",
+			"resolution": "DNS",
+			"exportTo":   []string{"."},
+		}, {
+			"hosts": []string{
+				outputs[PostgresReadEndpoint],
+			},
+			"ports": []interface{}{
+				map[string]interface{}{
+					"name":     "aurora",
+					"number":   port,
+					"protocol": "TCP",
+				},
+			},
+			"location":   "MESH_EXTERNAL",
+			"resolution": "DNS",
+			"exportTo":   []string{"."},
 		},
-		"location":   "MESH_EXTERNAL",
-		"resolution": "DNS",
-		"exportTo": []string{"."},
-	}, nil
+	}
+	return specs, nil
 }
 
 // +kubebuilder:object:root=true

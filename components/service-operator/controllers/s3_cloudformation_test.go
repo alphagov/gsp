@@ -49,9 +49,9 @@ var _ = Describe("S3CloudFormationController", func() {
 				Namespace: namespace,
 				Name:      secretName,
 			}
-			serviceEntryNamespacedName = types.NamespacedName{
+			serviceEntryNamespacedName0 = types.NamespacedName{
 				Namespace: namespace,
-				Name:      serviceEntryName,
+				Name:      fmt.Sprintf("%s-0", serviceEntryName),
 			}
 			principal = access.Principal{
 				TypeMeta: metav1.TypeMeta{
@@ -153,7 +153,7 @@ var _ = Describe("S3CloudFormationController", func() {
 
 		By("creating a service entry with the endpoints", func() {
 			Eventually(func() map[string]interface{} {
-				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
+				_ = client.Get(ctx, serviceEntryNamespacedName0, &serviceEntry)
 				return serviceEntry.Spec
 			}).Should(And(
 				HaveKey("hosts"),
@@ -166,7 +166,7 @@ var _ = Describe("S3CloudFormationController", func() {
 
 		By("creating a service entry with an owner reference", func() {
 			Eventually(func() []metav1.OwnerReference {
-				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
+				_ = client.Get(ctx, serviceEntryNamespacedName0, &serviceEntry)
 				return serviceEntry.ObjectMeta.OwnerReferences
 			}).Should(HaveLen(1))
 		})

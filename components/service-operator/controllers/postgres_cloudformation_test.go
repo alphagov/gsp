@@ -47,9 +47,13 @@ var _ = Describe("PostgresCloudFormationController", func() {
 				Namespace: namespace,
 				Name:      secretName,
 			}
-			serviceEntryNamespacedName = types.NamespacedName{
+			serviceEntryNamespacedName0 = types.NamespacedName{
 				Namespace: namespace,
-				Name:      serviceEntryName,
+				Name:      fmt.Sprintf("%s-0", serviceEntryName),
+			}
+			serviceEntryNamespacedName1 = types.NamespacedName{
+				Namespace: namespace,
+				Name:      fmt.Sprintf("%s-1", serviceEntryName),
 			}
 			pg = database.Postgres{
 				ObjectMeta: metav1.ObjectMeta{
@@ -131,9 +135,9 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			))
 		})
 
-		By("creating a service entry with the endpoints", func() {
+		By("creating a service entry with the master endpoint", func() {
 			Eventually(func() map[string]interface{} {
-				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
+				_ = client.Get(ctx, serviceEntryNamespacedName0, &serviceEntry)
 				return serviceEntry.Spec
 			}).Should(And(
 				HaveKey("hosts"),
@@ -144,9 +148,29 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			))
 		})
 
-		By("creating a service entry with an owner reference", func() {
+		By("creating a service entry with the read-only endpoint", func() {
+			Eventually(func() map[string]interface{} {
+				_ = client.Get(ctx, serviceEntryNamespacedName1, &serviceEntry)
+				return serviceEntry.Spec
+			}).Should(And(
+				HaveKey("hosts"),
+				HaveKey("ports"),
+				HaveKey("location"),
+				HaveKey("resolution"),
+				HaveKey("exportTo"),
+			))
+		})
+
+		By("creating a master service entry with an owner reference", func() {
 			Eventually(func() []metav1.OwnerReference {
-				_ = client.Get(ctx, serviceEntryNamespacedName, &serviceEntry)
+				_ = client.Get(ctx, serviceEntryNamespacedName0, &serviceEntry)
+				return serviceEntry.ObjectMeta.OwnerReferences
+			}).Should(HaveLen(1))
+		})
+
+		By("creating a read-only service entry with an owner reference", func() {
+			Eventually(func() []metav1.OwnerReference {
+				_ = client.Get(ctx, serviceEntryNamespacedName1, &serviceEntry)
 				return serviceEntry.ObjectMeta.OwnerReferences
 			}).Should(HaveLen(1))
 		})

@@ -63,34 +63,47 @@ var _ = Describe("Postgres", func() {
 			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
 			v1beta1.PostgresPort:         "3306",
 		}
-
-		spec, err := postgres.GetServiceEntrySpec(outputs)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(spec).To(And(
-			HaveKeyWithValue("resolution", "DNS"),
-			HaveKeyWithValue("location", "MESH_EXTERNAL"),
-			HaveKey("hosts"),
-			HaveKey("ports"),
-			HaveKey("exportTo"),
-		))
-		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.PostgresEndpoint]))
-		Expect(spec["hosts"]).To(ContainElement(outputs[v1beta1.PostgresReadEndpoint]))
-
 		portnum, err := strconv.Atoi(outputs[v1beta1.PostgresPort])
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(spec["ports"]).To(ContainElement(
-			map[string]interface{}{
-				"name":     "aurora",
-				"number":   portnum,
-				"protocol": "TLS",
-			},
+		specs, err := postgres.GetServiceEntrySpecs(outputs)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(specs).To(HaveLen(2))
+		Expect(specs).To(ConsistOf(
+			And(
+				HaveKeyWithValue("resolution", "DNS"),
+				HaveKeyWithValue("location", "MESH_EXTERNAL"),
+				HaveKeyWithValue("hosts", ContainElement(outputs[v1beta1.PostgresEndpoint])),
+				HaveKeyWithValue("ports", ContainElement(
+					map[string]interface{}{
+						"name":     "aurora",
+						"number":   portnum,
+						"protocol": "TCP",
+					},
+				)),
+				HaveKeyWithValue("exportTo", And(
+					HaveLen(1),
+					ContainElement("."),
+				)),
+			),
+			And(
+				HaveKeyWithValue("resolution", "DNS"),
+				HaveKeyWithValue("location", "MESH_EXTERNAL"),
+				HaveKeyWithValue("hosts", ContainElement(outputs[v1beta1.PostgresReadEndpoint])),
+				HaveKeyWithValue("ports", ContainElement(
+					map[string]interface{}{
+						"name":     "aurora",
+						"number":   portnum,
+						"protocol": "TCP",
+					},
+				)),
+				HaveKeyWithValue("exportTo", And(
+					HaveLen(1),
+					ContainElement("."),
+				)),
+			),
 		))
 
-		Expect(spec["exportTo"]).To(And(
-			HaveLen(1),
-			ContainElement("."),
-		))
 	})
 
 	It("should error if port is not numeric", func() {
@@ -99,7 +112,7 @@ var _ = Describe("Postgres", func() {
 			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
 			v1beta1.PostgresPort:         "asd",
 		}
-		_, err := postgres.GetServiceEntrySpec(outputs)
+		_, err := postgres.GetServiceEntrySpecs(outputs)
 		Expect(err).To(HaveOccurred())
 	})
 
