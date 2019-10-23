@@ -42,3 +42,4 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #037 - Per namespace istio gateways](ADR037-per-namespace-gateways.md)
 - [ADR #038 - SRE Permissions for Istio](ADR038-sre-permissions-istio.md)
 - [ADR #039 - Restricting CloudHSM network access to particular namespaces](ADR039-cloudhsm-namespace-network-policy.md)
+- [ADR #040 - Ensuring cluster stability while replacing nodes](ADR040-cluster-stability-node-replacement.md)
