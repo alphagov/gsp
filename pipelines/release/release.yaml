@@ -383,6 +383,16 @@ jobs:
       passed: [bump-version]
     - get: service-operator
       passed: [bump-version]
+    - get: service-operator-source
+      passed: [build-service-operator]
+    - get: concourse-task-toolbox-source
+      passed: [build-concourse-task-toolbox]
+    - get: concourse-operator-source
+      passed: [build-concourse-operator]
+    - get: concourse-github-resource-source
+      passed: [build-concourse-github-resource]
+    - get: concourse-harbor-resource-source
+      passed: [build-concourse-harbor-resource]
   - task: test-opa-policies
     image: opa
     config:
