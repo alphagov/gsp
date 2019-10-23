@@ -35,7 +35,7 @@ prometheus-operator:
             accessModes: ["ReadWriteOnce"]
             resources:
               requests:
-                storage: 50Gi
+                storage: 200Gi
             storageClassName: gp2
       query:
         timeout: 30s
