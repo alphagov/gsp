@@ -230,7 +230,7 @@ func (r *Controller) reconcileObjectWithContext(ctx context.Context, req ctrl.Re
 	}
 
 	if stackThatWritesServiceEntry, ok := o.(ServiceEntryCreator); ok {
-		err = r.updateServiceEntry(ctx, stackThatWritesServiceEntry, outputs)
+		err = r.updateServiceEntries(ctx, stackThatWritesServiceEntry, outputs)
 		if err != nil {
 			return err
 		}
@@ -239,13 +239,29 @@ func (r *Controller) reconcileObjectWithContext(ctx context.Context, req ctrl.Re
 	return nil
 }
 
-// updateServiceEntry will write any necessary Istio ServiceEntry resource to
-// Kubernetes, so that Istio will allow the tenant's pods to egress to the
+// updateServiceEntries will write any necessary Istio ServiceEntry resources
+// to Kubernetes, so that Istio will allow the tenant's pods to egress to the
 // resource we've created for them.
-func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreator, outputs Outputs) error {
+func (r *Controller) updateServiceEntries(ctx context.Context, o ServiceEntryCreator, outputs Outputs) error {
+	serviceEntrySpecs, err := o.GetServiceEntrySpecs(outputs)
+	if err != nil {
+		return err
+	}
+	for i, serviceEntrySpec := range serviceEntrySpecs {
+		err := r.updateServiceEntry(ctx, o, serviceEntrySpec, i)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
+}
+
+// updateServiceEntry updates the spec of a service entry
+func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreator, spec map[string]interface{}, i int) error {
 	serviceEntry := &istio.ServiceEntry{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      o.GetServiceEntryName(),
+			Name:      fmt.Sprintf("%s-%d", o.GetServiceEntryName(), i),
 			Namespace: o.GetNamespace(),
 		},
 	}
@@ -258,11 +274,7 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 		return err
 	}
 	op, err := controllerutil.CreateOrUpdate(ctx, r.KubernetesClient, serviceEntry, func() error {
-		serviceEntrySpec, err := o.GetServiceEntrySpec(outputs)
-		if err != nil {
-			return err
-		}
-		serviceEntry.Spec = serviceEntrySpec
+		serviceEntry.Spec = spec
 		// mark the serviceEntry as owned by the o resource so it gets gc'd
 		if err := controllerutil.SetControllerReference(o, serviceEntry, r.Scheme); err != nil {
 			return err
@@ -278,7 +290,6 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 		return err
 	}
 	return nil
-
 }
 
 // updateCredentialsSecret will write any cloudformation outputs to a secret so

@@ -200,7 +200,7 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 
 	template.Outputs[S3BucketURL] = map[string]interface{}{
 		"Description": "Bucket URL to be returned to the user.",
-		"Value": fmt.Sprintf("https://%s.s3.eu-west-2.amazonaws.com", bucketName),
+		"Value":       fmt.Sprintf("https://%s.s3.eu-west-2.amazonaws.com", bucketName),
 	}
 
 	template.Outputs[IAMRoleParameterName] = map[string]interface{}{
@@ -219,8 +219,8 @@ func (s *S3Bucket) GetServiceEntryName() string {
 }
 
 // ServiceEntry to whitelist egress access to S3 hostname.
-func (s *S3Bucket) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[string]interface{}, error) {
-	return map[string]interface{}{
+func (s *S3Bucket) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[string]interface{}, error) {
+	spec := map[string]interface{}{
 		"hosts": []string{
 			fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[S3BucketName]),
 		},
@@ -233,8 +233,9 @@ func (s *S3Bucket) GetServiceEntrySpec(outputs cloudformation.Outputs) (map[stri
 		},
 		"location":   "MESH_EXTERNAL",
 		"resolution": "DNS",
-		"exportTo": []string{"."},
-	}, nil
+		"exportTo":   []string{"."},
+	}
+	return []map[string]interface{}{spec}, nil
 }
 
 // GetStackRoleParameters returns additional params based on a target principal resource

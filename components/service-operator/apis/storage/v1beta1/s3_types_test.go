@@ -62,11 +62,13 @@ var _ = Describe("S3Bucket", func() {
 	It("should produce the correct service entry", func() {
 		outputs := cloudformation.Outputs{
 			v1beta1.S3BucketName: "test",
-			v1beta1.S3BucketURL: "testing",
+			v1beta1.S3BucketURL:  "testing",
 		}
 
-		spec, err := o.GetServiceEntrySpec(outputs)
+		specs, err := o.GetServiceEntrySpecs(outputs)
 		Expect(err).NotTo(HaveOccurred())
+		Expect(specs).To(HaveLen(1))
+		spec := specs[0]
 		Expect(spec).To(And(
 			HaveKeyWithValue("resolution", "DNS"),
 			HaveKeyWithValue("location", "MESH_EXTERNAL"),

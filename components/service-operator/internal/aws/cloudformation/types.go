@@ -45,5 +45,5 @@ type StackSecretOutputter interface {
 type ServiceEntryCreator interface {
 	Stack
 	GetServiceEntryName() string
-	GetServiceEntrySpec(outputs Outputs) (map[string]interface{}, error)
+	GetServiceEntrySpecs(outputs Outputs) ([]map[string]interface{}, error)
 }
