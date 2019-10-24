@@ -165,14 +165,6 @@ apply_cluster_chart: &apply_cluster_chart
       echo "fetching release tag"
       RELEASE_TAG=$(cat gsp/tag)
       echo "RELEASE_TAG=${RELEASE_TAG}"
-      ### TODO Temporary. Remove once no longer needed
-      echo "### Temporary. Removing old istio-managed certmanager"
-      kubectl -n istio-system delete job.batch/istio-init-crd-certmanager-10
-      kubectl -n istio-system delete job.batch/istio-init-crd-certmanager-10-1.3.3
-      kubectl -n istio-system delete job.batch/istio-init-crd-certmanager-11
-      kubectl -n istio-system delete job.batch/istio-init-crd-certmanager-11-1.3.3
-      kubectl -n istio-system delete deployment.apps/certmanager
-      ### TODO End Temporary
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       mkdir -p kube-system-manifests
