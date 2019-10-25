@@ -18,6 +18,8 @@ vpc-flow-log-splunk-hec-token: "NOTATOKEN"
 vpc-flow-log-splunk-index: "NOTAURL"
 github-client-secret: "NOTASECRET"
 github-client-id: "NOTID"
+google-oauth-client-id: "NOTASECRET"
+google-oauth-client-secret: "NOTID"
 eks-version: "1.14"
 trusted-developer-keys: []
 config-approval-count: 0
