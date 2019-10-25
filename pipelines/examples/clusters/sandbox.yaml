@@ -35,3 +35,4 @@ config-repository: "gsp"
 config-path: "pipelines/examples"
 config-trigger: false
 users-trigger: false
+enable-nlb: true
