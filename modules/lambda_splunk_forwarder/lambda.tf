@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "lambda_log_forwarder" {
   count            = "${var.enabled == 0 ? 0 : 1}"
   filename         = "${path.module}/cyber-cloudwatch-fluentd-to-hec.zip"
-  source_code_hash = "${sha256(filebase64("${path.module}/cyber-cloudwatch-fluentd-to-hec.zip"))}"
+  source_code_hash = "${filebase64sha256("${path.module}/cyber-cloudwatch-fluentd-to-hec.zip")}"
   function_name    = "${var.cluster_name}_${var.name}_log_forwarder"
   role             = "${aws_iam_role.lambda_log_forwarder[0].arn}"
   handler          = "lambda_function.lambda_handler"
