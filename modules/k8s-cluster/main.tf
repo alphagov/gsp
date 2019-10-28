@@ -14,7 +14,7 @@ resource "aws_eks_cluster" "eks-cluster" {
 
   vpc_config {
     security_group_ids = ["${aws_security_group.controller.id}"]
-    subnet_ids         = ["${concat(var.private_subnet_ids, var.public_subnet_ids)}"]
+    subnet_ids         = concat(var.private_subnet_ids, var.public_subnet_ids)
   }
 
   enabled_cluster_log_types = [
@@ -160,7 +160,7 @@ resource "aws_cloudformation_stack" "ci-nodes" {
 data "template_file" "kubeconfig" {
   template = "${file("${path.module}/data/kubeconfig")}"
 
-  vars {
+  vars = {
     apiserver_endpoint = "${aws_eks_cluster.eks-cluster.endpoint}"
     ca_cert            = "${aws_eks_cluster.eks-cluster.certificate_authority.0.data}"
     name               = "${var.cluster_name}"

@@ -7,8 +7,8 @@ resource "aws_iam_role" "lambda_log_forwarder" {
 resource "aws_iam_policy_attachment" "lambda_log_forwarder" {
   count      = "${var.enabled == 0 ? 0 : 1}"
   name       = "${var.cluster_name}_${var.name}_lambda_log_forwarder_attachment"
-  roles      = ["${aws_iam_role.lambda_log_forwarder.name}"]
-  policy_arn = "${aws_iam_policy.lambda_log_forwarder.arn}"
+  roles      = ["${aws_iam_role.lambda_log_forwarder[0].name}"]
+  policy_arn = "${aws_iam_policy.lambda_log_forwarder[0].arn}"
 }
 
 resource "aws_iam_policy" "lambda_log_forwarder" {

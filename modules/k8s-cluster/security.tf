@@ -21,7 +21,7 @@ resource "aws_security_group_rule" "controller-apiserver-cidrs" {
   protocol    = "tcp"
   from_port   = 443
   to_port     = 443
-  cidr_blocks = ["${var.apiserver_allowed_cidrs}"]
+  cidr_blocks = var.apiserver_allowed_cidrs
 }
 
 resource "aws_security_group_rule" "controller-egress" {

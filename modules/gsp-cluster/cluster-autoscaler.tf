@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "cluster_autoscaler_policy" {
       "autoscaling:TerminateInstanceInAutoScalingGroup",
     ]
 
-    condition = {
+    condition {
       test     = "Null"
       variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/${var.cluster_name}"
       values   = ["false"]

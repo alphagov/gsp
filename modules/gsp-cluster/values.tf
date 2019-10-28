@@ -3,7 +3,7 @@ data "aws_caller_identity" "current" {}
 data "template_file" "values" {
   template = "${file("${path.module}/data/values.yaml")}"
 
-  vars {
+  vars = {
     cluster_name                     = "${var.cluster_name}"
     cluster_domain                   = "${var.cluster_domain}"
     cluster_domain_id                = "${var.cluster_domain_id}"

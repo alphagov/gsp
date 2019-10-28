@@ -519,7 +519,6 @@ resources:
       region: eu-west-2
       key: cluster-((cluster-name)).tfstate
     vars:
-      account_id: ((account-id))
       account_name: ((account-name))
       cluster_name: ((cluster-name))
       cluster_domain: ((cluster-domain))

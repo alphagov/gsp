@@ -31,7 +31,7 @@ data "aws_region" "current" {}
 
 resource "aws_cloudhsm_v2_cluster" "cluster" {
   hsm_type   = "hsm1.medium"
-  subnet_ids = ["${keys(var.subnet_cidr_map)}"]
+  subnet_ids = keys(var.subnet_cidr_map)
 
   tags = {
     Name = "${var.cluster_name}-hsm-cluster"

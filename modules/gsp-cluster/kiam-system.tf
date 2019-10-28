@@ -3,7 +3,7 @@ data "aws_iam_policy_document" "kiam_server_role" {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
 
-    principals = {
+    principals {
       type        = "AWS"
       identifiers = ["${module.k8s-cluster.kiam-server-node-instance-role-arn}"]
     }
@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "trust_kiam_server" {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
 
-    principals = {
+    principals {
       type        = "AWS"
       identifiers = ["${aws_iam_role.kiam_server_role.arn}"]
     }

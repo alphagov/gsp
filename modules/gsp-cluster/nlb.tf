@@ -22,7 +22,7 @@ resource "aws_lb" "ingress-nlb" {
 resource "aws_lb_listener" "ingress-nlb" {
   count = "${var.enable_nlb == 1 ? 1 : 0 }"
 
-  load_balancer_arn = "${aws_lb.ingress-nlb.arn}"
+  load_balancer_arn = "${aws_lb.ingress-nlb[0].arn}"
   protocol          = "TCP"
   port              = "443"
 
@@ -40,8 +40,8 @@ resource "aws_route53_record" "ingress-nlb" {
   type    = "A"
 
   alias {
-    name                   = "${aws_lb.ingress-nlb.dns_name}"
-    zone_id                = "${aws_lb.ingress-nlb.zone_id}"
+    name                   = "${aws_lb.ingress-nlb[0].dns_name}"
+    zone_id                = "${aws_lb.ingress-nlb[0].zone_id}"
     evaluate_target_health = true
   }
 }
