@@ -163,7 +163,7 @@ resource "aws_iam_policy" "service-operator-managed-role-permissions-boundary" {
 }
 
 resource "aws_security_group" "rds-from-worker" {
-  name        = "rds_from_worker"
+  name        = "${var.cluster_name}_rds_from_worker"
   description = "Allow SQL traffic from worker nodes to RDS instances"
   vpc_id      = "${var.vpc_id}"
 
@@ -176,6 +176,6 @@ resource "aws_security_group" "rds-from-worker" {
 }
 
 resource "aws_db_subnet_group" "private" {
-  name       = "sandbox-private"
+  name       = "${var.cluster_name}-private"
   subnet_ids = ["${var.private_subnet_ids}"]
 }
