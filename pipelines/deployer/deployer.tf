@@ -146,6 +146,7 @@ module "gsp-cluster" {
   ci_worker_count              = "${var.ci_worker_count}"
 
   vpc_id               = "${module.gsp-network.vpc_id}"
+  private_subnet_count = "${module.gsp-network.private_subnet_count}"
   private_subnet_ids   = "${module.gsp-network.private_subnet_ids}"
   public_subnet_ids    = "${module.gsp-network.public_subnet_ids}"
   egress_ips           = "${module.gsp-network.egress_ips}"

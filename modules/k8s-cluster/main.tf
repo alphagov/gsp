@@ -3,7 +3,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_subnet" "private_subnets" {
-  count = "${length(var.private_subnet_ids)}"
+  count = "${var.private_subnet_count}"
   id    = "${element(var.private_subnet_ids, count.index)}"
 }
 
@@ -83,7 +83,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
   depends_on = ["aws_eks_cluster.eks-cluster"]
 }
 resource "aws_cloudformation_stack" "worker-nodes-per-az" {
-  count         = "${length(var.private_subnet_ids)}"
+  count         = "${var.private_subnet_count}"
   name          = "${var.cluster_name}-worker-nodes-${element(data.aws_subnet.private_subnets.*.availability_zone, count.index)}"
   template_body = "${file("${path.module}/data/nodegroup-v2.yaml")}"
   capabilities  = ["CAPABILITY_IAM"]
