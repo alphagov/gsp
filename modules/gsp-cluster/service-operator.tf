@@ -163,7 +163,7 @@ resource "aws_iam_policy" "service-operator-managed-role-permissions-boundary" {
 }
 
 resource "aws_security_group" "rds-from-worker" {
-  name        = "rds_from_worker"
+  name        = "${var.cluster_name}_rds_from_worker"
   description = "Allow SQL traffic from worker nodes to RDS instances"
   vpc_id      = "${var.vpc_id}"
 
