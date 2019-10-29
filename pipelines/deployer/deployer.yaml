@@ -168,6 +168,23 @@ apply_cluster_chart: &apply_cluster_chart
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       mkdir -p kube-system-manifests
+      ### TODO Remove this temporary block after it's been run in all clusters
+      echo "Removing cert-manager resources..."
+      kubectl get Issuers,ClusterIssuers,Certificates,Orders,Challenges --all-namespaces -o yaml | kubectl delete -f -
+      echo "Removing cert-manager..."
+      kubectl delete apiservice v1beta1.webhook.cert-manager.io
+      kubectl delete mutatingwebhookconfiguration gsp-cert-manager-webhook
+      kubectl delete validatingwebhookconfiguration gsp-cert-manager-webhook
+      kubectl -n gsp-system delete service gsp-cert-manager gsp-cert-manager-webhook
+      kubectl -n gsp-system delete deployments gsp-cainjector gsp-cert-manager gsp-cert-manager-webhook
+      kubectl -n gsp-system delete serviceaccount gsp-cainjector gsp-cert-manager gsp-cert-manager-webhook
+      kubectl delete clusterrolebinding gsp-cainjector gsp-cert-manager-leaderelection gsp-cert-manager-controller-issuers gsp-cert-manager-controller-clusterissuers gsp-cert-manager-controller-certificates gsp-cert-manager-controller-orders gsp-cert-manager-controller-challenges gsp-cert-manager-controller-ingress-shim gsp-cert-manager-webhook:auth-delegator
+      kubectl delete clusterrole gsp-cainjector gsp-cert-manager-controller-issuers gsp-cert-manager-controller-clusterissuers gsp-cert-manager-controller-certificates gsp-cert-manager-controller-orders gsp-cert-manager-controller-challenges gsp-cert-manager-controller-ingress-shim gsp-cert-manager-view gsp-cert-manager-edit gsp-cert-manager-webhook:webhook-requester
+      kubectl -n kube-system delete rolebinding gsp-cainjector:leaderelection gsp-cert-manager:leaderelection gsp-cert-manager-webhook:webhook-authentication-reader
+      kubectl -n kube-system delete role gsp-cainjector:leaderelection gsp-cert-manager:leaderelection
+      echo "Removing cert-manager CRDs..."
+      kubectl delete -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.10.1/deploy/manifests/00-crds.yaml
+      ### TODO End temporary block
       helm template \
         --name "${CHART_RELEASE_NAME}" \
         --namespace "${DEFAULT_NAMESPACE}" \

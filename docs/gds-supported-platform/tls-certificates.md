@@ -19,7 +19,7 @@ You can provision TLS certificates using [cert-manager][] in GSP.
 By default, the GSP has a `ClusterIssuer` named `letsencrypt-r53` that is configured to provision TLS certificates supplied by [LetsEncrypt][] via the DNS01 ACME challenge. For example, to add a TLS certificate for the [gsp-canary][] in the sandbox cluster use the following kube yaml:
 
 ```yaml
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
   name: sandbox-gsp-canary-ingress
