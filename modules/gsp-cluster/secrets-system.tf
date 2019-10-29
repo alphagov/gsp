@@ -4,11 +4,11 @@ resource "tls_private_key" "sealed-secrets-key" {
 }
 
 resource "tls_self_signed_cert" "sealed-secrets-certificate" {
-  key_algorithm   = "${tls_private_key.sealed-secrets-key.algorithm}"
-  private_key_pem = "${tls_private_key.sealed-secrets-key.private_key_pem}"
+  key_algorithm   = tls_private_key.sealed-secrets-key.algorithm
+  private_key_pem = tls_private_key.sealed-secrets-key.private_key_pem
 
   subject {
-    common_name  = "${var.cluster_domain}"
+    common_name  = var.cluster_domain
     organization = "Government Digital Service"
   }
 
@@ -19,3 +19,4 @@ resource "tls_self_signed_cert" "sealed-secrets-certificate" {
     "digital_signature",
   ]
 }
+

@@ -4,34 +4,35 @@ variable "enabled" {
 
 variable "name" {
   description = "A unique (within the cluster) name"
-  type        = "string"
+  type        = string
 }
 
 variable "cloudwatch_log_group_arn" {
   description = "The ARN of the cloudwatch log group to ship to Splunk"
-  type        = "string"
+  type        = string
 }
 
 variable "cloudwatch_log_group_name" {
   description = "The name of the cloudwatch log group to ship to Splunk"
-  type        = "string"
+  type        = string
 }
 
 variable "cluster_name" {
-  type = "string"
+  type = string
 }
 
 variable "splunk_hec_token" {
   description = "Splunk HTTP event collector token for authentication"
-  type        = "string"
+  type        = string
 }
 
 variable "splunk_hec_url" {
   description = "Splunk HTTP event collector URL to send logs to"
-  type        = "string"
+  type        = string
 }
 
 variable "splunk_index" {
   description = "Name of index to be added as metadata to logs for use in splunk"
-  type        = "string"
+  type        = string
 }
+

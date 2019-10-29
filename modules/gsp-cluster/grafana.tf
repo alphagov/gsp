@@ -1,7 +1,7 @@
 resource "aws_iam_role" "grafana" {
   name               = "${var.cluster_name}-grafana"
   description        = "Role the Grafana process assumes"
-  assume_role_policy = "${data.aws_iam_policy_document.trust_kiam_server.json}"
+  assume_role_policy = data.aws_iam_policy_document.trust_kiam_server.json
 }
 
 data "aws_iam_policy_document" "grafana_cloudwatch" {
@@ -43,10 +43,11 @@ data "aws_iam_policy_document" "grafana_cloudwatch" {
 
 resource "aws_iam_role_policy" "grafana" {
   name   = "${var.cluster_name}-grafana"
-  role   = "${aws_iam_role.grafana.id}"
-  policy = "${data.aws_iam_policy_document.grafana_cloudwatch.json}"
+  role   = aws_iam_role.grafana.id
+  policy = data.aws_iam_policy_document.grafana_cloudwatch.json
 }
 
 resource "random_password" "grafana_default_admin_password" {
   length = 40
 }
+

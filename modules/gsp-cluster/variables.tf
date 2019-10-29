@@ -1,93 +1,93 @@
 variable "account_name" {
-  type        = "string"
+  type        = string
   default     = "gds"
   description = "descriptive label of account, programme department who owns this cluster"
 }
 
 variable "cluster_name" {
-  type = "string"
+  type = string
 }
 
 variable "cluster_domain" {
   description = "The FQDN of the DNS zone allocated to this cluster"
-  type        = "string"
+  type        = string
 }
 
 variable "cluster_domain_id" {
   description = "The zone id of DNS zone allocated to this cluster"
-  type        = "string"
+  type        = string
 }
 
 variable "admin_role_arns" {
-  type = "list"
+  type = list(string)
 }
 
 variable "eks_version" {
-  type = "string"
+  type = string
 }
 
 variable "worker_eks_version" {
-  type = "string"
+  type = string
 }
 
 variable "dev_user_arns" {
   description = "A list of user ARNs that will be mapped to the cluster dev role"
-  type        = "list"
+  type        = list(string)
   default     = []
 }
 
 variable "admin_user_arns" {
   description = "A list of user ARNs that will be mapped to the cluster admin role"
-  type        = "list"
+  type        = list(string)
   default     = []
 }
 
 variable "sre_role_arns" {
   description = "A list of role ARNs that will be mapped to the cluster sre role"
-  type        = "list"
+  type        = list(string)
   default     = []
 }
 
 variable "sre_user_arns" {
   description = "A list of user ARNs that will be mapped to the cluster sre role"
-  type        = "list"
+  type        = list(string)
   default     = []
 }
 
 variable "worker_instance_type" {
-  type    = "string"
+  type    = string
   default = "t3.medium"
 }
 
 variable "minimum_workers_per_az_count" {
-  type    = "string"
+  type    = string
   default = "1"
 }
 
 variable "maximum_workers_per_az_count" {
-  type    = "string"
+  type    = string
   default = "5"
 }
 
 variable "ci_worker_count" {
-  type    = "string"
+  type    = string
   default = "2"
 }
 
 variable "ci_worker_instance_type" {
-  type    = "string"
+  type    = string
   default = "m5d.large"
 }
 
 variable "addons" {
-  type = "map"
+  type = map(string)
 
   default = {}
 }
 
 variable "gds_external_cidrs" {
   description = "External GDS CIDRs that are allowed to talk to the clusters, taken from the GDS wiki"
-  type        = "list"
+  type        = list(string)
 
   default = [
     "213.86.153.212/32",
@@ -101,52 +101,52 @@ variable "gds_external_cidrs" {
 }
 
 variable "dev_namespaces" {
-  type    = "list"
+  type    = list(string)
   default = []
 }
 
 variable "splunk_enabled" {
   description = "Enable splunk log shipping"
-  type        = "string"
+  type        = string
   default     = "0"
 }
 
 variable "splunk_hec_url" {
   description = "Splunk HTTP event collector URL to send logs to"
-  type        = "string"
+  type        = string
   default     = ""
 }
 
 variable "k8s_splunk_hec_token" {
   description = "Splunk HTTP event collector token for authentication"
-  type        = "string"
+  type        = string
   default     = ""
 }
 
 variable "k8s_splunk_index" {
   description = "Name of index to be added as metadata to logs for use in splunk"
-  type        = "string"
+  type        = string
   default     = ""
 }
 
 variable "vpc_id" {
-  type = "string"
+  type = string
 }
 
 variable "private_subnet_ids" {
-  type = "list"
+  type = list(string)
 }
 
 variable "public_subnet_ids" {
-  type = "list"
+  type = list(string)
 }
 
 variable "egress_ips" {
-  type = "list"
+  type = list(string)
 }
 
 variable "ingress_ips" {
-  type = "list"
+  type = list(string)
 }
 
 variable "github_teams" {
@@ -179,6 +179,7 @@ variable "concourse_main_team_github_teams" {
 
 variable "enable_nlb" {
   default     = "0"
-  type        = "string"
+  type        = string
   description = "create an NLB for the worker nodes"
 }
+

@@ -17,7 +17,7 @@ variable "cluster_name" {
 
 variable "source_cidrs" {
   description = "Source CIDRs that are allowed to perform the assume role"
-  type        = "list"
+  type        = list(string)
 
   default = [
     "213.86.153.212/32",
@@ -29,3 +29,4 @@ variable "source_cidrs" {
     "85.133.67.244/32",
   ]
 }
+

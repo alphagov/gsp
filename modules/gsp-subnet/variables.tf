@@ -1,15 +1,15 @@
 variable "cluster_name" {
-  type = "string"
+  type = string
 }
 
 variable "private_cidr_block" {
   description = "CIDR IPv4 range for private subnet"
-  type        = "string"
+  type        = string
 }
 
 variable "public_cidr_block" {
   description = "CIDR IPv4 range for public subnet"
-  type        = "string"
+  type        = string
 }
 
 variable "vpc_id" {
@@ -23,3 +23,4 @@ variable "availability_zone" {
 variable "internet_gateway_id" {
   description = "gateway id for public subnet"
 }
+

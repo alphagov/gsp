@@ -1,7 +1,7 @@
 resource "aws_iam_role" "harbor" {
   name               = "${var.cluster_name}-harbor"
   description        = "Role the harbor process assumes"
-  assume_role_policy = "${data.aws_iam_policy_document.trust_kiam_server.json}"
+  assume_role_policy = data.aws_iam_policy_document.trust_kiam_server.json
 }
 
 data "aws_iam_policy_document" "harbor-s3" {
@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "harbor-s3" {
     ]
 
     resources = [
-      "${aws_s3_bucket.ci-system-harbor-registry-storage.arn}",
+      aws_s3_bucket.ci-system-harbor-registry-storage.arn,
       "${aws_s3_bucket.ci-system-harbor-registry-storage.arn}/*",
     ]
   }
@@ -20,13 +20,13 @@ data "aws_iam_policy_document" "harbor-s3" {
 resource "aws_iam_policy" "harbor-s3" {
   name        = "${var.cluster_name}-harbor-s3"
   description = "Policy for the harbor s3 access"
-  policy      = "${data.aws_iam_policy_document.harbor-s3.json}"
+  policy      = data.aws_iam_policy_document.harbor-s3.json
 }
 
 resource "aws_iam_policy_attachment" "harbor-s3" {
   name       = "${var.cluster_name}-harbor-s3"
-  roles      = ["${aws_iam_role.harbor.name}"]
-  policy_arn = "${aws_iam_policy.harbor-s3.arn}"
+  roles      = [aws_iam_role.harbor.name]
+  policy_arn = aws_iam_policy.harbor-s3.arn
 }
 
 resource "random_string" "concourse_password" {
@@ -68,8 +68,8 @@ resource "tls_private_key" "notary_ci_key" {
 }
 
 resource "tls_self_signed_cert" "notary_root_ca" {
-  key_algorithm   = "${tls_private_key.notary_root_key.algorithm}"
-  private_key_pem = "${tls_private_key.notary_root_key.private_key_pem}"
+  key_algorithm   = tls_private_key.notary_root_key.algorithm
+  private_key_pem = tls_private_key.notary_root_key.private_key_pem
 
   subject {
     common_name  = "gsp-harbor-notary-signer"
@@ -88,8 +88,8 @@ resource "tls_self_signed_cert" "notary_root_ca" {
 }
 
 resource "tls_cert_request" "notary_cert" {
-  key_algorithm   = "${tls_private_key.notary_root_key.algorithm}"
-  private_key_pem = "${tls_private_key.notary_root_key.private_key_pem}"
+  key_algorithm   = tls_private_key.notary_root_key.algorithm
+  private_key_pem = tls_private_key.notary_root_key.private_key_pem
 
   subject {
     common_name  = "gsp-harbor-notary-signer"
@@ -98,10 +98,10 @@ resource "tls_cert_request" "notary_cert" {
 }
 
 resource "tls_locally_signed_cert" "notary_cert" {
-  cert_request_pem   = "${tls_cert_request.notary_cert.cert_request_pem}"
-  ca_key_algorithm   = "${tls_private_key.notary_root_key.algorithm}"
-  ca_private_key_pem = "${tls_private_key.notary_root_key.private_key_pem}"
-  ca_cert_pem        = "${tls_self_signed_cert.notary_root_ca.cert_pem}"
+  cert_request_pem   = tls_cert_request.notary_cert.cert_request_pem
+  ca_key_algorithm   = tls_private_key.notary_root_key.algorithm
+  ca_private_key_pem = tls_private_key.notary_root_key.private_key_pem
+  ca_cert_pem        = tls_self_signed_cert.notary_root_ca.cert_pem
 
   validity_period_hours = 8760 # 1yr
 
@@ -123,3 +123,4 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
     Name = "Harbor registry and chartmuseum storage"
   }
 }
+

@@ -7,7 +7,7 @@ data "aws_iam_policy_document" "external_dns" {
     ]
 
     resources = [
-      "arn:aws:route53:::hostedzone/${var.cluster_domain_id}"
+      "arn:aws:route53:::hostedzone/${var.cluster_domain_id}",
     ]
   }
 
@@ -16,32 +16,33 @@ data "aws_iam_policy_document" "external_dns" {
 
     actions = [
       "route53:ListHostedZones",
-      "route53:ListResourceRecordSets"
+      "route53:ListResourceRecordSets",
     ]
 
     resources = [
-      "*"
+      "*",
     ]
   }
 }
 
 resource "aws_iam_policy" "external_dns" {
-  name         = "${var.cluster_name}_external_dns"
+  name        = "${var.cluster_name}_external_dns"
   description = "Allow external-dns to do its job"
 
-  policy = "${data.aws_iam_policy_document.external_dns.json}"
+  policy = data.aws_iam_policy_document.external_dns.json
 }
 
 resource "aws_iam_role" "external_dns" {
   name = "${var.cluster_name}_external_dns"
 
-  assume_role_policy = "${data.aws_iam_policy_document.trust_kiam_server.json}"
+  assume_role_policy = data.aws_iam_policy_document.trust_kiam_server.json
 }
 
 resource "aws_iam_policy_attachment" "external_dns" {
-  name       = "${var.cluster_name}_external_dns"
-  roles      = [
-    "${aws_iam_role.external_dns.name}",
+  name = "${var.cluster_name}_external_dns"
+  roles = [
+    aws_iam_role.external_dns.name,
   ]
-  policy_arn = "${aws_iam_policy.external_dns.arn}"
+  policy_arn = aws_iam_policy.external_dns.arn
 }
+

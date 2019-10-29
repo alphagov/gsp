@@ -34,11 +34,12 @@ data "aws_iam_policy_document" "cluster_autoscaler_policy" {
 resource "aws_iam_policy" "cluster-autoscaler" {
   name        = "${var.cluster_name}-cluster-autoscaler"
   description = "Policy for the cluster autoscaler"
-  policy      = "${data.aws_iam_policy_document.cluster_autoscaler_policy.json}"
+  policy      = data.aws_iam_policy_document.cluster_autoscaler_policy.json
 }
 
 resource "aws_iam_policy_attachment" "cluster-autoscaler-mgmt" {
-  name       = "${var.cluster_name}-cluster-autoscaler-mgmt"
-  roles      = ["${module.k8s-cluster.kiam-server-node-instance-role-name}"]
-  policy_arn = "${aws_iam_policy.cluster-autoscaler.arn}"
+  name = "${var.cluster_name}-cluster-autoscaler-mgmt"
+  roles      = [module.k8s-cluster.kiam-server-node-instance-role-name]
+  policy_arn = aws_iam_policy.cluster-autoscaler.arn
 }
+
