@@ -3,7 +3,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_subnet" "private_subnets" {
-  count = "${length(var.private_subnet_ids})"
+  count = "${length(var.private_subnet_ids)}"
   id    = "${element(var.private_subnet_ids, count.index)}"
 }
 
