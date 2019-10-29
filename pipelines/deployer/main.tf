@@ -1,15 +1,17 @@
 terraform {
-  backend "s3" {}
+  backend "s3" {
+  }
 }
 
 variable "aws_account_role_arn" {
-  type = "string"
+  type = string
 }
 
 provider "aws" {
   region = "eu-west-2"
 
   assume_role {
-    role_arn = "${var.aws_account_role_arn}"
+    role_arn = var.aws_account_role_arn
   }
 }
+
