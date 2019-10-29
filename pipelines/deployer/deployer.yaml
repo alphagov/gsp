@@ -637,6 +637,7 @@ jobs:
     params:
       env_name: ((account-name))
       terraform_source: users-terraform
+      plan_only: true
 
 - name: apply
   serial: true
