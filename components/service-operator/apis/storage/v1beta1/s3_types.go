@@ -44,7 +44,6 @@ var (
 		"s3:GetObjectAcl",
 		"s3:GetBucketObjectLockConfiguration",
 		"s3:GetObjectVersionAcl",
-		"s3:HeadBucket",
 		"s3:DeleteObject",
 		"s3:GetBucketPolicyStatus",
 		"s3:GetObjectRetention",
