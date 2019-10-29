@@ -1,5 +1,4 @@
-# pinned to a beta-backend version of ljfranklin/terraform-resource
-# FIXME: once beta-backend is promoted to master, use propper version labels
+# Terraform 0.12.12
 FROM ljfranklin/terraform-resource@sha256:15eee04112da38c0fcbdb9edb86a6b5acff4a800f21cb29b4e30dc58b27e5d0d
 
 # we need the aws tools and git in the box for some of the local-exec scripts

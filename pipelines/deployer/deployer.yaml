@@ -626,6 +626,7 @@ jobs:
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
+      plan_only: true
   - task: generate-user-terraform
     image: task-toolbox
     timeout: 10m
