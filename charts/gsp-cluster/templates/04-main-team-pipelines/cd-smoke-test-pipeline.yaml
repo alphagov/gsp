@@ -17,15 +17,6 @@ spec:
         url: ((harbor.harbor_url))
         prevent_vul: "false"
         public: "false"
-      notary:
-        url: ((harbor.notary_url))
-        root_key: ((harbor.root_key))
-        delegate_key: ((harbor.ci_key))
-        passphrase:
-          root: ((harbor.notary_root_passphrase))
-          snapshot: ((harbor.notary_snapshot_passphrase))
-          targets: ((harbor.notary_targets_passphrase))
-          delegation: ((harbor.notary_delegation_passphrase))
 
     task_toolbox: &task_toolbox
       type: docker-image
