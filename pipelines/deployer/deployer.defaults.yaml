@@ -32,4 +32,4 @@ github-resource-tag: latest
 github-release-tag-prefix: "gsp-"
 
 terraform-resource-image: govsvc/terraform-resource
-terraform-resource-tag: "0.14.0"
+terraform-resource-tag: latest
