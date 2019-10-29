@@ -10,7 +10,7 @@ resource "aws_s3_bucket" "service-operator" {
 resource "aws_iam_role" "gsp-service-operator" {
   name               = "${var.cluster_name}-service-operator"
   description        = "Role the service operator assumes"
-  assume_role_policy = "${data.aws_iam_policy_document.trust_kiam_server.json}"
+  assume_role_policy = data.aws_iam_policy_document.trust_kiam_server.json
 }
 
 data "aws_iam_policy_document" "service-operator" {
@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "service-operator" {
     ]
 
     resources = [
-      "${aws_s3_bucket.service-operator.arn}",
+      aws_s3_bucket.service-operator.arn,
       "${aws_s3_bucket.service-operator.arn}/*",
     ]
   }
@@ -88,7 +88,7 @@ data "aws_iam_policy_document" "service-operator" {
     condition {
       test     = "StringEquals"
       variable = "iam:PermissionsBoundary"
-      values   = ["${aws_iam_policy.service-operator-managed-role-permissions-boundary.arn}"]
+      values   = [aws_iam_policy.service-operator-managed-role-permissions-boundary.arn]
     }
   }
 
@@ -129,13 +129,13 @@ data "aws_iam_policy_document" "service-operator" {
 resource "aws_iam_policy" "service-operator" {
   name        = "${var.cluster_name}-service-operator"
   description = "Policy for the service operator"
-  policy      = "${data.aws_iam_policy_document.service-operator.json}"
+  policy      = data.aws_iam_policy_document.service-operator.json
 }
 
 resource "aws_iam_policy_attachment" "service-operator" {
   name       = "${var.cluster_name}-service-operator"
-  roles      = ["${aws_iam_role.gsp-service-operator.name}"]
-  policy_arn = "${aws_iam_policy.service-operator.arn}"
+  roles      = [aws_iam_role.gsp-service-operator.name]
+  policy_arn = aws_iam_policy.service-operator.arn
 }
 
 data "aws_iam_policy_document" "service-operator-managed-role-permissions-boundary" {
@@ -159,23 +159,24 @@ data "aws_iam_policy_document" "service-operator-managed-role-permissions-bounda
 resource "aws_iam_policy" "service-operator-managed-role-permissions-boundary" {
   name        = "${var.cluster_name}-service-operator-managed-role-permissions-boundary"
   description = "Permissions boundary for roles created by the service operator"
-  policy      = "${data.aws_iam_policy_document.service-operator-managed-role-permissions-boundary.json}"
+  policy      = data.aws_iam_policy_document.service-operator-managed-role-permissions-boundary.json
 }
 
 resource "aws_security_group" "rds-from-worker" {
   name        = "${var.cluster_name}_rds_from_worker"
   description = "Allow SQL traffic from worker nodes to RDS instances"
-  vpc_id      = "${var.vpc_id}"
+  vpc_id      = var.vpc_id
 
   ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = ["${module.k8s-cluster.worker_security_group_id}"]
+    from_port = 3306
+    to_port   = 3306
+    protocol  = "tcp"
+    security_groups = [module.k8s-cluster.worker_security_group_id]
   }
 }
 
 resource "aws_db_subnet_group" "private" {
-  name       = "${var.cluster_name}-private"
-  subnet_ids = ["${var.private_subnet_ids}"]
+  name = "${var.cluster_name}-private"
+  subnet_ids = var.private_subnet_ids
 }
+

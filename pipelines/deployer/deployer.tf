@@ -146,11 +146,10 @@ module "gsp-cluster" {
   ci_worker_count              = "${var.ci_worker_count}"
 
   vpc_id               = "${module.gsp-network.vpc_id}"
-  private_subnet_count = "${module.gsp-network.private_subnet_count}"
-  private_subnet_ids   = "${module.gsp-network.private_subnet_ids}"
-  public_subnet_ids    = "${module.gsp-network.public_subnet_ids}"
-  egress_ips           = "${module.gsp-network.egress_ips}"
-  ingress_ips          = "${module.gsp-network.ingress_ips}"
+  private_subnet_ids   = module.gsp-network.private_subnet_ids
+  public_subnet_ids    = module.gsp-network.public_subnet_ids
+  egress_ips           = module.gsp-network.egress_ips
+  ingress_ips          = module.gsp-network.ingress_ips
   splunk_enabled       = "${var.splunk_enabled}"
   splunk_hec_url       = "${var.splunk_hec_url}"
   k8s_splunk_hec_token = "${var.k8s_splunk_hec_token}"
