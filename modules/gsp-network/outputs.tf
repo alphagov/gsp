@@ -12,9 +12,9 @@ output "private_subnet_ids" {
 
 output "private_subnet_cidr_mapping" {
   value = {
-    module.subnet-0.private_subnet_id = module.subnet-0.private_subnet_cidr
-    module.subnet-1.private_subnet_id = module.subnet-1.private_subnet_cidr
-    module.subnet-2.private_subnet_id = module.subnet-2.private_subnet_cidr
+    "${module.subnet-0.private_subnet_id}" = module.subnet-0.private_subnet_cidr
+    "${module.subnet-1.private_subnet_id}" = module.subnet-1.private_subnet_cidr
+    "${module.subnet-2.private_subnet_id}" = module.subnet-2.private_subnet_cidr
   }
 }
 
