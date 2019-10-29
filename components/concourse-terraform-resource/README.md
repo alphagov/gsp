@@ -5,7 +5,7 @@
 
 Concourse resource for running `terraform apply`.
 
-Extends the `beta-backend` [upstream terraform resource](https://github.com/ljfranklin/terraform-resource/tree/WIP-tf-backends#backend-beta) to include `awscli`, `git` and `zip` binaries required by `local-exec` scripts.
+Extends the [upstream terraform resource](https://github.com/ljfranklin/terraform-resource) to include `awscli`, `git` and `zip` binaries required by `local-exec` scripts.
 
 ## Versioning
 
