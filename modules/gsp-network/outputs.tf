@@ -2,10 +2,6 @@ output "vpc_id" {
   value = "${aws_vpc.network.id}"
 }
 
-output "private_subnet_count" {
-  value = "3"
-}
-
 output "private_subnet_ids" {
   value = [
     "${module.subnet-0.private_subnet_id}",
