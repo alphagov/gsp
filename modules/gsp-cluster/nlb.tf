@@ -42,8 +42,8 @@ resource "aws_route53_record" "ingress-nlb" {
   type    = "A"
 
   alias {
-    #    name                   = "${aws_lb.ingress-nlb[0].dns_name}"
-    #    zone_id                = "${aws_lb.ingress-nlb[0].zone_id}"
+    name                   = "${aws_lb.ingress-nlb[0].dns_name}"
+    zone_id                = "${aws_lb.ingress-nlb[0].zone_id}"
     evaluate_target_health = true
   }
 }
