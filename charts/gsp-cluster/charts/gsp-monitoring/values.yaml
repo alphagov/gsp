@@ -288,6 +288,9 @@ prometheus-operator:
       GF_SECURITY_COOKIE_SECURE: "true"
       GF_SESSION_COOKIE_SECURE: "true"
     envFromSecret: grafana
+    sidecar:
+      dashboards:
+        searchNamespace: ALL
 
   prometheusOperator:
     kubeletService:
