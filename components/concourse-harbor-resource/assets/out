@@ -48,26 +48,11 @@ echo "project: ${project_name}"
 
 log "loading harbor config..."
 harbor_url=$(jq -r '.source.harbor.url // "http://gsp-harbor-core.gsp-system.svc.cluster.local"' < "${payload}")
-notary_url=$(jq -r '.source.notary.url // ""' < "${payload}")
-root_key=$(jq -r '.source.notary.root_key // ""' < "${payload}") # root key
-delegate_key=$(jq -r '.source.notary.delegate_key // ""' < "${payload}") # delegate / ci key
 harbor_public=$(jq -r '.source.harbor.public // "true"' < "${payload}")
 harbor_enable_content_trust=$(jq -r '.source.harbor.enable_content_trust // "false"' < "${payload}")
 harbor_prevent_vul=$(jq -r '.source.harbor.prevent_vul // "true"' < "${payload}")
 harbor_severity=$(jq -r '.source.harbor.severity // "medium"' < "${payload}")
 harbor_auto_scan=$(jq -r '.source.harbor.auto_scan // "true"' < "${payload}")
-
-log "loading notary config..."
-NOTARY_AUTH=$(echo -n "${username}:${password}" | base64)
-NOTARY_ROOT_PASSPHRASE=$(jq -r '.source.notary.passphrase.root // ""' < "${payload}")
-NOTARY_SNAPSHOT_PASSPHRASE=$(jq -r '.source.notary.passphrase.snapshot // ""' < "${payload}")
-NOTARY_TARGETS_PASSPHRASE=$(jq -r '.source.notary.passphrase.targets // ""' < "${payload}")
-NOTARY_DELEGATION_PASSPHRASE=$(jq -r '.source.notary.passphrase.delegation // ""' < "${payload}")
-
-export DOCKER_CONTENT_TRUST_ROOT_PASSPHRASE="${NOTARY_ROOT_PASSPHRASE}"
-export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE="${NOTARY_DELEGATION_PASSPHRASE}"
-export DOCKER_CONTENT_TRUST_SERVER="${notary_url}"
-export NOTARY_AUTH NOTARY_ROOT_PASSPHRASE NOTARY_SNAPSHOT_PASSPHRASE NOTARY_TARGETS_PASSPHRASE NOTARY_DELEGATION_PASSPHRASE
 
 alias hurl='curl --fail -u "${username}:${password}" -H "Accept: application/json" -H "Content-Type: application/json"'
 alias dockernotary='notary -s ${DOCKER_CONTENT_TRUST_SERVER} -d ~/.docker/trust'
@@ -139,6 +124,20 @@ else
 fi
 
 if [[ "${harbor_enable_content_trust}" == "true" ]]; then
+	log "loading notary config..."
+	notary_url=$(jq -r '.source.notary.url // ""' < "${payload}")
+	root_key=$(jq -r '.source.notary.root_key // ""' < "${payload}") # root key
+	delegate_key=$(jq -r '.source.notary.delegate_key // ""' < "${payload}") # delegate / ci key
+	NOTARY_AUTH=$(echo -n "${username}:${password}" | base64)
+	NOTARY_ROOT_PASSPHRASE=$(jq -r '.source.notary.passphrase.root // ""' < "${payload}")
+	NOTARY_SNAPSHOT_PASSPHRASE=$(jq -r '.source.notary.passphrase.snapshot // ""' < "${payload}")
+	NOTARY_TARGETS_PASSPHRASE=$(jq -r '.source.notary.passphrase.targets // ""' < "${payload}")
+	NOTARY_DELEGATION_PASSPHRASE=$(jq -r '.source.notary.passphrase.delegation // ""' < "${payload}")
+	export DOCKER_CONTENT_TRUST_ROOT_PASSPHRASE="${NOTARY_ROOT_PASSPHRASE}"
+	export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE="${NOTARY_DELEGATION_PASSPHRASE}"
+	export DOCKER_CONTENT_TRUST_SERVER="${notary_url}"
+	export NOTARY_AUTH NOTARY_ROOT_PASSPHRASE NOTARY_SNAPSHOT_PASSPHRASE NOTARY_TARGETS_PASSPHRASE NOTARY_DELEGATION_PASSPHRASE
+
 	log "  =====> importing root key"
 	echo "${root_key}" > /tmp/root.key
 	dockernotary key import /tmp/root.key --role root
