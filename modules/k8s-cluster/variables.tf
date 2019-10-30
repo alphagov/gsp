@@ -51,7 +51,3 @@ variable "ci_worker_count" {
   default = "3"
 }
 
-variable "prevent_destroy" {
-  type    = "string"
-  default = "true"
-}
