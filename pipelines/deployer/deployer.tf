@@ -85,6 +85,11 @@ variable "enable_nlb" {
   default = "0"
 }
 
+variable "prevent_destroy" {
+  type    = "string"
+  default = "true"
+}
+
 data "aws_caller_identity" "current" {
 }
 
@@ -161,6 +166,8 @@ module "gsp-cluster" {
   github_client_secret = var.github_client_secret
 
   enable_nlb = var.enable_nlb
+
+  prevent_destroy = var.prevent_destroy
 }
 
 output "kubeconfig" {

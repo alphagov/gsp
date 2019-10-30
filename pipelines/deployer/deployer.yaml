@@ -785,6 +785,8 @@ jobs:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
       action: destroy
+      vars:
+        prevent_destroy: false
     get_params:
       action: destroy
   - put: user-state

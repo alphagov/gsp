@@ -183,3 +183,8 @@ variable "enable_nlb" {
   description = "create an NLB for the worker nodes"
 }
 
+variable "prevent_destroy" {
+  type        = "string"
+  default     = "true"
+  description = "Prevent destruction of the EKS cluster and its logs"
+}
