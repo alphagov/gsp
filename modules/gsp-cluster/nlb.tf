@@ -1,5 +1,5 @@
 resource "aws_lb" "ingress-nlb" {
-  count = (var.enable_nlb == 1) ? 1 : 0
+  count = var.enable_nlb == "1" ? 1 : 0
 
   name               = "${var.cluster_name}-ingress-nlb"
   load_balancer_type = "network"
@@ -22,7 +22,7 @@ resource "aws_lb" "ingress-nlb" {
 }
 
 resource "aws_lb_listener" "ingress-nlb" {
-  count = (var.enable_nlb == 1) ? 1 : 0
+  count = var.enable_nlb == "1" ? 1 : 0
 
   load_balancer_arn = "${aws_lb.ingress-nlb[0].arn}"
   protocol = "TCP"
@@ -35,7 +35,7 @@ resource "aws_lb_listener" "ingress-nlb" {
 }
 
 resource "aws_route53_record" "ingress-nlb" {
-  count = (var.enable_nlb == 1) ? 1 : 0
+  count = var.enable_nlb == "1" ? 1 : 0
 
   zone_id = var.cluster_domain_id
   name    = "nlb.${var.cluster_domain}."
