@@ -38,6 +38,8 @@ const (
 )
 
 var (
+	// allowedActions defines the set of actions that get attached to the role, for the rationale see:
+	// https://github.com/alphagov/gsp/blob/master/docs/architecture/adr/ADR041-service-operated-policies.md
 	allowedActions = []string{
 		"s3:GetObjectVersionTagging",
 		"s3:ReplicateObject",
