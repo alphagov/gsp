@@ -70,6 +70,8 @@ namespaces:
   repository: verify-proxy-node
   path: ci/build
   requiredApprovalCount: 2
+  ingress:
+    enabled: true
 users:
 - name: chris.farmiloe
   email: chris.farmiloe@digital.cabinet-office.gov.uk
@@ -102,6 +104,8 @@ extraPermissionsDev: []
 extraPermissionsSRE: []
 EOF
 
+gomplate -d config=output/values.yaml -f templates/managed-namespaces-gateways.yaml > output/gateways-values.yaml
+
 helm template \
 	--output-dir ./output \
 	--name gsp \
@@ -126,4 +130,5 @@ helm template \
 --namespace istio-system \
 --output-dir output \
 --set global.runningOnAws=true \
+--values output/gateways-values.yaml \
 charts/gsp-istio
