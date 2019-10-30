@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "lambda_log_forwarder" {
-  count            = var.enabled == 0 ? 0 : 1
+  count            = var.enabled == "0" ? 0 : 1
   filename         = "${path.module}/cyber-cloudwatch-fluentd-to-hec.zip"
   source_code_hash = filebase64sha256("${path.module}/cyber-cloudwatch-fluentd-to-hec.zip")
   function_name    = "${var.cluster_name}_${var.name}_log_forwarder"
@@ -21,14 +21,14 @@ resource "aws_lambda_function" "lambda_log_forwarder" {
 }
 
 resource "aws_cloudwatch_log_group" "lambda_log_forwarder" {
-  count = var.enabled == 0 ? 0 : 1
+  count = var.enabled == "0" ? 0 : 1
 
   name              = "/aws/lambda/${aws_lambda_function.lambda_log_forwarder[0].function_name}"
   retention_in_days = 7
 }
 
 resource "aws_lambda_permission" "cloudwatch_splunk_logs" {
-  count        = var.enabled == 0 ? 0 : 1
+  count        = var.enabled == "0" ? 0 : 1
   statement_id = "${var.cluster_name}_cloudwatch_splunk_logs"
   action       = "lambda:InvokeFunction"
 
@@ -38,7 +38,7 @@ resource "aws_lambda_permission" "cloudwatch_splunk_logs" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_splunk_logs" {
-  count      = var.enabled == 0 ? 0 : 1
+  count      = var.enabled == "0" ? 0 : 1
   depends_on = [aws_lambda_permission.cloudwatch_splunk_logs]
   name       = "${var.cluster_name}_${var.name}_cloudwatch_splunk_logs_subscription_filter"
 
