@@ -176,7 +176,7 @@ resource "aws_security_group" "rds-from-worker" {
 }
 
 resource "aws_db_subnet_group" "private" {
-  name = "${var.cluster_name}-private"
+  name = "sandbox-private"
   subnet_ids = var.private_subnet_ids
 }
 
