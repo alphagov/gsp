@@ -626,7 +626,6 @@ jobs:
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
-      plan_only: true
   - task: generate-user-terraform
     image: task-toolbox
     timeout: 10m
@@ -637,7 +636,6 @@ jobs:
     params:
       env_name: ((account-name))
       terraform_source: users-terraform
-      plan_only: true
 
 - name: apply
   serial: true
