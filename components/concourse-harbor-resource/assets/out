@@ -129,6 +129,7 @@ function update_project() {
 	EOF
 }
 
+log "  =====> harbor api endpoint: ${harbor_url}"
 log "  =====> create or update '${project_name}'"
 if project_exits "${project_name}"; then
 	log "  =====> project does exist... updating"
