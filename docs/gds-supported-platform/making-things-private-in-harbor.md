@@ -12,7 +12,6 @@ private.
     username: ((harbor.harbor_username))
     password: ((harbor.harbor_password))
     harbor:
-      url: ((harbor.harbor_url))
       prevent_vul: "false"
       public: "false"
     notary:
