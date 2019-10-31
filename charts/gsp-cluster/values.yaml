@@ -165,6 +165,7 @@ concourse:
     nameOverride: concourse-worker
     replicas: 2
     hardAntiAffinity: true
+    emptyDirSize: 60Gi
     resources:
       requests:
         cpu: 150m
