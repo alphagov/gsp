@@ -778,6 +778,23 @@ jobs:
     config: *generate_users_terraform
     params:
       ACCOUNT_NAME: ((account-name))
+  - task: remove-prevent-destroy
+    image: task-toolbox
+    timeout: 10s
+    config:
+      platform: linux
+      run:
+        path: /bin/bash
+        args:
+        - -euo
+        - pipefail
+        - -c
+        - |
+          find platform -name '*.tf' | xargs sed -i'' -e '/prevent_destroy = true/d'
+      inputs:
+      - name: platform
+      outputs:
+      - name: platform
   - put: cluster-state
     params:
       env_name: ((account-name))
