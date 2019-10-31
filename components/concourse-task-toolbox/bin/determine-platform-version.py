@@ -13,7 +13,8 @@ partial_repos = [
     "concourse-operator-source",
     "concourse-github-resource-source",
     "concourse-harbor-resource-source",
-    "concourse-terraform-resource-source"
+    "concourse-terraform-resource-source",
+    "aws-ssm-agent-source"
 ]
 
 commit_map = collections.Counter()

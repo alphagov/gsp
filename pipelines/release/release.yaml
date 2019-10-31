@@ -7,6 +7,7 @@ groups:
   - build-concourse-github-resource
   - build-concourse-harbor-resource
   - build-concourse-terraform-resource
+  - build-aws-ssm-agent
   - bump-version
   - package
 - name: version
@@ -119,6 +120,20 @@ resources:
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
 
+- name: aws-ssm-agent-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/aws-ssm-agent
+    github_api_token: ((github-api-token))
+    approvers: ((config-approvers))
+    required_approval_count: 1
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
 - name: concourse-operator-source
   type: github
   source:
@@ -183,6 +198,13 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
     repository: govsvc/terraform-resource
+
+- name: aws-ssm-agent
+  type: docker-image
+  source:
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: govsvc/amazon-ssm-agent
 
 - name: concourse-operator
   type: docker-image
@@ -329,6 +351,22 @@ jobs:
     get_params:
       skip_download: true
 
+- name: build-aws-ssm-agent
+  serial: true
+  serial_groups: [build-aws-ssm-agent]
+  plan:
+  - get: aws-ssm-agent-source
+    trigger: true
+  - put: aws-ssm-agent
+    params:
+      build: aws-ssm-agent-source/components/aws-ssm-agent
+      dockerfile: aws-ssm-agent-source/components/aws-ssm-agent/Dockerfile
+      tag_file: aws-ssm-agent-source/.git/short_ref
+      tag_prefix: ((github-release-tag-prefix))v
+      tag_as_latest: true
+    get_params:
+      skip_download: true
+
 - name: build-concourse-operator
   serial: true
   serial_groups: [build-concourse-operator]
@@ -374,6 +412,7 @@ jobs:
     - build-concourse-github-resource
     - build-concourse-harbor-resource
     - build-concourse-terraform-resource
+    - build-aws-ssm-agent
     - build-concourse-operator
     - build-service-operator
   plan:
@@ -392,6 +431,9 @@ jobs:
       trigger: true
     - get: concourse-terraform-resource
       passed: [build-concourse-terraform-resource]
+      trigger: true
+    - get: aws-ssm-agent
+      passed: [build-aws-ssm-agent]
       trigger: true
     - get: concourse-operator
       passed: [build-concourse-operator]
@@ -423,6 +465,8 @@ jobs:
       passed: [bump-version]
     - get: concourse-terraform-resource
       passed: [bump-version]
+    - get: aws-ssm-agent
+      passed: [bump-version]
     - get: concourse-operator
       passed: [bump-version]
     - get: service-operator
@@ -439,6 +483,8 @@ jobs:
       passed: [build-concourse-harbor-resource]
     - get: concourse-terraform-resource-source
       passed: [build-concourse-terraform-resource]
+    - get: aws-ssm-agent-source
+      passed: [build-aws-ssm-agent]
   - task: test-opa-policies
     image: opa
     config:
@@ -460,6 +506,7 @@ jobs:
       - name: concourse-github-resource
       - name: concourse-harbor-resource
       - name: concourse-terraform-resource
+      - name: aws-ssm-agent
       - name: concourse-operator
       - name: service-operator
       outputs:
@@ -482,6 +529,10 @@ jobs:
               image:
                 repository: $(cat service-operator/repository)@$(cat service-operator/digest | cut -d ':' -f 1)
                 tag: $(cat service-operator/digest | cut -d ':' -f 2)
+            AWSSSMAgent:
+              image:
+                repository: $(cat aws-ssm-agent/repository)@$(cat aws-ssm-agent/digest | cut -d ':' -f 1)
+                tag: $(cat aws-ssm-agent/digest | cut -d ':' -f 2)
             concourseResources:
               task:
                 image:
@@ -513,6 +564,7 @@ jobs:
       - name: concourse-github-resource-source
       - name: concourse-harbor-resource-source
       - name: concourse-terraform-resource-source
+      - name: aws-ssm-agent-source
       outputs:
       - name: platform-version
       run:

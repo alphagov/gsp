@@ -17,7 +17,7 @@ spec:
     spec:
       hostNetwork: true
       containers:
-      - image: govsvc/amazon-ssm-agent:0.0.1554917046
+      - image: {{ .Values.AWSSSMAgent.image.repository }}:{{ .Values.AWSSSMAgent.image.tag }}
         name: ssm-agent
         securityContext:
           runAsUser: 0
