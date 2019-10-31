@@ -63,33 +63,6 @@ spec:
   ingress:
   - from: []
 ---
-# Reverse-engineering from istio chart due to some missing logic in istio chart
-# TODO: This Role can be removed when Istio is upgraded to >= 1.2.0
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: {{ .name }}-ingressgateway-sds
-  namespace: {{ .name }}
-rules:
-- apiGroups: [""]
-  resources: ["secrets"]
-  verbs: ["get", "watch", "list"]
----
-# Reverse-engineering from istio chart due to some missing logic in istio chart
-# TODO: This RoleBinding can be removed when Istio is upgraded to >= 1.2.0
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: {{ .name }}-ingressgateway-sds
-  namespace: {{ .name }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: {{ .name }}-ingressgateway-sds
-subjects:
-- kind: ServiceAccount
-  name: {{ .name }}-ingressgateway-service-account
----
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
