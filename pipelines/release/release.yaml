@@ -182,7 +182,7 @@ resources:
   source:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
-    repository: govsvc/concourse-terraform-resource
+    repository: govsvc/terraform-resource
 
 - name: concourse-operator
   type: docker-image
