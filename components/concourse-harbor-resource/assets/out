@@ -47,7 +47,7 @@ project_name=$(sed -n '2p' < repository_array)
 echo "project: ${project_name}"
 
 log "loading harbor config..."
-harbor_url=$(jq -r '.source.harbor.url // ""' < "${payload}")
+harbor_url=$(jq -r '.source.harbor.url // "http://gsp-harbor-core.gsp-system.svc.cluster.local"' < "${payload}")
 notary_url=$(jq -r '.source.notary.url // ""' < "${payload}")
 root_key=$(jq -r '.source.notary.root_key // ""' < "${payload}") # root key
 delegate_key=$(jq -r '.source.notary.delegate_key // ""' < "${payload}") # delegate / ci key
@@ -139,34 +139,34 @@ else
 fi
 
 if [[ "${harbor_enable_content_trust}" == "true" ]]; then
-  log "  =====> importing root key"
-  echo "${root_key}" > /tmp/root.key
-  dockernotary key import /tmp/root.key --role root
+	log "  =====> importing root key"
+	echo "${root_key}" > /tmp/root.key
+	dockernotary key import /tmp/root.key --role root
 
-  log "  =====> importing delegate key"
-  echo "${delegate_key}" > /tmp/ci.key
-  dockernotary key import /tmp/ci.key --role ci
+	log "  =====> importing delegate key"
+	echo "${delegate_key}" > /tmp/ci.key
+	dockernotary key import /tmp/ci.key --role ci
 
-  dockernotary key list
+	dockernotary key list
 
-  log "  =====> checking if delegation for repository is on the listing"
-  if ! dockernotary delegation list "${repository}" > /dev/null 2>&1; then
-    log "  =====> initialising repo: ${repository}"
-    dockernotary init "${repository}" -p || clean_up_notary "${repository}"
+	log "  =====> checking if delegation for repository is on the listing"
+	if ! dockernotary delegation list "${repository}" > /dev/null 2>&1; then
+		log "  =====> initialising repo: ${repository}"
+		dockernotary init "${repository}" -p || clean_up_notary "${repository}"
 
-    log "  =====> moving snapshot key to server"
-    dockernotary key rotate "${repository}" snapshot -r || clean_up_notary "${repository}"
+		log "  =====> moving snapshot key to server"
+		dockernotary key rotate "${repository}" snapshot -r || clean_up_notary "${repository}"
 
-    log "  =====> creating ci csr"
-    openssl req -new -sha256 -key /tmp/ci.key -out /tmp/ci.csr -subj "/C=/ST=/L=/O=GDS/OU=/CN=ci" || clean_up_notary "${repository}"
+		log "  =====> creating ci csr"
+		openssl req -new -sha256 -key /tmp/ci.key -out /tmp/ci.csr -subj "/C=/ST=/L=/O=GDS/OU=/CN=ci" || clean_up_notary "${repository}"
 
-    log "  =====> creating cert from csr and key - expiry: 10 years"
-    openssl x509 -req -sha256 -days 3650 -in /tmp/ci.csr -signkey /tmp/ci.key -out /tmp/ci.crt || clean_up_notary "${repository}"
+		log "  =====> creating cert from csr and key - expiry: 10 years"
+		openssl x509 -req -sha256 -days 3650 -in /tmp/ci.csr -signkey /tmp/ci.key -out /tmp/ci.crt || clean_up_notary "${repository}"
 
-    log "  =====> delegating to ci key"
-    dockernotary delegation add "${repository}" targets/releases /tmp/ci.crt --all-paths -p || clean_up_notary "${repository}"
-  fi
-  export DOCKER_CONTENT_TRUST=1
+		log "  =====> delegating to ci key"
+		dockernotary delegation add "${repository}" targets/releases /tmp/ci.crt --all-paths -p || clean_up_notary "${repository}"
+	fi
+	export DOCKER_CONTENT_TRUST=1
 fi
 
 log "  =====> moving on to docker-image-resource"
