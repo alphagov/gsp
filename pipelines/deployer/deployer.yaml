@@ -172,7 +172,7 @@ apply_cluster_chart: &apply_cluster_chart
       echo "Removing cert-manager resources..."
       kubectl get Issuers,ClusterIssuers,Certificates,Orders,Challenges --all-namespaces -o yaml | kubectl delete -f -
       echo "Removing cert-manager..."
-      kubectl delete --ignore-not-found=true apiservice v1beta1.webhook.cert-manager.io
+      kubectl delete --ignore-not-found=true apiservice v1beta1.webhook.certmanager.k8s.io
       kubectl delete --ignore-not-found=true mutatingwebhookconfiguration gsp-cert-manager-webhook
       kubectl delete --ignore-not-found=true validatingwebhookconfiguration gsp-cert-manager-webhook
       kubectl -n gsp-system delete --ignore-not-found=true service gsp-cert-manager gsp-cert-manager-webhook
