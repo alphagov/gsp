@@ -639,10 +639,47 @@ jobs:
     config: *unpack_release
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
+  - task: scale-autoscaler-down
+    image: task-toolbox
+    timeout: 10s
+    params:
+      CLUSTER_NAME: ((cluster-name))
+    config:
+      platform: linux
+      run:
+        path: /bin/bash
+        args:
+        - -euo
+        - pipefail
+        - -c
+        - |
+          CLUSTER_COUNT=$(aws eks list-clusters | jq '.clusters[] | select (. == "$CLUSTER_NAME") | 1' | wc -l)
+          if [ "$CLUSTER_COUNT" == "1" ]; then
+              DEPLOYMENT_COUNT=$(kubectl --namespace gsp-system get deployment -o json | jq '.items[] | select (.metadata.name == "gsp-aws-cluster-autoscaler") | 1' | wc -l)
+              if [ "$DEPLOYMENT_COUNT" == "1" ]; then
+                  kubectl --namespace gsp-system scale --replicas=0 deployment/gsp-aws-cluster-autoscaler
+              fi
+          fi
   - put: cluster-state
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
+  - task: scale-autoscaler-up
+    image: task-toolbox
+    timeout: 10s
+    config:
+      platform: linux
+      run:
+        path: /bin/bash
+        args:
+        - -euo
+        - pipefail
+        - -c
+        - |
+          DEPLOYMENT_COUNT=$(kubectl --namespace gsp-system get deployment -o json | jq '.items[] | select (.metadata.name == "gsp-aws-cluster-autoscaler") | 1' | wc -l)
+          if [ "$DEPLOYMENT_COUNT" == "1" ]; then
+              kubectl --namespace gsp-system scale --replicas=2 deployment/gsp-aws-cluster-autoscaler
+          fi
   - task: generate-user-terraform
     image: task-toolbox
     timeout: 10m
