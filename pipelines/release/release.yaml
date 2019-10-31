@@ -6,6 +6,7 @@ groups:
   - build-concourse-operator
   - build-concourse-github-resource
   - build-concourse-harbor-resource
+  - build-concourse-terraform-resource
   - bump-version
   - package
 - name: version
@@ -104,6 +105,20 @@ resources:
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
 
+- name: concourse-terraform-resource-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/concourse-terraform-resource
+    github_api_token: ((github-api-token))
+    approvers: ((config-approvers))
+    required_approval_count: 1
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
 - name: concourse-operator-source
   type: github
   source:
@@ -161,6 +176,13 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
     repository: govsvc/concourse-harbor-resource
+
+- name: concourse-terraform-resource
+  type: docker-image
+  source:
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: govsvc/concourse-terraform-resource
 
 - name: concourse-operator
   type: docker-image
@@ -291,6 +313,22 @@ jobs:
     get_params:
       skip_download: true
 
+- name: build-concourse-terraform-resource
+  serial: true
+  serial_groups: [build-concourse-terraform-resource]
+  plan:
+  - get: concourse-terraform-resource-source
+    trigger: true
+  - put: concourse-terraform-resource
+    params:
+      build: concourse-terraform-resource-source/components/concourse-terraform-resource
+      dockerfile: concourse-terraform-resource-source/components/concourse-terraform-resource/Dockerfile
+      tag_file: concourse-terraform-resource-source/.git/short_ref
+      tag_prefix: ((github-release-tag-prefix))v
+      tag_as_latest: true
+    get_params:
+      skip_download: true
+
 - name: build-concourse-operator
   serial: true
   serial_groups: [build-concourse-operator]
@@ -335,6 +373,7 @@ jobs:
     - build-concourse-task-toolbox
     - build-concourse-github-resource
     - build-concourse-harbor-resource
+    - build-concourse-terraform-resource
     - build-concourse-operator
     - build-service-operator
   plan:
@@ -350,6 +389,9 @@ jobs:
       trigger: true
     - get: concourse-harbor-resource
       passed: [build-concourse-harbor-resource]
+      trigger: true
+    - get: concourse-terraform-resource
+      passed: [build-concourse-terraform-resource]
       trigger: true
     - get: concourse-operator
       passed: [build-concourse-operator]
@@ -379,6 +421,8 @@ jobs:
       passed: [bump-version]
     - get: concourse-harbor-resource
       passed: [bump-version]
+    - get: concourse-terraform-resource
+      passed: [bump-version]
     - get: concourse-operator
       passed: [bump-version]
     - get: service-operator
@@ -393,6 +437,8 @@ jobs:
       passed: [build-concourse-github-resource]
     - get: concourse-harbor-resource-source
       passed: [build-concourse-harbor-resource]
+    - get: concourse-terraform-resource-source
+      passed: [build-concourse-terraform-resource]
   - task: test-opa-policies
     image: opa
     config:
@@ -413,6 +459,7 @@ jobs:
       - name: concourse-task-toolbox
       - name: concourse-github-resource
       - name: concourse-harbor-resource
+      - name: concourse-terraform-resource
       - name: concourse-operator
       - name: service-operator
       outputs:
@@ -465,6 +512,7 @@ jobs:
       - name: concourse-operator-source
       - name: concourse-github-resource-source
       - name: concourse-harbor-resource-source
+      - name: concourse-terraform-resource-source
       outputs:
       - name: platform-version
       run:
