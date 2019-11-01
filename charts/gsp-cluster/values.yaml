@@ -105,6 +105,7 @@ kiam:
         readOnly: true
     serviceAnnotations:
       networking.istio.io/exportTo: "."
+    priorityClassName: gsp-critical
   agent:
     gatewayTimeoutCreation: 30s
     host:
@@ -124,6 +125,7 @@ kiam:
       operator: Exists
     - effect: NoExecute
       operator: Exists
+    priorityClassName: gsp-critical
 
 fluentd-cloudwatch:
   resources:
