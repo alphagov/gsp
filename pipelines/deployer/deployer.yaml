@@ -624,10 +624,11 @@ jobs:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - task: scale-autoscaler-down
     image: task-toolbox
-    timeout: 10s
+    timeout: 20s
     params:
       CLUSTER_NAME: ((cluster-name))
       ACCOUNT_ROLE_ARN: ((account-role-arn))
+      AWS_REGION: eu-west-2
     config:
       platform: linux
       run:
