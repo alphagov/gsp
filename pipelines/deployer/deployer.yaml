@@ -665,12 +665,9 @@ jobs:
                 --kubeconfig ./kubeconfig
               echo "done, looking for deployments"
               export KUBECONFIG=$(pwd)/kubeconfig
-              DEPLOYMENT_COUNT=$(kubectl --namespace gsp-system get deployment -o json | jq '.items[] | select (.metadata.name == "gsp-aws-cluster-autoscaler") | 1' | wc -l)
-              if [ "$DEPLOYMENT_COUNT" == "1" ]; then
-                  echo "found it, scaling down to 0 replicas"
-                  kubectl --namespace gsp-system scale --replicas=0 deployment/gsp-aws-cluster-autoscaler
-                  echo "done"
-              fi
+              echo "scaling down cluster-autoscaler if it exists"
+              kubectl --namespace gsp-system scale --replicas=0 deployment/gsp-aws-cluster-autoscaler || true
+              echo "done"
           fi
   - put: cluster-state
     params:
