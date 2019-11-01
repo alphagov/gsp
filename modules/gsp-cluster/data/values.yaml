@@ -73,7 +73,7 @@ concourse:
           localUser: pipeline-operator
           config: /web-configuration/config.yaml
       kubernetes:
-        namespacePrefix: ${account_name}-
+        namespacePrefix: ${cluster_name}-
         createTeamNamespaces: false
         teams: ${concourse_teams}
 
