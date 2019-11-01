@@ -5,7 +5,7 @@ metadata:
   labels:
     controller-tools.k8s.io: "1.0"
   name: cd-smoke-test
-  namespace: {{ .Values.global.account.name }}-main
+  namespace: {{ .Values.global.cluster.name }}-main
 spec:
   exposed: true
   config:
