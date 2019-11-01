@@ -24,13 +24,15 @@ cd "${context}"
 username=$(jq -r '.source.username // ""' < "${payload}")
 password=$(jq -r '.source.password // ""' < "${payload}")
 
-notary_url=$(jq -r '.source.notary.url // ""' < "${payload}")
+harbor_enable_content_trust=$(jq -r '.source.harbor.enable_content_trust // "false"' < "${payload}")
 
-NOTARY_AUTH=$(echo -n "${username}:${password}" | base64)
-
-export NOTARY_AUTH
-export DOCKER_CONTENT_TRUST_SERVER="${notary_url}"
-export DOCKER_CONTENT_TRUST=1
+if [[ "${harbor_enable_content_trust}" == "true" ]]; then
+	notary_url=$(jq -r '.source.notary.url // ""' < "${payload}")
+	NOTARY_AUTH=$(echo -n "${username}:${password}" | base64)
+	export NOTARY_AUTH
+	export DOCKER_CONTENT_TRUST_SERVER="${notary_url}"
+	export DOCKER_CONTENT_TRUST=1
+fi
 
 echo "  =====> moving on to docker-image-resource"
 

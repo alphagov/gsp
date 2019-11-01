@@ -14,7 +14,7 @@ In addition to the upstream docs, we're introducing the following:
 
   * `public`: *Optional.* Allow the image to be publically accessible. Default: `true`
 
-  * `enable_content_trust`: *Optional.* Allow content trust (Notary) signatures for that image. Default: `true`
+  * `enable_content_trust`: *Optional.* Allow content trust (Notary) signatures for that image. Default: `false`
 
   * `prevent_vul`: *Optional.* Prevent vulnerable images from being pushed. Default: `true`
 
