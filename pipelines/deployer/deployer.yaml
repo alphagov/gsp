@@ -629,6 +629,7 @@ jobs:
       CLUSTER_NAME: ((cluster-name))
       ACCOUNT_ROLE_ARN: ((account-role-arn))
       AWS_REGION: eu-west-2
+      AWS_DEFAULT_REGION: eu-west-2
     config:
       platform: linux
       run:
