@@ -676,35 +676,6 @@ jobs:
     params:
       env_name: ((account-name))
       terraform_source: platform/pipelines/deployer
-  - task: scale-autoscaler-up
-    image: task-toolbox
-    timeout: 10s
-    params:
-      CLUSTER_NAME: ((cluster-name))
-      ACCOUNT_ROLE_ARN: ((account-role-arn))
-    config:
-      platform: linux
-      run:
-        path: /bin/bash
-        args:
-        - -euo
-        - pipefail
-        - -c
-        - |
-          echo "assuming aws deployer role..."
-          AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
-          echo "fetching kubeconfig from aws..."
-          aws eks update-kubeconfig \
-            --name "${CLUSTER_NAME}" \
-            --kubeconfig ./kubeconfig
-          echo "done, looking for deployments"
-          export KUBECONFIG=$(pwd)/kubeconfig
-          DEPLOYMENT_COUNT=$(kubectl --namespace gsp-system get deployment -o json | jq '.items[] | select (.metadata.name == "gsp-aws-cluster-autoscaler") | 1' | wc -l)
-          if [ "$DEPLOYMENT_COUNT" == "1" ]; then
-              echo "found it, scaling up to 2 replicas"
-              kubectl --namespace gsp-system scale --replicas=2 deployment/gsp-aws-cluster-autoscaler
-              echo "done"
-          fi
   - task: generate-user-terraform
     image: task-toolbox
     timeout: 10m
