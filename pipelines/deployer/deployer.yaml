@@ -624,7 +624,7 @@ jobs:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - task: scale-autoscaler-down
     image: task-toolbox
-    timeout: 20s
+    timeout: 40s
     params:
       CLUSTER_NAME: ((cluster-name))
       ACCOUNT_ROLE_ARN: ((account-role-arn))
