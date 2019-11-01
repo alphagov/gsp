@@ -790,7 +790,7 @@ jobs:
         - pipefail
         - -c
         - |
-          find platform -name '*.tf' | xargs sed -i'' -e '/prevent_destroy = true/d'
+          sed -i'' -e '/prevent_destroy = true/d' platform/modules/k8s-cluster/main.tf
       inputs:
       - name: platform
       outputs:
