@@ -657,27 +657,19 @@ jobs:
           echo "assuming aws deployer role..."
           AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
           echo "Looking for existing EKS cluster"
-          set +e
-          aws eks describe-cluster --name $CLUSTER_NAME >/dev/null
-          if [ $? -eq 0 ]; then
-              set -e
+          if $(aws eks describe-cluster --name $CLUSTER_NAME >/dev/null); then
               echo "found it, fetching kubeconfig from aws..."
               aws eks update-kubeconfig \
                 --name "${CLUSTER_NAME}" \
                 --kubeconfig ./kubeconfig
               echo "done, looking for deployments"
               export KUBECONFIG=$(pwd)/kubeconfig
-              set +e
-              kubectl --namespace gsp-system get deployment gsp-aws-cluster-autoscaler
-              if [ $? -ge 1 ]; then
-                  set -e
+              if $(kubectl --namespace gsp-system get deployment gsp-aws-cluster-autoscaler >/dev/null); then
                   echo "found it, scaling down to 0 replicas"
                   kubectl --namespace gsp-system scale --replicas=0 deployment/gsp-aws-cluster-autoscaler
                   echo "done"
               fi
-              set -e
           fi
-          set -e
   - put: cluster-state
     params:
       env_name: ((account-name))
