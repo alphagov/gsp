@@ -79,6 +79,7 @@ cluster-autoscaler:
   tolerations:
   - effect: NoSchedule
     key: node-role.kubernetes.io/cluster-management
+  replicaCount: 2
 
 kiam:
   nameOverride:
