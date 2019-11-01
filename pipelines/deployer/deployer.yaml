@@ -641,6 +641,7 @@ jobs:
         - |
           echo "assuming aws deployer role..."
           AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+          eval "${AWS_CREDS}"
           echo "Looking for existing EKS cluster"
           if aws eks describe-cluster --name $CLUSTER_NAME >/dev/null; then
               echo "found it, fetching kubeconfig from aws..."
