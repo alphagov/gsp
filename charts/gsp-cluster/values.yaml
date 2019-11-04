@@ -5,6 +5,7 @@ global:
     domain: "example.com"
     domain_id: ""
     egressIpAddresses: ["127.0.0.1"]
+    releaseVersion: master
   account:
     name: ""
   roles:

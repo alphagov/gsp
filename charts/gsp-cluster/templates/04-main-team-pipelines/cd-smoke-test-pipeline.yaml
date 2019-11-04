@@ -30,6 +30,11 @@ spec:
       source:
         repository: ((concourse.harbor-resource-image))
         tag: ((concourse.harbor-resource-tag))
+    - name: github
+      type: registry-image
+      source:
+        repository: ((concourse.github-resource-image))
+        tag: ((concourse.github-resource-tag))
 
     resources:
     - name: timer
@@ -39,10 +44,18 @@ spec:
         interval: 2m
 
     - name: src
-      type: git
+      type: github
       icon: github-circle
       source:
         uri: https://github.com/alphagov/gsp.git
+        organization: alphagov
+        owner: alphagov
+        repository: gsp
+        github_api_token: ((github.api-token))
+        access_token: ((github.api-token))
+        approvers: ((trusted-developers.github-accounts))
+        required_approval_count: 0
+        branch: ((cluster.releaseVersion))
         paths:
         - components/canary
 
