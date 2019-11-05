@@ -18,7 +18,12 @@ data "aws_iam_policy_document" "cloudwatch_log_shipping_policy" {
       "logs:PutLogEvents",
     ]
 
-    resources = [aws_cloudwatch_log_group.logs.arn]
+    resources = [
+      aws_cloudwatch_log_group.logs.arn,
+      aws_cloudwatch_log_group.application_logs.arn,
+      aws_cloudwatch_log_group.dataplane_logs.arn,
+      aws_cloudwatch_log_group.host_logs.arn,
+    ]
   }
 }
 
