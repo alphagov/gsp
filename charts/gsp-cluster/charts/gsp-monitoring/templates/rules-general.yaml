@@ -23,18 +23,6 @@ spec:
       expr: vector(1)
       labels:
         severity: constant
-    - alert: KubeletTooManyPods
-      expr: |
-        kubelet_running_pod_count
-          > on(node) group_left
-        kube_node_status_allocatable_pods * 0.9
-      for: 15m
-      labels:
-        severity: warning
-      annotations:
-        message: |
-          Kubelet {{`{{ $labels.instance }}`}} is running {{`{{ $value }}`}} Pods,
-          which is more than 90% of its capacity.
     - record: "az_node_role_resource:allocatable:"
       expr: |
         sum by(failure_domain_beta_kubernetes_io_zone,node_role,resource) (
