@@ -49,3 +49,17 @@ resource "aws_cloudwatch_log_group" "logs" {
   retention_in_days = 30
 }
 
+resource "aws_cloudwatch_log_group" "application_logs" {
+  name              = "/aws/containerinsights/${var.cluster_name}/application"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_group" "host_logs" {
+  name              = "/aws/containerinsights/${var.cluster_name}/host"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_group" "dataplane_logs" {
+  name              = "/aws/containerinsights/${var.cluster_name}/dataplane"
+  retention_in_days = 30
+}
