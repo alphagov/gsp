@@ -7,6 +7,7 @@ set -eu -o pipefail
 FLY_BIN=${FLY_BIN:-fly}
 CLUSTER_NAME=$(yq -r '.["cluster-name"]' < ${CLUSTER_CONFIG})
 PIPELINE_NAME=$(yq -r '.["concourse-pipeline-name"]' < ${CLUSTER_CONFIG})
+DEPLOYER_PIPELINE_NAME=${DEPLOYER_PIPELINE_NAME:-deployer.yaml}
 
 echo "generating approvers for ${CLUSTER_NAME}..."
 
@@ -14,7 +15,7 @@ echo "generating approvers for ${CLUSTER_NAME}..."
 $FLY_BIN -t cd-gsp sync
 
 $FLY_BIN -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
-	--config "pipelines/deployer/deployer.yaml" \
+	--config "pipelines/deployer/${DEPLOYER_PIPELINE_NAME}" \
 	--load-vars-from "pipelines/deployer/deployer.defaults.yaml" \
 	--load-vars-from "${CLUSTER_CONFIG}" \
 	--yaml-var 'config-approvers=[alphagov]' \

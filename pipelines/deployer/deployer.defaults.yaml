@@ -10,6 +10,7 @@ platform-organization: "alphagov"
 platform-repository: "gsp"
 platform-trigger: true
 platform-pre-release: false
+platform-version: master
 
 users-uri: "git@github.com:alphagov/gds-trusted-developers.git"
 users-organization: "alphagov"
