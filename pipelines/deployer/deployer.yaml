@@ -179,6 +179,7 @@ apply_cluster_chart: &apply_cluster_chart
         --set "googleOauthClientSecret=${GOOGLE_OAUTH_CLIENT_SECRET}" \
         --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
+        --set "global.cluster.releaseVersion=${RELEASE_TAG}" \
         --output-dir manifests \
         gsp/gsp-cluster-*.tgz
       echo "rendering gsp-istio chart..."
@@ -189,6 +190,7 @@ apply_cluster_chart: &apply_cluster_chart
         --values config/${CONFIG_VALUES_PATH} \
         --values managed-namespaces-values/gateways-values.yaml \
         --set global.runningOnAws=true \
+        --set "global.cluster.releaseVersion=${RELEASE_TAG}" \
         gsp/gsp-istio-*.tgz
       rm -rf manifests/gsp-istio/charts/istio-cni
       helm template \
@@ -197,6 +199,7 @@ apply_cluster_chart: &apply_cluster_chart
         --output-dir kube-system-manifests \
         --values config/${CONFIG_VALUES_PATH} \
         --set global.runningOnAws=true \
+        --set "global.cluster.releaseVersion=${RELEASE_TAG}" \
         gsp/gsp-istio-*.tgz
       function apply() {
         echo "applying ${1} from ${CHART_NAME} chart..."

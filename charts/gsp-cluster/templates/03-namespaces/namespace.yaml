@@ -186,6 +186,7 @@ data:
   cloudHsmIp: {{ $.Values.global.cloudHsm.ip | b64enc }}
   privateKey: {{ $.Values.global.cluster.privateKey | b64enc }}
   publicKey: {{ $.Values.global.cluster.publicKey | b64enc }}
+  releaseVersion: {{ $.Values.global.cluster.releaseVersion | b64enc }}
 ---
 apiVersion: v1
 kind: Secret
