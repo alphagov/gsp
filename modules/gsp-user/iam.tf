@@ -69,8 +69,12 @@ resource "aws_iam_role_policy_attachment" "user-defaults-iam" {
   policy_arn = "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "user-defaults-load-balancing-read-only" {
+  role       = aws_iam_role.user.name
+  policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingReadOnly"
+}
+
 resource "aws_iam_role_policy_attachment" "user-defaults-view-only" {
   role       = aws_iam_role.user.name
   policy_arn = "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess"
 }
-
