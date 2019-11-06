@@ -16,32 +16,12 @@ spec:
   http:
   - match:
     - uri:
-        prefix: /api/
-    - uri:
         prefix: /service/
     - uri:
         prefix: /v2/
-    - uri:
-        prefix: /chartrepo/
-    - uri:
-        prefix: /c/
     route:
     - destination:
         host: gsp-harbor-core
-        port:
-          number: 80
-      {{- if .Values.global.runningOnAws }}
-      headers:
-        request:
-          set:
-            "x-forwarded-proto": "https"
-      {{- end }}
-  - match:
-    - uri:
-        prefix: /
-    route:
-    - destination:
-        host: gsp-harbor-portal
         port:
           number: 80
       {{- if .Values.global.runningOnAws }}
