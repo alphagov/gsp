@@ -11,6 +11,9 @@ metadata:
 {{- if .talksToHsm }}
     talksToHsm: "true"
 {{- end }}
+{{- if .talksToPsn }}
+    talksToPsn: "true"
+{{- end }}
   annotations:
     iam.amazonaws.com/permitted: {{ $permittedRolesRegex | quote }}
 {{- end }}
