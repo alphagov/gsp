@@ -75,3 +75,8 @@ else to benefit from the engineering effort.
 * The workaround will only affect the designated namespace(s) and will
   potentially lead to differences between "staging/testing" and "production"
   deployment configurations.
+
+## Appendix
+
+Notes from a brief spike into this configuration can be found
+[in the Global Accelerator Spike notes](../notes/global-accelerator-spike.md)
