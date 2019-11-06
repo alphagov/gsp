@@ -35,6 +35,10 @@ resource "aws_eip" "egress" {
   tags = {
     "Name" = "${var.cluster_name}-egress-${var.availability_zone}"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_nat_gateway" "egress" {
