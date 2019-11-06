@@ -56,9 +56,5 @@ resource "aws_eip" "ingress" {
   tags = {
     "Name" = "${var.cluster_name}-ingress-${var.availability_zone}"
   }
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
