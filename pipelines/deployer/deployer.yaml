@@ -218,10 +218,6 @@ apply_cluster_chart: &apply_cluster_chart
       apply manifests/gsp-istio/charts/istio
       apply manifests/${CHART_NAME}/templates/01-aws-system/
       apply manifests/
-      kubectl delete handler -n gsp-system harbor-ip-safelist || true
-      kubectl delete instance -n gsp-system harbor-ip-safelist-originip || true
-      kubectl delete rule -n gsp-system harbor-api-ip-safelist || true
-      kubectl delete rule -n gsp-system harbor-portal-ip-safelist || true
   inputs:
   - name: cluster-values
   - name: config
