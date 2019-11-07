@@ -21,7 +21,7 @@
 * To work with the cluster in the normal way you'll need gds-cli version 1.27.0.
 * Service-operator'd resources will not be deleted on cluster destroy.
 * After you destroy and re-create a cluster, you must `gds sandbox -c name-of-my-cluster update-kubeconfig`, or you will get errors like `Unable to connect to the server: dial tcp: lookup 8D8F3A460045AFA69F63F44F8DAB3F68.yl4.eu-west-2.eks.amazonaws.com: no such host` when trying to use kubectl.
-* You can choose a custom branch to deploy Terraform/Helm with platform-version but this does not enable the testing of e.g. the components, the differences between the deployment pipelines, or the release pipeline.
+* You can choose a custom branch to deploy Terraform/Helm with `platform-version` (and also setting `platform-resource-type` to `git` and `platform-tag-filter` to the empty string) but this does not enable the testing of e.g. the components, the differences between the deployment pipelines, or the release pipeline.
 * Will not have external secrets - e.g. GitHub and Google integration. Therefore no Google login for Grafana, or GitHub login for Concourse.
   * You can log into Concourse with username `pipeline-operator` and password coming from `gds sandbox -c name-of-my-cluster kubectl get -n gsp-system secret gsp-pipeline-operator -o json | jq -r '.data.concourse_password' | base64 -D -`
   * You can log into Grafana with username `admin` and password coming from `gds sandbox -c name-of-my-cluster kubectl get -n gsp-system secret gsp-grafana -o json | jq -r '.data["admin-password"]' | base64 -D -`
@@ -34,6 +34,9 @@ You may run into one of the following problems:
 * kubectl apply fails (e.g. inside the `cd-smoke-test` pipeline in Little Concourse) due to a control plane failure, control plane logs show it failed to connect to the `v1beta1.metrics.k8s.io` `APIService` in `kube-system`.
 
 In these cases, try deleting all pods from the namespace in question (e.g. `gds sandbox -c name-of-my-cluster kubectl delete -n my-namespace pod --all`). Stuff should be appearing in the logs of the namespace's ingressgateway pods' istio-proxy containers if it is receiving requests.
+
+* Clusters often come up in states with broken ingress, deleting the istio-ingressgateway pods usually fixes this, e.g. the following for Concourse/Grafana etc.: `gds sandbox -c name-of-my-cluster kubectl -n gsp-system delete pods -l app=istio-ingressgateway` - for the canary use the namespace named dynamically based on the name of your cluster followed by `-main`.
+* Clusters often come up in states with broken Concourse pipeline creation, deleting the pipeline-operator pod usually fixes this: `gds sandbox -c name-of-my-cluster kubectl -n gsp-system delete pod gsp-pipeline-operator-0`
 
 ## Process to delete a cluster
 
