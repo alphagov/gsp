@@ -2,6 +2,8 @@
 
 set -eu
 
+touch modules/k8s-cluster/aws-node-lifecycle-hook.zip
+
 # rough check for missing vars in terraform
 (cd pipelines/deployer \
 	&& terraform init --backend=false \

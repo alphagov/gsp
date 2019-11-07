@@ -213,6 +213,15 @@ Resources:
         MinInstancesInService: !Ref NodeAutoScalingGroupDesiredCapacity
         PauseTime: PT5M
 
+  NodeLifecycleTerminatingHook:
+    Type: AWS::AutoScaling::LifecycleHook
+    Properties:
+      AutoScalingGroupName: !Ref NodeGroup
+      DefaultResult: ABANDON
+      HeartbeatTimeout: 180
+      LifecycleHookName: !Sub ${ClusterName}-${NodeGroupName}
+      LifecycleTransition: autoscaling:EC2_INSTANCE_TERMINATING
+
   NodeLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties:

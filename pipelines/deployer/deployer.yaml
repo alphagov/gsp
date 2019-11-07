@@ -602,6 +602,11 @@ resources:
   source:
     repository: ((task-toolbox-image))
     tag: ((task-toolbox-tag))
+- name: golang-builder
+  type: docker-image
+  source:
+    repository: golang
+    tag: 1.12.5
 
 jobs:
 - name: update
@@ -646,6 +651,7 @@ jobs:
   plan:
   - aggregate:
     - get: task-toolbox
+    - get: golang-builder
     - get: platform
       passed: [update]
       trigger: true
@@ -663,6 +669,32 @@ jobs:
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
+  - task: ensure-aws-node-lifecycle-hook
+    image: golang-builder
+    params:
+      PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
+    config:
+      platform: linux
+      run:
+        path: /bin/bash
+        args:
+        - -euo
+        - pipefail
+        - -c
+        - |
+          if [ "$PLATFORM_RESOURCE_TYPE" == "github-release" ]; then
+            # This task only necessary for the git resource type
+            exit 0
+          fi
+          cd platform/components/aws-node-lifecycle-hook
+          go build
+          apt-get update
+          apt install -y zip
+          zip ../../modules/k8s-cluster/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
+      inputs:
+      - name: platform
+      outputs:
+      - name: platform
   - task: scale-autoscaler-down
     image: task-toolbox
     timeout: 40s
@@ -897,6 +929,24 @@ jobs:
         - -c
         - |
           sed -i'' -e '/prevent_destroy = true/d' platform/modules/k8s-cluster/main.tf platform/modules/gsp-subnet/public.tf
+      inputs:
+      - name: platform
+      outputs:
+      - name: platform
+  - task: hack-aws-node-lifecycle-hook-zip
+    image: task-toolbox
+    timeout: 10s
+    config:
+      platform: linux
+      run:
+        path: /bin/bash
+        args:
+        - -euo
+        - pipefail
+        - -c
+        - |
+          # This is here in case we are running off the git repo instead of a release, we won't have the built ZIP but Terraform expects it to generate the hash, even on destroy
+          touch platform/modules/k8s-cluster/aws-node-lifecycle-hook.zip
       inputs:
       - name: platform
       outputs:

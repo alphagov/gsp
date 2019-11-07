@@ -13,8 +13,8 @@ module "k8s-cluster" {
   eks_version                  = var.eks_version
   worker_eks_version           = var.worker_eks_version
   apiserver_allowed_cidrs = concat(
-      formatlist("%s/32", var.egress_ips),
-      var.gds_external_cidrs,
+    formatlist("%s/32", var.egress_ips),
+    var.gds_external_cidrs,
   )
 }
 
