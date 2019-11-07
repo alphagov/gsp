@@ -169,7 +169,7 @@ apply_cluster_chart: &apply_cluster_chart
         GSP_CLUSTER_CHARTS_SOURCE=platform/gsp-cluster-*.tgz
         GSP_ISTIO_CHARTS_SOURCE=platform/gsp-istio-*.tgz
 
-        RELEASE_TAG=$(cat gsp/tag)
+        RELEASE_TAG=$(cat platform/tag)
       fi
       echo "assuming aws deployer role..."
       AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
