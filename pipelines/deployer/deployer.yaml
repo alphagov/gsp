@@ -15,6 +15,7 @@ unpack_release: &unpack_release
   platform: linux
   params:
     CLUSTER_PUBLIC_KEY:
+    PLATFORM_RESOURCE_TYPE: 
   run:
     path: /bin/bash
     args:
@@ -22,14 +23,18 @@ unpack_release: &unpack_release
     - pipefail
     - -c
     - |
+      if [ "$PLATFORM_RESOURCE_TYPE" == "git" ]; then
+        # This task only necessary for the github-release resource type
+        exit 0
+      fi
       echo "preparing keyring to verify release..."
       echo "${CLUSTER_PUBLIC_KEY}" > key
       gpg --import key
-      gpg --verify gsp/source.tar.gz.asc
+      gpg --verify platform/source.tar.gz.asc
       echo "unpacking src tarball..."
-      tar -xvf gsp/source.tar.gz -C platform --strip-components=1
+      tar -xvf platform/source.tar.gz -C platform --strip-components=1
   inputs:
-  - name: gsp
+  - name: platform
   outputs:
   - name: platform
 
@@ -137,20 +142,30 @@ apply_cluster_chart: &apply_cluster_chart
     CONFIG_VALUES_PATH:
     GOOGLE_OAUTH_CLIENT_ID:
     GOOGLE_OAUTH_CLIENT_SECRET:
+    PLATFORM_RESOURCE_TYPE: 
   run:
     path: /bin/bash
     args:
     - -eu
     - -c
     - |
-      echo "preparing keyring..."
-      echo "${CLUSTER_PUBLIC_KEY}" > key
-      gpg --import key
-      gpg --export > ~/.gnupg/pubring.gpg
-      echo "verifying gsp-cluster chart signature..."
-      helm verify gsp/gsp-cluster-*.tgz && echo "OK!"
-      echo "verifying gsp-cluster chart signature..."
-      helm verify gsp/gsp-istio-*.tgz && echo "OK!"
+      if [ "$PLATFORM_RESOURCE_TYPE" == "git" ]; then
+        GSP_CLUSTER_CHARTS_SOURCE=platform/charts/gsp-cluster/
+        GSP_ISTIO_CHARTS_SOURCE=platform/charts/gsp-istio/
+      else
+        # This task only necessary for the github-release resource type
+        echo "preparing keyring..."
+        echo "${CLUSTER_PUBLIC_KEY}" > key
+        gpg --import key
+        gpg --export > ~/.gnupg/pubring.gpg
+        echo "verifying gsp-cluster chart signature..."
+        helm verify platform/gsp-cluster-*.tgz && echo "OK!"
+        echo "verifying gsp-cluster chart signature..."
+        helm verify platform/gsp-istio-*.tgz && echo "OK!"
+
+        GSP_CLUSTER_CHARTS_SOURCE=platform/gsp-cluster-*.tgz
+        GSP_ISTIO_CHARTS_SOURCE=platform/gsp-istio-*.tgz
+      fi
       echo "assuming aws deployer role..."
       AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
       eval "${AWS_CREDS}"
@@ -178,7 +193,7 @@ apply_cluster_chart: &apply_cluster_chart
         --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
         --set "global.cluster.releaseVersion=${RELEASE_TAG}" \
         --output-dir manifests \
-        gsp/gsp-cluster-*.tgz
+        $GSP_CLUSTER_CHARTS_SOURCE
       echo "rendering gsp-istio chart..."
       helm template \
         --name istio \
@@ -188,7 +203,7 @@ apply_cluster_chart: &apply_cluster_chart
         --values managed-namespaces-values/gateways-values.yaml \
         --set global.runningOnAws=true \
         --set "global.cluster.releaseVersion=${RELEASE_TAG}" \
-        gsp/gsp-istio-*.tgz
+        $GSP_ISTIO_CHARTS_SOURCE
       rm -rf manifests/gsp-istio/charts/istio-cni
       helm template \
         --name istio \
@@ -197,7 +212,7 @@ apply_cluster_chart: &apply_cluster_chart
         --values config/${CONFIG_VALUES_PATH} \
         --set global.runningOnAws=true \
         --set "global.cluster.releaseVersion=${RELEASE_TAG}" \
-        gsp/gsp-istio-*.tgz
+        $GSP_ISTIO_CHARTS_SOURCE
       function apply() {
         echo "applying ${1} from ${CHART_NAME} chart..."
         # TODO remove `--validate=false` from the following line
@@ -219,7 +234,7 @@ apply_cluster_chart: &apply_cluster_chart
   - name: cluster-values
   - name: config
   - name: user-values
-  - name: gsp
+  - name: platform
   - name: managed-namespaces-values
 
 check_conformance: &check_conformance
@@ -475,15 +490,20 @@ resource_types:
     tag: "2.2.0"
 
 resources:
-- name: gsp
-  type: github-release
+- name: platform
+  type: ((platform-resource-type))
   source:
+    # Parameters for if platform-resource-type is set to github-release
     owner: ((platform-organization))
     repository: ((platform-repository))
     access_token: ((github-api-token))
     release: true
     pre_release: ((platform-pre-release))
     tag_filter: ^((github-release-tag-prefix))v(\d+\.\d+\.\d+)$
+
+    # Parameters for if platform-resource-type is set to git
+    uri: https://github.com/alphagov/gsp.git
+    branch: ((platform-version))
 - name: config
   type: github
   source:
@@ -569,7 +589,7 @@ jobs:
   serial_groups: [cluster-modification]
   plan:
   - get: task-toolbox
-  - get: gsp
+  - get: platform
     trigger: ((platform-trigger))
     params:
       include_source_tarball: true
@@ -582,6 +602,7 @@ jobs:
     config: *unpack_release
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
+      PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
   - task: generate-trusted-contributors
     image: task-toolbox
     file: platform/pipelines/tasks/generate-trusted-contributors.yaml
@@ -593,9 +614,9 @@ jobs:
       pipelines:
       - name: ((concourse-pipeline-name))
         team: ((concourse-team))
-        config_file: gsp/deployer.yaml
+        config_file: platform/pipelines/deployer/deployer.yaml
         vars_files:
-        - gsp/deployer.defaults.yaml
+        - platform/pipelines/deployer/deployer.defaults.yaml
         - config/((config-path))
         - trusted-contributors/github.vars.yaml
         - trusted-contributors/keys.vars.yaml
@@ -606,7 +627,7 @@ jobs:
   plan:
   - aggregate:
     - get: task-toolbox
-    - get: gsp
+    - get: platform
       passed: [update]
       trigger: true
       params:
@@ -622,6 +643,7 @@ jobs:
     config: *unpack_release
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
+      PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
   - task: scale-autoscaler-down
     image: task-toolbox
     timeout: 40s
@@ -676,7 +698,7 @@ jobs:
   serial_groups: [cluster-modification]
   plan:
   - aggregate:
-    - get: gsp
+    - get: platform
       passed: [deploy]
       trigger: true
     - get: config
@@ -694,6 +716,7 @@ jobs:
     config: *unpack_release
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
+      PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
   - aggregate:
     - task: generate-cluster-values
       image: task-toolbox
@@ -732,11 +755,12 @@ jobs:
       CONFIG_VALUES_PATH: ((config-values-path))
       GOOGLE_OAUTH_CLIENT_ID: ((google-oauth-client-id))
       GOOGLE_OAUTH_CLIENT_SECRET: ((google-oauth-client-secret))
+      PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
 
 - name: check-canary
   plan:
   - get: task-toolbox
-  - get: gsp
+  - get: platform
     passed: [apply]
     trigger: true
   - get: config
@@ -752,7 +776,7 @@ jobs:
 - name: check-logging
   plan:
   - get: task-toolbox
-  - get: gsp
+  - get: platform
     passed: [apply]
     trigger: true
   - get: config
@@ -769,7 +793,7 @@ jobs:
 - name: check-tools
   plan:
   - get: task-toolbox
-  - get: gsp
+  - get: platform
     passed: [apply]
     trigger: true
   - get: config
@@ -791,7 +815,7 @@ jobs:
   - get: task-toolbox
   - get: config
   - get: users
-  - get: gsp
+  - get: platform
     params:
       include_source_tarball: true
   - task: unpack-gsp-release
@@ -799,6 +823,7 @@ jobs:
     config: *unpack_release
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
+      PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
   - task: drain-cluster
     image: task-toolbox
     timeout: 30m
