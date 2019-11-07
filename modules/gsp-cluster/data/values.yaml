@@ -171,6 +171,8 @@ gsp-monitoring:
           root_url: https://grafana.${cluster_domain}
         users:
           viewers_can_edit: true
+          auto_assign_org: true
+          auto_assign_org_role: Editor
 
 serviceOperator:
   kiamServerRoleARN: ${kiam_server_role_arn}
