@@ -666,9 +666,9 @@ jobs:
         - |
           set -o pipefail
           echo "generate overrides for pipeline default values..."
-          mkdir -p deployer-package
+          mkdir -p deployer-package/pipelines/deployer/
           echo "copying deployer config to release dir..."
-          cp platform/pipelines/deployer/* deployer-package/
+          cp platform/pipelines/deployer/* deployer-package/pipelines/deployer/
           cat << EOF > ./overrides.yaml
           task-toolbox-image: $(cat concourse-task-toolbox/repository)
           task-toolbox-tag: $(cat concourse-task-toolbox/tag)
@@ -677,7 +677,7 @@ jobs:
           EOF
           cat overrides.yaml
           echo "merging with default values..."
-          spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee ./deployer-package/deployer.defaults.yaml
+          spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee ./deployer-package/pipelines/deployer/deployer.defaults.yaml
   - put: candidate-release
     params:
       name: semver/version

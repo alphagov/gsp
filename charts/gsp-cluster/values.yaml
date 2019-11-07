@@ -227,6 +227,11 @@ serviceOperator:
     repository: govsvc/service-operator
     tag: latest
 
+AWSSSMAgent:
+  image:
+    repository: govsvc/amazon-ssm-agent
+    tag: latest
+
 harbor:
   harborAdminPassword: ""
   chartmuseum:
