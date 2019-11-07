@@ -143,6 +143,7 @@ apply_cluster_chart: &apply_cluster_chart
     GOOGLE_OAUTH_CLIENT_ID:
     GOOGLE_OAUTH_CLIENT_SECRET:
     PLATFORM_RESOURCE_TYPE: 
+    PLATFORM_VERSION: 
   run:
     path: /bin/bash
     args:
@@ -152,6 +153,8 @@ apply_cluster_chart: &apply_cluster_chart
       if [ "$PLATFORM_RESOURCE_TYPE" == "git" ]; then
         GSP_CLUSTER_CHARTS_SOURCE=platform/charts/gsp-cluster/
         GSP_ISTIO_CHARTS_SOURCE=platform/charts/gsp-istio/
+
+        RELEASE_TAG=$PLATFORM_VERSION
       else
         # This task only necessary for the github-release resource type
         echo "preparing keyring..."
@@ -165,6 +168,8 @@ apply_cluster_chart: &apply_cluster_chart
 
         GSP_CLUSTER_CHARTS_SOURCE=platform/gsp-cluster-*.tgz
         GSP_ISTIO_CHARTS_SOURCE=platform/gsp-istio-*.tgz
+
+        RELEASE_TAG=$(cat gsp/tag)
       fi
       echo "assuming aws deployer role..."
       AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
@@ -177,6 +182,7 @@ apply_cluster_chart: &apply_cluster_chart
       echo "setting default namespace to ${DEFAULT_NAMESPACE}"
       kubectl config set-context $(kubectl config get-contexts -o name) \
         --namespace "${DEFAULT_NAMESPACE}"
+      echo "RELEASE_TAG=${RELEASE_TAG}"
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       mkdir -p kube-system-manifests
@@ -756,6 +762,7 @@ jobs:
       GOOGLE_OAUTH_CLIENT_ID: ((google-oauth-client-id))
       GOOGLE_OAUTH_CLIENT_SECRET: ((google-oauth-client-secret))
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
+      PLATFORM_VERSION: ((platform-version))
 
 - name: check-canary
   plan:
