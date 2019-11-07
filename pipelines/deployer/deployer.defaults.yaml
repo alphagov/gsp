@@ -12,6 +12,7 @@ platform-trigger: true
 platform-pre-release: false
 platform-version: master
 platform-resource-type: github-release
+platform-tag-filter: ^gsp-v(\d+\.\d+\.\d+)$
 
 users-uri: "git@github.com:alphagov/gds-trusted-developers.git"
 users-organization: "alphagov"
@@ -31,7 +32,6 @@ task-toolbox-tag: latest
 
 github-resource-image: govsvc/concourse-github-resource
 github-resource-tag: latest
-github-release-tag-prefix: "gsp-"
 
 terraform-resource-image: govsvc/terraform-resource
 terraform-resource-tag: latest
