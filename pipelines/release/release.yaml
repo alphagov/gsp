@@ -686,7 +686,7 @@ jobs:
       commitish: platform-version/ref
       globs:
       - cluster-package/*
-      - deployer-package/*
+      - deployer-package/pipelines/deployer/*
       - istio-package/*
     get_params:
       include_source_tarball: true
