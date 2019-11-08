@@ -141,6 +141,8 @@ kiam:
     updateStrategy: RollingUpdate
 
 fluentd-cloudwatch:
+  extraVars:
+    - "{ name: CLUSTER_NAME, value: ${cluster_name} }"
   logGroupName: ${cloudwatch_log_group_name}
   awsRole: ${cloudwatch_log_shipping_role}
   tolerations:
