@@ -13,3 +13,4 @@ hack/*log
 # generated files
 output/
 *.coverprofile
+.idea/

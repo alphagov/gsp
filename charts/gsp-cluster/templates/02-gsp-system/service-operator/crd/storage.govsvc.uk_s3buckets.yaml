@@ -37,6 +37,10 @@ spec:
               description: Secret name to be used for storing relevant instance secrets
                 for further use.
               type: string
+            serviceEntry:
+              description: ServiceEntry name to be used for storing the egress firewall
+                rule to allow tenant access to the bucket
+              type: string
           type: object
         status:
           description: Status is the type shared by most service resources

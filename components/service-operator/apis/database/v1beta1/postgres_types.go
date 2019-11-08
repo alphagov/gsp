@@ -31,10 +31,11 @@ func init() {
 }
 
 const (
-	Engine               = "aurora-postgresql"
-	Family               = "aurora-postgresql10"
-	DefaultClass         = "db.r5.large"
-	DefaultInstanceCount = 2
+	Engine                       = "aurora-postgresql"
+	Family                       = "aurora-postgresql10"
+	DefaultClass                 = "db.r5.large"
+	DefaultInstanceCount         = 2
+	DefaultBackupRetentionPeriod = 7
 
 	PostgresResourceMasterCredentials           = "MasterCredentials"
 	PostgresResourceMasterCredentialsAttachment = "MasterCredentialsAttachment"
@@ -158,7 +159,8 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 		VpcSecurityGroupIds: []string{
 			cloudformation.Ref(VPCSecurityGroupIDParameterName),
 		},
-		DBSubnetGroupName: cloudformation.Ref(DBSubnetGroupNameParameterName),
+		DBSubnetGroupName:     cloudformation.Ref(DBSubnetGroupNameParameterName),
+		BackupRetentionPeriod: DefaultBackupRetentionPeriod,
 	}
 
 	template.Resources[PostgresResourceMasterCredentialsAttachment] = &cloudformation.AWSSecretsManagerSecretTargetAttachment{
@@ -173,13 +175,14 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 	}
 	for i := 0; i < instanceCount; i++ {
 		template.Resources[fmt.Sprintf("%s%d", PostgresResourceInstance, i)] = &cloudformation.AWSRDSDBInstance{
-			DBClusterIdentifier:  cloudformation.Ref(PostgresResourceCluster),
-			DBInstanceClass:      coalesce(p.Spec.AWS.InstanceType, DefaultClass),
-			Engine:               Engine,
-			PubliclyAccessible:   false,
-			DBParameterGroupName: cloudformation.Ref(PostgresResourceParameterGroup),
-			Tags:                 tags,
-			DBSubnetGroupName:    cloudformation.Ref(DBSubnetGroupNameParameterName),
+			DBClusterIdentifier:    cloudformation.Ref(PostgresResourceCluster),
+			DBInstanceClass:        coalesce(p.Spec.AWS.InstanceType, DefaultClass),
+			Engine:                 Engine,
+			PubliclyAccessible:     false,
+			DBParameterGroupName:   cloudformation.Ref(PostgresResourceParameterGroup),
+			Tags:                   tags,
+			DBSubnetGroupName:      cloudformation.Ref(DBSubnetGroupNameParameterName),
+			DeleteAutomatedBackups: false,
 		}
 	}
 

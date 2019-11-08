@@ -154,6 +154,7 @@ var _ = Describe("Postgres", func() {
 				Expect(cluster.MasterUsername).ToNot(BeEmpty())
 				Expect(cluster.MasterUserPassword).ToNot(BeEmpty())
 				Expect(cluster.Tags).To(Equal(tags))
+				Expect(cluster.BackupRetentionPeriod).To(Equal(7))
 			})
 
 		})
@@ -184,6 +185,7 @@ var _ = Describe("Postgres", func() {
 					Expect(instance.DBInstanceClass).To(Equal("db.r5.large"))
 					Expect(instance.Engine).To(Equal("aurora-postgresql"))
 					Expect(instance.Tags).To(Equal(tags))
+					Expect(instance.DeleteAutomatedBackups).To(Equal(false))
 				}
 			})
 
