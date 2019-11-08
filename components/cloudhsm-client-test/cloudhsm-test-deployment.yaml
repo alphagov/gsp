@@ -1,0 +1,27 @@
+# Note: To actually use this to test CloudHSM connectivity, you will need to
+# customise this to have a "talksToHsm" label, as well as be inside a namespace
+# with its own "talksToHsm" label.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudhsm-test
+  namespace: default
+  labels:
+    app: cloudhsm-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudhsm-test
+  template:
+    metadata:
+      labels:
+        app: cloudhsm-test
+    spec:
+      containers:
+      - name: cloudhsm-test
+        image: govsvc/cloudhsm-client-test:0.0.1561639958
+        command:
+        - /bin/sleep
+        args:
+        - "999999"
