@@ -370,7 +370,14 @@ check_cloudwatch: &check_cloudwatch
         echo "======================================="
         echo "      Attempt: $i"
 
-        LASTSEENLOG=$(aws logs filter-log-events --log-group-name $LOGGROUP --start-time $LOGS_SINCE --max-items 10 | jq ".events[].timestamp" | grep -v "null" | sort -urn | head -n1)
+        LOG_EVENTS=$(aws logs filter-log-events --log-group-name $LOGGROUP --start-time $LOGS_SINCE --max-items 10")
+        LOG_EVENTS_COUNT=$(echo $LOG_EVENTS | jq ".events | length")
+        if (( ${LOG_EVENTS_COUNT} == 0 )); then
+          echo "No results, retrying in ${DELAY} seconds"
+          sleep ${DELAY}
+          continue
+        fi
+        LASTSEENLOG=$(echo $LOG_EVENTS | jq ".events[].timestamp | grep -v "null" | sort -urn | head -n1)
 
         echo "   Logs Since: $LOGS_SINCE"
         echo "    Logs Seen: $LASTSEENLOG"
