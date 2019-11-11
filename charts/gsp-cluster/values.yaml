@@ -823,6 +823,7 @@ concourse:
   persistence:
     enabled: false
   postgresql:
+    nameOverride: concourse-postgresql
     persistence:
       size: 64Gi
 
