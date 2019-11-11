@@ -815,6 +815,7 @@ jobs:
     passed: [apply]
     trigger: true
   - task: check-monitoring-tools
+    attempts: 5
     image: task-toolbox
     timeout: 10m
     config: *check_health_monitoring
