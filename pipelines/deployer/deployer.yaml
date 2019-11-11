@@ -309,7 +309,8 @@ check_canary: &check_canary
   run:
     path: /bin/bash
     args:
-      - -eu
+      - -euo
+      - pipefail
       - -c
       - |
         now="$(date '+%s')"
