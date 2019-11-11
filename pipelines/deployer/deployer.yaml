@@ -371,7 +371,7 @@ check_cloudwatch: &check_cloudwatch
         echo "======================================="
         echo "      Attempt: $i"
 
-        LOG_EVENTS=$(aws logs filter-log-events --log-group-name $LOGGROUP --start-time $LOGS_SINCE --max-items 10")
+        LOG_EVENTS=$(aws logs filter-log-events --log-group-name $LOGGROUP --start-time $LOGS_SINCE --max-items 10)
         LOG_EVENTS_COUNT=$(echo $LOG_EVENTS | jq ".events | length")
         if (( ${LOG_EVENTS_COUNT} == 0 )); then
           echo "No results, retrying in ${DELAY} seconds"
