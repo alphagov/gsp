@@ -378,7 +378,7 @@ check_cloudwatch: &check_cloudwatch
           sleep ${DELAY}
           continue
         fi
-        LASTSEENLOG=$(echo $LOG_EVENTS | jq ".events[].timestamp | grep -v "null" | sort -urn | head -n1)
+        LASTSEENLOG=$(echo $LOG_EVENTS | jq ".events[].timestamp" | grep -v "null" | sort -urn | head -n1)
 
         echo "   Logs Since: $LOGS_SINCE"
         echo "    Logs Seen: $LASTSEENLOG"
