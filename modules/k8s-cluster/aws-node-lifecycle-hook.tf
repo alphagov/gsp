@@ -91,7 +91,6 @@ resource "aws_lambda_permission" "aws-node-lifecycle-hook" {
   source_arn    = aws_cloudwatch_event_rule.aws-node-lifecycle-hook.arn
 }
 
-# TODO: filter by ASG else this will cross-talk in accounts with multiple clustres
 resource "aws_cloudwatch_event_rule" "aws-node-lifecycle-hook" {
   name        = "${var.cluster_name}-asg-lifecycle-hook"
   description = "Execute ASG lifecycle logic"
@@ -100,7 +99,17 @@ resource "aws_cloudwatch_event_rule" "aws-node-lifecycle-hook" {
 {
   "detail-type": [
     "EC2 Instance-terminate Lifecycle Action"
-  ]
+  ],
+  "source": [
+    "aws.autoscaling"
+  ],
+  "detail": {
+    "AutoScalingGroupName": ${jsonencode(
+      [
+        for stack in aws_cloudformation_stack.worker-nodes-per-az: lookup(stack.outputs, "AutoScalingGroupName", "")
+      ]
+    )}
+  }
 }
 PATTERN
 }

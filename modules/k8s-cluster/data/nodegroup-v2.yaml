@@ -250,3 +250,7 @@ Resources:
                        --resource NodeGroup  \
                        --region ${AWS::Region}
 
+Outputs:
+  AutoScalingGroupName:
+    Description: The ASG Name
+    Value: !Ref NodeGroup
