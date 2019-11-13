@@ -8,6 +8,7 @@ os.makedirs("platform-version", exist_ok=True)
 print("Picking platform version...")
 partial_repos = [
     "platform",
+    "aws-node-lifecycle-hook",
     "service-operator-source",
     "concourse-task-toolbox-source",
     "concourse-operator-source",

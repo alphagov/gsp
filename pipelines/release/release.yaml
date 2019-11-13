@@ -2,6 +2,7 @@ groups:
 - name: release
   jobs:
   - build-concourse-task-toolbox
+  - build-aws-node-lifecycle-hook
   - build-service-operator
   - build-concourse-operator
   - build-concourse-github-resource
@@ -58,6 +59,20 @@ resources:
     repository: gsp
     ignore_paths:
       - components
+    github_api_token: ((github-api-token))
+    approvers: ((config-approvers))
+    required_approval_count: 1
+    branch: ((branch))
+    commit_verification_keys: ((trusted-developer-keys))
+
+- name: aws-node-lifecycle-hook-source
+  type: github
+  source:
+    uri: https://github.com/alphagov/gsp.git
+    organization: alphagov
+    repository: gsp
+    paths:
+      - components/aws-node-lifecycle-hook
     github_api_token: ((github-api-token))
     approvers: ((config-approvers))
     required_approval_count: 1
@@ -227,6 +242,12 @@ resources:
     password: ((dockerhub-password))
     repository: govsvc/task-toolbox
 
+- name: golang-builder
+  type: docker-image
+  source:
+    repository: golang
+    tag: 1.12.5
+
 - name: opa
   type: docker-image
   source:
@@ -302,6 +323,34 @@ jobs:
       tag_as_latest: true
     get_params:
       skip_download: true
+
+- name: build-aws-node-lifecycle-hook
+  serial: true
+  serial_groups: [build-aws-node-lifecycle-hook]
+  plan:
+  - in_parallel:
+    - get: aws-node-lifecycle-hook-source
+      trigger: true
+    - get: golang-builder
+  - task: build-aws-node-lifecycle-hook
+    image: golang-builder
+    config:
+      platform: linux
+      inputs:
+      - name: aws-node-lifecycle-hook-source
+      outputs:
+      - name: aws-node-lifecycle-hook
+      run:
+        path: /bin/bash
+        args:
+          - -euo
+          - pipefail
+          - -c
+          - |
+            mkdir -p aws-node-lifecycle-hook
+            cd components/aws-node-lifecycle-hook
+            go test -v ./...
+            go build
 
 - name: build-concourse-github-resource
   serial: true
@@ -408,6 +457,7 @@ jobs:
   serial: true
   serial_groups:
     - release
+    - build-aws-node-lifecycle-hook
     - build-concourse-task-toolbox
     - build-concourse-github-resource
     - build-concourse-harbor-resource
@@ -419,6 +469,9 @@ jobs:
   - in_parallel:
     - get: platform
       passed: [selfupdate]
+      trigger: true
+    - get: aws-node-lifecycle-hook-source
+      passed: [build-aws-node-lifecycle-hook]
       trigger: true
     - get: concourse-task-toolbox
       passed: [build-concourse-task-toolbox]
@@ -473,6 +526,8 @@ jobs:
       passed: [bump-version]
     - get: service-operator-source
       passed: [build-service-operator]
+    - get: aws-node-lifecycle-hook-source
+      passed: [build-aws-node-lifecycle-hook]
     - get: concourse-task-toolbox-source
       passed: [build-concourse-task-toolbox]
     - get: concourse-operator-source
@@ -558,6 +613,7 @@ jobs:
       platform: linux
       inputs:
       - name: platform
+      - name: aws-node-lifecycle-hook-source
       - name: service-operator-source
       - name: concourse-task-toolbox-source
       - name: concourse-operator-source
@@ -678,6 +734,23 @@ jobs:
           cat overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee ./deployer-package/pipelines/deployer/deployer.defaults.yaml
+  - task: package-aws-node-lifecycle-hook
+    image: concourse-task-toolbox
+    config:
+      platform: linux
+      inputs:
+      - name: platform
+      - name: aws-node-lifecycle-hook-source
+      outputs:
+      - name: aws-node-lifecycle-hook-package
+      run:
+        path: /bin/bash
+        args:
+        - -euo pipefail
+        - -c
+        - |
+          mkdir -p aws-node-lifecycle-hook-package/
+          zip aws-node-lifecycle-hook-package/modules/k8s-cluster/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook-package/components/aws-node-lifecycle-hook/aws-node-lifecycle-hook
   - put: candidate-release
     params:
       name: semver/version
@@ -688,6 +761,7 @@ jobs:
       - cluster-package/*
       - deployer-package/pipelines/deployer/*
       - istio-package/*
+      - aws-node-lifecycle-hook-package/*
     get_params:
       include_source_tarball: true
   - task: sign-release

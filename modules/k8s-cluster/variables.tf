@@ -50,4 +50,3 @@ variable "ci_worker_count" {
   type    = string
   default = "3"
 }
-
