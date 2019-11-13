@@ -387,7 +387,7 @@ check_cloudwatch: &check_cloudwatch
 
         echo "   Logs Since: $LOGS_SINCE"
         echo "    Logs Seen: $LASTSEENLOG"
-        if (( ${LASTSEENLOG} > ${LOGS_SINCE} )); then
+        if (( ${LASTSEENLOG} >= ${LOGS_SINCE} )); then
           echo "PASS: Logs have been reached cloudwatch"
           echo "Logs received at: $LASTSEENLOG in $LOGGROUP"
           exit 0
