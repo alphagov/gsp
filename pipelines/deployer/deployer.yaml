@@ -336,6 +336,7 @@ check_cloudwatch: &check_cloudwatch
     TEST_FARBACK: 180
     TEST_RETRIES: 3
     TEST_DELAY: 30
+    LOGGROUP:
   run:
     path: /bin/bash
     args:
@@ -352,7 +353,11 @@ check_cloudwatch: &check_cloudwatch
       RETRIES="${TEST_RETRIES:-3}"
       FARBACK="${TEST_FARBACK:-300}"
       LOGS_SINCE=$(($CURRENT_TIME - $FARBACK))
-      LOGGROUP="$CLUSTER_DOMAIN"
+
+      if [[ -z "${LOGGROUP}" ]]; then
+        echo "LOGGROUP env var not set"
+        exit 1
+      fi
 
       # convert from seconds based epoch to AWS supported milliseconds epoch
       CURRENT_TIME="${CURRENT_TIME}000"
@@ -797,13 +802,39 @@ jobs:
   - get: config
     passed: [apply]
     trigger: true
-  - task: check-cloudwatch
-    image: task-toolbox
-    timeout: 10m
-    config: *check_cloudwatch
-    params:
-      ACCOUNT_ROLE_ARN: ((account-role-arn))
-      CLUSTER_DOMAIN: ((cluster-domain))
+  - aggregate:
+    - task: check-container-logs
+      image: task-toolbox
+      timeout: 10m
+      config: *check_cloudwatch
+      params:
+        ACCOUNT_ROLE_ARN: ((account-role-arn))
+        CLUSTER_DOMAIN: ((cluster-domain))
+        LOGGROUP: /aws/containerinsights/((cluster-name))/application
+    - task: check-host-logs
+      image: task-toolbox
+      timeout: 10m
+      config: *check_cloudwatch
+      params:
+        ACCOUNT_ROLE_ARN: ((account-role-arn))
+        CLUSTER_DOMAIN: ((cluster-domain))
+        LOGGROUP: /aws/containerinsights/((cluster-name))/host
+    - task: check-dataplane-logs
+      image: task-toolbox
+      timeout: 10m
+      config: *check_cloudwatch
+      params:
+        ACCOUNT_ROLE_ARN: ((account-role-arn))
+        CLUSTER_DOMAIN: ((cluster-domain))
+        LOGGROUP: /aws/containerinsights/((cluster-name))/dataplane
+    - task: check-controlplane-logs
+      image: task-toolbox
+      timeout: 10m
+      config: *check_cloudwatch
+      params:
+        ACCOUNT_ROLE_ARN: ((account-role-arn))
+        CLUSTER_DOMAIN: ((cluster-domain))
+        LOGGROUP: /aws/eks/((cluster-name))/cluster
 
 - name: check-tools
   plan:
