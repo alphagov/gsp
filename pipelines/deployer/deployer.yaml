@@ -683,14 +683,16 @@ jobs:
         - -c
         - |
           if [ "$PLATFORM_RESOURCE_TYPE" == "github-release" ]; then
-            # This task only necessary for the git resource type
-            exit 0
+            echo "copying aws-node-lifecycle-hook..."
+            cp platform/aws-node-lifecycle-hook-*.zip platform/modules/k8s-cluster/aws-node-lifecycle-hook.zip
+          else
+            echo "building aws-node-lifecycle-hook"
+            cd platform/components/aws-node-lifecycle-hook
+            go build
+            apt-get update
+            apt install -y zip
+            zip ../../modules/k8s-cluster/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
           fi
-          cd platform/components/aws-node-lifecycle-hook
-          go build
-          apt-get update
-          apt install -y zip
-          zip ../../modules/k8s-cluster/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
       inputs:
       - name: platform
       outputs:
