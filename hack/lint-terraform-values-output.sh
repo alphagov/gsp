@@ -7,24 +7,7 @@ touch modules/k8s-cluster/aws-node-lifecycle-hook.zip
 # rough check for missing vars in terraform
 (cd pipelines/deployer \
 	&& terraform init --backend=false \
-	&& terraform validate \
-		--var account_name=x \
-		--var splunk_enabled=0 \
-		--var splunk_hec_url=x \
-		--var k8s_splunk_hec_token=x \
-		--var k8s_splunk_index=x \
-		--var hsm_splunk_hec_token=x \
-		--var hsm_splunk_index=x \
-		--var github_client_secret=x \
-		--var github_client_id=x \
-		--var cluster_name=x \
-		--var cluster_domain=x \
-		--var aws_account_role_arn=x \
-		--var eks_version=x \
-		--var worker_eks_version=x \
-		--var minimum_workers_per_az_count=1 \
-		--var maximum_workers_per_az_count=3 \
-)
+	&& terraform validate)
 
 
 # rough check for missing vars in values.yaml for gsp-cluster chart
