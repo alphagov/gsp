@@ -361,6 +361,7 @@ jobs:
             echo "building components/aws-node-lifecycle-hook..."
             go build -o aws-node-lifecycle-hook
             echo "zipping up lambda binary..."
+            apt install -y zip
             zip aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
   - put: aws-node-lifecycle-hook
     params:
