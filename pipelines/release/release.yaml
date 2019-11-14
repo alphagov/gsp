@@ -354,6 +354,9 @@ jobs:
           - pipefail
           - -c
           - |
+            echo "setting up build environment..."
+            apt-get update
+            apt install -y zip
             mkdir -p aws-node-lifecycle-hook-zip
             cd aws-node-lifecycle-hook-source/components/aws-node-lifecycle-hook
             echo "running aws-node-lifecycle-hook tests..."
@@ -361,7 +364,6 @@ jobs:
             echo "building components/aws-node-lifecycle-hook..."
             go build -o aws-node-lifecycle-hook
             echo "zipping up lambda binary..."
-            apt install -y zip
             zip aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
   - put: aws-node-lifecycle-hook
     params:
