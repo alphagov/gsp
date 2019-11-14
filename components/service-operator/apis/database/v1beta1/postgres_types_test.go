@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 )
@@ -118,6 +119,52 @@ var _ = Describe("Postgres", func() {
 
 	It("should generate a unique stack name prefixed with cluster name", func() {
 		Expect(postgres.GetStackName()).To(HavePrefix("xxx-postgres-default-example"))
+	})
+
+	It("should have a sensible stack policy", func() {
+		expectedStackPolicyDocument := aws.StackPolicyDocument{
+			Statement: []aws.StatementEntry{
+				{
+					Effect:    "Deny",
+					Action:    []string{"Update:Replace", "Update:Delete"},
+					Principal: "*",
+					Resource:  "LogicalResourceId/RDSCluster",
+				},
+				{
+					Effect:    "Allow",
+					Action:    []string{"Update:Modify"},
+					Principal: "*",
+					Resource:  "LogicalResourceId/RDSCluster",
+				},
+				{
+					Effect:    "Deny",
+					Action:    []string{"Update:Replace", "Update:Delete"},
+					Principal: "*",
+					Resource:  "LogicalResourceId/RDSDBInstance0",
+				},
+				{
+					Effect:    "Allow",
+					Action:    []string{"Update:Modify"},
+					Principal: "*",
+					Resource:  "LogicalResourceId/RDSDBInstance0",
+				},
+				{
+					Effect:    "Deny",
+					Action:    []string{"Update:Replace", "Update:Delete"},
+					Principal: "*",
+					Resource:  "LogicalResourceId/RDSDBInstance1",
+				},
+				{
+					Effect:    "Allow",
+					Action:    []string{"Update:Modify"},
+					Principal: "*",
+					Resource:  "LogicalResourceId/RDSDBInstance1",
+				},
+			},
+		}
+
+		actualStackPolicyDocument := postgres.GetStackPolicy()
+		Expect(actualStackPolicyDocument).To(Equal(expectedStackPolicyDocument))
 	})
 
 	Context("cloudformation", func() {
