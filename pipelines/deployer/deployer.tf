@@ -196,3 +196,10 @@ output "cluster_domain" {
   value = var.cluster_domain
 }
 
+output "provisioned_eips_marked_for_ingress" {
+  value = module.gsp-network.ingress_ips
+}
+
+output "egress_ips" {
+  value = module.gsp-network.egress_ips
+}
