@@ -358,13 +358,18 @@ jobs:
             apt-get update
             apt install -y zip
             mkdir -p aws-node-lifecycle-hook-zip
-            cd aws-node-lifecycle-hook-source/components/aws-node-lifecycle-hook
             echo "running aws-node-lifecycle-hook tests..."
-            go test -v ./...
+            (
+              cd aws-node-lifecycle-hook-source/components/aws-node-lifecycle-hook && \
+              go test -v ./... \
+            )
             echo "building components/aws-node-lifecycle-hook..."
-            go build -o aws-node-lifecycle-hook
+            (
+              cd aws-node-lifecycle-hook-source/components/aws-node-lifecycle-hook && \
+              go build -o aws-node-lifecycle-hook \
+            )
             echo "zipping up lambda binary..."
-            zip aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
+            zip aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook-source/components/aws-node-lifecycle-hook/aws-node-lifecycle-hook
   - put: aws-node-lifecycle-hook
     params:
       file: aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip
