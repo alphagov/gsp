@@ -684,7 +684,7 @@ jobs:
         - |
           if [ "$PLATFORM_RESOURCE_TYPE" == "github-release" ]; then
             echo "copying aws-node-lifecycle-hook..."
-            cp platform/aws-node-lifecycle-hook-*.zip platform/modules/k8s-cluster/aws-node-lifecycle-hook.zip
+            cp platform/aws-node-lifecycle-hook.zip ./platform/modules/k8s-cluster/
           else
             echo "building aws-node-lifecycle-hook"
             cd platform/components/aws-node-lifecycle-hook
