@@ -83,6 +83,7 @@ resources:
   type: s3
   source:
     bucket: ((readonly_private_bucket_name))
+    region_name: eu-west-2
     versioned_file: aws-node-lifecycle-hook.zip
 
 - name: concourse-task-toolbox-source
