@@ -79,6 +79,12 @@ resources:
     branch: ((branch))
     commit_verification_keys: ((trusted-developer-keys))
 
+- name: aws-node-lifecycle-hook
+  type: s3
+  source:
+    bucket: ((readonly_private_bucket_name))
+    versioned_file: aws-node-lifecycle-hook.zip
+
 - name: concourse-task-toolbox-source
   type: github
   source:
@@ -339,7 +345,7 @@ jobs:
       inputs:
       - name: aws-node-lifecycle-hook-source
       outputs:
-      - name: aws-node-lifecycle-hook
+      - name: aws-node-lifecycle-hook-zip
       run:
         path: /bin/bash
         args:
@@ -347,10 +353,17 @@ jobs:
           - pipefail
           - -c
           - |
-            mkdir -p aws-node-lifecycle-hook
-            cd components/aws-node-lifecycle-hook
+            mkdir -p aws-node-lifecycle-hook-zip
+            cd aws-node-lifecycle-hook-source/components/aws-node-lifecycle-hook
+            echo "running aws-node-lifecycle-hook tests..."
             go test -v ./...
-            go build
+            echo "building components/aws-node-lifecycle-hook..."
+            go build -o aws-node-lifecycle-hook
+            echo "zipping up lambda binary..."
+            zip aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
+  - put: aws-node-lifecycle-hook
+    params:
+      file: aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip
 
 - name: build-concourse-github-resource
   serial: true
@@ -470,7 +483,7 @@ jobs:
     - get: platform
       passed: [selfupdate]
       trigger: true
-    - get: aws-node-lifecycle-hook-source
+    - get: aws-node-lifecycle-hook
       passed: [build-aws-node-lifecycle-hook]
       trigger: true
     - get: concourse-task-toolbox
@@ -526,7 +539,7 @@ jobs:
       passed: [bump-version]
     - get: service-operator-source
       passed: [build-service-operator]
-    - get: aws-node-lifecycle-hook-source
+    - get: aws-node-lifecycle-hook
       passed: [build-aws-node-lifecycle-hook]
     - get: concourse-task-toolbox-source
       passed: [build-concourse-task-toolbox]
@@ -734,23 +747,6 @@ jobs:
           cat overrides.yaml
           echo "merging with default values..."
           spruce merge ./platform/pipelines/deployer/deployer.defaults.yaml ./overrides.yaml | tee ./deployer-package/pipelines/deployer/deployer.defaults.yaml
-  - task: package-aws-node-lifecycle-hook
-    image: concourse-task-toolbox
-    config:
-      platform: linux
-      inputs:
-      - name: platform
-      - name: aws-node-lifecycle-hook-source
-      outputs:
-      - name: aws-node-lifecycle-hook-package
-      run:
-        path: /bin/bash
-        args:
-        - -euo pipefail
-        - -c
-        - |
-          mkdir -p aws-node-lifecycle-hook-package/
-          zip aws-node-lifecycle-hook-package/modules/k8s-cluster/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook-package/components/aws-node-lifecycle-hook/aws-node-lifecycle-hook
   - put: candidate-release
     params:
       name: semver/version
@@ -761,7 +757,7 @@ jobs:
       - cluster-package/*
       - deployer-package/pipelines/deployer/*
       - istio-package/*
-      - aws-node-lifecycle-hook-package/*
+      - aws-node-lifecycle-hook/aws-node-lifecycle-hook.zip
     get_params:
       include_source_tarball: true
   - task: sign-release
