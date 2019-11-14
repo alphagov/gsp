@@ -554,6 +554,8 @@ jobs:
       passed: [bump-version]
     - get: service-operator-source
       passed: [build-service-operator]
+    - get: aws-node-lifecycle-hook-source
+      passed: [build-aws-node-lifecycle-hook]
     - get: aws-node-lifecycle-hook
       passed: [build-aws-node-lifecycle-hook]
     - get: concourse-task-toolbox-source
