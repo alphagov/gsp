@@ -301,7 +301,6 @@ jobs:
         config_file: platform/pipelines/release/release.yaml
         vars_files:
         - trusted-contributors/github.vars.yaml
-        - trusted-contributors/keys.vars.yaml
         vars:
           branch: ((branch))
           pipeline-name: ((pipeline-name))
