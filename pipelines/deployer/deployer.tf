@@ -50,7 +50,7 @@ variable "hsm_splunk_index" {
 
 variable "worker_instance_type" {
   type    = string
-  default = "m5d.large"
+  default = "m5.large"
 }
 
 variable "minimum_workers_per_az_count" {
@@ -63,7 +63,7 @@ variable "maximum_workers_per_az_count" {
 
 variable "ci_worker_instance_type" {
   type    = string
-  default = "m5d.large"
+  default = "m5.large"
 }
 
 variable "ci_worker_count" {
