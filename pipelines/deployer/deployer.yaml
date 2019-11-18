@@ -642,7 +642,6 @@ jobs:
         - platform/pipelines/deployer/deployer.defaults.yaml
         - config/((config-path))
         - trusted-contributors/github.vars.yaml
-        - trusted-contributors/keys.vars.yaml
 
 - name: deploy
   serial: true
