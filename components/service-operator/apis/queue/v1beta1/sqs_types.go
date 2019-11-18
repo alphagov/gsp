@@ -32,7 +32,9 @@ func init() {
 
 const (
 	SQSResourceName      = "SQSQueue"
+	SQSDLQResourceName   = "SQSDLQueue"
 	SQSOutputURL         = "QueueURL"
+	SQSDLQOutputURL      = "DLQueueURL"
 	SQSResourceIAMPolicy = "SQSSIAMPolicy"
 	IAMRoleParameterName = "IAMRoleName"
 )
@@ -44,14 +46,14 @@ var _ object.SecretNamer = &SQS{}
 
 // AWS allows specifying configuration for the SQS queue
 type AWS struct {
-	ContentBasedDeduplication     bool   `json:"contentBasedDeduplication,omitempty"`
-	DelaySeconds                  int    `json:"delaySeconds,omitempty"`
-	FifoQueue                     bool   `json:"fifoQueue,omitempty"`
-	MaximumMessageSize            int    `json:"maximumMessageSize,omitempty"`
-	MessageRetentionPeriod        int    `json:"messageRetentionPeriod,omitempty"`
-	ReceiveMessageWaitTimeSeconds int    `json:"receiveMessageWaitTimeSeconds,omitempty"`
-	RedrivePolicy                 string `json:"redrivePolicy,omitempty"`
-	VisibilityTimeout             int    `json:"visibilityTimeout,omitempty"`
+	ContentBasedDeduplication     bool `json:"contentBasedDeduplication,omitempty"`
+	DelaySeconds                  int  `json:"delaySeconds,omitempty"`
+	FifoQueue                     bool `json:"fifoQueue,omitempty"`
+	MaximumMessageSize            int  `json:"maximumMessageSize,omitempty"`
+	MessageRetentionPeriod        int  `json:"messageRetentionPeriod,omitempty"`
+	ReceiveMessageWaitTimeSeconds int  `json:"receiveMessageWaitTimeSeconds,omitempty"`
+	RedriveMaxReceiveCount        int  `json:"redriveMaxReceiveCount,omitempty"`
+	VisibilityTimeout             int  `json:"visibilityTimeout,omitempty"`
 }
 
 // SQSSpec defines the desired state of SQS
@@ -127,16 +129,37 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 	}
 
 	queueName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
+	var redrivePolicy interface{}
+	if s.Spec.AWS.RedriveMaxReceiveCount > 0 {
+		redrivePolicy = map[string]interface{}{
+			"deadLetterTargetArn": cloudformation.GetAtt(SQSDLQResourceName, "Arn"),
+			"maxReceiveCount":     s.Spec.AWS.RedriveMaxReceiveCount,
+		}
+	} else {
+		redrivePolicy = ""
+	}
+
 	template.Resources[SQSResourceName] = &resources.AWSSQSQueue{
 		QueueName:                     queueName,
-		Tags:                          tags,
+		Tags:                          append(tags, resources.Tag{Key: "QueueType", Value: "Main"}),
 		ContentBasedDeduplication:     s.Spec.AWS.ContentBasedDeduplication,
 		DelaySeconds:                  s.Spec.AWS.DelaySeconds,
 		FifoQueue:                     s.Spec.AWS.FifoQueue,
 		MaximumMessageSize:            s.Spec.AWS.MaximumMessageSize,
 		MessageRetentionPeriod:        s.Spec.AWS.MessageRetentionPeriod,
 		ReceiveMessageWaitTimeSeconds: s.Spec.AWS.ReceiveMessageWaitTimeSeconds,
-		RedrivePolicy:                 s.Spec.AWS.RedrivePolicy,
+		RedrivePolicy:                 redrivePolicy,
+		VisibilityTimeout:             s.Spec.AWS.VisibilityTimeout,
+	}
+
+	dlQueueName := fmt.Sprintf("%s-dl", queueName)
+	template.Resources[SQSDLQResourceName] = &resources.AWSSQSQueue{
+		QueueName:                     dlQueueName,
+		Tags:                          append(tags, resources.Tag{Key: "QueueType", Value: "Dead-Letter"}),
+		FifoQueue:                     s.Spec.AWS.FifoQueue,
+		MessageRetentionPeriod:        s.Spec.AWS.MessageRetentionPeriod,
+
+		ContentBasedDeduplication:     s.Spec.AWS.ContentBasedDeduplication,
 		VisibilityTimeout:             s.Spec.AWS.VisibilityTimeout,
 	}
 
@@ -160,6 +183,7 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 				},
 				Resource: []string{
 					cloudformation.GetAtt(SQSResourceName, "Arn"),
+					cloudformation.GetAtt(SQSDLQResourceName, "Arn"),
 				},
 			},
 		},
@@ -176,6 +200,11 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 	template.Outputs[SQSOutputURL] = map[string]interface{}{
 		"Description": "SQSQueue URL to be returned to the user.",
 		"Value":       cloudformation.Ref(SQSResourceName),
+	}
+
+	template.Outputs[SQSDLQOutputURL] = map[string]interface{}{
+		"Description": "SQSQueue DLQ URL to be returned to the user.",
+		"Value":       cloudformation.Ref(SQSDLQResourceName),
 	}
 
 	template.Outputs[IAMRoleParameterName] = map[string]interface{}{
