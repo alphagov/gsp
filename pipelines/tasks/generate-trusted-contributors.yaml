@@ -21,17 +21,11 @@ run:
     echo "preparing keyring to verify user release..."
     echo "${CLUSTER_PUBLIC_KEY}" > key
     gpg --import key
-    gpg --verify "users/gds-trusted-developers-keys.yaml.asc"
     gpg --verify "users/${ACCOUNT_NAME}-trusted-developers.yaml.asc"
     echo "generating list of pipeline approvers..."
     trusted_approvers="trusted-contributors/github.vars.yaml"
-    trusted_keys="trusted-contributors/keys.vars.yaml"
     echo -n "config-approvers: " > "${trusted_approvers}"
     yq '.[]' "users/${ACCOUNT_NAME}-trusted-developers.yaml" \
       | jq -c -s "[.[] | .github] | unique | sort" \
       >> "${trusted_approvers}"
     cat "${trusted_approvers}"
-    echo "generating list of all trusted signing keys"
-    echo "trusted-developer-keys: $(yq -c . users/gds-trusted-developers-keys.yaml)" \
-      > "${trusted_keys}"
-    cat "${trusted_keys}"

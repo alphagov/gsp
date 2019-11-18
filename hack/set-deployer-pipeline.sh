@@ -19,7 +19,6 @@ $FLY_BIN -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--load-vars-from "${CLUSTER_CONFIG}" \
 	--yaml-var 'config-approvers=[alphagov]' \
 	--yaml-var 'config-approval-count=0' \
-	--yaml-var 'trusted-developer-keys=[]' \
 	--check-creds "$@"
 
 $FLY_BIN -t cd-gsp expose-pipeline -p "${PIPELINE_NAME}"

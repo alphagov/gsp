@@ -3,13 +3,11 @@
 {{- range .Values.namespaces }}
 {{- $ns := . }}
 {{- $trustedGithubAccounts := list }}
-{{- $trustedGPGKeys := list }}
 {{- range $.Values.users }}
   {{- $user := . }}
   {{- range .roles }}
     {{- if eq .account $accountName }}
       {{- $trustedGithubAccounts = append $trustedGithubAccounts $user.github }}
-      {{- $trustedGPGKeys = append $trustedGPGKeys $user.pub }}
     {{- end }}
   {{- end }}
 {{- end }}
@@ -147,7 +145,6 @@ metadata:
   namespace: {{ .name }}
 data:
   github-accounts: {{ (toJson (uniq $trustedGithubAccounts)) | b64enc }}
-  gpg-keys: {{ (toJson (uniq $trustedGPGKeys)) | b64enc }}
 ---
 apiVersion: v1
 kind: Secret
@@ -328,7 +325,6 @@ spec:
         access_token: ((github.api-token))
         approvers: ((trusted-developers.github-accounts))
         required_approval_count: {{ required (printf "Missing requiredApprovalCount for namespace %s" .name) .requiredApprovalCount }}
-        commit_verification_keys: ((trusted-developers.gpg-keys))
         paths:
         - {{ .path | quote }}
     jobs:

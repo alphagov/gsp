@@ -21,7 +21,6 @@ github-client-id: "NOTID"
 google-oauth-client-id: "NOTASECRET"
 google-oauth-client-secret: "NOTID"
 eks-version: "1.14"
-trusted-developer-keys: []
 config-approval-count: 0
 config-approvers: ["chrisfarms"]
 disable-destroy: false

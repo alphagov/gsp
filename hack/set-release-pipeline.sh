@@ -22,18 +22,11 @@ yq . ${USER_CONFIGS}/*.yaml \
 	| jq -c -s "[.[].github] | unique | sort" \
 	>> "${approvers}"
 
-trusted="/tmp/gsp-release-keys.yaml"
-echo -n "trusted-developer-keys: " > "${trusted}"
-yq . ${USER_CONFIGS}/*.yaml \
-	| jq -c -s '[ .[].pub ] | sort' \
-	>> "${trusted}"
-
 $FLY_BIN -t cd-gsp sync
 
 $FLY_BIN -t cd-gsp set-pipeline -p "${PIPELINE_NAME}" \
 	--config "pipelines/release/release.yaml" \
 	--load-vars-from "${approvers}" \
-	--load-vars-from "${trusted}" \
 	--var "pipeline-name=${PIPELINE_NAME}" \
 	--var "branch=${CURRENT_BRANCH}" \
 	--var "github-release-tag-prefix=gsp-" \
