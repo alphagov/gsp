@@ -27,24 +27,12 @@ Parameters:
       - m5.4xlarge
       - m5.12xlarge
       - m5.24xlarge
-      - m5d.large
-      - m5d.xlarge
-      - m5d.2xlarge
-      - m5d.4xlarge
-      - m5d.12xlarge
-      - m5d.24xlarge
       - m5a.large
       - m5a.xlarge
       - m5a.2xlarge
       - m5a.4xlarge
       - m5a.12xlarge
       - m5a.24xlarge
-      - m5ad.large
-      - m5ad.xlarge
-      - m5ad.2xlarge
-      - m5ad.4xlarge
-      - m5ad.12xlarge
-      - m5ad.24xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -192,8 +180,8 @@ Resources:
       #     LaunchTemplateId: !Ref NodeLaunchTemplate
       #     Version: !GetAtt NodeLaunchTemplate.LatestVersionNumber
       #     Overrides:
-      #       - InstanceType: m5ad.xlarge
-      #       - InstanceType: m5d.xlarge
+      #       - InstanceType: m5a.xlarge
+      #       - InstanceType: m5.xlarge
       Tags:
         - Key: Name
           Value: !Sub ${ClusterName}-${NodeGroupName}
