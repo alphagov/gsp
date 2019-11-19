@@ -22,3 +22,7 @@ require (
 	k8s.io/kubectl v0.0.0-20190918164019-21692a0861df
 	k8s.io/utils v0.0.0-20191030222137-2b95a09bc58d // indirect
 )
+
+// fix broken upstream
+// https://github.com/dominikh/go-tools/issues/658
+replace honnef.co/go/tools => github.com/dominikh/go-tools v0.0.0-20190102054323-c2f93a96b099
