@@ -21,3 +21,7 @@ require (
 // two different hashes floating around
 // https://github.com/gomodules/jsonpatch/issues/21
 replace gomodules.xyz/jsonpatch/v2 => gomodules.xyz/jsonpatch/v2 v2.0.1
+
+// fix broken upstream
+// https://github.com/dominikh/go-tools/issues/658
+replace honnef.co/go/tools => github.com/dominikh/go-tools v0.0.0-20190102054323-c2f93a96b099
