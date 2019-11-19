@@ -33,8 +33,6 @@ Parameters:
       - m5a.4xlarge
       - m5a.12xlarge
       - m5a.24xlarge
-      - m5d.large
-      - m5d.xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
