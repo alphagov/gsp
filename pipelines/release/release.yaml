@@ -362,10 +362,10 @@ jobs:
             echo "building components/aws-node-lifecycle-hook..."
             (
               cd aws-node-lifecycle-hook-source/components/aws-node-lifecycle-hook && \
-              go build -o aws-node-lifecycle-hook \
+              go build -o ../../../aws-node-lifecycle-hook \
             )
             echo "zipping up lambda binary..."
-            zip aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook-source/aws-node-lifecycle-hook
+            zip aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
   - put: aws-node-lifecycle-hook
     params:
       file: aws-node-lifecycle-hook-zip/aws-node-lifecycle-hook.zip
