@@ -183,3 +183,13 @@ variable "enable_nlb" {
   description = "create an NLB for the worker nodes"
 }
 
+variable "cls_destination_enabled" {
+  default = "0"
+  type    = string
+}
+
+variable "cls_destination_arn" {
+  default = ""
+  type    = string
+}
+

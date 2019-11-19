@@ -85,6 +85,15 @@ variable "enable_nlb" {
   default = "0"
 }
 
+variable "cls_destination_enabled" {
+  type    = string
+  default = "0"
+}
+
+variable "cls_destination_arn" {
+  type = string
+}
+
 data "aws_caller_identity" "current" {
 }
 
@@ -161,6 +170,9 @@ module "gsp-cluster" {
   github_client_secret = var.github_client_secret
 
   enable_nlb = var.enable_nlb
+
+  cls_destination_enabled = var.cls_destination_enabled
+  cls_destination_arn     = var.cls_destination_arn
 }
 
 output "kubeconfig" {
