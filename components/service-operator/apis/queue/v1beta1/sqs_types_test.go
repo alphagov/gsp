@@ -36,6 +36,7 @@ var _ = Describe("SQS", func() {
 			{Key: "Name", Value: "example"},
 			{Key: "Namespace", Value: "default"},
 			{Key: "Environment", Value: "default"},
+			{Key: "QueueType", Value: "Main"},
 		}
 	})
 
@@ -166,13 +167,17 @@ var _ = Describe("SQS", func() {
 				})
 			})
 
-			Context("when spec.aws.redrivePolicy is set", func() {
-				redriveJSON := `{ "deadLetterTargetArn" : "", "maxReceiveCount" : "" }`
+			Context("when spec.aws.redriveMaxReceiveCount is set", func() {
 				BeforeEach(func() {
-					sqs.Spec.AWS.RedrivePolicy = redriveJSON
+					sqs.Spec.AWS.RedriveMaxReceiveCount = 10
 				})
 				It("should set queue RedrivePolicy from spec", func() {
-					Expect(queue.RedrivePolicy).To(Equal(redriveJSON))
+					policy, ok := queue.RedrivePolicy.(map[string]interface{})
+					Expect(ok).To(BeTrue())
+					Expect(policy).To(And(
+						HaveKeyWithValue("maxReceiveCount", 10),
+						HaveKey("deadLetterTargetArn"),
+					))
 				})
 			})
 
