@@ -135,6 +135,7 @@ var _ = Describe("SQSCloudFormationController", func() {
 				return secret.Data
 			}).Should(And(
 				HaveKey("QueueURL"),
+				HaveKey("DLQueueURL"),
 				HaveKey("IAMRoleName"),
 			))
 		})
