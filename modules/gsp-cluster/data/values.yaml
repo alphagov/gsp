@@ -100,7 +100,7 @@ harbor:
         regionendpoint: s3.${harbor_bucket_region}.amazonaws.com
     persistentVolumeClaim:
       database:
-        size: 2Gi
+        size: 50Gi
   core:
     secret: ${harbor_secret_key}
   jobservice:
