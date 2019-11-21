@@ -21,6 +21,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/alphagov/gsp/components/service-operator/internal/aws"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
@@ -277,6 +278,52 @@ func (p *Postgres) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[s
 		},
 	}
 	return specs, nil
+}
+
+// GetStackPolicy implements cloudformation.Stack to return a serialised form of the stack policy, or nil if one is
+// not needed
+func (p *Postgres) GetStackPolicy() aws.StackPolicyDocument {
+	statements := []aws.StatementEntry{
+		{
+			Effect:    "Deny",
+			Action:    []string{"Update:Replace", "Update:Delete"},
+			Principal: "*",
+			Resource:  "LogicalResourceId/RDSCluster",
+		},
+		{
+			Effect:    "Allow",
+			Action:    []string{"Update:Modify"},
+			Principal: "*",
+			Resource:  "LogicalResourceId/RDSCluster",
+		},
+	}
+
+	instanceCount := p.Spec.AWS.InstanceCount
+	if instanceCount < 1 {
+		instanceCount = DefaultInstanceCount
+	}
+
+	for i := 0; i < instanceCount; i++ {
+		statements = append(statements, aws.StatementEntry{
+			Effect:    "Deny",
+			Action:    []string{"Update:Replace", "Update:Delete"},
+			Principal: "*",
+			Resource:  fmt.Sprintf("LogicalResourceId/%s%d", PostgresResourceInstance , i),
+		})
+
+		statements = append(statements, aws.StatementEntry{
+			Effect:    "Allow",
+			Action:    []string{"Update:Modify"},
+			Principal: "*",
+			Resource:  fmt.Sprintf("LogicalResourceId/%s%d", PostgresResourceInstance, i),
+		})
+	}
+
+	stackPolicy := aws.StackPolicyDocument{
+		Statement: statements,
+	}
+
+	return stackPolicy
 }
 
 // +kubebuilder:object:root=true

@@ -172,11 +172,18 @@ func (r *Client) create(ctx context.Context, stack Stack, params ...*Parameter) 
 	if err != nil {
 		return err
 	}
+
+	stackPolicy, err := getStackPolicy(stack)
+	if err != nil {
+		return err
+	}
+
 	_, err = r.Client.CreateStackWithContext(ctx, &CreateStackInput{
-		Capabilities: capabilities,
-		TemplateBody: aws.String(string(yaml)),
-		StackName:    aws.String(stack.GetStackName()),
-		Parameters:   params,
+		Capabilities:    capabilities,
+		TemplateBody:    aws.String(string(yaml)),
+		StackName:       aws.String(stack.GetStackName()),
+		StackPolicyBody: stackPolicy,
+		Parameters:      params,
 	})
 	if err != nil {
 		return err
@@ -196,11 +203,18 @@ func (r *Client) update(ctx context.Context, stack Stack, params ...*Parameter) 
 	if err != nil {
 		return err
 	}
+
+	stackPolicy, err := getStackPolicy(stack)
+	if err != nil {
+		return err
+	}
+
 	_, err = r.Client.UpdateStackWithContext(ctx, &UpdateStackInput{
-		Capabilities: capabilities,
-		TemplateBody: aws.String(string(yaml)),
-		StackName:    aws.String(stack.GetStackName()),
-		Parameters:   params,
+		Capabilities:    capabilities,
+		TemplateBody:    aws.String(string(yaml)),
+		StackName:       aws.String(stack.GetStackName()),
+		StackPolicyBody: stackPolicy,
+		Parameters:      params,
 	})
 	if err != nil && !IsNoUpdateError(err) {
 		return err
@@ -484,4 +498,18 @@ func IsNotFoundError(err error) bool {
 		}
 	}
 	return false
+}
+
+func getStackPolicy(stack Stack) (*string, error) {
+	var stackPolicy *string = nil
+	if stackPolicyProvider, ok := stack.(StackPolicyProvider); ok {
+		policy, err := json.Marshal(stackPolicyProvider.GetStackPolicy())
+		if err != nil {
+			return nil, err
+		}
+
+		stackPolicy = aws.String(string(policy))
+	}
+
+	return stackPolicy, nil
 }

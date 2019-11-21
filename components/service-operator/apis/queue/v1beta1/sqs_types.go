@@ -154,13 +154,13 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 
 	dlQueueName := fmt.Sprintf("%s-dl", queueName)
 	template.Resources[SQSDLQResourceName] = &resources.AWSSQSQueue{
-		QueueName:                     dlQueueName,
-		Tags:                          append(tags, resources.Tag{Key: "QueueType", Value: "Dead-Letter"}),
-		FifoQueue:                     s.Spec.AWS.FifoQueue,
-		MessageRetentionPeriod:        s.Spec.AWS.MessageRetentionPeriod,
+		QueueName:              dlQueueName,
+		Tags:                   append(tags, resources.Tag{Key: "QueueType", Value: "Dead-Letter"}),
+		FifoQueue:              s.Spec.AWS.FifoQueue,
+		MessageRetentionPeriod: s.Spec.AWS.MessageRetentionPeriod,
 
-		ContentBasedDeduplication:     s.Spec.AWS.ContentBasedDeduplication,
-		VisibilityTimeout:             s.Spec.AWS.VisibilityTimeout,
+		ContentBasedDeduplication: s.Spec.AWS.ContentBasedDeduplication,
+		VisibilityTimeout:         s.Spec.AWS.VisibilityTimeout,
 	}
 
 	// policy defines the set of actions that get attached to the role, for the rationale see:
