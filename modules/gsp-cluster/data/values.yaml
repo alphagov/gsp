@@ -1,3 +1,12 @@
+# https://github.com/helm/helm/issues/5135
+# affects anything with a conditional in the dependent chart's
+# requirements.yaml.
+# FIXME: If any of the charts upon which gsp-cluster depends depend
+# on the postgresql chart, this will break them.
+postgresql:
+  enabled: false
+
+# normal service can now resume
 global:
   runningOnAws: true
   cluster:
@@ -76,6 +85,16 @@ concourse:
         namespacePrefix: ${cluster_name}-
         createTeamNamespaces: false
         teams: ${concourse_teams}
+      postgres:
+        host: "${concourse_db_host}"
+        port: ${concourse_db_port}
+  postgresql:
+    enabled: false
+  secrets:
+    postgresUser: "${concourse_db_username}"
+    postgresPassword: "${concourse_db_password}"
+    githubClientId: "not an id"
+    githubClientSecret: "no a secret"
 
 pipelineOperator:
   concourseUsername: pipeline-operator

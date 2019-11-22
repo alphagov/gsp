@@ -23,6 +23,10 @@ data "template_file" "values" {
     concourse_main_team_github_teams = jsonencode(var.concourse_main_team_github_teams)
     concourse_worker_count           = var.ci_worker_count
     concourse_iam_role_name          = aws_iam_role.concourse.name
+    concourse_db_host                = aws_rds_cluster.concourse.endpoint
+    concourse_db_port                = aws_rds_cluster.concourse.port
+    concourse_db_username            = aws_rds_cluster.concourse.master_username
+    concourse_db_password            = aws_rds_cluster.concourse.master_password
     github_client_id                 = jsonencode(var.github_client_id)
     github_client_secret             = jsonencode(var.github_client_secret)
     github_ca_cert                   = jsonencode(var.github_ca_cert)

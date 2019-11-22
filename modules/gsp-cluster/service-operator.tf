@@ -212,15 +212,22 @@ resource "aws_security_group" "rds-from-worker" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port = 3306
-    to_port   = 3306
-    protocol  = "tcp"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [module.k8s-cluster.worker_security_group_id]
+  }
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
     security_groups = [module.k8s-cluster.worker_security_group_id]
   }
 }
 
 resource "aws_db_subnet_group" "private" {
-  name = "${var.cluster_name}-private"
+  name       = "${var.cluster_name}-private"
   subnet_ids = var.private_subnet_ids
 }
 
