@@ -39,7 +39,7 @@ type FakeTemplate struct {
 //
 // stacks returned from DescribeStack methods will contain Outputs extracted from
 // the template used in CreateStack.
-func NewHappyClient() *FakeClient {
+func NewHappyClient(outputs map[string]string) *FakeClient {
 
 	var transitionDelay = time.Second * 2 // how long before switching from CREATING->CREATED etc
 	var client = &FakeClient{}
@@ -67,7 +67,7 @@ func NewHappyClient() *FakeClient {
 			stack.Outputs = append(stack.Outputs, &cloudformation.Output{
 				Description: aws.String(v.Description),
 				OutputKey:   aws.String(k),
-				OutputValue: aws.String("0"),
+				OutputValue: aws.String(outputs[k]),
 			})
 		}
 	}

@@ -115,10 +115,16 @@ func SetupControllerEnv() (client.Client, func()) {
 
 	// controllers under test
 	cs := []controllers.Controller{
-		controllers.S3CloudFormationController(newAWSClient()),
-		controllers.SQSCloudFormationController(newAWSClient()),
-		controllers.PrincipalCloudFormationController(newAWSClient()),
-		controllers.PostgresCloudFormationController(newAWSClient()),
+		controllers.S3CloudFormationController(newAWSClient(nil)),
+		controllers.SQSCloudFormationController(newAWSClient(nil)),
+		controllers.PrincipalCloudFormationController(newAWSClient(nil)),
+		controllers.PostgresCloudFormationController(newAWSClient(map[string]string{
+			"Endpoint": "something.local.govsandbox.uk",
+			"ReadEndpoint": "something-ro.local.govsandbox.uk",
+			"Port": "3306",
+			"Username": "someusername",
+			"Password": "snakeoil",
+		})),
 	}
 
 	// wrap controllers in error checkers and register with manager
@@ -158,7 +164,7 @@ func reconcileErrorMonitor(controller *controllers.ControllerWrapper, stop chan 
 	}
 }
 
-func newAWSClient() sdk.Client {
+func newAWSClient(fakeOutputs map[string]string) sdk.Client {
 	if env.AWSIntegrationTestEnabled() {
 		return sdk.NewClient()
 	} else {
@@ -167,6 +173,6 @@ func newAWSClient() sdk.Client {
 		os.Setenv("AWS_RDS_SUBNET_GROUP_NAME", "dummy-value")
 		os.Setenv("AWS_PRINCIPAL_SERVER_ROLE_ARN", "dummy-value")
 		os.Setenv("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN", "dummy-value")
-		return sdkfakes.NewHappyClient()
+		return sdkfakes.NewHappyClient(fakeOutputs)
 	}
 }
