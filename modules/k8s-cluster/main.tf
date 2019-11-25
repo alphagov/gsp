@@ -121,6 +121,18 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
   ]
 }
 
+resource "aws_autoscaling_lifecycle_hook" "worker-nodes-per-az-lifecycle-hook" {
+  count = length(var.private_subnet_ids)
+  name = "${var.cluster_name}-worker-${element(
+    data.aws_subnet.private_subnets.*.availability_zone,
+    count.index,
+  )}"
+  autoscaling_group_name = aws_cloudformation_stack.worker-nodes-per-az[count.index].outputs["AutoScalingGroupName"]
+  default_result = "ABANDON"
+  heartbeat_timeout = 180
+  lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
+}
+
 resource "aws_cloudformation_stack" "kiam-server-nodes" {
   name          = "${var.cluster_name}-kiam-server-nodes"
   template_body = file("${path.module}/data/nodegroup.yaml")
