@@ -60,8 +60,8 @@ var _ = Describe("Postgres", func() {
 
 	It("should produce the correct service entry", func() {
 		outputs := cloudformation.Outputs{
-			v1beta1.PostgresEndpoint:     "test-endpoint",
-			v1beta1.PostgresReadEndpoint: "test-read-endpoint",
+			v1beta1.PostgresEndpoint:     "test-endpoint.local.govsandbox.uk",
+			v1beta1.PostgresReadEndpoint: "test-read-endpoint.local.govsandbox.uk",
 			v1beta1.PostgresPort:         "3306",
 		}
 		portnum, err := strconv.Atoi(outputs[v1beta1.PostgresPort])
@@ -72,8 +72,14 @@ var _ = Describe("Postgres", func() {
 		Expect(specs).To(HaveLen(2))
 		Expect(specs).To(ConsistOf(
 			And(
-				HaveKeyWithValue("resolution", "DNS"),
+				HaveKeyWithValue("resolution", "STATIC"),
 				HaveKeyWithValue("location", "MESH_EXTERNAL"),
+				HaveKeyWithValue("addresses", ContainElement("127.0.0.1")),
+				HaveKeyWithValue("endpoints", ContainElement(
+					map[string]interface{}{
+						"address": "127.0.0.1",
+					},
+				)),
 				HaveKeyWithValue("hosts", ContainElement(outputs[v1beta1.PostgresEndpoint])),
 				HaveKeyWithValue("ports", ContainElement(
 					map[string]interface{}{
@@ -88,8 +94,14 @@ var _ = Describe("Postgres", func() {
 				)),
 			),
 			And(
-				HaveKeyWithValue("resolution", "DNS"),
+				HaveKeyWithValue("resolution", "STATIC"),
 				HaveKeyWithValue("location", "MESH_EXTERNAL"),
+				HaveKeyWithValue("addresses", ContainElement("127.0.0.1")),
+				HaveKeyWithValue("endpoints", ContainElement(
+					map[string]interface{}{
+						"address": "127.0.0.1",
+					},
+				)),
 				HaveKeyWithValue("hosts", ContainElement(outputs[v1beta1.PostgresReadEndpoint])),
 				HaveKeyWithValue("ports", ContainElement(
 					map[string]interface{}{

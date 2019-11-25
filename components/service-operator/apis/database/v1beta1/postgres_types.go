@@ -17,6 +17,7 @@ package v1beta1
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -246,8 +247,41 @@ func (p *Postgres) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[s
 	if err != nil {
 		return nil, err
 	}
+
+	rwAddresses, err := net.LookupIP(outputs[PostgresEndpoint])
+	if err != nil {
+		return nil, err
+	}
+	if len(rwAddresses) < 1 {
+		return nil, fmt.Errorf("list of read-write endpoint IPs was empty - failed to resolve?")
+	}
+	rwAddress := rwAddresses[0].String()
+	if rwAddress == "<nil>" {
+		return nil, fmt.Errorf("unexpected nil returned for read-write endpoint IP")
+	}
+
+	roAddresses, err := net.LookupIP(outputs[PostgresReadEndpoint])
+	if err != nil {
+		return nil, err
+	}
+	if len(roAddresses) < 1 {
+		return nil, fmt.Errorf("list of read-only endpoint IPs was empty - failed to resolve?")
+	}
+	roAddress := roAddresses[0].String()
+	if roAddress == "<nil>" {
+		return nil, fmt.Errorf("unexpected nil returned for read-only endpoint IP")
+	}
+
 	specs := []map[string]interface{}{
 		{
+			"addresses": []string{
+				rwAddress,
+			},
+			"endpoints": []map[string]interface{}{
+				{
+					"address": rwAddress,
+				},
+			},
 			"hosts": []string{
 				outputs[PostgresEndpoint],
 			},
@@ -259,9 +293,17 @@ func (p *Postgres) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[s
 				},
 			},
 			"location":   "MESH_EXTERNAL",
-			"resolution": "DNS",
+			"resolution": "STATIC",
 			"exportTo":   []string{"."},
 		}, {
+			"addresses": []string{
+				roAddress,
+			},
+			"endpoints": []map[string]interface{}{
+				{
+					"address": roAddress,
+				},
+			},
 			"hosts": []string{
 				outputs[PostgresReadEndpoint],
 			},
@@ -273,7 +315,7 @@ func (p *Postgres) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[s
 				},
 			},
 			"location":   "MESH_EXTERNAL",
-			"resolution": "DNS",
+			"resolution": "STATIC",
 			"exportTo":   []string{"."},
 		},
 	}
