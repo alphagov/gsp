@@ -142,6 +142,8 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			}).Should(And(
 				HaveKey("hosts"),
 				HaveKey("ports"),
+				HaveKey("addresses"),
+				HaveKey("endpoints"),
 				HaveKey("location"),
 				HaveKey("resolution"),
 				HaveKey("exportTo"),
@@ -155,6 +157,8 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			}).Should(And(
 				HaveKey("hosts"),
 				HaveKey("ports"),
+				HaveKey("addresses"),
+				HaveKey("endpoints"),
 				HaveKey("location"),
 				HaveKey("resolution"),
 				HaveKey("exportTo"),
