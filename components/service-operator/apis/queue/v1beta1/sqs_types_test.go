@@ -67,8 +67,11 @@ var _ = Describe("SQS", func() {
 
 		It("should have outputs for connection details", func() {
 			t := sqs.GetStackTemplate()
-			Expect(t.Outputs).To(HaveKey("QueueURL"))
-			Expect(t.Outputs).To(HaveKey("IAMRoleName"))
+			Expect(t.Outputs).To(And(
+				HaveKey("QueueURL"),
+				HaveKey("DLQueueURL"),
+				HaveKey("IAMRoleName"),
+			))
 		})
 
 		It("should map role name to role parameter", func() {

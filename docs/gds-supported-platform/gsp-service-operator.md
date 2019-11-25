@@ -87,7 +87,7 @@ This will create a Postgres database on AWS including the name alexs-test-db, wi
 
 ## How to connect to a created queue
 
-The URL of the Queue will be stored inside the `secret` you specified as `QueueURL`. If you make a pod like:
+The URL of the Queue will be stored inside the `secret` you specified as `QueueURL` (in addition, if you specified the `redriveMaxReceiveCount` parameter in the spec a redrive policy will have been configured with it pointing at the queue URL stored in key `DLQueueURL`). If you make a pod like:
 ```
 apiVersion: v1
 kind: Pod
