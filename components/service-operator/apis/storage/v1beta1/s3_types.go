@@ -33,6 +33,7 @@ const (
 	S3BucketResourceName      = "S3Bucket"
 	S3BucketName              = "S3BucketName"
 	S3BucketURL               = "S3BucketURL"
+	S3BucketRegion            = "S3BucketRegion"
 	S3BucketResourceIAMPolicy = "S3BucketIAMPolicy"
 	IAMRoleParameterName      = "IAMRoleName"
 )
@@ -200,6 +201,11 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 		"Value":       fmt.Sprintf("https://%s.s3.eu-west-2.amazonaws.com", bucketName),
 	}
 
+	template.Outputs[S3BucketRegion] = map[string]interface{}{
+		"Description": "Region that the bucket lives in",
+		"Value":       "eu-west-2",
+	}
+
 	template.Outputs[IAMRoleParameterName] = map[string]interface{}{
 		"Description": "Name of the IAM role with access to bucket",
 		"Value":       cloudformation.Ref(IAMRoleParameterName),
@@ -217,22 +223,39 @@ func (s *S3Bucket) GetServiceEntryName() string {
 
 // ServiceEntry to whitelist egress access to S3 hostname.
 func (s *S3Bucket) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[string]interface{}, error) {
-	spec := map[string]interface{}{
-		"hosts": []string{
-			fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[S3BucketName]),
-		},
-		"ports": []interface{}{
-			map[string]interface{}{
-				"name":     "https",
-				"number":   443,
-				"protocol": "TLS",
+	specs := []map[string]interface{}{
+		{
+			"hosts": []string{
+				fmt.Sprintf("%s.s3.%s.amazonaws.com", outputs[S3BucketName], outputs[S3BucketRegion]),
 			},
+			"ports": []interface{}{
+				map[string]interface{}{
+					"name":     "https",
+					"number":   443,
+					"protocol": "TLS",
+				},
+			},
+			"location":   "MESH_EXTERNAL",
+			"resolution": "DNS",
+			"exportTo":   []string{"."},
 		},
-		"location":   "MESH_EXTERNAL",
-		"resolution": "DNS",
-		"exportTo":   []string{"."},
+		{
+			"hosts": []string{
+				fmt.Sprintf("%s.s3.amazonaws.com", outputs[S3BucketName]),
+			},
+			"ports": []interface{}{
+				map[string]interface{}{
+					"name":     "https",
+					"number":   443,
+					"protocol": "TLS",
+				},
+			},
+			"location":   "MESH_EXTERNAL",
+			"resolution": "DNS",
+			"exportTo":   []string{"."},
+		},
 	}
-	return []map[string]interface{}{spec}, nil
+	return specs, nil
 }
 
 // GetStackRoleParameters returns additional params based on a target principal resource
