@@ -334,6 +334,9 @@ Resources:
                      --region ${AWS::Region}
 
 Outputs:
+  AutoScalingGroupName:
+    Description: The ASG Name
+    Value: !Ref NodeGroup
 
   NodeInstanceProfile:
     Description: The node instance profile ARN
