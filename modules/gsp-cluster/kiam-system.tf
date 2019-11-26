@@ -4,7 +4,7 @@ data "aws_iam_policy_document" "kiam_server_role" {
     actions = ["sts:AssumeRole"]
 
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = [module.k8s-cluster.kiam-server-node-instance-role-arn]
     }
   }

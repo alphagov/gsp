@@ -25,8 +25,8 @@ resource "aws_lb_listener" "ingress-nlb" {
   count = var.enable_nlb == "1" ? 1 : 0
 
   load_balancer_arn = "${aws_lb.ingress-nlb[0].arn}"
-  protocol = "TCP"
-  port     = "443"
+  protocol          = "TCP"
+  port              = "443"
 
   default_action {
     type             = "forward"

@@ -105,16 +105,16 @@ resource "aws_cloudwatch_event_rule" "aws-node-lifecycle-hook" {
   ],
   "detail": {
     "AutoScalingGroupName": ${jsonencode(
-      concat(
-        [
-          for stack in aws_cloudformation_stack.worker-nodes-per-az: lookup(stack.outputs, "AutoScalingGroupName", "")
-        ],
-        [
-          lookup(aws_cloudformation_stack.kiam-server-nodes.outputs, "AutoScalingGroupName", ""),
-          lookup(aws_cloudformation_stack.ci-nodes.outputs, "AutoScalingGroupName", "")
-        ]
-      )
-    )}
+  concat(
+    [
+      for stack in aws_cloudformation_stack.worker-nodes-per-az : lookup(stack.outputs, "AutoScalingGroupName", "")
+    ],
+    [
+      lookup(aws_cloudformation_stack.kiam-server-nodes.outputs, "AutoScalingGroupName", ""),
+      lookup(aws_cloudformation_stack.ci-nodes.outputs, "AutoScalingGroupName", "")
+    ]
+  )
+)}
   }
 }
 PATTERN

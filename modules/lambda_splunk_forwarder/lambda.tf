@@ -4,7 +4,7 @@ resource "aws_lambda_function" "lambda_log_forwarder" {
   source_code_hash = filebase64sha256("${path.module}/cyber-cloudwatch-fluentd-to-hec.zip")
   function_name    = "${var.cluster_name}_${var.name}_log_forwarder"
 
-  role             = "${aws_iam_role.lambda_log_forwarder[0].arn}"
+  role        = "${aws_iam_role.lambda_log_forwarder[0].arn}"
   handler     = "lambda_function.lambda_handler"
   runtime     = "python3.6"
   timeout     = "120"
@@ -33,8 +33,8 @@ resource "aws_lambda_permission" "cloudwatch_splunk_logs" {
   action       = "lambda:InvokeFunction"
 
   function_name = "${aws_lambda_function.lambda_log_forwarder[0].arn}"
-  principal  = "logs.eu-west-2.amazonaws.com"
-  source_arn = var.cloudwatch_log_group_arn
+  principal     = "logs.eu-west-2.amazonaws.com"
+  source_arn    = var.cloudwatch_log_group_arn
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_splunk_logs" {
@@ -43,7 +43,7 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_splunk_logs" {
   name       = "${var.cluster_name}_${var.name}_cloudwatch_splunk_logs_subscription_filter"
 
   destination_arn = "${aws_lambda_function.lambda_log_forwarder[0].arn}"
-  filter_pattern = ""
-  log_group_name = var.cloudwatch_log_group_name
+  filter_pattern  = ""
+  log_group_name  = var.cloudwatch_log_group_name
 }
 
