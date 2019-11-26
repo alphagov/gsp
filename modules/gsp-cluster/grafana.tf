@@ -48,6 +48,7 @@ resource "aws_iam_role_policy" "grafana" {
 }
 
 resource "random_password" "grafana_default_admin_password" {
-  length = 40
+  length  = 40
+  special = false
 }
 

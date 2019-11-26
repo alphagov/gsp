@@ -125,3 +125,39 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
   }
 }
 
+resource "random_password" "harbor_db_master_password" {
+  length  = 32
+  special = false
+}
+
+resource "aws_rds_cluster" "harbor" {
+  cluster_identifier = "${var.cluster_name}-harbor"
+  master_password    = random_password.harbor_db_master_password.result
+  master_username    = "harbor"
+  availability_zones = var.availability_zones
+  engine             = "aurora-postgresql"
+  engine_version     = "10.7"
+  enabled_cloudwatch_logs_exports = [
+    "postgresql",
+  ]
+  db_subnet_group_name      = aws_db_subnet_group.private.name
+  vpc_security_group_ids    = [aws_security_group.rds-from-worker.id]
+  final_snapshot_identifier = "${var.cluster_name}-harbor-final"
+  tags = {
+    Name = var.cluster_name
+  }
+}
+
+resource "aws_rds_cluster_instance" "harbor" {
+  count                = 2
+  identifier           = "${var.cluster_name}-harbor-${count.index}"
+  cluster_identifier   = aws_rds_cluster.harbor.id
+  engine               = "aurora-postgresql"
+  engine_version       = "10.7"
+  instance_class       = "db.t3.medium"
+  db_subnet_group_name = aws_db_subnet_group.private.name
+
+  tags = {
+    Name = var.cluster_name
+  }
+}

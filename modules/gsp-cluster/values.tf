@@ -32,6 +32,10 @@ data "template_file" "values" {
     harbor_bucket_id                 = aws_s3_bucket.ci-system-harbor-registry-storage.id
     harbor_bucket_region             = aws_s3_bucket.ci-system-harbor-registry-storage.region
     harbor_iam_role_name             = jsonencode(aws_iam_role.harbor.name)
+    harbor_db_host                   = aws_rds_cluster.harbor.endpoint
+    harbor_db_port                   = aws_rds_cluster.harbor.port
+    harbor_db_username               = aws_rds_cluster.harbor.master_username
+    harbor_db_password               = aws_rds_cluster.harbor.master_password
     notary_root_key                  = jsonencode(tls_private_key.notary_root_key.private_key_pem)
     notary_ca_pem                    = jsonencode(tls_self_signed_cert.notary_root_ca.cert_pem)
     notary_cert_pem                  = jsonencode(tls_locally_signed_cert.notary_cert.cert_pem)

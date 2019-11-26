@@ -47,3 +47,10 @@ output "cidr_block" {
   value       = aws_vpc.network.cidr_block
 }
 
+output "availability_zones" {
+  value = [
+    module.subnet-0.availability_zone,
+    module.subnet-1.availability_zone,
+    module.subnet-2.availability_zone,
+  ]
+}
