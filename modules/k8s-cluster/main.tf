@@ -127,7 +127,7 @@ resource "aws_autoscaling_lifecycle_hook" "worker-nodes-per-az-lifecycle-hook" {
     data.aws_subnet.private_subnets.*.availability_zone,
     count.index,
   )}"
-  autoscaling_group_name = aws_cloudformation_stack.worker-nodes-per-az[count.index].outputs["AutoScalingGroupName"]
+  autoscaling_group_name = lookup(aws_cloudformation_stack.worker-nodes-per-az[count.index].outputs, "AutoScalingGroupName", "")
   default_result = "ABANDON"
   heartbeat_timeout = 180
   lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
@@ -158,7 +158,7 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
 
 resource "aws_autoscaling_lifecycle_hook" "kiam-nodes-lifecycle-hook" {
   name = "${var.cluster_name}-kiam"
-  autoscaling_group_name = aws_cloudformation_stack.kiam-server-nodes.outputs["AutoScalingGroupName"]
+  autoscaling_group_name = lookup(aws_cloudformation_stack.kiam-server-nodes.outputs, "AutoScalingGroupName", "")
   default_result = "ABANDON"
   heartbeat_timeout = 180
   lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
@@ -189,7 +189,7 @@ resource "aws_cloudformation_stack" "ci-nodes" {
 
 resource "aws_autoscaling_lifecycle_hook" "ci-nodes-lifecycle-hook" {
   name = "${var.cluster_name}-ci"
-  autoscaling_group_name = aws_cloudformation_stack.ci-nodes.outputs["AutoScalingGroupName"]
+  autoscaling_group_name = lookup(aws_cloudformation_stack.ci-nodes.outputs, "AutoScalingGroupName", "")
   default_result = "ABANDON"
   heartbeat_timeout = 180
   lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
