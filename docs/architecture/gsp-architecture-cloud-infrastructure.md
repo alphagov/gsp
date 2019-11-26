@@ -30,5 +30,3 @@ __[edit draw.io diagram](https://www.draw.io/?state=%7B%22ids%22:%5B%221hUinA_Be
 11. All accounts benefit from [AWS Shield](https://aws.amazon.com/shield/) protection against distributed denial of service attacks
 
 12. The cluster aggregates selected log events to [AWS CloudWatch](https://aws.amazon.com/cloudwatch/) for ongoing processing by the Cyber Security team
-
-13. CloudWatch logs are shipped externally to Splunk using [AWS Lambda](https://aws.amazon.com/lambda/)

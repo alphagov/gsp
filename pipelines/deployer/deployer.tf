@@ -23,31 +23,6 @@ variable "github_client_secret" {
   type = string
 }
 
-variable "splunk_enabled" {
-  type    = string
-  default = "0"
-}
-
-variable "splunk_hec_url" {
-  type = string
-}
-
-variable "k8s_splunk_hec_token" {
-  type = string
-}
-
-variable "k8s_splunk_index" {
-  type = string
-}
-
-variable "hsm_splunk_hec_token" {
-  type = string
-}
-
-variable "hsm_splunk_index" {
-  type = string
-}
-
 variable "worker_instance_type" {
   type    = string
   default = "m5.large"
@@ -118,10 +93,6 @@ module "hsm" {
   subnet_cidr_map          = module.gsp-network.private_subnet_cidr_mapping
   source_security_group_id = module.gsp-cluster.worker_security_group_id
   cluster_name             = var.cluster_name
-  splunk                   = var.splunk_enabled
-  splunk_hec_url           = var.splunk_hec_url
-  splunk_hec_token         = var.hsm_splunk_hec_token
-  splunk_index             = var.hsm_splunk_index
 
   cls_destination_enabled = var.cls_destination_enabled
   cls_destination_arn     = var.cls_destination_arn
@@ -164,10 +135,6 @@ module "gsp-cluster" {
   public_subnet_ids    = module.gsp-network.public_subnet_ids
   egress_ips           = module.gsp-network.egress_ips
   ingress_ips          = module.gsp-network.ingress_ips
-  splunk_enabled       = var.splunk_enabled
-  splunk_hec_url       = var.splunk_hec_url
-  k8s_splunk_hec_token = var.k8s_splunk_hec_token
-  k8s_splunk_index     = var.k8s_splunk_index
 
   github_client_id     = var.github_client_id
   github_client_secret = var.github_client_secret

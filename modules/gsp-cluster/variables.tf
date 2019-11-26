@@ -105,30 +105,6 @@ variable "dev_namespaces" {
   default = []
 }
 
-variable "splunk_enabled" {
-  description = "Enable splunk log shipping"
-  type        = string
-  default     = "0"
-}
-
-variable "splunk_hec_url" {
-  description = "Splunk HTTP event collector URL to send logs to"
-  type        = string
-  default     = ""
-}
-
-variable "k8s_splunk_hec_token" {
-  description = "Splunk HTTP event collector token for authentication"
-  type        = string
-  default     = ""
-}
-
-variable "k8s_splunk_index" {
-  description = "Name of index to be added as metadata to logs for use in splunk"
-  type        = string
-  default     = ""
-}
-
 variable "vpc_id" {
   type = string
 }

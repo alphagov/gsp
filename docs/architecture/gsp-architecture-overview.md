@@ -41,7 +41,6 @@ This view shows the high level components that make up the GDS Supported Platfor
 |`Helm Charts`|Applications packaged for deployment using [Helm Charts](https://helm.sh/docs/developing_charts/) |
 |`EKS`| [AWS Elastic Container Service for Kubernetes](https:/aws.amazon.com/eks) schedules the containers to be run
 |`Prometheus`| TechOps monitoring |
-|`Splunk`| ensures that your service is safe and manages the cyber security risk|
 |`Terraform` | manages the infrastructure as code |
 
 
