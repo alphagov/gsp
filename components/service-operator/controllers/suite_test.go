@@ -115,15 +115,20 @@ func SetupControllerEnv() (client.Client, func()) {
 
 	// controllers under test
 	cs := []controllers.Controller{
-		controllers.S3CloudFormationController(newAWSClient(nil)),
+		controllers.S3CloudFormationController(newAWSClient(map[string]string{
+			"S3BucketName":   "testbucket",
+			"S3BucketRegion": "eu-west-2",
+			"S3BucketURL":    "https://testbucket.s3.eu-west-2.amazonaws.com",
+			"IAMRoleName":    "testrole",
+		})),
 		controllers.SQSCloudFormationController(newAWSClient(nil)),
 		controllers.PrincipalCloudFormationController(newAWSClient(nil)),
 		controllers.PostgresCloudFormationController(newAWSClient(map[string]string{
-			"Endpoint": "something.local.govsandbox.uk",
+			"Endpoint":     "something.local.govsandbox.uk",
 			"ReadEndpoint": "something-ro.local.govsandbox.uk",
-			"Port": "3306",
-			"Username": "someusername",
-			"Password": "snakeoil",
+			"Port":         "3306",
+			"Username":     "someusername",
+			"Password":     "snakeoil",
 		})),
 	}
 

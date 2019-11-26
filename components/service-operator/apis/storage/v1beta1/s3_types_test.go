@@ -59,34 +59,38 @@ var _ = Describe("S3Bucket", func() {
 		Expect(o.GetServiceEntryName()).To(Equal("my-target-service-entry"))
 	})
 
-	It("should produce the correct service entry", func() {
+	It("should produce the correct service entries", func() {
 		outputs := cloudformation.Outputs{
-			v1beta1.S3BucketName: "test",
-			v1beta1.S3BucketURL:  "testing",
+			v1beta1.S3BucketName:   "test",
+			v1beta1.S3BucketURL:    "testing",
+			v1beta1.S3BucketRegion: "eu-west-2",
 		}
 
 		specs, err := o.GetServiceEntrySpecs(outputs)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(specs).To(HaveLen(1))
-		spec := specs[0]
-		Expect(spec).To(And(
-			HaveKeyWithValue("resolution", "DNS"),
-			HaveKeyWithValue("location", "MESH_EXTERNAL"),
-			HaveKey("hosts"),
-			HaveKey("ports"),
-			HaveKey("exportTo"),
-		))
-		Expect(spec["hosts"]).To(ContainElement(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName])))
-		Expect(spec["ports"]).To(ContainElement(
-			map[string]interface{}{
-				"name":     "https",
-				"number":   443,
-				"protocol": "TLS",
-			},
-		))
-		Expect(spec["exportTo"]).To(And(
-			HaveLen(1),
-			ContainElement("."),
+		Expect(specs).To(ConsistOf(
+			And(
+				HaveKeyWithValue("resolution", "DNS"),
+				HaveKeyWithValue("location", "MESH_EXTERNAL"),
+				HaveKeyWithValue("hosts", ConsistOf(fmt.Sprintf("%s.s3.eu-west-2.amazonaws.com", outputs[v1beta1.S3BucketName]))),
+				HaveKeyWithValue("ports", ConsistOf(map[string]interface{}{
+					"name":     "https",
+					"number":   443,
+					"protocol": "TLS",
+				})),
+				HaveKeyWithValue("exportTo", ConsistOf(".")),
+			),
+			And(
+				HaveKeyWithValue("resolution", "DNS"),
+				HaveKeyWithValue("location", "MESH_EXTERNAL"),
+				HaveKeyWithValue("hosts", ConsistOf(fmt.Sprintf("%s.s3.amazonaws.com", outputs[v1beta1.S3BucketName]))),
+				HaveKeyWithValue("ports", ConsistOf(map[string]interface{}{
+					"name":     "https",
+					"number":   443,
+					"protocol": "TLS",
+				})),
+				HaveKeyWithValue("exportTo", ConsistOf(".")),
+			),
 		))
 	})
 

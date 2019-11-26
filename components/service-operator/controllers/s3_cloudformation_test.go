@@ -53,6 +53,10 @@ var _ = Describe("S3CloudFormationController", func() {
 				Namespace: namespace,
 				Name:      fmt.Sprintf("%s-0", serviceEntryName),
 			}
+			serviceEntryNamespacedName1 = types.NamespacedName{
+				Namespace: namespace,
+				Name:      fmt.Sprintf("%s-1", serviceEntryName),
+			}
 			principal = access.Principal{
 				TypeMeta: metav1.TypeMeta{
 					APIVersion: access.GroupVersion.Group,
@@ -151,12 +155,25 @@ var _ = Describe("S3CloudFormationController", func() {
 			}).Should(HaveKey("IAMRoleName"))
 		})
 
-		By("creating a service entry with the endpoints", func() {
+		By("creating a service entry with the regional s3 endpoint", func() {
 			Eventually(func() map[string]interface{} {
 				_ = client.Get(ctx, serviceEntryNamespacedName0, &serviceEntry)
 				return serviceEntry.Spec
 			}).Should(And(
-				HaveKey("hosts"),
+				HaveKeyWithValue("hosts", ContainElement(ContainSubstring("s3.eu-west-2.amazonaws.com"))),
+				HaveKey("ports"),
+				HaveKey("location"),
+				HaveKey("resolution"),
+				HaveKey("exportTo"),
+			))
+		})
+
+		By("creating a second service entry with the global s3 endpoint", func() {
+			Eventually(func() map[string]interface{} {
+				_ = client.Get(ctx, serviceEntryNamespacedName1, &serviceEntry)
+				return serviceEntry.Spec
+			}).Should(And(
+				HaveKeyWithValue("hosts", ContainElement(ContainSubstring("s3.amazonaws.com"))),
 				HaveKey("ports"),
 				HaveKey("location"),
 				HaveKey("resolution"),
