@@ -26,6 +26,16 @@ variable "splunk_index" {
   type = string
 }
 
+variable "cls_destination_enabled" {
+  default = "0"
+  type    = string
+}
+
+variable "cls_destination_arn" {
+  default = ""
+  type    = string
+}
+
 data "aws_caller_identity" "current" {
 }
 
@@ -63,4 +73,10 @@ module "lambda_splunk_forwarder" {
   splunk_hec_url            = var.splunk_hec_url
   splunk_index              = var.splunk_index
 }
-
+resource "aws_cloudwatch_log_subscription_filter" "hsm_logs" {
+  count           = var.cls_destination_enabled == "1" ? 1 : 0
+  name            = "hsm_logs"
+  log_group_name  = "/aws/cloudhsm/${aws_cloudhsm_v2_cluster.cluster.cluster_id}"
+  filter_pattern  = ""
+  destination_arn = var.cls_destination_arn
+}

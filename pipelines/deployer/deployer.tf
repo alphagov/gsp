@@ -122,6 +122,9 @@ module "hsm" {
   splunk_hec_url           = var.splunk_hec_url
   splunk_hec_token         = var.hsm_splunk_hec_token
   splunk_index             = var.hsm_splunk_index
+
+  cls_destination_enabled = var.cls_destination_enabled
+  cls_destination_arn     = var.cls_destination_arn
 }
 
 module "gsp-cluster" {
