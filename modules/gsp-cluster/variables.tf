@@ -64,6 +64,11 @@ variable "minimum_workers_per_az_count" {
   default = "1"
 }
 
+variable "desired_workers_per_az_map" {
+  type    = map(number)
+  default = {}
+}
+
 variable "maximum_workers_per_az_count" {
   type    = string
   default = "5"

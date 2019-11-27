@@ -102,17 +102,35 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
       data.aws_subnet.private_subnets.*.availability_zone,
       count.index,
     )}"
-    NodeAutoScalingGroupMinSize         = var.minimum_workers_per_az_count
-    NodeAutoScalingGroupDesiredCapacity = var.minimum_workers_per_az_count
-    NodeAutoScalingGroupMaxSize         = var.maximum_workers_per_az_count
-    NodeInstanceType                    = var.worker_instance_type
-    NodeInstanceProfile                 = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
-    NodeVolumeSize                      = "40"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
-    VpcId                               = var.vpc_id
-    Subnets                             = element(data.aws_subnet.private_subnets.*.id, count.index)
-    NodeSecurityGroups                  = "${aws_security_group.node.id},${aws_security_group.worker.id}"
-    NodeTargetGroups                    = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
+    NodeAutoScalingGroupMinSize = var.minimum_workers_per_az_count
+    NodeAutoScalingGroupDesiredCapacity = tostring(lookup(
+      var.desired_workers_per_az_map,
+      element(
+        data.aws_subnet.private_subnets.*.availability_zone,
+        count.index,
+      ),
+      tonumber(var.minimum_workers_per_az_count)
+    ))
+    NodeAutoScalingGroupMinInstancesInService = tostring(min(
+      lookup(
+        var.desired_workers_per_az_map,
+        element(
+          data.aws_subnet.private_subnets.*.availability_zone,
+          count.index,
+        ),
+        tonumber(var.minimum_workers_per_az_count)
+      ),
+      var.maximum_workers_per_az_count - 1
+    ))
+    NodeAutoScalingGroupMaxSize = var.maximum_workers_per_az_count
+    NodeInstanceType            = var.worker_instance_type
+    NodeInstanceProfile         = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
+    NodeVolumeSize              = "40"
+    BootstrapArguments          = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
+    VpcId                       = var.vpc_id
+    Subnets                     = element(data.aws_subnet.private_subnets.*.id, count.index)
+    NodeSecurityGroups          = "${aws_security_group.node.id},${aws_security_group.worker.id}"
+    NodeTargetGroups            = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
   }
 
   depends_on = [
