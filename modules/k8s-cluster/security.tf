@@ -17,10 +17,10 @@ resource "aws_security_group" "controller" {
 resource "aws_security_group_rule" "controller-apiserver-cidrs" {
   security_group_id = aws_security_group.controller.id
 
-  type      = "ingress"
-  protocol  = "tcp"
-  from_port = 443
-  to_port   = 443
+  type        = "ingress"
+  protocol    = "tcp"
+  from_port   = 443
+  to_port     = 443
   cidr_blocks = var.apiserver_allowed_cidrs
 }
 
