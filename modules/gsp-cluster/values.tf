@@ -54,7 +54,7 @@ data "template_file" "values" {
     rds_from_worker_security_group   = aws_security_group.rds-from-worker.id
     private_db_subnet_group          = aws_db_subnet_group.private.id
     external_dns_iam_role_name       = aws_iam_role.external_dns.name
-    grafana_default_admin_password   = random_password.grafana_default_admin_password.result
+    grafana_default_admin_password   = jsonencode(random_password.grafana_default_admin_password.result)
     eks_version                      = var.eks_version
     cert_manager_role_name           = aws_iam_role.cert_manager.name
     permitted_roles_regex = "^(${join(
