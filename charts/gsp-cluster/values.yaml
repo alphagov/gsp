@@ -859,6 +859,8 @@ harbor:
     type: ingress
     tls:
       enabled: false
+  clair:
+    enabled: false
   core:
     replicas: 2
   registry:

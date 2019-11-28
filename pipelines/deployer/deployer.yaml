@@ -183,6 +183,9 @@ apply_cluster_chart: &apply_cluster_chart
       kubectl config set-context $(kubectl config get-contexts -o name) \
         --namespace "${DEFAULT_NAMESPACE}"
       echo "RELEASE_TAG=${RELEASE_TAG}"
+      ### Temporary tidyup
+      kubectl -n gsp-system delete --ignore-not-found=true deployment.apps/gsp-harbor-clair service/gsp-harbor-clair
+      ### End temporary tidyup
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       mkdir -p kube-system-manifests
