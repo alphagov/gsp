@@ -6,3 +6,7 @@
 $ opa test policies/digests-on-images
 PASS: 3/3
 ```
+```
+$ opa test policies/restrict-special-nodes
+PASS: 6/6
+```
