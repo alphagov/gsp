@@ -14,5 +14,6 @@
 - [Per-namespace istio gateways](gds-supported-platform/per-namespace-gateway.md)
 - [Public DNS](gds-supported-platform/external-dns.md)
 - [Public TLS Certificates](gds-supported-platform/tls-certificates.md)
+- [Recover from gatekeeper outage](gds-supported-platform/recover-gatekeeper-outage.md)
 - [Sealing Secrets](gds-supported-platform/sealing-secrets.md)
 - [Set up monitoring and alerting with Prometheus and Alertmanager](gds-supported-platform/prometheus_alert_manager_grafana.md)
