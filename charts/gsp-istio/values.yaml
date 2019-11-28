@@ -73,7 +73,7 @@ istio:
       replicaCount: 2
       autoscaleMin: 2
   pilot:
-    traceSampling: "100.0"
+    traceSampling: "5.0" # send 5% of traffic to jaeger
     replicaCount: 2
     autoscaleMin: 2
   prometheus:
