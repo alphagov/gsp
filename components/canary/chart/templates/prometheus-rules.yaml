@@ -17,3 +17,4 @@ spec:
       expr: time() - max(canary_chart_commit_timestamp{namespace="{{ .Release.Namespace }}"}) without (pod) > 600
       labels:
         severity: critical
+        layer: cicd
