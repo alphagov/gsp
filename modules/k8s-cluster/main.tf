@@ -209,7 +209,7 @@ resource "aws_eks_node_group" "worker-nodes" {
 
   disk_size       = 40
   labels          = {
-    "node-role.kubernetes.io/worker" = ""
+    "node-role.govsvc.uk/worker" = ""
   }
   instance_types  = [
     var.worker_instance_type
