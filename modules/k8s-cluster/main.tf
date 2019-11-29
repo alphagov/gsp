@@ -195,6 +195,31 @@ resource "aws_autoscaling_lifecycle_hook" "ci-nodes-lifecycle-hook" {
   lifecycle_transition   = "autoscaling:EC2_INSTANCE_TERMINATING"
 }
 
+resource "aws_eks_node_group" "worker-nodes" {
+  cluster_name    = aws_eks_cluster.eks-cluster.name
+  node_group_name = "worker-nodes"
+  node_role_arn   = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"]
+  subnet_ids      = var.private_subnet_ids
+
+  scaling_config {
+    min_size     = var.minimum_workers_per_az_count
+    desired_size = var.minimum_workers_per_az_count
+    max_size     = var.maximum_workers_per_az_count
+  }
+
+  disk_size       = 40
+  labels          = {
+    "node-role.kubernetes.io/worker" = ""
+  }
+  instance_types  = [
+    var.worker_instance_type
+  ]
+
+  #BootstrapArguments = "--event-qps=0\""
+  #NodeSecurityGroups = "${aws_security_group.node.id},${aws_security_group.worker.id}"
+  #NodeTargetGroups   = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
+}
+
 data "template_file" "kubeconfig" {
   template = file("${path.module}/data/kubeconfig")
 
