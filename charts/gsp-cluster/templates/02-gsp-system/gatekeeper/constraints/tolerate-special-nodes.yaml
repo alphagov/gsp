@@ -1,0 +1,17 @@
+{{ if .Values.gatekeeper.enabled }}
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: TolerateSpecialNodes
+metadata:
+  name: tolerate-special-nodes
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    restricted_roles:
+    - node-role.kubernetes.io/ci
+    - node-role.kubernetes.io/cluster-management
+{{ end }}
