@@ -1,12 +1,12 @@
 dependencies:
 - name: istio
-  repository: https://storage.googleapis.com/istio-release/releases/1.3.3/charts/
-  version: 1.3.3
+  repository: https://storage.googleapis.com/istio-release/releases/1.3.5/charts/
+  version: 1.3.5
 - name: istio-init
-  repository: https://storage.googleapis.com/istio-release/releases/1.3.3/charts/
-  version: 1.3.3
+  repository: https://storage.googleapis.com/istio-release/releases/1.3.5/charts/
+  version: 1.3.5
 - name: istio-cni
-  repository: https://storage.googleapis.com/istio-release/releases/1.3.3/charts/
-  version: 1.3.3
-digest: sha256:75f2a6ebacefd43f24dea35054ceeb4fadf2aced3f95473977d8f7a05d0309cc
-generated: "2019-10-17T14:05:34.429498+01:00"
+  repository: https://storage.googleapis.com/istio-release/releases/1.3.5/charts/
+  version: 1.3.5
+digest: sha256:72ed766b8b520e8c9b199f00cfa3ab7734f935a64fc8aa6fc33884bc1e7634e7
+generated: "2019-11-28T18:37:29.268768Z"
