@@ -209,7 +209,7 @@ resource "aws_eks_node_group" "worker-nodes" {
 
   disk_size       = 40
   labels          = {
-    "node-role.govsvc.uk/worker" = ""
+    "node-role.govsvc.uk/worker" = "test"
   }
   instance_types  = [
     var.worker_instance_type
