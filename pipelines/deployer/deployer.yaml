@@ -334,14 +334,11 @@ check_cloudwatch: &check_cloudwatch
     AWS_REGION: eu-west-2
     AWS_DEFAULT_REGION: eu-west-2
     TEST_FARBACK: 180
-    TEST_RETRIES: 3
-    TEST_DELAY: 30
     LOGGROUP:
   run:
     path: /bin/bash
     args:
-    - -euo
-    - pipefail
+    - -eu
     - -c
     - |
       echo "assuming aws deployer role..."
@@ -349,9 +346,7 @@ check_cloudwatch: &check_cloudwatch
       eval "${AWS_CREDS}"
 
       CURRENT_TIME=$(date '+%s')
-      DELAY="${TEST_DELAY:-30}"
-      RETRIES="${TEST_RETRIES:-3}"
-      FARBACK="${TEST_FARBACK:-300}"
+      FARBACK="${TEST_FARBACK:-180}"
       LOGS_SINCE=$(($CURRENT_TIME - $FARBACK))
 
       if [[ -z "${LOGGROUP}" ]]; then
@@ -364,39 +359,26 @@ check_cloudwatch: &check_cloudwatch
       LOGS_SINCE="${LOGS_SINCE}000"
 
       echo "ClusterDomain: $CLUSTER_DOMAIN"
-      echo "  Retry Delay: $DELAY"
-      echo "      Retries: $RETRIES"
       echo "         Time: $CURRENT_TIME"
       echo "   Logs Since: $LOGS_SINCE"
       echo "    Log Group: $LOGGROUP"
 
-      i=0
-      while [ $i -lt $RETRIES ]; do
-        i=$((i+1))
-        echo "======================================="
-        echo "      Attempt: $i"
+      LOG_EVENTS=$(aws logs filter-log-events --log-group-name $LOGGROUP --start-time $LOGS_SINCE --max-items 10)
+      LOG_EVENTS_COUNT=$(echo $LOG_EVENTS | jq ".events | length")
+      if (( ${LOG_EVENTS_COUNT} == 0 )); then
+        echo ""
+        echo "FAIL: No log events collected yet"
+        exit 1
+      fi
 
-        LOG_EVENTS=$(aws logs filter-log-events --log-group-name $LOGGROUP --start-time $LOGS_SINCE --max-items 10)
-        LOG_EVENTS_COUNT=$(echo $LOG_EVENTS | jq ".events | length")
-        if (( ${LOG_EVENTS_COUNT} == 0 )); then
-          echo "No results, retrying in ${DELAY} seconds"
-          sleep ${DELAY}
-          continue
-        fi
-        LASTSEENLOG=$(echo $LOG_EVENTS | jq ".events[].timestamp" | grep -v "null" | sort -urn | head -n1)
-
-        echo "   Logs Since: $LOGS_SINCE"
-        echo "    Logs Seen: $LASTSEENLOG"
-        if (( ${LASTSEENLOG} >= ${LOGS_SINCE} )); then
-          echo "PASS: Logs have been reached cloudwatch"
-          echo "Logs received at: $LASTSEENLOG in $LOGGROUP"
-          exit 0
-        fi
-        if (( ${i} != ${RETRIES} )); then
-          echo "Retrying in ${DELAY} seconds"
-          sleep ${DELAY}
-        fi
-      done
+      LASTSEENLOG=$(echo $LOG_EVENTS | jq ".events[].timestamp" | grep -v "null" | sort -urn | head -n1)
+      echo "   Logs Since: $LOGS_SINCE"
+      echo "    Logs Seen: $LASTSEENLOG"
+      if (( ${LASTSEENLOG} >= ${LOGS_SINCE} )); then
+        echo "PASS: Logs have been reached cloudwatch"
+        echo "Logs received at: $LASTSEENLOG in $LOGGROUP"
+        exit 0
+      fi
 
       echo ""
       echo "FAIL: No logs have been detected reaching cloudwatch since $LOGS_SINCE"
@@ -838,6 +820,7 @@ jobs:
     trigger: true
   - aggregate:
     - task: check-container-logs
+      attempts: 3
       image: task-toolbox
       timeout: 10m
       config: *check_cloudwatch
@@ -846,6 +829,7 @@ jobs:
         CLUSTER_DOMAIN: ((cluster-domain))
         LOGGROUP: /aws/containerinsights/((cluster-name))/application
     - task: check-host-logs
+      attempts: 3
       image: task-toolbox
       timeout: 10m
       config: *check_cloudwatch
@@ -854,6 +838,7 @@ jobs:
         CLUSTER_DOMAIN: ((cluster-domain))
         LOGGROUP: /aws/containerinsights/((cluster-name))/host
     - task: check-dataplane-logs
+      attempts: 3
       image: task-toolbox
       timeout: 10m
       config: *check_cloudwatch
@@ -862,6 +847,7 @@ jobs:
         CLUSTER_DOMAIN: ((cluster-domain))
         LOGGROUP: /aws/containerinsights/((cluster-name))/dataplane
     - task: check-controlplane-logs
+      attempts: 3
       image: task-toolbox
       timeout: 10m
       config: *check_cloudwatch
