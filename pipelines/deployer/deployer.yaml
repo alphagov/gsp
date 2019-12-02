@@ -507,6 +507,11 @@ resource_types:
   source:
     repository: concourse/concourse-pipeline-resource
     tag: "2.2.0"
+- name: s3-iam
+  type: docker-image
+  source:
+    repository: governmentpaas/s3-resource
+    tag: 97e441efbfb06ac7fb09786fd74c64b05f9cc907
 
 resources:
 - name: platform
@@ -523,6 +528,12 @@ resources:
     # Parameters for if platform-resource-type is set to git
     uri: https://github.com/alphagov/gsp.git
     branch: ((platform-version))
+- name: aws-node-lifecycle-hook
+  type: s3-iam
+  source:
+    bucket: ((readonly_private_bucket_name))
+    region_name: eu-west-2
+    versioned_file: aws-node-lifecycle-hook.zip
 - name: config
   type: github
   source:
@@ -603,11 +614,6 @@ resources:
   source:
     repository: ((task-toolbox-image))
     tag: ((task-toolbox-tag))
-- name: golang-builder
-  type: docker-image
-  source:
-    repository: golang
-    tag: 1.12.5
 
 jobs:
 - name: update
@@ -651,12 +657,12 @@ jobs:
   plan:
   - aggregate:
     - get: task-toolbox
-    - get: golang-builder
     - get: platform
       passed: [update]
       trigger: true
       params:
         include_source_tarball: true
+    - get: aws-node-lifecycle-hook
     - get: config
       passed: [update]
       trigger: true
@@ -670,7 +676,7 @@ jobs:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
   - task: ensure-aws-node-lifecycle-hook
-    image: golang-builder
+    image: task-toolbox
     params:
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
     config:
@@ -686,15 +692,12 @@ jobs:
             echo "copying aws-node-lifecycle-hook..."
             cp platform/aws-node-lifecycle-hook.zip ./platform/modules/k8s-cluster/
           else
-            echo "building aws-node-lifecycle-hook"
-            cd platform/components/aws-node-lifecycle-hook
-            go build
-            apt-get update
-            apt install -y zip
-            zip ../../modules/k8s-cluster/aws-node-lifecycle-hook.zip aws-node-lifecycle-hook
+            echo "stealing aws-node-lifecycle-hook from latest in S3 instead of a release"
+            cp aws-node-lifecycle-hook/aws-node-lifecycle-hook.zip ./platform/modules/k8s-cluster/
           fi
       inputs:
       - name: platform
+      - name: aws-node-lifecycle-hook
       outputs:
       - name: platform
   - task: scale-autoscaler-down
