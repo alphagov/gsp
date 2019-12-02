@@ -30,7 +30,7 @@ istio:
       labels:
         app: istio-ingressgateway
         istio: {{ $namespace.name }}-ingressgateway
-      autoscaleEnabled: false
+      autoscaleEnabled: true
       autoscaleMin: 3
       autoscaleMax: 3
       # specify replicaCount when autoscaleEnabled: false
