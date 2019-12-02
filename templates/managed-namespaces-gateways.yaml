@@ -30,11 +30,11 @@ istio:
       labels:
         app: istio-ingressgateway
         istio: {{ $namespace.name }}-ingressgateway
-      autoscaleEnabled: true
-      autoscaleMin: 2
-      autoscaleMax: 5
+      autoscaleEnabled: false
+      autoscaleMin: 3
+      autoscaleMax: 3
       # specify replicaCount when autoscaleEnabled: false
-      # replicaCount: 1
+      replicaCount: 3
       resources:
         requests:
           cpu: 100m
