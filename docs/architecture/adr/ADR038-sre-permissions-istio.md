@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR043](ADR043-k8s-resource-access.md)
 
 ## Context
 

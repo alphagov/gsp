@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted, supplemented by [ADR038](ADR038-sre-permissions-istio.md)
+Superseded by [ADR043](ADR043-k8s-resource-access.md)
 
 ## Context
 

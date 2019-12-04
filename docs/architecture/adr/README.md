@@ -44,3 +44,7 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #039 - Restricting CloudHSM network access to particular namespaces](ADR039-cloudhsm-namespace-network-policy.md)
 - [ADR #040 - Ensuring cluster stability while replacing nodes](ADR040-cluster-stability-node-replacement.md)
 - [ADR #041 - Service operator provisioned policies](ADR041-service-operated-policies.md)
+- [ADR #042 - Static ingress IP workaround](ADR042-static-ingress-ip-workaround.md)
+- [ADR #043 - Kubernetes resource access rules](ADR043-k8s-resource-access.md)
+- [ADR #044 - Security improvements](ADR044-security-improvements.md)
+- [ADR #045 - Dev namespaces](ADR045-dev-namespaces.md)
