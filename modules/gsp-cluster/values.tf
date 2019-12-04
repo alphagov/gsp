@@ -18,7 +18,7 @@ data "template_file" "values" {
     sre_role_arns                    = jsonencode(var.sre_role_arns)
     sre_user_arns                    = jsonencode(var.sre_user_arns)
     bootstrap_role_arns              = jsonencode(module.k8s-cluster.bootstrap_role_arns)
-    concourse_admin_password         = random_string.concourse_password.result
+    concourse_admin_password         = random_password.concourse_password.result
     concourse_teams                  = jsonencode(concat(["main"], var.concourse_teams))
     concourse_main_team_github_teams = jsonencode(var.concourse_main_team_github_teams)
     concourse_worker_count           = var.ci_worker_count
@@ -27,8 +27,8 @@ data "template_file" "values" {
     github_client_secret             = jsonencode(var.github_client_secret)
     github_ca_cert                   = jsonencode(var.github_ca_cert)
     grafana_iam_role_name            = aws_iam_role.grafana.name
-    harbor_admin_password            = jsonencode(random_string.harbor_password.result)
-    harbor_secret_key                = jsonencode(random_string.harbor_secret_key.result)
+    harbor_admin_password            = jsonencode(random_password.harbor_password.result)
+    harbor_secret_key                = jsonencode(random_password.harbor_secret_key.result)
     harbor_bucket_id                 = aws_s3_bucket.ci-system-harbor-registry-storage.id
     harbor_bucket_region             = aws_s3_bucket.ci-system-harbor-registry-storage.region
     harbor_iam_role_name             = jsonencode(aws_iam_role.harbor.name)
@@ -36,10 +36,10 @@ data "template_file" "values" {
     notary_ca_pem                    = jsonencode(tls_self_signed_cert.notary_root_ca.cert_pem)
     notary_cert_pem                  = jsonencode(tls_locally_signed_cert.notary_cert.cert_pem)
     notary_delegation_key            = jsonencode(tls_private_key.notary_ci_key.private_key_pem)
-    notary_root_passphrase           = jsonencode(random_string.notary_passphrase_root.result)
-    notary_targets_passphrase        = jsonencode(random_string.notary_passphrase_targets.result)
-    notary_snapshot_passphrase       = jsonencode(random_string.notary_passphrase_snapshot.result)
-    notary_delegation_passphrase     = jsonencode(random_string.notary_passphrase_delegation.result)
+    notary_root_passphrase           = jsonencode(random_password.notary_passphrase_root.result)
+    notary_targets_passphrase        = jsonencode(random_password.notary_passphrase_targets.result)
+    notary_snapshot_passphrase       = jsonencode(random_password.notary_passphrase_snapshot.result)
+    notary_delegation_passphrase     = jsonencode(random_password.notary_passphrase_delegation.result)
     sealed_secrets_public_cert       = base64encode(tls_self_signed_cert.sealed-secrets-certificate.cert_pem)
     sealed_secrets_private_key       = base64encode(tls_private_key.sealed-secrets-key.private_key_pem)
     kiam_server_role_arn             = aws_iam_role.kiam_server_role.arn
