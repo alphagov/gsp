@@ -34,28 +34,34 @@ resource "random_password" "concourse_password" {
   special = false
 }
 
-resource "random_string" "notary_passphrase_root" {
-  length = 64
+resource "random_password" "notary_passphrase_root" {
+  length  = 64
+  special = false
 }
 
-resource "random_string" "notary_passphrase_targets" {
-  length = 64
+resource "random_password" "notary_passphrase_targets" {
+  length  = 64
+  special = false
 }
 
-resource "random_string" "notary_passphrase_snapshot" {
-  length = 64
+resource "random_password" "notary_passphrase_snapshot" {
+  length  = 64
+  special = false
 }
 
-resource "random_string" "notary_passphrase_delegation" {
-  length = 64
+resource "random_password" "notary_passphrase_delegation" {
+  length  = 64
+  special = false
 }
 
-resource "random_string" "harbor_password" {
-  length = 16
+resource "random_password" "harbor_password" {
+  length  = 16
+  special = false
 }
 
-resource "random_string" "harbor_secret_key" {
-  length = 16
+resource "random_password" "harbor_secret_key" {
+  length  = 16
+  special = false
 }
 
 resource "tls_private_key" "notary_root_key" {
