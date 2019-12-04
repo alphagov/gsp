@@ -29,8 +29,9 @@ resource "aws_iam_policy_attachment" "harbor-s3" {
   policy_arn = aws_iam_policy.harbor-s3.arn
 }
 
-resource "random_string" "concourse_password" {
-  length = 64
+resource "random_password" "concourse_password" {
+  length  = 64
+  special = false
 }
 
 resource "random_string" "notary_passphrase_root" {
