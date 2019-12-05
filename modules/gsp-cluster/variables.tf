@@ -193,3 +193,7 @@ variable "cls_destination_arn" {
   type    = string
 }
 
+variable "availability_zones" {
+  type        = list
+  description = "List of availability zones for the cluster"
+}

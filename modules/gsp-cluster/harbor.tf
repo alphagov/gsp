@@ -34,28 +34,34 @@ resource "random_password" "concourse_password" {
   special = false
 }
 
-resource "random_string" "notary_passphrase_root" {
-  length = 64
+resource "random_password" "notary_passphrase_root" {
+  length  = 64
+  special = false
 }
 
-resource "random_string" "notary_passphrase_targets" {
-  length = 64
+resource "random_password" "notary_passphrase_targets" {
+  length  = 64
+  special = false
 }
 
-resource "random_string" "notary_passphrase_snapshot" {
-  length = 64
+resource "random_password" "notary_passphrase_snapshot" {
+  length  = 64
+  special = false
 }
 
-resource "random_string" "notary_passphrase_delegation" {
-  length = 64
+resource "random_password" "notary_passphrase_delegation" {
+  length  = 64
+  special = false
 }
 
-resource "random_string" "harbor_password" {
-  length = 16
+resource "random_password" "harbor_password" {
+  length  = 16
+  special = false
 }
 
-resource "random_string" "harbor_secret_key" {
-  length = 16
+resource "random_password" "harbor_secret_key" {
+  length  = 16
+  special = false
 }
 
 resource "tls_private_key" "notary_root_key" {
@@ -125,3 +131,39 @@ resource "aws_s3_bucket" "ci-system-harbor-registry-storage" {
   }
 }
 
+resource "random_password" "harbor_db_master_password" {
+  length  = 32
+  special = false
+}
+
+resource "aws_rds_cluster" "harbor" {
+  cluster_identifier = "${var.cluster_name}-harbor"
+  master_password    = random_password.harbor_db_master_password.result
+  master_username    = "harbor"
+  availability_zones = var.availability_zones
+  engine             = "aurora-postgresql"
+  engine_version     = "10.7"
+  enabled_cloudwatch_logs_exports = [
+    "postgresql",
+  ]
+  db_subnet_group_name      = aws_db_subnet_group.private.name
+  vpc_security_group_ids    = [aws_security_group.rds-from-worker.id]
+  final_snapshot_identifier = "${var.cluster_name}-harbor-final"
+  tags = {
+    Name = var.cluster_name
+  }
+}
+
+resource "aws_rds_cluster_instance" "harbor" {
+  count                = 2
+  identifier           = "${var.cluster_name}-harbor-${count.index}"
+  cluster_identifier   = aws_rds_cluster.harbor.id
+  engine               = "aurora-postgresql"
+  engine_version       = "10.7"
+  instance_class       = "db.t3.medium"
+  db_subnet_group_name = aws_db_subnet_group.private.name
+
+  tags = {
+    Name = var.cluster_name
+  }
+}
