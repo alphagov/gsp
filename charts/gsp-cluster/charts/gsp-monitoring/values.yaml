@@ -25,10 +25,6 @@ prometheus-operator:
       secrets: [ istio.gsp-prometheus-operator-prometheus ]
       serviceMonitorSelectorNilUsesHelmValues: false
       serviceMonitorSelector: {}
-      # if you're running GSP locally and you're still using Helm 2.14.3 to
-      # template then you may run into this bug:
-      # https://github.com/helm/helm/pull/6080. You can work around it by
-      # deleting the following `storageSpec` key.
       storageSpec:
         volumeClaimTemplate:
           spec:
