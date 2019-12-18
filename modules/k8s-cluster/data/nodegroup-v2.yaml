@@ -90,6 +90,11 @@ Parameters:
     Type: Number
     Default: 1
 
+  NodeAutoScalingGroupMinInstancesInService:
+    Description: Minimum instances in service of the Node Group ASG at any given time.
+    Type: Number
+    Default: 1
+
   NodeVolumeSize:
     Description: Node volume size
     Type: Number
