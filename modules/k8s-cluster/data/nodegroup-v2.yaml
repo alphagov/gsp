@@ -200,7 +200,7 @@ Resources:
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MaxBatchSize: 1
-        MinInstancesInService: !Ref NodeAutoScalingGroupDesiredCapacity
+        MinInstancesInService: !Ref NodeAutoScalingGroupMinInstancesInService
         PauseTime: PT5M
 
   NodeLaunchTemplate:
