@@ -2,7 +2,7 @@
 
 ## Status
 
-Superceded by [ADR025](ADR025-ingress.md)
+Superseded by [ADR025](ADR025-ingress.md)
 
 ## Context
 

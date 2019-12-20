@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted | Pending | Superceded by [ADR000](000-template.md)
+Accepted | Pending | Superseded by [ADR000](000-template.md)
 
 ## Context
 
