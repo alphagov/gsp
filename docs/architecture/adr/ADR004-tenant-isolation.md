@@ -2,7 +2,7 @@
 
 ## Status
 
-Superceded by [ADR024 - Soft Multitenancy](ADR024-soft-multitenancy.md)
+Superseded by [ADR024 - Soft Multitenancy](ADR024-soft-multitenancy.md)
 
 ## Context
 
