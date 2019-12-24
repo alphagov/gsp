@@ -641,7 +641,7 @@ jobs:
   serial: true
   serial_groups: [cluster-modification]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: task-toolbox
     - get: platform
       passed: [update]
@@ -773,7 +773,7 @@ jobs:
   serial: true
   serial_groups: [cluster-modification]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: platform
       passed: [deploy]
       trigger: true
@@ -793,7 +793,7 @@ jobs:
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
-  - aggregate:
+  - in_parallel:
     - task: generate-cluster-values
       image: task-toolbox
       timeout: 10m
@@ -859,7 +859,7 @@ jobs:
   - get: config
     passed: [apply]
     trigger: true
-  - aggregate:
+  - in_parallel:
     - task: check-container-logs
       attempts: 3
       image: task-toolbox
