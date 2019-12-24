@@ -521,7 +521,7 @@ resources:
     region_name: eu-west-2
     versioned_file: aws-node-lifecycle-hook.zip
 - name: config
-  type: github
+  type: ((config-resource-type))
   source:
     uri: ((config-uri))
     organization: ((config-organization))

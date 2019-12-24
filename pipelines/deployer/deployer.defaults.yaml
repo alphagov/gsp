@@ -4,6 +4,7 @@ worker-eks-version: "1.14"
 config-trigger: true
 config-version: "master"
 config-path: "."
+config-resource-type: github-release
 
 platform-uri: "https://github.com/alphagov/gsp.git"
 platform-organization: "alphagov"
