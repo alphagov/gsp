@@ -2,14 +2,12 @@
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  labels:
-    name: admin
-  name: {{ .Values.global.account.name }}-admin
+  name: auditor
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin
+  name: auditor
 subjects:
 - kind: Group
-  name: {{ .Values.global.account.name }}-admin
+  name: "aws-iam:authenticated-users"
   apiGroup: rbac.authorization.k8s.io

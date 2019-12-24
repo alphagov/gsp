@@ -20,9 +20,6 @@ global:
     verificationKeys: []
 
 adminRoleARNs: ${admin_role_arns}
-adminUserARNs: ${admin_user_arns}
-sreRoleARNs: ${sre_role_arns}
-sreUserARNs: ${sre_user_arns}
 devRoleARNs: []
 bootstrapRoleARNs: ${bootstrap_role_arns}
 

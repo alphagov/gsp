@@ -1,0 +1,237 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: operator
+rules:
+- apiGroups: [""]
+  resources:
+  - configmaps
+  - endpoints
+  - limitranges
+  - pods
+  - podtemplates
+  - resourcequotas
+  - serviceaccounts
+  - services
+  verbs:
+  - create
+  - patch
+  - update
+- apiGroups: [""]
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups: [""]
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - patch
+  - update
+  - watch
+
+- apiGroups: ["access.govsvc.uk"]
+  resources:
+  - principals
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["apps"]
+  resources:
+  - deployments
+  - replicasets
+  - statefulsets
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["authentication.istio.io"]
+  resources:
+  - policies
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+
+- apiGroups: ["autoscaling"]
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["batch"]
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["bitnami.com"]
+  resources:
+  - sealedsecrets
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["cert-manager.io"]
+  resources:
+  - certificaterequests
+  - certificates
+  - issuers
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["certificates.k8s.io"]
+  resources:
+  - certificatesigningrequests
+  - pipelines
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["config.istio.io"]
+  resources:
+  - bypasses
+  - checknothings
+  - cloudwatches
+  - instances
+  - kubernetesenvs
+  - memquotas
+  - metrics
+  - prometheuses
+  - quotas
+  - redisquotas
+  - rules
+  - signalfxs
+  - stdios
+  - templates
+  - tracespans
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["coordination.k8s.io"]
+  resources:
+  - leases
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["crd.projectcalico.org"]
+  resources:
+  - networkpolicies
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["database.govsvc.uk"]
+  resources:
+  - postgres
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["extensions"]
+  resources:
+  - deployments
+  - networkpolicies
+  - replicasets
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["monitoring.coreos.com"]
+  resources:
+  - podmonitors
+  - prometheusrules
+  - servicemonitors
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["networking.istio.io"]
+  resources:
+  - destinationrules
+  - envoyfilters
+  - gateways
+  - serviceentries
+  - sidecars
+  - virtualservices
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["networking.k8s.io"]
+  resources:
+  - networkpolicies
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["policy"]
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["queue.govsvc.uk"]
+  resources:
+  - sqs
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources:
+  - rolebindings
+  - roles
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["storage.govsvc.uk"]
+  resources:
+  - s3buckets
+  verbs:
+  - create
+  - patch
+  - update
+
+- apiGroups: ["verify.gov.uk"]
+  resources:
+  - certificaterequests
+  - metadata
+  verbs:
+  - create
+  - patch
+  - update

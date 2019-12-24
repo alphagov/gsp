@@ -229,7 +229,7 @@ metadata:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: {{ .name }}-namespace-deployer
+  name: namespace-deployer-auditor
   namespace: {{ .name }}
   labels:
     gsp-binding: namespace-deployer
@@ -240,14 +240,13 @@ subjects:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin
+  name: auditor
 ---
-kind: ClusterRoleBinding
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: {{ .name }}-cluster-viewer
-  labels:
-    gsp-binding: cluster-viewer
+  name: namespace-deployer-operator
+  namespace: {{ .name }}
 subjects:
 - kind: ServiceAccount
   name: namespace-deployer
@@ -255,7 +254,7 @@ subjects:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-viewer
+  name: operator
 ---
 apiVersion: v1
 kind: Secret
@@ -265,42 +264,20 @@ metadata:
   annotations:
     "kubernetes.io/service-account.name": namespace-deployer
 type: kubernetes.io/service-account-token
-{{- if (eq (.scope | default "namespace") "cluster") }}
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: cluster-deployer
-  namespace: {{ .name }}
-  labels:
-    gsp-account: cluster-deployer
----
-kind: ClusterRoleBinding
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: {{ .name }}-cluster-deployer
-  labels:
-    gsp-binding: cluster-deployer
+  name: operators
+  namespace: {{ .name }}
 subjects:
-- kind: ServiceAccount
-  name: cluster-deployer
+- kind: Group
+  name: {{ .name }}-operators
   namespace: {{ .name }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cluster-deployer
-  namespace: {{ .name }}
-  labels:
-    gsp-secret: cluster-deployer
-  annotations:
-    "kubernetes.io/service-account.name": cluster-deployer
-type: kubernetes.io/service-account-token
-{{- end }}
+  name: operator
 {{- if .repository }}
 ---
 apiVersion: concourse.govsvc.uk/v1beta1
@@ -354,13 +331,13 @@ spec:
           inputs:
           - name: src
           params:
-            KUBERNETES_SERVICE_ACCOUNT: (({{ .scope | default "namespace" }}-deployer))
-            KUBERNETES_TOKEN: (({{ .scope | default "namespace" }}-deployer.token))
+            KUBERNETES_SERVICE_ACCOUNT: ((namespace-deployer))
+            KUBERNETES_TOKEN: ((namespace-deployer.token))
             KUBERNETES_API: kubernetes.default.svc
-            RELEASE_NAMESPACE: (({{ .scope | default "namespace" }}-deployer.namespace))
+            RELEASE_NAMESPACE: ((namespace-deployer.namespace))
             PATH_TO_MANIFESTS: {{ .path | quote }}
             SRC_URI: {{ .uri }}
-            SCOPE: {{ .scope | default "namespace" }}
+            SCOPE: namespace
           run:
             path: /bin/bash
             args:
@@ -368,16 +345,6 @@ spec:
             - -c
             - |
               echo "this job will populate the namespace with kubeyaml found in repository ${SRC_URI} at path ${PATH_TO_MANIFESTS}..."
-              if [[ "${SCOPE}" == "cluster" ]]; then
-                echo "deployer has cluster scope (can deploy anywhere)"
-                NS_ARGS=""
-              elif [[ "${SCOPE}" == "namespace" ]]; then
-                echo "deployer has namespace scope (can only deploy to namespace)"
-                NS_ARGS="-n ${RELEASE_NAMESPACE}"
-              else
-                echo "invalid scope '${SCOPE}' expected 'namespace' or 'cluster'"
-                exit 1
-              fi
               echo "configuring kubectl..."
               echo "${KUBERNETES_SERVICE_ACCOUNT}" | jq -r .["ca.crt"] > ca.crt
               kubectl config set-cluster self --server=https://kubernetes.default --certificate-authority=ca.crt
@@ -386,7 +353,7 @@ spec:
               kubectl config set-context deployer --namespace "${RELEASE_NAMESPACE}"
               kubectl config use-context deployer
               echo "applying manifests from ${SRC_URI} at path ${PATH_TO_MANIFESTS} to ${RELEASE_NAMESPACE}"
-              kubectl apply $NS_ARGS -R -f "./src/${PATH_TO_MANIFESTS}"
+              kubectl apply -n ${RELEASE_NAMESPACE} -R -f "./src/${PATH_TO_MANIFESTS}"
 ---
 {{- end }}
 {{- end }}
