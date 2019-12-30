@@ -1,0 +1,14 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gsp-default-psp
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - gsp-default
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use

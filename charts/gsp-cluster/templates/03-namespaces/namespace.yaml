@@ -356,4 +356,18 @@ spec:
               kubectl apply -n ${RELEASE_NAMESPACE} -R -f "./src/${PATH_TO_MANIFESTS}"
 ---
 {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gsp-default-psp
+  namespace: {{ .name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gsp-default-psp
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: system:authenticated
 {{- end }}
