@@ -20,7 +20,7 @@ spec:
     tls:
       httpsRedirect: true
     hosts:
-    - "canary.{{ .Values.global.cluster.domain }}"
+    - "canary.{{ .Release.Namespace }}.{{ .Values.global.cluster.domain }}"
   - port:
       number: 443
       name: https
@@ -31,4 +31,4 @@ spec:
       privateKey: sds
       credentialName: {{ include "gsp-canary.fullname" . }}-ingress-certificate
     hosts:
-    - "canary.{{ .Values.global.cluster.domain }}"
+    - "canary.{{ .Release.Namespace }}.{{ .Values.global.cluster.domain }}"

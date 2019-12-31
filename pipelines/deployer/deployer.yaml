@@ -82,6 +82,24 @@ generate_user_values: &generate_user_values
   outputs:
   - name: user-values
 
+generate_managed_namespaces_zones: &generate_managed_namespaces_zones
+  platform: linux
+  params:
+    CONFIG_VALUES_PATH:
+  run:
+    path: /bin/bash
+    args:
+    - -eu
+    - -c
+    - |
+      echo "generating external dns config for managed namespaces..."
+      gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-zones.tf > platform/pipelines/deployer/managed-namespaces-zones.tf
+  inputs:
+  - name: platform
+  - name: config
+  outputs:
+  - name: platform
+
 generate_managed_namespaces_values: &generate_managed_namespaces_values
   platform: linux
   params:
@@ -306,6 +324,7 @@ check_canary: &check_canary
   platform: linux
   params:
     CLUSTER_DOMAIN:
+    CLUSTER_NAME:
   run:
     path: /bin/bash
     args:
@@ -315,9 +334,9 @@ check_canary: &check_canary
       - |
         now="$(date '+%s')"
         echo "Current time: ${now}"
-        echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress, expecting the deployment to happen soon..."
+        echo "pinging https://canary.${CLUSTER_NAME}-main.${CLUSTER_DOMAIN}/metrics to check ingress, expecting the deployment to happen soon..."
         while true; do
-          last_deploy="$(curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics | awk '$1 ~ /^canary_build_timestamp/ {print $2 * 2 / 2}')"
+          last_deploy="$(curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_NAME}-main.${CLUSTER_DOMAIN}/metrics | awk '$1 ~ /^canary_build_timestamp/ {print $2 * 2 / 2}')"
           if [ "${last_deploy}" -ge "${now}" ]; then
             echo "OK!"
             exit 0
@@ -751,6 +770,12 @@ jobs:
           echo $DESIRED_MAP > terraform-var-overrides/overrides.tfvars.json
       outputs:
       - name: terraform-var-overrides
+  - task: generate-managed-namespaces-zones
+    timeout: 10m
+    config: *generate_managed_namespaces_zones
+    image: task-toolbox
+    params:
+      CONFIG_VALUES_PATH: ((config-values-path))
   - put: cluster-state
     params:
       env_name: ((account-name))
@@ -886,6 +911,7 @@ jobs:
     config: *check_canary
     params:
       CLUSTER_DOMAIN: ((cluster-domain))
+      CLUSTER_NAME: ((cluster-name))
 
 - name: check-logging
   plan:
@@ -1016,6 +1042,12 @@ jobs:
       - name: platform
       outputs:
       - name: platform
+  - task: generate-managed-namespaces-zones
+    timeout: 10m
+    config: *generate_managed_namespaces_zones
+    image: task-toolbox
+    params:
+      CONFIG_VALUES_PATH: ((config-values-path))
   - put: cluster-state
     params:
       env_name: ((account-name))

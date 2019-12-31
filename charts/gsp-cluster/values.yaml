@@ -889,9 +889,6 @@ concourseResources:
       repository: govsvc/task-toolbox
       tag: latest
 
-externalDns:
-  iamRoleArn: ""
-
 gatekeeper:
   enabled: true
 

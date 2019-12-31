@@ -10,4 +10,3 @@ output "values" {
   sensitive = true
   value     = data.template_file.values.rendered
 }
-
