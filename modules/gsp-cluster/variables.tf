@@ -188,3 +188,13 @@ variable "availability_zones" {
 variable "harbor_rds_skip_final_snapshot" {
   default = false
 }
+
+variable "managed_namespaces_zones" {
+  default = []
+  description = "List of details of delegated zones for managed namespaces"
+}
+
+variable "cluster_zone_ids" {
+  default = []
+  description = "List of DNS zone IDs associated with the cluster"
+}

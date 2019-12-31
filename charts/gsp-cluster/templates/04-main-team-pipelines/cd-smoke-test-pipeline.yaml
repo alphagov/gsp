@@ -191,11 +191,12 @@ spec:
           image_resource: *task_toolbox
           params:
             CLUSTER_DOMAIN: ((cluster.domain))
+            CLUSTER_NAME: ((cluster.name))
           run:
             path: /bin/bash
             args:
               - -eu
               - -c
               - |
-                echo "pinging https://canary.${CLUSTER_DOMAIN}/metrics to check ingress..."
-                curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_DOMAIN}/metrics
+                echo "pinging https://canary.${CLUSTER_NAME}-main.${CLUSTER_DOMAIN}/metrics to check ingress..."
+                curl --silent --show-error --max-time 5 --fail https://canary.${CLUSTER_NAME}-main.${CLUSTER_DOMAIN}/metrics

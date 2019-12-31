@@ -11,3 +11,6 @@ output "values" {
   value     = data.template_file.values.rendered
 }
 
+output "trust_kiam_server_policy_json" {
+  value = data.aws_iam_policy_document.trust_kiam_server.json
+}

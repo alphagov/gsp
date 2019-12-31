@@ -14,12 +14,6 @@ fi
 # we don't build the lifecycle hook here, but it will complain without it
 touch modules/k8s-cluster/aws-node-lifecycle-hook.zip
 
-# rough check for missing vars in terraform
-(cd pipelines/deployer \
-	&& terraform init --backend=false \
-	&& terraform validate)
-
-
 # rough check for missing vars in values.yaml for gsp-cluster chart
 rm -rf output || echo 'ok'
 mkdir -p output
@@ -70,6 +64,13 @@ namespaces:
   ingress:
     enabled: true
 - name: test-operators
+external_dns:
+- namespace: gsp-system
+  role_name: sandbox-gsp-system-external-dns
+  zone_id: gspsystem
+- namespace: verify-proxy-node-build
+  role_name: sandbox-verify-proxy-node-build-external-dns
+  zone_id: proxynode
 users:
 - name: chris.farmiloe
   email: chris.farmiloe@digital.cabinet-office.gov.uk
@@ -102,6 +103,13 @@ EOF
 
 gomplate -d config=output/values.yaml -f templates/managed-namespaces-gateways.yaml > output/gateways-values.yaml
 
+gomplate -d config=output/values.yaml -f templates/managed-namespaces-zones.tf > pipelines/deployer/managed-namespaces-zones.tf
+
+# rough check for missing vars in terraform
+(cd pipelines/deployer \
+	&& terraform init --backend=false \
+	&& terraform validate)
+
 $helm template \
 	--output-dir ./output \
 	--name gsp \
@@ -113,6 +121,7 @@ $helm template \
 		| sed 's/${concourse_teams}/["org:team"]/' \
 		| sed 's/${egress_ip_addresses}/[]/' \
 		| sed 's/${eks_version}/1.14/' \
+		| sed 's/${external_dns_map}/external_dns: []/' \
 	) \
 	--values output/values.yaml \
 	--set 'global.cloudHsm.enabled=true' \

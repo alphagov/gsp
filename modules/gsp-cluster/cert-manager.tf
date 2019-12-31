@@ -8,9 +8,7 @@ data "aws_iam_policy_document" "cert_manager" {
       "route53:ListResourceRecordSets",
     ]
 
-    resources = [
-      "arn:aws:route53:::hostedzone/${var.cluster_domain_id}",
-    ]
+    resources = formatlist("arn:aws:route53:::hostedzone/%s", var.cluster_zone_ids)
   }
 
   statement {

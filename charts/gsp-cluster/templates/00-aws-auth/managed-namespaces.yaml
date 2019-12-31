@@ -1,6 +1,6 @@
 {{- range .Values.namespaces }}
 {{- $defaultedPermittedRolesRegex := .permittedRolesRegex | default "^$" }}
-{{- $permittedRolesRegex := printf "%s|^svcop-%s-%s-.*$|^%s$" $defaultedPermittedRolesRegex $.Values.global.cluster.name .name $.Values.externalDns.iamRoleName }}
+{{- $permittedRolesRegex := printf "%s|^svcop-%s-%s-.*$|^%s-%s-external-dns$" $defaultedPermittedRolesRegex $.Values.global.cluster.name .name $.Values.global.cluster.name .name }}
 ---
 apiVersion: v1
 kind: Namespace

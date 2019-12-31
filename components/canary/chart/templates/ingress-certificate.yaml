@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: {{ include "gsp-canary.fullname" . }}-ingress-certificate
   dnsNames:
-  - "canary.{{ .Values.global.cluster.domain }}"
+  - "canary.{{ .Release.Namespace }}.{{ .Values.global.cluster.domain }}"
   issuerRef:
     name: letsencrypt-r53
     kind: ClusterIssuer

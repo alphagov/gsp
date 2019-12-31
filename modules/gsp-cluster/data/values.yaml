@@ -194,8 +194,7 @@ serviceOperator:
 RDSFromWorkerSecurityGroup: ${rds_from_worker_security_group}
 privateDBSubnetGroup: ${private_db_subnet_group}
 
-externalDns:
-  iamRoleName: ${external_dns_iam_role_name}
+${external_dns_map}
 
 cert-manager:
   podAnnotations:
