@@ -20,7 +20,7 @@ limitations under the License.
 // +k8s:deepcopy-gen=package,register
 // +k8s:conversion-gen=github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse
 // +k8s:defaulter-gen=TypeMeta
-// +groupName=concourse.k8s.io
+// +groupName=concourse.govsvc.uk
 package v1beta1
 
 import (
@@ -30,7 +30,7 @@ import (
 
 var (
 	// SchemeGroupVersion is group version used to register these objects
-	SchemeGroupVersion = schema.GroupVersion{Group: "concourse.k8s.io", Version: "v1beta1"}
+	SchemeGroupVersion = schema.GroupVersion{Group: "concourse.govsvc.uk", Version: "v1beta1"}
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
 	SchemeBuilder = &scheme.Builder{GroupVersion: SchemeGroupVersion}

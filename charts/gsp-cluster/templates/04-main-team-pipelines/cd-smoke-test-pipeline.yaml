@@ -1,5 +1,5 @@
 ---
-apiVersion: concourse.k8s.io/v1beta1
+apiVersion: concourse.govsvc.uk/v1beta1
 kind: Pipeline
 metadata:
   labels:

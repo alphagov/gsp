@@ -80,8 +80,8 @@ type ReconcileTeam struct {
 
 // Reconcile reads that state of the cluster for a Team object and makes changes based on the state read
 // Automatically generate RBAC rules to allow the Controller to read and write Team resources
-// +kubebuilder:rbac:groups=concourse.k8s.io,resources=teams,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=concourse.k8s.io,resources=teams/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=concourse.govsvc.uk,resources=teams,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=concourse.govsvc.uk,resources=teams/status,verbs=get;update;patch
 func (r *ReconcileTeam) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	if r.newClient == nil {
 		return reconcile.Result{}, fmt.Errorf("newClient is undefined")

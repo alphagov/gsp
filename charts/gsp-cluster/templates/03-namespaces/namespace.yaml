@@ -122,7 +122,7 @@ spec:
         matchLabels:
           app: prometheus
 ---
-apiVersion: concourse.k8s.io/v1beta1
+apiVersion: concourse.govsvc.uk/v1beta1
 kind: Team
 metadata:
   labels:
@@ -293,7 +293,7 @@ type: kubernetes.io/service-account-token
 {{- end }}
 {{- if .repository }}
 ---
-apiVersion: concourse.k8s.io/v1beta1
+apiVersion: concourse.govsvc.uk/v1beta1
 kind: Pipeline
 metadata:
   labels:
