@@ -6,6 +6,18 @@
   * Set `config-version` to the branch name you chose.
   * Set `config-path` to the path to your new cluster YAML file, relative to the root of tech-ops-cluster-config.
   * Set `config-values-path` to the path of your new cluster values YAML file, relative to the root of tech-ops-cluster-config.
+  * Set the following vars:
+      * account-id: "011571571136"
+      * account-name: "sandbox"
+      * account-role-arn: "arn:aws:iam::011571571136:role/deployer"
+      * github-client-id: "NOTID"
+      * github-client-secret: "NOTASECRET"
+      * hsm-splunk-index: "NOTAURL"
+      * hsm-splunk-hec-token: "NOTATOKEN"
+      * k8s-splunk-index: "NOTAURL"
+      * k8s-splunk-hec-token: "NOTATOKEN"
+      * google-oauth-client-secret: "NOTID"
+      * google-oauth-client-id: "NOTASECRET"
 * Commit and push that, open a draft PR. You don't need to get it merged.
 * Ensure your fly config has a `cd-gsp` target pointing to the `gsp` team in Big Concourse.
 * Change directory to top level of `gsp` repo
