@@ -231,6 +231,8 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: {{ .name }}-namespace-deployer
   namespace: {{ .name }}
+  labels:
+    gsp-binding: namespace-deployer
 subjects:
 - kind: ServiceAccount
   name: namespace-deployer
@@ -244,6 +246,8 @@ kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: {{ .name }}-cluster-viewer
+  labels:
+    gsp-binding: cluster-viewer
 subjects:
 - kind: ServiceAccount
   name: namespace-deployer
@@ -268,11 +272,15 @@ kind: ServiceAccount
 metadata:
   name: cluster-deployer
   namespace: {{ .name }}
+  labels:
+    gsp-account: cluster-deployer
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: {{ .name }}-cluster-deployer
+  labels:
+    gsp-binding: cluster-deployer
 subjects:
 - kind: ServiceAccount
   name: cluster-deployer
@@ -287,6 +295,8 @@ kind: Secret
 metadata:
   name: cluster-deployer
   namespace: {{ .name }}
+  labels:
+    gsp-secret: cluster-deployer
   annotations:
     "kubernetes.io/service-account.name": cluster-deployer
 type: kubernetes.io/service-account-token
