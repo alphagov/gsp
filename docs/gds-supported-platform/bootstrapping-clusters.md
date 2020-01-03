@@ -7,9 +7,9 @@
   * Set `config-path` to the path to your new cluster YAML file, relative to the root of tech-ops-cluster-config.
   * Set `config-values-path` to the path of your new cluster values YAML file, relative to the root of tech-ops-cluster-config.
   * Set the following vars:
-      * account-id: "value from PR #268 example"
+      * account-id: "011571571136"
       * account-name: "sandbox"
-      * account-role-arn: "value from PR #268 example"
+      * account-role-arn: "arn:aws:iam::011571571136:role/deployer"
       * github-client-id: "NOTID"
       * github-client-secret: "NOTASECRET"
       * hsm-splunk-index: "NOTAURL"
