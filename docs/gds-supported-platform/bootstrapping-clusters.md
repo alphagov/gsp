@@ -8,7 +8,8 @@
   * Set `config-values-path` to the path of your new cluster values YAML file, relative to the root of tech-ops-cluster-config.
 * Commit and push that, open a draft PR. You don't need to get it merged.
 * Ensure your fly config has a `cd-gsp` target pointing to the `gsp` team in Big Concourse.
-* `CLUSTER_CONFIG=../tech-ops-cluster-config/name-of-my-cluster.yaml ./hack/set-deployer-pipeline.sh`
+* Change directory to top level of `gsp` repo
+* `CLUSTER_CONFIG=../tech-ops-cluster-config/clusters/name-of-my-cluster.yaml ./hack/set-deployer-pipeline.sh`
 * Go into Big Concourse and run the update job for the new `name-of-my-cluster-deployer` pipeline.
 
 ## Maintenance
