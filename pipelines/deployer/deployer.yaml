@@ -580,6 +580,7 @@ resources:
       ci_worker_count: ((ci-worker-count))
       cls_destination_enabled: ((cls-destination-enabled))
       cls_destination_arn: ((cls-destination-arn))
+      harbor_rds_skip_final_snapshot: ((harbor-rds-skip-final-snapshot))
 - name: user-state
   type: terraform
   source:

@@ -99,6 +99,10 @@ variable "cls_destination_arn" {
   type = string
 }
 
+variable "harbor_rds_skip_final_snapshot" {
+  default = false
+}
+
 data "aws_caller_identity" "current" {
 }
 
@@ -183,6 +187,8 @@ module "gsp-cluster" {
 
   cls_destination_enabled = var.cls_destination_enabled
   cls_destination_arn     = var.cls_destination_arn
+
+  harbor_rds_skip_final_snapshot = var.harbor_rds_skip_final_snapshot
 }
 
 output "kubeconfig" {

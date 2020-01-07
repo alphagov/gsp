@@ -149,6 +149,7 @@ resource "aws_rds_cluster" "harbor" {
   db_subnet_group_name      = aws_db_subnet_group.private.name
   vpc_security_group_ids    = [aws_security_group.rds-from-worker.id]
   final_snapshot_identifier = "${var.cluster_name}-harbor-final"
+  skip_final_snapshot       = "${var.harbor_rds_skip_final_snapshot}"
   tags = {
     Name = var.cluster_name
   }
