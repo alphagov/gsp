@@ -206,7 +206,7 @@ Resources:
       AutoScalingRollingUpdate:
         MaxBatchSize: 1
         MinInstancesInService: !Ref NodeAutoScalingGroupMinInstancesInService
-        PauseTime: PT5M
+        PauseTime: PT2M
 
   NodeLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
