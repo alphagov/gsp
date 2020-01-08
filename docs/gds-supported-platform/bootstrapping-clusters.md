@@ -20,6 +20,7 @@
       * k8s-splunk-hec-token: "NOTATOKEN"
       * google-oauth-client-secret: "NOTID"
       * google-oauth-client-id: "NOTASECRET"
+      * harbor-rds-skip-final-snapshot: true
 
 * Commit and push that, open a draft PR. You don't need to get it merged.
 * Ensure your fly config has a `cd-gsp` target pointing to the `gsp` team in Big Concourse.

@@ -202,3 +202,7 @@ variable "availability_zones" {
   type        = list
   description = "List of availability zones for the cluster"
 }
+
+variable "harbor_rds_skip_final_snapshot" {
+  default = false
+}
