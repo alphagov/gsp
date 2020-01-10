@@ -449,7 +449,11 @@ drain_cluster_task: &drain_cluster_task
       export KUBECONFIG=$(pwd)/kubeconfig
 
       export RESOURCE_TYPES=$(kubectl get crd -o json | jq -r '.items[] | select (.spec.group | endswith(".govsvc.uk")) | .spec.names.singular')
+      echo 'deleting govsvc.uk CRDs'
       kubectl delete -A --all $(echo $RESOURCE_TYPES | tr ' ' ',')
+
+      echo 'deleting PodDisruptionBudgets'
+      kubectl delete -A --all poddisruptionbudget
 
       echo "fetching cluster VPC ID..."
       CLUSTER_VPC_ID=$(aws eks describe-cluster --name "${CLUSTER_NAME}" | jq .cluster.resourcesVpcConfig.vpcId -r)
