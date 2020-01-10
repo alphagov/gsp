@@ -162,6 +162,7 @@ resource "aws_rds_cluster_instance" "harbor" {
   engine               = "aurora-postgresql"
   engine_version       = "10.7"
   ca_cert_identifier   = "rds-ca-2019"
+  apply_immediately    = true
   instance_class       = "db.t3.medium"
   db_subnet_group_name = aws_db_subnet_group.private.name
 
