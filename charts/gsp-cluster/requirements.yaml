@@ -4,8 +4,8 @@ dependencies:
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: global.runningOnAws
   - name: "concourse"
-    version: 8.2.6
-    repository: https://kubernetes-charts.storage.googleapis.com/
+    version: 9.0.0
+    repository: https://concourse-charts.storage.googleapis.com/
     condition: global.concourse.enabled
   - name: "harbor"
     version: 1.1.3
