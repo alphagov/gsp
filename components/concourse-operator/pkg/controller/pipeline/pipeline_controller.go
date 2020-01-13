@@ -74,7 +74,7 @@ type ReconcilePipeline struct {
 
 // Reconcile reads that state of the cluster for a Pipeline object and makes changes based on the state read
 // and what is in the Pipeline.Spec
-// +kubebuilder:rbac:groups=concourse.k8s.io,resources=pipelines,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=concourse.govsvc.uk,resources=pipelines,verbs=get;list;watch;create;update;patch;delete
 func (r *ReconcilePipeline) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	// Fetch the Pipeline instance
 	instance := &concoursev1beta1.Pipeline{}

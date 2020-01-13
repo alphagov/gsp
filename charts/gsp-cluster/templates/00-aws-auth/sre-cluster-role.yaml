@@ -107,7 +107,7 @@ rules:
     resources: ["services/proxy"]
     verbs:
     - get
-  - apiGroups: ["concourse.k8s.io"]
+  - apiGroups: ["concourse.govsvc.uk"]
     resources: ["pipelines", "teams"]
     verbs:
     - get

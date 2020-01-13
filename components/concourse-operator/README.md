@@ -12,7 +12,7 @@ Declaratively configure concourse pipelines as Kubernetes resources.
 Define a pipeline like:
 
 ```yaml
-apiVersion: concourse.k8s.io/v1beta1
+apiVersion: concourse.govsvc.uk/v1beta1
 kind: Pipeline
 metadata:
   labels:
@@ -55,7 +55,7 @@ Define a team like:
 
 ```yaml
 
-apiVersion: concourse.k8s.io/v1beta1
+apiVersion: concourse.govsvc.uk/v1beta1
 kind: Team
 metadata:
   labels:

@@ -18,5 +18,5 @@ limitations under the License.
 // +k8s:deepcopy-gen=package,register
 // +k8s:conversion-gen=github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse
 // +k8s:defaulter-gen=TypeMeta
-// +groupName=concourse.k8s.io
+// +groupName=concourse.govsvc.uk
 package v1beta1

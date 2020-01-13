@@ -4,9 +4,9 @@ metadata:
   creationTimestamp: null
   labels:
     controller-tools.k8s.io: "1.0"
-  name: pipelines.concourse.k8s.io
+  name: pipelines.concourse.govsvc.uk
 spec:
-  group: concourse.k8s.io
+  group: concourse.govsvc.uk
   names:
     kind: Pipeline
     plural: pipelines

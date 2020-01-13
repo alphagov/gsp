@@ -5,7 +5,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - concourse.k8s.io
+  - concourse.govsvc.uk
   resources:
   - pipelines
   verbs:
@@ -17,7 +17,7 @@ rules:
   - patch
   - delete
 - apiGroups:
-  - concourse.k8s.io
+  - concourse.govsvc.uk
   resources:
   - teams
   verbs:
@@ -29,7 +29,7 @@ rules:
   - patch
   - delete
 - apiGroups:
-  - concourse.k8s.io
+  - concourse.govsvc.uk
   resources:
   - teams/status
   verbs:
