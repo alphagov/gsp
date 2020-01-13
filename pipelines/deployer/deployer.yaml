@@ -184,7 +184,6 @@ apply_cluster_chart: &apply_cluster_chart
         --namespace "${DEFAULT_NAMESPACE}"
       echo "RELEASE_TAG=${RELEASE_TAG}"
       ### Start temporary tidyup
-      #kubectl delete --ignore-not-found=true crd pipelines.concourse.k8s.io teams.concourse.k8s.io
       ### End temporary tidyup
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
