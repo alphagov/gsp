@@ -10,6 +10,7 @@ metadata:
     control-plane: concourse-operator
     controller-tools.k8s.io: "1.0"
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: "pipeline-operator"
@@ -25,7 +26,6 @@ spec:
         control-plane: concourse-operator
         controller-tools.k8s.io: "1.0"
     spec:
-      replicas: 0
       containers:
       - command:
         - /manager
