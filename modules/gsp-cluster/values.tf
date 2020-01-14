@@ -22,7 +22,6 @@ data "template_file" "values" {
     concourse_teams                  = jsonencode(concat(["main"], var.concourse_teams))
     concourse_main_team_github_teams = jsonencode(var.concourse_main_team_github_teams)
     concourse_worker_count           = var.ci_worker_count
-    concourse_iam_role_name          = aws_iam_role.concourse.name
     github_client_id                 = jsonencode(var.github_client_id)
     github_client_secret             = jsonencode(var.github_client_secret)
     github_ca_cert                   = jsonencode(var.github_ca_cert)
@@ -65,7 +64,6 @@ data "template_file" "values" {
       "|",
       [
         aws_iam_role.cloudwatch_log_shipping_role.name,
-        aws_iam_role.concourse.name,
         aws_iam_role.grafana.name,
         aws_iam_role.gsp-service-operator.name,
         aws_iam_role.harbor.name,
