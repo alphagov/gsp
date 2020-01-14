@@ -24,6 +24,7 @@ data:
       groups:
         - aws-iam:authenticated-users
         {{- range .roles }}
+        {{- if eq .account $.Values.global.account.name }}
         {{- if .namespace }}
         {{- if eq "operator" .role }}
         - {{ .namespace }}-operators
@@ -31,6 +32,7 @@ data:
         {{- else }}
         {{- if eq "admin" .role }}
         - system:masters
+        {{- end }}
         {{- end }}
         {{- end }}
         {{- end }}
