@@ -22,6 +22,8 @@ global:
     egressIpAddresses: ["127.0.0.1", "1.2.3.4"]
     privateKey: BEGIN-PRIVATE
     publicKey: BEGIN-PUBLIC
+  account:
+    name: sandbox
 egressSafelist:
 - name: integration-hub
   service:
