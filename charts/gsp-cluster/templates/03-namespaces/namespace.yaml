@@ -350,7 +350,7 @@ spec:
             type: docker-image
             source:
               repository: govsvc/task-toolbox
-              tag: "1.2.0"
+              tag: "gsp-vb699954"
           inputs:
           - name: src
           params:
@@ -379,12 +379,10 @@ spec:
                 exit 1
               fi
               echo "configuring kubectl..."
-              echo "${KUBERNETES_SERVICE_ACCOUNT}" | jq -r .["ca.crt"] > ca.crt
-              kubectl config set-cluster self --server=https://kubernetes.default --certificate-authority=ca.crt
-              kubectl config set-credentials deployer --token "${KUBERNETES_TOKEN}"
-              kubectl config set-context deployer --user deployer --cluster self
+
+              setup-kube-deployer
               kubectl config set-context deployer --namespace "${RELEASE_NAMESPACE}"
-              kubectl config use-context deployer
+
               echo "applying manifests from ${SRC_URI} at path ${PATH_TO_MANIFESTS} to ${RELEASE_NAMESPACE}"
               kubectl apply $NS_ARGS -R -f "./src/${PATH_TO_MANIFESTS}"
 ---
