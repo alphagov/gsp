@@ -1,0 +1,10 @@
+version: 1
+
+# This controls how dependabot creates PRs for dependencies:
+# See: https://dependabot.com/docs/config-file/
+
+update_configs:
+
+- package_manager: docker
+  directory: /components/service-operator
+  update_schedule: daily 
