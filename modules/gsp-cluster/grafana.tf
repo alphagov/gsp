@@ -1,7 +1,25 @@
+data "aws_iam_policy_document" "trust_grafana" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [module.k8s-cluster.oidc_provider_arn]
+    }
+
+    condition {
+      test = "StringEquals"
+      variable = "${replace(module.k8s-cluster.oidc_provider_url, "https://", "")}:sub"
+      values = ["system:serviceaccount:gsp-system:gsp-grafana"]
+    }
+  }
+}
+
 resource "aws_iam_role" "grafana" {
   name               = "${var.cluster_name}-grafana"
   description        = "Role the Grafana process assumes"
-  assume_role_policy = data.aws_iam_policy_document.trust_kiam_server.json
+  assume_role_policy = data.aws_iam_policy_document.trust_grafana.json
 }
 
 data "aws_iam_policy_document" "grafana_cloudwatch" {
