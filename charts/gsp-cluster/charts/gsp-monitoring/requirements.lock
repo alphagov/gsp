@@ -1,6 +1,6 @@
 dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 7.5.0
-digest: sha256:974627c415749479a9e5104227f11b10c14e1e895a43238660f5bbd0acbafcb1
-generated: "2020-01-03T11:43:43.749648Z"
+  version: 8.5.1
+digest: sha256:41bf87d8163ce8a01c4c2bbb3eda2f7912f6d4087db23d4f78f50deebdd51b30
+generated: "2020-01-14T17:48:40.106202Z"

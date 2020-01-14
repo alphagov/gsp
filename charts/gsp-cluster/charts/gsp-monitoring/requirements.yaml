@@ -1,4 +1,4 @@
 dependencies:
   - name: "prometheus-operator"
-    version: 7.5.0
+    version: 8.5.1
     repository: https://kubernetes-charts.storage.googleapis.com/
