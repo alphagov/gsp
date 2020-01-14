@@ -183,21 +183,6 @@ apply_cluster_chart: &apply_cluster_chart
       kubectl config set-context $(kubectl config get-contexts -o name) \
         --namespace "${DEFAULT_NAMESPACE}"
       echo "RELEASE_TAG=${RELEASE_TAG}"
-      ### Start temporary tidyup
-      kubectl delete --ignore-not-found=true rolebinding -l gsp-binding=namespace-deployer --all-namespaces
-      kubectl delete --ignore-not-found=true clusterrolebinding -l gsp-binding=cluster-viewer --all-namespaces
-      kubectl delete --ignore-not-found=true serviceaccount -l gsp-account=cluster-deployer --all-namespaces
-      kubectl delete --ignore-not-found=true clusterrolebinding -l gsp-binding=cluster-deployer --all-namespaces
-      kubectl delete --ignore-not-found=true secret -l gsp-secret=cluster-deployer --all-namespaces
-      kubectl delete --ignore-not-found=true clusterrolebinding ${ACCOUNT_NAME}-dev
-      kubectl delete --ignore-not-found=true clusterrolebinding ${ACCOUNT_NAME}-dev-viewer
-      kubectl delete --ignore-not-found=true clusterrole dev
-      kubectl delete --ignore-not-found=true clusterrolebinding ${ACCOUNT_NAME}-sre
-      kubectl delete --ignore-not-found=true clusterrolebinding ${ACCOUNT_NAME}-sre-viewer
-      kubectl delete --ignore-not-found=true clusterrole sre
-      kubectl delete --ignore-not-found=true clusterrole cluster-viewer
-      kubectl delete --ignore-not-found=true clusterrolebinding ${ACCOUNT_NAME}-admin
-      ### End temporary tidyup
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       mkdir -p kube-system-manifests
