@@ -175,7 +175,7 @@ gsp-monitoring:
           scheme: https
     grafana:
       podAnnotations:
-        iam.amazonaws.com/role: ${grafana_iam_role_name}
+        eks.amazonaws.com/role-arn: arn:aws:iam::${account_id}:role/${grafana_iam_role_name}
       adminPassword: ${grafana_default_admin_password}
       grafana.ini:
         server:
