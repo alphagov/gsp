@@ -28,9 +28,6 @@ global:
     enabled: true
 
 adminRoleARNs: []
-adminUserARNs: []
-sreRoleARNs: []
-sreUserARNs: []
 permittedRolesRegex: ""
 
 githubAPIToken: ""

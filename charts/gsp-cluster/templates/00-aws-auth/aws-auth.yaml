@@ -18,30 +18,20 @@ data:
       groups:
         - system:masters
   {{- end }}
-  {{- range .Values.sreRoleARNs }}
-    - rolearn: {{ . | quote }}
-      username: sre
-      groups:
-        - sre
-  {{- end }}
   {{- range .Values.users }}
     - rolearn: {{ .roleARN | quote }}
       username: {{ .name }}
       groups:
-      {{- range .roles }}
-        - {{ .account }}-{{ .role }}
-      {{- end }}
-  {{- end }}
-  mapUsers: |
-  {{- range .Values.adminUserARNs }}
-    - userarn: {{ . | quote }}
-      username: admin
-      groups:
+        - aws-iam:authenticated-users
+        {{- range .roles }}
+        {{- if .namespace }}
+        {{- if eq "operator" .role }}
+        - {{ .namespace }}-operators
+        {{- end }}
+        {{- else }}
+        {{- if eq "admin" .role }}
         - system:masters
-  {{- end }}
-  {{- range .Values.sreUserARNs }}
-    - userarn: {{ . | quote }}
-      username: sre
-      groups:
-        - sre
+        {{- end }}
+        {{- end }}
+        {{- end }}
   {{- end }}

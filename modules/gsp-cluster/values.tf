@@ -14,9 +14,6 @@ data "template_file" "values" {
     account_name                     = var.account_name
     account_id                       = data.aws_caller_identity.current.account_id
     admin_role_arns                  = jsonencode(concat(var.admin_role_arns, [module.k8s-cluster.aws_node_lifecycle_hook_role_arn]))
-    admin_user_arns                  = jsonencode(var.admin_user_arns)
-    sre_role_arns                    = jsonencode(var.sre_role_arns)
-    sre_user_arns                    = jsonencode(var.sre_user_arns)
     bootstrap_role_arns              = jsonencode(module.k8s-cluster.bootstrap_role_arns)
     concourse_admin_password         = random_password.concourse_password.result
     concourse_teams                  = jsonencode(concat(["main"], var.concourse_teams))

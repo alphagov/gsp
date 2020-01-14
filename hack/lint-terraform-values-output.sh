@@ -57,6 +57,7 @@ namespaces:
   requiredApprovalCount: 2
   ingress:
     enabled: true
+- name: test-operators
 users:
 - name: chris.farmiloe
   email: chris.farmiloe@digital.cabinet-office.gov.uk
@@ -70,7 +71,8 @@ users:
   email: sam.crang@digital.cabinet-office.gov.uk
   ARN: arn:aws:iam::000000072:user/sam.crang@digital.cabinet-office.gov.uk
   roles:
-  - role: sre
+  - role: operator
+    namespace: test-operators
     account: sandbox
   roleARN: arn:aws:iam::000000072:role/sam.crang
   github: "samcrang"
@@ -95,9 +97,6 @@ helm template \
 	--values <(\
 		cat modules/gsp-cluster/data/values.yaml \
 		| sed 's/${admin_role_arns}/[]/' \
-		| sed 's/${admin_user_arns}/[]/' \
-		| sed 's/${sre_role_arns}/[]/' \
-		| sed 's/${sre_user_arns}/[]/' \
 		| sed 's/${bootstrap_role_arns}/[]/' \
 		| sed 's/${concourse_teams}/["org:team"]/' \
 		| sed 's/${egress_ip_addresses}/[]/' \

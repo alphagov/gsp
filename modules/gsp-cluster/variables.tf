@@ -36,24 +36,6 @@ variable "dev_user_arns" {
   default     = []
 }
 
-variable "admin_user_arns" {
-  description = "A list of user ARNs that will be mapped to the cluster admin role"
-  type        = list(string)
-  default     = []
-}
-
-variable "sre_role_arns" {
-  description = "A list of role ARNs that will be mapped to the cluster sre role"
-  type        = list(string)
-  default     = []
-}
-
-variable "sre_user_arns" {
-  description = "A list of user ARNs that will be mapped to the cluster sre role"
-  type        = list(string)
-  default     = []
-}
-
 variable "worker_instance_type" {
   type    = string
   default = "t3.medium"
