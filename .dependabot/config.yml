@@ -5,6 +5,10 @@ version: 1
 
 update_configs:
 
-- package_manager: docker
+- package_manager: "docker"
   directory: /components/service-operator
-  update_schedule: daily 
+  update_schedule: daily
+- package_manager: "go:modules"
+  directory: /components/service-operator
+  update_schedule: daily
+
