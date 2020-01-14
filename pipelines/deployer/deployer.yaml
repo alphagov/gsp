@@ -840,6 +840,44 @@ jobs:
       GOOGLE_OAUTH_CLIENT_SECRET: ((google-oauth-client-secret))
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
       PLATFORM_VERSION: ((platform-version))
+  - task: apply-cluster-config-resources
+    image: task-toolbox
+    timeout: 10m
+    config:
+      platform: linux
+      inputs:
+      - name: config
+      params:
+        ACCOUNT_ROLE_ARN: ((account-role-arn))
+        AWS_DEFAULT_REGION: eu-west-2
+        AWS_REGION: eu-west-2
+        CLUSTER_NAME: ((cluster-name))
+        DEFAULT_NAMESPACE: gsp-system
+      run:
+        path: /bin/bash
+        args:
+        - -c
+        - |
+          set -euo pipefail
+          if [ -d "config/cluster-resources" ]
+          then
+            echo "cluster resources directory exists"
+            echo "assuming aws deployer role..."
+            AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+            eval "${AWS_CREDS}"
+            echo "fetching kubeconfig from aws..."
+            aws eks update-kubeconfig \
+              --name "${CLUSTER_NAME}" \
+              --kubeconfig ./kubeconfig
+            export KUBECONFIG=$(pwd)/kubeconfig
+            echo "setting default namespace to ${DEFAULT_NAMESPACE}"
+            kubectl config set-context $(kubectl config get-contexts -o name) \
+              --namespace "${DEFAULT_NAMESPACE}"
+            echo "applying cluster resources..."
+            kubectl apply -R -f config/cluster-resources
+          else
+            echo "no cluster resources to apply"
+          fi
 
 - name: check-canary
   plan:
