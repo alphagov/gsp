@@ -20,7 +20,6 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: "true"
-        iam.amazonaws.com/role: {{ .Values.global.cluster.name }}-service-operator
       labels:
         control-plane: {{ .Release.Name }}-service-operator
     spec:

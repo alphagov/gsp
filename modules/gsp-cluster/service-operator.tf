@@ -7,10 +7,28 @@ resource "aws_s3_bucket" "service-operator" {
   }
 }
 
+data "aws_iam_policy_document" "trust_svcop" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [module.k8s-cluster.oidc_provider_arn]
+    }
+
+    condition {
+      test = "StringEquals"
+      variable = "${replace(module.k8s-cluster.oidc_provider_url, "https://", "")}:sub"
+      values = ["system:serviceaccount:gsp-system:gsp-service-operator-service-account"]
+    }
+  }
+}
+
 resource "aws_iam_role" "gsp-service-operator" {
   name               = "${var.cluster_name}-service-operator"
   description        = "Role the service operator assumes"
-  assume_role_policy = data.aws_iam_policy_document.trust_kiam_server.json
+  assume_role_policy = data.aws_iam_policy_document.trust_svcop.json
 }
 
 data "aws_iam_policy_document" "service-operator" {
