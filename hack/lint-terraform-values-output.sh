@@ -2,6 +2,16 @@
 
 set -eu
 
+
+# while there is a transition to helm v3 you may need to have two versions of helm
+# there's no such thing as helmenv or hvm so having two binaries is best bet for now
+# we want helm2, so if there's a helm2, use that
+helm="helm"
+if [ -x "$(command -v helm2)" ]; then
+	helm="helm2"
+fi
+
+# we don't build the lifecycle hook here, but it will complain without it
 touch modules/k8s-cluster/aws-node-lifecycle-hook.zip
 
 # rough check for missing vars in terraform
@@ -92,7 +102,7 @@ EOF
 
 gomplate -d config=output/values.yaml -f templates/managed-namespaces-gateways.yaml > output/gateways-values.yaml
 
-helm template \
+$helm template \
 	--output-dir ./output \
 	--name gsp \
 	--namespace gsp-system \
@@ -108,7 +118,7 @@ helm template \
 	--set 'global.cloudHsm.enabled=true' \
 	"charts/gsp-cluster"
 
-helm template \
+$helm template \
 --name istio \
 --namespace istio-system \
 --output-dir output \
