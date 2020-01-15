@@ -67,8 +67,15 @@ concourse:
         github:
           enabled: true
         mainTeam:
+          config: |
+            roles:
+            - name: owner
+              local:
+                users: ["pipeline-operator"]
+            - name: pipeline-operator
+              github:
+                teams: ${concourse_main_team_github_teams}
           localUser: pipeline-operator
-          config: /web-configuration/config.yaml
       kubernetes:
         namespacePrefix: ${cluster_name}-
         createTeamNamespaces: false
