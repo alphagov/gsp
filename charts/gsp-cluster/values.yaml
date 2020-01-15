@@ -831,6 +831,7 @@ serviceOperator:
   service:
     port: 443
   serviceAccountName: service-operator-service-account
+  roleARN: NOTSET
   image:
     repository: govsvc/service-operator
     tag: latest
