@@ -9,7 +9,6 @@ global:
     oidcProviderARN: ${cluster_oidc_provider_arn}
   account:
     name: ${account_name}
-    id: ${account_id}
   roles:
     harbor: ${harbor_iam_role_name}
     concourse: ${concourse_iam_role_name}
@@ -188,6 +187,7 @@ gsp-monitoring:
 
 serviceOperator:
   kiamServerRoleARN: ${kiam_server_role_arn}
+  roleARN: ${service_operator_role_arn}
   permissionsBoundaryARN: ${service_operator_boundary_arn}
 
 RDSFromWorkerSecurityGroup: ${rds_from_worker_security_group}
