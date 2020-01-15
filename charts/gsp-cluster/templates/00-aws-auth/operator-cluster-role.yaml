@@ -107,6 +107,22 @@ rules:
   - patch
   - update
 
+- apiGroups: ["concourse.govsvc.uk"]
+  resources:
+  - pipelines
+  verbs:
+  - create
+  - patch
+  - update
+- apiGroups: ["concourse.govsvc.uk"]
+  resources:
+  - teams
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+
 - apiGroups: ["config.istio.io"]
   resources:
   - bypasses
