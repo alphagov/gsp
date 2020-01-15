@@ -162,7 +162,7 @@ rules:
   - list
   - watch
 
-- apiGroups: ["concourse.k8s.io"]
+- apiGroups: ["concourse.govsvc.uk"]
   resources:
   - pipelines
   verbs:
@@ -170,7 +170,7 @@ rules:
   - get
   - list
   - watch
-- apiGroups: ["concourse.k8s.io"]
+- apiGroups: ["concourse.govsvc.uk"]
   resources:
   - teams
   verbs:
