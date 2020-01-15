@@ -3,7 +3,7 @@ module github.com/alphagov/gsp/components/service-operator
 go 1.12
 
 require (
-	github.com/aws/aws-sdk-go v1.28.1
+	github.com/aws/aws-sdk-go v1.28.2
 	github.com/awslabs/goformation v0.0.0-20190320125420-ac0a17860cf1
 	github.com/go-logr/logr v0.1.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
