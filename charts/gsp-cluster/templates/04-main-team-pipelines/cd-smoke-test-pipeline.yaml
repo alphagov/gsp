@@ -182,6 +182,8 @@ spec:
                 --app "${APP_NAME}" \
                 --diff-changes \
                 -f ./manifests/
+              echo "Garbage collecting old kapp state changes..."
+              kapp app-change gc --app "${APP_NAME}"
 
       - task: ping
         config:
