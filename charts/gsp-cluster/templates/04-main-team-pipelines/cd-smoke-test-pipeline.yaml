@@ -149,7 +149,7 @@ spec:
                 ./src/components/canary/chart
 
       - task: deploy-manifests
-        timeout: 2m
+        timeout: 10m
         config:
           platform: linux
           image_resource: *task_toolbox
