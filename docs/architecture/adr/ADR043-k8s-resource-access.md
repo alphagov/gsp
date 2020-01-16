@@ -72,6 +72,7 @@ rules:
   - namespaces
   - nodes
   - persistentvolumeclaims
+  - pods/log
   verbs:
   - get
   - list
