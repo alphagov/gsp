@@ -244,7 +244,6 @@ rules:
   - dogstatsds
   - edges
   - fluentds
-  - handlers
   - httpapispecbindings
   - httpapispecs
   - kuberneteses
@@ -271,6 +270,7 @@ rules:
   - checknothings
   - cloudwatches
   - instances
+  - handlers
   - kubernetesenvs
   - memquotas
   - metrics
@@ -658,6 +658,7 @@ rules:
   - bypasses
   - checknothings
   - cloudwatches
+  - handlers
   - instances
   - kubernetesenvs
   - memquotas

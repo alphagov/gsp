@@ -145,6 +145,29 @@ rules:
   - patch
   - update
 
+- apiGroups: ["config.istio.io"]
+  resources:
+  - bypasses
+  - checknothings
+  - cloudwatches
+  - handlers
+  - instances
+  - kubernetesenvs
+  - memquotas
+  - metrics
+  - prometheuses
+  - quotas
+  - redisquotas
+  - rules
+  - signalfxs
+  - stdios
+  - templates
+  - tracespans
+  verbs:
+  - create
+  - patch
+  - update
+
 - apiGroups: ["coordination.k8s.io"]
   resources:
   - leases
