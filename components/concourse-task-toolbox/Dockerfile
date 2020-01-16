@@ -56,7 +56,7 @@ RUN wget https://github.com/heptio/sonobuoy/releases/download/v${SONOBUOY_VERSIO
 	&& rm -rf LICENSE
 
 # install kapp
-ENV KAPP_VERSION=0.7.0
+ENV KAPP_VERSION=0.12.0
 RUN wget https://github.com/k14s/kapp/releases/download/v${KAPP_VERSION}/kapp-linux-amd64 \
 	&& mv kapp-linux-amd64 /bin/kapp \
 	&& chmod +x /bin/kapp
