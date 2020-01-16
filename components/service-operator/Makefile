@@ -1,8 +1,6 @@
 
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
-# Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS ?= "crd:trivialVersions=true"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -19,18 +17,11 @@ lint: fmt vet
 
 # Run tests
 test: generate manifests
-	ginkgo -v \
-		--failOnPending \
-		--failFast \
-		--requireSuite \
-		--slowSpecThreshold=30 \
-		-cover \
-		-r \
-		./controllers ./apis/... ./internal/...
+	go test -mod=vendor ./controllers ./apis/... ./internal/...
 
 # Build manager binary
 manager: generate fmt vet
-	go build -o bin/manager main.go
+	go build -mod=vendor -o bin/manager main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet
@@ -46,12 +37,11 @@ deploy: manifests
 	kustomize build config/default | kubectl apply -f -
 
 # Generate manifests e.g. CRD, RBAC etc.
-manifests: controller-gen
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+manifests: generate
 
 update-chart: manifests
 	cp config/crd/bases/* ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/crd/
-	$(CONTROLLER_GEN) rbac:roleName=fixme-up-before-you-gogo paths="./..." output:rbac:stdout | sed 's/fixme-up-before-you-gogo/{{ .Release.Name }}-service-operator-role/g' > ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/role.yaml
+	sed 's/fixme-up-before-you-gogo/{{ .Release.Name }}-service-operator-role/g' < ./config/rbac/fixme/* > ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/role.yaml
 	cat config/rbac/role-not-patch.yaml >> ../../charts/gsp-cluster/templates/02-gsp-system/service-operator/role.yaml
 
 # Run go fmt against code
@@ -63,9 +53,8 @@ vet:
 	go vet ./...
 
 # Generate code
-generate: controller-gen internal/aws/sdk/sdkfakes/fake_client.go internal/aws/cloudformation/cloudformationfakes/fake_stack.go
-	$(CONTROLLER_GEN) object:headerFile=./hack/boilerplate.go.txt paths=./apis/...
-	$(CONTROLLER_GEN) object:headerFile=./hack/boilerplate.go.txt paths=./internal/object/status.go
+generate: internal/aws/sdk/sdkfakes/fake_client.go internal/aws/cloudformation/cloudformationfakes/fake_stack.go
+	go generate
 
 internal/aws/sdk/sdkfakes/fake_client.go: internal/aws/sdk/client.go
 	go generate ./internal/aws/sdk
@@ -83,12 +72,3 @@ docker-build: test
 docker-push:
 	docker push ${IMG}
 
-# find or download controller-gen
-# download controller-gen if necessary
-controller-gen:
-ifeq (, $(shell which controller-gen))
-	go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.2.0-beta.4
-CONTROLLER_GEN=$(GOBIN)/controller-gen
-else
-CONTROLLER_GEN=$(shell which controller-gen)
-endif

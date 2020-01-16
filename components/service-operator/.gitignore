@@ -5,7 +5,6 @@
 *.dll
 *.so
 *.dylib
-bin
 
 # Test binary, build with `go test -c`
 *.test
@@ -23,9 +22,7 @@ bin
 *.swo
 *~
 
-# vendor
-vendor/
-
 # ignore manifests (they are used to generate the chart)
 /config/crd/bases
+/config/rbac/fixme
 /config/webhook

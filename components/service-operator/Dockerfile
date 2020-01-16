@@ -1,7 +1,7 @@
 # Build options
 
 # setup go build env
-FROM golang:1.12.5 as builder
+FROM golang:1.12.10 as builder
 WORKDIR /workspace
 
 # install kubebuilder and bundled control-plane for tests
@@ -16,9 +16,6 @@ ENV PATH=$PATH:/usr/local/kubebuilder/bin
 COPY go.mod go.mod
 COPY go.sum go.sum
 COPY Makefile Makefile
-RUN go mod download \
-	&& make controller-gen \
-	&& go install github.com/onsi/ginkgo/ginkgo
 
 # Copy the go source
 COPY . .
@@ -28,7 +25,6 @@ ENV CGO_ENABLED="0"
 ENV GOOS="linux"
 ENV GOARCH="amd64"
 ENV GO111MODULE="on"
-ENV GOPROXY=https://proxy.golang.org,direct
 
 # Build args for integration testing
 ARG AWS_INTEGRATION="false"
@@ -49,14 +45,14 @@ ARG AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN
 ENV AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN="${AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN}"
 
 # run tests
-RUN make test
+RUN go test -mod=vendor ./controllers ./apis/... ./internal/...
 
 # build binary
-RUN go build -a -o manager main.go
+RUN go build -mod=vendor -o bin/manager main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static:latest
 WORKDIR /
-COPY --from=builder /workspace/manager .
+COPY --from=builder /workspace/bin/manager .
 ENTRYPOINT ["/manager"]

@@ -15,6 +15,11 @@ limitations under the License.
 
 package main
 
+//go:generate go run sigs.k8s.io/controller-tools/cmd/controller-gen crd:trivialVersions=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+//go:generate go run sigs.k8s.io/controller-tools/cmd/controller-gen rbac:roleName=fixme-up-before-you-gogo paths="./..." output:dir=config/rbac/fixme
+//go:generate go run sigs.k8s.io/controller-tools/cmd/controller-gen object:headerFile=./hack/boilerplate.go.txt paths=./apis/...
+//go:generate go run sigs.k8s.io/controller-tools/cmd/controller-gen object:headerFile=./hack/boilerplate.go.txt paths=./internal/object/status.go
+
 import (
 	"flag"
 	"log"
