@@ -86,10 +86,11 @@ spec:
       securityContext:
         fsGroup: 1001
         runAsUser: 1001
+        runAsNonRoot: true
       serviceAccountName: {{ $.Release.Name }}-external-dns
       containers:
       - name: external-dns
-        image: "docker.io/bitnami/external-dns:0.5.15-debian-9-r1"
+        image: "docker.io/bitnami/external-dns:0.5.18-debian-9-r4"
         imagePullPolicy: "IfNotPresent"
         args:
         # Generic arguments
@@ -147,6 +148,12 @@ spec:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 5
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
 
         volumeMounts:
         # AWS mountPath(s)
