@@ -183,7 +183,7 @@ spec:
                 --diff-changes \
                 -f ./manifests/
               echo "Garbage collecting old kapp state changes..."
-              kapp app-change gc --app "${APP_NAME}"
+              kapp app-change gc --namespace "${RELEASE_NAMESPACE}" --app "${APP_NAME}"
 
       - task: ping
         config:
