@@ -21,7 +21,7 @@
 #
 # The various resources were then updated manually with necessary templating to bring inline with gsp-cluster
 
-{{- range .Values.external_dns }}
+{{- range .Values.externalDns }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -77,7 +77,7 @@ spec:
         app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{ if $.Values.global.runningOnAws }}
       annotations:
-        iam.amazonaws.com/role: {{ .role_name }}
+        iam.amazonaws.com/role: {{ .roleName }}
 {{ end }}
     spec:
       securityContext:
@@ -91,7 +91,7 @@ spec:
         args:
         # Generic arguments
         - --log-level=info
-        - --zone-id-filter={{ .zone_id }}
+        - --zone-id-filter={{ .zoneId }}
         {{- if eq .namespace "gsp-system" }}
         - --zone-id-filter={{ $.Values.global.cluster.domain_id }}
         {{- end }}

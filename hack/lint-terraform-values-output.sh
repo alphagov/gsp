@@ -64,13 +64,13 @@ namespaces:
   ingress:
     enabled: true
 - name: test-operators
-external_dns:
+externalDns:
 - namespace: gsp-system
-  role_name: sandbox-gsp-system-external-dns
-  zone_id: gspsystem
+  roleName: sandbox-gsp-system-external-dns
+  zoneId: gspsystem
 - namespace: verify-proxy-node-build
-  role_name: sandbox-verify-proxy-node-build-external-dns
-  zone_id: proxynode
+  roleName: sandbox-verify-proxy-node-build-external-dns
+  zoneId: proxynode
 users:
 - name: chris.farmiloe
   email: chris.farmiloe@digital.cabinet-office.gov.uk
@@ -121,7 +121,7 @@ $helm template \
 		| sed 's/${concourse_teams}/["org:team"]/' \
 		| sed 's/${egress_ip_addresses}/[]/' \
 		| sed 's/${eks_version}/1.14/' \
-		| sed 's/${external_dns_map}/external_dns: []/' \
+		| sed 's/${external_dns_map}/externalDns: []/' \
 	) \
 	--values output/values.yaml \
 	--set 'global.cloudHsm.enabled=true' \

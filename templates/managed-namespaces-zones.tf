@@ -87,8 +87,8 @@ locals {
 {{- if $namespace.ingress.enabled }}
     {
       namespace = "{{ $namespace.name }}",
-      zone_id = aws_route53_zone.{{ $namespace.name }}.zone_id,
-      role_name = aws_iam_role.{{ $namespace.name }}-external-dns.name
+      zoneId = aws_route53_zone.{{ $namespace.name }}.zone_id,
+      roleName = aws_iam_role.{{ $namespace.name }}-external-dns.name
     },
 {{- end }}
 {{- end }}
