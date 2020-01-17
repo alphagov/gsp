@@ -63,7 +63,6 @@ data "template_file" "values" {
       [
         aws_iam_role.cloudwatch_log_shipping_role.name,
         aws_iam_role.grafana.name,
-        aws_iam_role.gsp-service-operator.name,
         aws_iam_role.harbor.name,
       ],
     )})$"
