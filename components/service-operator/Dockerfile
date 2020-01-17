@@ -13,6 +13,7 @@ ENV PATH=$PATH:/usr/local/kubebuilder/bin
 
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
+ENV GOPROXY=https://proxy.golang.org
 COPY go.mod go.mod
 COPY go.sum go.sum
 COPY Makefile Makefile
@@ -28,7 +29,6 @@ ENV CGO_ENABLED="0"
 ENV GOOS="linux"
 ENV GOARCH="amd64"
 ENV GO111MODULE="on"
-ENV GOPROXY=https://proxy.golang.org,direct
 
 # Build args for integration testing
 ARG AWS_INTEGRATION="false"
