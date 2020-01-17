@@ -66,7 +66,6 @@ data "template_file" "values" {
         aws_iam_role.gsp-service-operator.name,
         aws_iam_role.harbor.name,
         aws_iam_role.external_dns.name,
-        aws_iam_role.cert_manager.name,
       ],
     )})$"
   }
