@@ -1,3 +1,21 @@
+data "aws_iam_policy_document" "trust_cert_manager" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [module.k8s-cluster.oidc_provider_arn]
+    }
+
+    condition {
+      test = "StringEquals"
+      variable = "${replace(module.k8s-cluster.oidc_provider_url, "https://", "")}:sub"
+      values = ["system:serviceaccount:gsp-system:gsp-cert-manager"]
+    }
+  }
+}
+
 data "aws_iam_policy_document" "cert_manager" {
   statement {
     effect = "Allow"
@@ -49,7 +67,7 @@ resource "aws_iam_policy" "cert_manager" {
 resource "aws_iam_role" "cert_manager" {
   name = "${var.cluster_name}_cert_manager"
 
-  assume_role_policy = data.aws_iam_policy_document.trust_kiam_server.json
+  assume_role_policy = data.aws_iam_policy_document.trust_cert_manager.json
 }
 
 resource "aws_iam_policy_attachment" "cert_manager" {

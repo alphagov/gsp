@@ -198,5 +198,6 @@ externalDns:
   iamRoleName: ${external_dns_iam_role_name}
 
 cert-manager:
-  podAnnotations:
-    iam.amazonaws.com/role: ${cert_manager_role_name}
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: ${cert_manager_role_arn}
