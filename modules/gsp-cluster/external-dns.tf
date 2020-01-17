@@ -9,9 +9,9 @@ data "aws_iam_policy_document" "trust_external_dns" {
     }
 
     condition {
-      test = "StringEquals"
+      test = "StringLike"
       variable = "${replace(module.k8s-cluster.oidc_provider_url, "https://", "")}:sub"
-      values = ["system:serviceaccount:gsp-system:gsp-external-dns"]
+      values = ["system:serviceaccount:*:gsp-external-dns"]
     }
   }
 }
