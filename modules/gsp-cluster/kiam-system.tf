@@ -10,17 +10,6 @@ data "aws_iam_policy_document" "kiam_server_role" {
   }
 }
 
-data "aws_iam_policy_document" "kiam_server_policy" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    resources = [
-      aws_iam_role.cloudwatch_log_shipping_role.arn,
-    ]
-  }
-}
-
 # a trust relationship policy for roles we want kiam-server to assume
 data "aws_iam_policy_document" "trust_kiam_server" {
   statement {
@@ -39,19 +28,6 @@ resource "aws_iam_role" "kiam_server_role" {
   description = "Role the Kiam Server process assumes"
 
   assume_role_policy = data.aws_iam_policy_document.kiam_server_role.json
-}
-
-resource "aws_iam_policy" "kiam_server_policy" {
-  name        = "${var.cluster_name}_kiam_server_policy"
-  description = "Policy for the Kiam Server process"
-
-  policy = data.aws_iam_policy_document.kiam_server_policy.json
-}
-
-resource "aws_iam_policy_attachment" "kiam_server_policy_attach" {
-  name       = "${var.cluster_name}_kiam-server-attachment"
-  roles      = [aws_iam_role.kiam_server_role.name]
-  policy_arn = aws_iam_policy.kiam_server_policy.arn
 }
 
 resource "tls_private_key" "kiam_ca" {
