@@ -897,3 +897,5 @@ gatekeeper:
 
 cert-manager:
   replicaCount: 2
+  securityContext:
+    fsGroup: 1001
