@@ -890,7 +890,7 @@ concourseResources:
       tag: latest
 
 externalDns:
-  iamRoleName: ""
+  iamRoleArn: ""
 
 gatekeeper:
   enabled: true

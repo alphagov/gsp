@@ -9,11 +9,10 @@
 # rbac:
 #   create: true
 #   serviceAccountName: external-dns
+#   serviceAccountAnnotations: ${external_dns_iam_role_arn}
 # zoneIdFilters:
 # - ${cluster_domain_id}
 # txtOwnerId: external-dns-${cluster_name}
-# podAnnotations:
-#   iam.amazonaws.com/role: ${external_dns_iam_role_name}
 # istioIngressGateways:
 # - istio-system/ingressgateway
 # annotationFilter: externaldns.k8s.io/namespace=my-namespace
@@ -31,6 +30,8 @@ kind: ServiceAccount
 metadata:
   name: {{ $.Release.Name }}-external-dns
   namespace: {{ .name }}
+  annotations:
+    eks.amazonaws.com/role-arn: {{ $.Values.externalDns.iamRoleArn }}
   labels:
     app.kubernetes.io/name: external-dns
     helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
@@ -78,10 +79,6 @@ spec:
         helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
         app.kubernetes.io/instance: {{ $.Release.Name }}
         app.kubernetes.io/managed-by: {{ $.Release.Service }}
-{{ if $.Values.global.runningOnAws }}
-      annotations:
-        iam.amazonaws.com/role: {{ $.Values.externalDns.iamRoleName }}
-{{ end }}
     spec:
       securityContext:
         fsGroup: 1001

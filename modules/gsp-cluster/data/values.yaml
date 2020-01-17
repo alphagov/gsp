@@ -195,7 +195,7 @@ RDSFromWorkerSecurityGroup: ${rds_from_worker_security_group}
 privateDBSubnetGroup: ${private_db_subnet_group}
 
 externalDns:
-  iamRoleName: ${external_dns_iam_role_name}
+  iamRoleArn: ${external_dns_iam_role_arn}
 
 cert-manager:
   serviceAccount:
