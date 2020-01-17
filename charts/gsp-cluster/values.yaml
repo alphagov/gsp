@@ -898,4 +898,6 @@ gatekeeper:
 cert-manager:
   replicaCount: 2
   securityContext:
+    enabled: true # remove this line when upgrading cert-manager
+                  # chart, it's deprecated on current `master`
     fsGroup: 1001
