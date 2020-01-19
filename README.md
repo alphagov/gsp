@@ -25,6 +25,7 @@ GSP provides a suite of pre-configured components along with upstream Kubernetes
 - Protective monitoring provided by GDS TechOps CyberSecurity with [Splunk](https://www.splunk.com/)
 - Cloud infrastructure hosted on [AWS](https://aws.amazom.com) across multiple availability zones in London
 - Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
+- An [AWS CloudHSM](https://docs.aws.amazon.com/crypto/latest/userguide/awscryp-service-hsm.html) providing secure storage for cryptographic keys
 
 ## Non goals
 
