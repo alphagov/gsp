@@ -28,7 +28,7 @@ metadata:
   name: {{ $.Release.Name }}-external-dns
   namespace: {{ .namespace }}
   annotations:
-    eks.amazonaws.com/role-arn: {{ .roleArn }}
+    eks.amazonaws.com/role-arn: {{ .roleARN }}
   labels:
     app.kubernetes.io/name: external-dns
     helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}

@@ -892,7 +892,7 @@ concourseResources:
 # externalDns:
 # - namespace: verify-metadata-controller
 #   zoneId: ZX03812
-#   roleName: verify-metadata-controller-external-dns
+#   roleARN: verify-metadata-controller-external-dns
 
 gatekeeper:
   enabled: true

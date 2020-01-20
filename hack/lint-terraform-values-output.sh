@@ -66,10 +66,10 @@ namespaces:
 - name: test-operators
 externalDns:
 - namespace: gsp-system
-  roleArn: sandbox-gsp-system-external-dns
+  roleARN: sandbox-gsp-system-external-dns
   zoneId: gspsystem
 - namespace: verify-proxy-node-build
-  roleArn: sandbox-verify-proxy-node-build-external-dns
+  roleARN: sandbox-verify-proxy-node-build-external-dns
   zoneId: proxynode
 users:
 - name: chris.farmiloe

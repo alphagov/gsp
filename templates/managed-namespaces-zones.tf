@@ -106,7 +106,7 @@ locals {
     {
       namespace = "{{ $namespace.name }}",
       zoneId = aws_route53_zone.{{ $namespace.name }}.zone_id,
-      roleArn = aws_iam_role.{{ $namespace.name }}-external-dns.arn
+      roleARN = aws_iam_role.{{ $namespace.name }}-external-dns.arn
     },
 {{- end }}
 {{- end }}
