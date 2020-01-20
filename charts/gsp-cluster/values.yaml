@@ -889,8 +889,10 @@ concourseResources:
       repository: govsvc/task-toolbox
       tag: latest
 
-externalDns:
-  iamRoleArn: ""
+# externalDns:
+# - namespace: verify-metadata-controller
+#   zoneId: ZX03812
+#   roleARN: verify-metadata-controller-external-dns
 
 gatekeeper:
   enabled: true

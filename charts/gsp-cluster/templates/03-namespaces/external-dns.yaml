@@ -20,18 +20,15 @@
 #
 # The various resources were then updated manually with necessary templating to bring inline with gsp-cluster
 
-
-{{- $allNamespaces := prepend $.Values.namespaces (dict "name" "gsp-system" "ingress" (dict "enabled" true)) }}
-{{- range $allNamespaces }}
-{{- if (default dict .ingress).enabled }}
+{{- range .Values.externalDns }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ $.Release.Name }}-external-dns
-  namespace: {{ .name }}
+  namespace: {{ .namespace }}
   annotations:
-    eks.amazonaws.com/role-arn: {{ $.Values.externalDns.iamRoleArn }}
+    eks.amazonaws.com/role-arn: {{ .roleARN }}
   labels:
     app.kubernetes.io/name: external-dns
     helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
@@ -39,9 +36,9 @@ metadata:
     app.kubernetes.io/managed-by: {{ $.Release.Service }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
-  name: {{ $.Release.Name }}-external-dns-{{ .name }}
+  name: {{ $.Release.Name }}-external-dns-{{ .namespace }}
   labels:
     app.kubernetes.io/name: external-dns
     helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
@@ -54,13 +51,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: {{ $.Release.Name }}-external-dns
-  namespace: {{ .name }}
+  namespace: {{ .namespace }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $.Release.Name }}-external-dns
-  namespace: {{ .name }}
+  namespace: {{ .namespace }}
   labels:
     app.kubernetes.io/name: external-dns
     helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
@@ -92,13 +89,16 @@ spec:
         args:
         # Generic arguments
         - --log-level=info
+        - --zone-id-filter={{ .zoneId }}
+        {{- if eq .namespace "gsp-system" }}
         - --zone-id-filter={{ $.Values.global.cluster.domain_id }}
+        {{- end }}
         - --policy=upsert-only
         - --provider=aws
         - --registry=txt
-        - --interval=1m
-        - --txt-owner-id=external-dns-{{ $.Values.global.cluster.name }}-{{ .name }}
-        - --annotation-filter=externaldns.k8s.io/namespace={{ .name }}
+        - --interval=10m
+        - --txt-owner-id=external-dns-{{ $.Values.global.cluster.name }}-{{ .namespace }}
+        - --annotation-filter=externaldns.k8s.io/namespace={{ .namespace }}
         - --source=istio-gateway
         # AWS arguments
         - --aws-zone-type=public
@@ -168,7 +168,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ $.Release.Name }}-external-dns
-  namespace: {{ .name }}
+  namespace: {{ .namespace }}
   labels:
     app.kubernetes.io/name: external-dns
     helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version }}
@@ -184,5 +184,4 @@ spec:
       app.kubernetes.io/name: external-dns
       app.kubernetes.io/instance: {{ $.Release.Name }}
   type: ClusterIP
-{{- end}}
 {{- end}}
