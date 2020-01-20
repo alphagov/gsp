@@ -10,6 +10,8 @@ variable "aws_account_role_arn" {
 provider "aws" {
   region = "eu-west-2"
 
+  version = "~> 2.37"
+
   assume_role {
     role_arn = var.aws_account_role_arn
   }
