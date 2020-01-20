@@ -30,12 +30,12 @@ data "aws_iam_policy_document" "trust_{{ $namespace.name }}_external_dns" {
 
     principals {
       type        = "Federated"
-      identifiers = [module.k8s-cluster.oidc_provider_arn]
+      identifiers = [module.gsp-cluster.oidc_provider_arn]
     }
 
     condition {
       test = "StringEquals"
-      variable = "${replace(module.k8s-cluster.oidc_provider_url, "https://", "")}:sub"
+      variable = "${replace(module.gsp-cluster.oidc_provider_url, "https://", "")}:sub"
       values = ["system:serviceaccount:{{ $namespace.name }}:gsp-external-dns"]
     }
   }
