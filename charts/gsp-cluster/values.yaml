@@ -150,9 +150,6 @@ fluentd-cloudwatch:
     - name: dmesg
       hostPath:
         path: /var/log/dmesg
-  tolerations:
-    - key: node-role.kubernetes.io/master
-      effect: NoSchedule
   priorityClassName: gsp-critical
   data:
     fluent.conf: |
