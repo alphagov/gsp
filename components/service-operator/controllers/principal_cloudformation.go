@@ -24,6 +24,12 @@ func PrincipalCloudFormationController(c sdk.Client) Controller {
 				ParameterKey:   aws.String(access.IAMPermissionsBoundaryParameterName),
 				ParameterValue: aws.String(env.AWSPrincipalPermissionsBoundaryARN()),
 			},
+			{
+				ParameterKey:   aws.String(access.ServiceOperatorIAMRoleArn),
+				ParameterValue: aws.String(env.AWSRoleArn()),
+			},
 		},
+		RequeueOnSuccess: true,
+		ReconcileSuccessRetryDelay: env.GetImageRepositoryCredentialsRenewalInterval(),
 	}
 }

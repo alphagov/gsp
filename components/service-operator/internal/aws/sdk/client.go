@@ -2,9 +2,11 @@ package sdk
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 )
 
@@ -21,17 +23,25 @@ type Client interface {
 	UpdateStackWithContext(aws.Context, *cloudformation.UpdateStackInput, ...request.Option) (*cloudformation.UpdateStackOutput, error)
 	DeleteStackWithContext(aws.Context, *cloudformation.DeleteStackInput, ...request.Option) (*cloudformation.DeleteStackOutput, error)
 	GetSecretValueWithContext(aws.Context, *secretsmanager.GetSecretValueInput, ...request.Option) (*secretsmanager.GetSecretValueOutput, error)
+	GetAuthorizationTokenWithContext(aws.Context, *ecr.GetAuthorizationTokenInput, ...request.Option) (*ecr.GetAuthorizationTokenOutput, error)
+	AssumeRole(roleArn string) Client
 }
 
 // NewClient creates a new AWS client that implements the Client interface.
-func NewClient() Client {
+func NewClient(optionalConfig ...*aws.Config) Client {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 	sess.Config.Region = aws.String(DefaultAWSRegion)
+	cfg := aws.NewConfig()
+	for _, providedConfig := range optionalConfig {
+		cfg = providedConfig
+	}
+	cfg = cfg.WithRegion(DefaultAWSRegion)
 	return &client{
-		SecretsManager: secretsmanager.New(sess, aws.NewConfig().WithRegion(DefaultAWSRegion)),
-		CloudFormation: cloudformation.New(sess, aws.NewConfig()),
+		SecretsManager: secretsmanager.New(sess, cfg),
+		CloudFormation: cloudformation.New(sess, cfg),
+		ECR:            ecr.New(sess, cfg),
 	}
 }
 
@@ -41,4 +51,13 @@ func NewClient() Client {
 type client struct {
 	*secretsmanager.SecretsManager
 	*cloudformation.CloudFormation
+	*ecr.ECR
+}
+
+func (c *client) AssumeRole(roleARN string) Client {
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+	creds := stscreds.NewCredentials(sess, roleARN)
+	return NewClient(&aws.Config{Credentials: creds})
 }

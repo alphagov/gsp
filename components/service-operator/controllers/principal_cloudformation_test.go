@@ -10,6 +10,7 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -35,14 +36,11 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 		var (
 			name                   = fmt.Sprintf("test-role-%s", time.Now().Format("20060102150405"))
 			namespace              = "test"
+			secretName             = "test-ecr-secret"
 			resourceNamespacedName = types.NamespacedName{
 				Namespace: namespace,
 				Name:      name,
 			}
-			principal access.Principal
-		)
-
-		By("creating a Principal resource with kubernetes api", func() {
 			principal = access.Principal{
 				TypeMeta: metav1.TypeMeta{
 					APIVersion: access.GroupVersion.Group,
@@ -55,7 +53,18 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 						cloudformation.AccessGroupLabel: "test.access.group",
 					},
 				},
+				Spec: access.PrincipalSpec{
+					Secret: secretName,
+				},
 			}
+			secretNamespacedName = types.NamespacedName{
+				Namespace: namespace,
+				Name:      secretName,
+			}
+			secret core.Secret
+		)
+
+		By("creating a Principal resource with kubernetes api", func() {
 			Expect(client.Create(ctx, &principal)).To(Succeed())
 		})
 
@@ -99,6 +108,26 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 				_ = client.Get(ctx, resourceNamespacedName, &principal)
 				return principal.ObjectMeta.DeletionTimestamp == nil
 			}).Should(BeTrue())
+		})
+
+		By("creating a secret with repository details", func() {
+			Eventually(func() map[string][]byte {
+				_ = client.Get(ctx, secretNamespacedName, &secret)
+				return secret.Data
+			}).Should(And(
+				HaveKeyWithValue("ImageRepositoryUsername", BeEquivalentTo("AWS")),
+				HaveKey("ImageRepositoryPassword"),
+				HaveKeyWithValue("ImageRepositoryEndpoint", BeEquivalentTo("https://011571571136.dkr.ecr.eu-west-2.amazonaws.com")),
+			))
+		})
+
+		By("ensuring the secret is updated on credentials renewal", func() {
+			originalPassword := secret.Data["ImageRepositoryPassword"]
+			Eventually(func() []byte {
+				_ = client.Get(ctx, secretNamespacedName, &secret)
+				Expect(secret.Data["ImageRepositoryPassword"]).ToNot(BeEmpty())
+				return secret.Data["ImageRepositoryPassword"]
+			}, time.Minute*5).ShouldNot(BeEquivalentTo(originalPassword))
 		})
 
 		By("deleting resource with kubernetes api", func() {

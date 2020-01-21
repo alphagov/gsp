@@ -37,6 +37,9 @@ var (
 	// DefaultPollingInterval is the frequency that cloudformation client
 	// polls for state changes
 	DefaultPollingInterval = time.Second * 5
+	// DefaultReconcileSuccessRetryDelay is the default delay after a successful
+	// Reconcile that Reconcile will be called again if RequeueOnSuccess is true
+	DefaultReconcileSuccessRetryDelay = time.Hour * 1
 	// ErrPrincipalNotFound is returned if no Principal (role record) can
 	// be found to attach a policy to
 	ErrPrincipalNotFound = fmt.Errorf("PRINCIPAL_NOT_FOUND")
@@ -70,15 +73,18 @@ var (
 // TODO: add example
 //
 type Controller struct {
-	Scheme               *runtime.Scheme        // Scheme is required for operations like gc
-	Log                  logr.Logger            // Log will be used to report each reconcile
-	KubernetesClient     client.Client          // KubernetesClient is required to talk to api
-	CloudFormationClient *Client                // CloudFormationClient is required to talk to aws
-	Parameters           []*Parameter           // Parameters are default params always passed to Apply
-	Kind                 Stack                  // Kind is the kubernetes resource type to reconcile
-	PrincipalListKind    object.PrincipalLister // PrincipalListKind is the type that will be used to lookup role data for StackPolicyAttacher
-	ReconcileTimeout     time.Duration          // ReconcileTimeout is the max execution time on Reconcile before requeuing
-	RequeueTimeout       time.Duration          // RequeueTimeout is the delay before trying again after ReconcileTimeout is hit
+	Scheme                     *runtime.Scheme        // Scheme is required for operations like gc
+	Log                        logr.Logger            // Log will be used to report each reconcile
+	KubernetesClient           client.Client          // KubernetesClient is required to talk to api
+	CloudFormationClient       *Client                // CloudFormationClient is required to talk to aws
+	Parameters                 []*Parameter           // Parameters are default params always passed to Apply
+	Kind                       Stack                  // Kind is the kubernetes resource type to reconcile
+	PrincipalListKind          object.PrincipalLister // PrincipalListKind is the type that will be used to lookup role data for StackPolicyAttacher
+	ReconcileTimeout           time.Duration          // ReconcileTimeout is the max execution time on Reconcile before requeuing
+	ReconcileTimeoutRetryDelay time.Duration          // ReconcileTimeoutRetryDelay is the delay before trying again after ReconcileTimeout is hit
+	ReconcileErrorRetryDelay   time.Duration          // ReconcileErrorRetryDelay is the delay before trying again after Reconcile returns an error
+	RequeueOnSuccess           bool                   // RequeueOnSuccess is a flag indicating whether to requeue a successful Reconcile request
+	ReconcileSuccessRetryDelay time.Duration          // ReconcileSuccessRetryDelay is the delay before re-executing Reconcile on success
 }
 
 // SetupWithManager validates and registers this controller with the manager and api
@@ -104,8 +110,14 @@ func (r *Controller) SetupWithManager(mgr ctrl.Manager) error {
 	if r.ReconcileTimeout == 0 {
 		r.ReconcileTimeout = DefaultReconcileDeadline
 	}
-	if r.RequeueTimeout == 0 {
-		r.RequeueTimeout = DefaultRequeueTimeout
+	if r.ReconcileTimeoutRetryDelay == 0 {
+		r.ReconcileTimeoutRetryDelay = DefaultRequeueTimeout
+	}
+	if r.ReconcileErrorRetryDelay == 0 {
+		r.ReconcileErrorRetryDelay = DefaultRequeueTimeout
+	}
+	if r.ReconcileSuccessRetryDelay == 0 {
+		r.ReconcileSuccessRetryDelay = DefaultReconcileSuccessRetryDelay
 	}
 	// ensure that any controller params are set
 	// this means we can fail early on missing config
@@ -144,8 +156,16 @@ func (r *Controller) Reconcile(req ctrl.Request) (res ctrl.Result, err error) {
 		// ran out of time, most likely waiting on
 		// a long running provisioning, come back a bit later
 		res.Requeue = true
-		res.RequeueAfter = r.RequeueTimeout
+		res.RequeueAfter = r.ReconcileTimeoutRetryDelay
 		err = nil
+	} else if err != nil {
+		// failed to reconcile, requeue as configured
+		res.Requeue = true
+		res.RequeueAfter = r.ReconcileErrorRetryDelay
+	} else if r.RequeueOnSuccess == true {
+		// reconcile succeeded, requeue as configured
+		res.Requeue = true
+		res.RequeueAfter = r.ReconcileSuccessRetryDelay
 	}
 	r.Log.Info("reconciled",
 		"service", req.NamespacedName,
@@ -220,10 +240,27 @@ func (r *Controller) reconcileObjectWithContext(ctx context.Context, req ctrl.Re
 		return err
 	}
 
+	combinedOutputs := map[string]string{}
+	for key, value := range outputs {
+		combinedOutputs[key] = value
+	}
+
+	// add stack-specific dictionary to template-created dictionary
+	if stackThatContributesSecretValues, ok := o.(StackSecretContributor); ok {
+		templateSecrets, err := stackThatContributesSecretValues.GetTemplateSecrets(ctx, r.CloudFormationClient.Client, outputs)
+		if err != nil {
+			return err
+		}
+
+		for key, value := range templateSecrets {
+			combinedOutputs[key] = value
+		}
+	}
+
 	// create or update secret if this stack is a SecretNamer (ie. it wants
 	// it's cloudformation outputs written to a kubernetes secret)
 	if stackThatWritesToSecret, ok := o.(StackSecretOutputter); ok {
-		err = r.updateCredentialsSecret(ctx, stackThatWritesToSecret, outputs)
+		err = r.updateCredentialsSecret(ctx, stackThatWritesToSecret, combinedOutputs)
 		if err != nil {
 			return err
 		}

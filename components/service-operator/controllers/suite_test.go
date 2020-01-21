@@ -64,6 +64,7 @@ func TestAPIs(t *testing.T) {
 func SetupControllerEnv() (client.Client, func()) {
 	os.Setenv("CLOUD_PROVIDER", "aws")
 	os.Setenv("CLUSTER_NAME", "xxx")
+	os.Setenv("IMAGE_REPOSITORY_CREDENTIALS_RENEWAL_INTERVAL", "30s")
 	ctx := context.Background()
 
 	log := zap.LoggerTo(GinkgoWriter, false)
@@ -130,6 +131,16 @@ func SetupControllerEnv() (client.Client, func()) {
 			"Username":     "someusername",
 			"Password":     "snakeoil",
 		})),
+		controllers.ImageRepositoryCloudFormationController(newAWSClient(map[string]string{
+			"ImageRepositoryName":   "xxx-test-test-image",
+			"ImageRepositoryRegion": "eu-west-2",
+			"ImageRepositoryURL":    "https://011571571136.dkr.ecr.eu-west-2.amazonaws.com/xxx-test-test-image",
+			"IAMRoleName":           "svcop-xxx-test-test-role",
+			"IAMRoleArn":            "something",
+			"username":              "AWS",
+			"password":              "notinspectedbytest",
+			"endpoint":              "https://011571571136.dkr.ecr.eu-west-2.amazonaws.com",
+		})),
 	}
 
 	// wrap controllers in error checkers and register with manager
@@ -178,6 +189,7 @@ func newAWSClient(fakeOutputs map[string]string) sdk.Client {
 		os.Setenv("AWS_RDS_SUBNET_GROUP_NAME", "dummy-value")
 		os.Setenv("AWS_PRINCIPAL_SERVER_ROLE_ARN", "dummy-value")
 		os.Setenv("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN", "dummy-value")
+		os.Setenv("AWS_ROLE_ARN", "arn:aws:iam::011571571136:role/sandbox-service-operator")
 		return sdkfakes.NewHappyClient(fakeOutputs)
 	}
 }

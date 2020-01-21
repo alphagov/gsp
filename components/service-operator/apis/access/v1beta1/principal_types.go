@@ -16,9 +16,11 @@ limitations under the License.
 package v1beta1
 
 import (
+	"context"
 	"fmt"
-
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/ecr"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,6 +30,8 @@ import (
 var _ cloudformation.Stack = &Principal{}
 var _ cloudformation.StackOutputWhitelister = &Principal{}
 var _ object.Principal = &Principal{}
+var _ cloudformation.StackSecretOutputter = &Principal{}
+var _ cloudformation.StackSecretContributor = &Principal{}
 
 func init() {
 	SchemeBuilder.Register(&Principal{}, &PrincipalList{})
@@ -36,8 +40,11 @@ func init() {
 const (
 	IAMRoleResourceName                 = "IAMRole"
 	IAMRoleName                         = "IAMRoleName"
+	IAMRoleArnOutputName                = "IAMRoleArn"
 	IAMRolePrincipalParameterName       = "IAMRolePrincipal"
 	IAMPermissionsBoundaryParameterName = "IAMPermissionsBoundary"
+	ServiceOperatorIAMRoleArn           = "ServiceOperatorIAMRoleArn"
+	SharedPolicyResourceName            = "ECRSharedPolicy"
 )
 
 // ensure implements StackObject
@@ -49,8 +56,14 @@ const (
 type Principal struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Spec              PrincipalSpec `json:"spec,omitempty"`
+	object.Status     `json:"status,omitempty"`
+}
 
-	object.Status `json:"status,omitempty"`
+// PrincipalSpec defines the desired state of Principal
+type PrincipalSpec struct {
+	// Secret name to be used for storing relevant instance secrets for further use.
+	Secret string `json:"secret,omitempty"`
 }
 
 // GetStackName generates a unique name for the stack
@@ -73,16 +86,30 @@ func (s *Principal) GetStackTemplate() *cloudformation.Template {
 	template.Parameters[IAMPermissionsBoundaryParameterName] = map[string]string{
 		"Type": "String",
 	}
+	template.Parameters[ServiceOperatorIAMRoleArn] = map[string]string{
+		"Type": "String",
+	}
 
 	template.Resources[IAMRoleResourceName] = &cloudformation.AWSIAMRole{
 		RoleName:                 s.GetRoleName(),
-		AssumeRolePolicyDocument: cloudformation.NewAssumeRolePolicyDocument(cloudformation.Ref(IAMRolePrincipalParameterName)),
+		AssumeRolePolicyDocument: cloudformation.NewAssumeRolePolicyDocument(cloudformation.Ref(IAMRolePrincipalParameterName), cloudformation.Ref(ServiceOperatorIAMRoleArn)),
 		PermissionsBoundary:      cloudformation.Ref(IAMPermissionsBoundaryParameterName),
 	}
 
+	template.Resources[SharedPolicyResourceName] = &cloudformation.AWSIAMPolicy{
+		PolicyName:     s.GetRoleName(),
+		PolicyDocument: cloudformation.NewRolePolicyDocument([]string{"*"}, []string{"ecr:GetAuthorizationToken"}),
+		Roles:          []string{cloudformation.Ref(IAMRoleResourceName)},
+	}
+
 	template.Outputs[IAMRoleName] = map[string]interface{}{
-		"Description": "IAMRole ARN to be returned to the user.",
+		"Description": "IAMRole name to be returned to the user.",
 		"Value":       cloudformation.Ref(IAMRoleResourceName),
+	}
+
+	template.Outputs[IAMRoleArnOutputName] = map[string]interface{}{
+		"Description": "IAMRole ARN to be returned to the user.",
+		"Value":       cloudformation.GetAtt(IAMRoleResourceName, "Arn"),
 	}
 
 	return template
@@ -91,6 +118,34 @@ func (s *Principal) GetStackTemplate() *cloudformation.Template {
 // GetStackOutputWhitelist will whitelist any output keys from template that can be shown in resource Status
 func (s *Principal) GetStackOutputWhitelist() []string {
 	return []string{IAMRoleName}
+}
+
+func (s *Principal) GetSecretName() string {
+	if s.Spec.Secret == "" {
+		return s.GetName()
+	}
+
+	return s.Spec.Secret
+}
+
+func (s *Principal) GetTemplateSecrets(ctx context.Context, client sdk.Client, outputs cloudformation.Outputs) (map[string]string, error) {
+	var templateSecrets = map[string]string{}
+	roleArn, ok := outputs[IAMRoleArnOutputName]
+	if !ok {
+		return nil, fmt.Errorf("failed to create template secrets. %s key missing from outputs map", IAMRoleArnOutputName)
+	}
+
+	assumedRoleClient := client.AssumeRole(roleArn)
+	ecrCredentials, err := ecr.GetECRCredentials(ctx, assumedRoleClient)
+	if err != nil {
+		return nil, err
+	}
+
+	templateSecrets["ImageRepositoryUsername"] = ecrCredentials.Username
+	templateSecrets["ImageRepositoryPassword"] = ecrCredentials.Password
+	templateSecrets["ImageRepositoryEndpoint"] = ecrCredentials.Endpoint
+
+	return templateSecrets, nil
 }
 
 var _ object.PrincipalLister = &PrincipalList{}

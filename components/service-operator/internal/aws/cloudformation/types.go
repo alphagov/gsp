@@ -1,7 +1,9 @@
 package cloudformation
 
 import (
+	"context"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 )
 
@@ -54,4 +56,9 @@ type ServiceEntryCreator interface {
 // stack.
 type StackPolicyProvider interface {
 	GetStackPolicy() aws.StackPolicyDocument
+}
+
+type StackSecretContributor interface {
+	Stack
+	GetTemplateSecrets(ctx context.Context, client sdk.Client, outputs Outputs) (map[string]string, error)
 }

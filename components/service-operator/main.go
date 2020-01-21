@@ -74,6 +74,7 @@ func run() error {
 		controllers.PostgresCloudFormationController(c),
 		controllers.SQSCloudFormationController(c),
 		controllers.S3CloudFormationController(c),
+		controllers.ImageRepositoryCloudFormationController(c),
 	}
 
 	for _, c := range controllers {

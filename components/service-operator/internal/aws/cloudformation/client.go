@@ -45,6 +45,7 @@ type AWSSecretsManagerSecret = goresources.AWSSecretsManagerSecret
 type AWSSecretsManagerSecretTargetAttachment = goresources.AWSSecretsManagerSecretTargetAttachment
 type AWSSQSQueue = goresources.AWSSQSQueue
 type GenerateSecretString = goresources.AWSSecretsManagerSecret_GenerateSecretString
+type AWSECRRepository = goresources.AWSECRRepository
 
 var NewTemplate = goformation.NewTemplate
 var Join = goformation.Join

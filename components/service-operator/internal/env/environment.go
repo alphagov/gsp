@@ -4,6 +4,7 @@ package env
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 // ClusterName returns the name of the cluster. panics if missing.
@@ -34,6 +35,26 @@ func AWSPrincipalServerRoleARN() string {
 // AWSPrincipalPermissionsBoundaryARN is the arn of the policy that limits permissions
 func AWSPrincipalPermissionsBoundaryARN() string {
 	return MustGet("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN")
+}
+
+func AWSRoleArn() string {
+	return MustGet("AWS_ROLE_ARN")
+}
+
+func GetImageRepositoryCredentialsRenewalInterval() time.Duration {
+	envVarName := "IMAGE_REPOSITORY_CREDENTIALS_RENEWAL_INTERVAL"
+	envVarValue := os.Getenv(envVarName)
+	renewalInterval := time.Hour * 6
+
+	if envVarValue != "" {
+		var err error
+		renewalInterval, err = time.ParseDuration(envVarValue)
+		if err != nil {
+			panic(fmt.Errorf("failed to parse duration from %s (%s)", envVarName, envVarValue))
+		}
+	}
+
+	return renewalInterval
 }
 
 // MustGet is a panicy version of os.Getenv
