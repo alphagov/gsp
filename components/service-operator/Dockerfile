@@ -1,7 +1,7 @@
 # Build options
 
 # setup go build env
-FROM golang:1.12.5 as builder
+FROM golang:1.13.6 as builder
 WORKDIR /workspace
 
 # install kubebuilder and bundled control-plane for tests
@@ -11,9 +11,6 @@ RUN wget -nv https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$
 	&& mv kubebuilder_${KUBEBUILDER_VERSION}_linux_amd64 /usr/local/kubebuilder
 ENV PATH=$PATH:/usr/local/kubebuilder/bin
 
-# cache deps before building and copying source so that we don't need to re-download as much
-# and so that source changes don't invalidate our downloaded layer
-ENV GOPROXY=https://proxy.golang.org
 COPY go.mod go.mod
 COPY go.sum go.sum
 COPY Makefile Makefile
