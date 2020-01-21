@@ -17,6 +17,7 @@ package v1beta1
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
@@ -46,6 +47,8 @@ const (
 	IAMPermissionsBoundaryParameterName = "IAMPermissionsBoundary"
 	ServiceOperatorIAMRoleArn           = "ServiceOperatorIAMRoleArn"
 	SharedPolicyResourceName            = "ECRSharedPolicy"
+	IAMOIDCProviderARNParameterName     = "IAMOIDCProviderARN"
+	IAMOIDCProviderURLParameterName     = "IAMOIDCProviderURL"
 )
 
 // ensure implements StackObject
@@ -65,6 +68,8 @@ type Principal struct {
 type PrincipalSpec struct {
 	// Secret name to be used for storing relevant instance secrets for further use.
 	Secret string `json:"secret,omitempty"`
+	// Name of a service account to trust with access to this Principal, if any.
+	TrustServiceAccount string `json:"trustServiceAccount,omitempty"`
 }
 
 // GetStackName generates a unique name for the stack
@@ -78,7 +83,7 @@ func (s *Principal) GetRoleName() string {
 }
 
 // GetStackTemplate returns cloudformation to create an IAM role
-func (s *Principal) GetStackTemplate() *cloudformation.Template {
+func (s *Principal) GetStackTemplate() (*cloudformation.Template, error) {
 	template := cloudformation.NewTemplate()
 
 	template.Parameters[IAMRolePrincipalParameterName] = map[string]string{
@@ -91,9 +96,44 @@ func (s *Principal) GetStackTemplate() *cloudformation.Template {
 		"Type": "String",
 	}
 
+	template.Parameters[IAMOIDCProviderURLParameterName] = map[string]string{
+		"Type": "String",
+	}
+	template.Parameters[IAMOIDCProviderARNParameterName] = map[string]string{
+		"Type": "String",
+	}
+
+	// We have to build the assume role policy document as JSON and put it through Fn::Sub as we'll
+	// need one of the parameters (the OIDC provider URL) to go into a condition key, so we can't
+	// use Ref.
+	var err error
+	var policyDocJson []byte
+	if s.Spec.TrustServiceAccount == "" {
+		policyDocJson, err = json.Marshal(cloudformation.NewAssumeRolePolicyDocument(
+			fmt.Sprintf("${%s}", IAMRolePrincipalParameterName),
+			fmt.Sprintf("${%s}", ServiceOperatorIAMRoleArn),
+		))
+	} else {
+		policyDocJson, err = json.Marshal(cloudformation.NewAssumeRolePolicyDocumentWithServiceAccount(
+			fmt.Sprintf("${%s}", IAMRolePrincipalParameterName),
+			fmt.Sprintf("${%s}", ServiceOperatorIAMRoleArn),
+			fmt.Sprintf("${%s}", IAMOIDCProviderARNParameterName),
+			fmt.Sprintf("${%s}:sub", IAMOIDCProviderURLParameterName),
+			fmt.Sprintf("system:serviceaccount:%s:%s", s.GetNamespace(), s.Spec.TrustServiceAccount),
+		))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	// Yes this JSON encodes a string and then substrings it to remove the first and last
+	// characters (the quotes). This is due to https://github.com/awslabs/goformation/issues/194
+	encodedHack, err := json.Marshal(string(policyDocJson))
+	subbableHack := string(encodedHack[1:len(encodedHack)-1])
+
 	template.Resources[IAMRoleResourceName] = &cloudformation.AWSIAMRole{
 		RoleName:                 s.GetRoleName(),
-		AssumeRolePolicyDocument: cloudformation.NewAssumeRolePolicyDocument(cloudformation.Ref(IAMRolePrincipalParameterName), cloudformation.Ref(ServiceOperatorIAMRoleArn)),
+		AssumeRolePolicyDocument: cloudformation.Sub(subbableHack),
 		PermissionsBoundary:      cloudformation.Ref(IAMPermissionsBoundaryParameterName),
 	}
 
@@ -107,18 +147,17 @@ func (s *Principal) GetStackTemplate() *cloudformation.Template {
 		"Description": "IAMRole name to be returned to the user.",
 		"Value":       cloudformation.Ref(IAMRoleResourceName),
 	}
-
 	template.Outputs[IAMRoleArnOutputName] = map[string]interface{}{
 		"Description": "IAMRole ARN to be returned to the user.",
 		"Value":       cloudformation.GetAtt(IAMRoleResourceName, "Arn"),
 	}
 
-	return template
+	return template, nil
 }
 
 // GetStackOutputWhitelist will whitelist any output keys from template that can be shown in resource Status
 func (s *Principal) GetStackOutputWhitelist() []string {
-	return []string{IAMRoleName}
+	return []string{IAMRoleName, IAMRoleArnOutputName}
 }
 
 func (s *Principal) GetSecretName() string {

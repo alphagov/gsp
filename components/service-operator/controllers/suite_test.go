@@ -141,6 +141,7 @@ func SetupControllerEnv() (client.Client, func()) {
 			"password":              "notinspectedbytest",
 			"endpoint":              "https://011571571136.dkr.ecr.eu-west-2.amazonaws.com",
 		})),
+		&controllers.ServiceAccountController{},
 	}
 
 	// wrap controllers in error checkers and register with manager
@@ -190,6 +191,8 @@ func newAWSClient(fakeOutputs map[string]string) sdk.Client {
 		os.Setenv("AWS_PRINCIPAL_SERVER_ROLE_ARN", "dummy-value")
 		os.Setenv("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN", "dummy-value")
 		os.Setenv("AWS_ROLE_ARN", "arn:aws:iam::011571571136:role/sandbox-service-operator")
+		os.Setenv("AWS_OIDC_PROVIDER_ARN", "dummy-value")
+		os.Setenv("AWS_OIDC_PROVIDER_URL", "dummy-value")
 		return sdkfakes.NewHappyClient(fakeOutputs)
 	}
 }

@@ -61,12 +61,14 @@ var _ = Describe("SQS", func() {
 		})
 
 		It("should require an IAM role input", func() {
-			t := sqs.GetStackTemplate()
+			t, err := sqs.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Parameters).To(HaveKey("IAMRoleName"))
 		})
 
 		It("should have outputs for connection details", func() {
-			t := sqs.GetStackTemplate()
+			t, err := sqs.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Outputs).To(And(
 				HaveKey("QueueURL"),
 				HaveKey("DLQueueURL"),
@@ -88,7 +90,8 @@ var _ = Describe("SQS", func() {
 			var queue *cloudformation.AWSSQSQueue
 
 			JustBeforeEach(func() {
-				t := sqs.GetStackTemplate()
+				t, err := sqs.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSSQSQueue{})))
 				var ok bool
 				queue, ok = t.Resources[v1beta1.SQSResourceName].(*cloudformation.AWSSQSQueue)
@@ -200,7 +203,8 @@ var _ = Describe("SQS", func() {
 			var doc cloudformation.PolicyDocument
 
 			JustBeforeEach(func() {
-				t := sqs.GetStackTemplate()
+				t, err := sqs.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources[v1beta1.SQSResourceIAMPolicy]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMPolicy{}))
 				policy = t.Resources[v1beta1.SQSResourceIAMPolicy].(*cloudformation.AWSIAMPolicy)
 				Expect(policy.PolicyDocument).To(BeAssignableToTypeOf(cloudformation.PolicyDocument{}))

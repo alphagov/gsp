@@ -106,12 +106,14 @@ var _ = Describe("S3Bucket", func() {
 		})
 
 		It("should require an IAM role input", func() {
-			t := o.GetStackTemplate()
+			t, err := o.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Parameters).To(HaveKey("IAMRoleName"))
 		})
 
 		It("should have outputs for connection details", func() {
-			t := o.GetStackTemplate()
+			t, err := o.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Outputs).To(And(
 				HaveKey("S3BucketName"),
 				HaveKey("S3BucketURL"),
@@ -133,7 +135,8 @@ var _ = Describe("S3Bucket", func() {
 			var bucket *cloudformation.AWSS3Bucket
 
 			JustBeforeEach(func() {
-				t := o.GetStackTemplate()
+				t, err := o.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSS3Bucket{})))
 				var ok bool
 				bucket, ok = t.Resources[v1beta1.S3BucketResourceName].(*cloudformation.AWSS3Bucket)
@@ -154,7 +157,8 @@ var _ = Describe("S3Bucket", func() {
 			var doc cloudformation.PolicyDocument
 
 			JustBeforeEach(func() {
-				t := o.GetStackTemplate()
+				t, err := o.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources[v1beta1.S3BucketResourceIAMPolicy]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMPolicy{}))
 				policy = t.Resources[v1beta1.S3BucketResourceIAMPolicy].(*cloudformation.AWSIAMPolicy)
 				Expect(policy.PolicyDocument).To(BeAssignableToTypeOf(cloudformation.PolicyDocument{}))

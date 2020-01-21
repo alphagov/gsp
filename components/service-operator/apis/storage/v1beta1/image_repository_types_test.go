@@ -51,12 +51,14 @@ var _ = Describe("ImageRepository", func() {
 		})
 
 		It("should require an IAM role input", func() {
-			t := o.GetStackTemplate()
+			t, err := o.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Parameters).To(HaveKey("IAMRoleName"))
 		})
 
 		It("should have outputs for connection details", func() {
-			t := o.GetStackTemplate()
+			t, err := o.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Outputs).To(And(
 				HaveKey("ImageRepositoryName"),
 				HaveKey("ImageRepositoryURI"),
@@ -79,7 +81,8 @@ var _ = Describe("ImageRepository", func() {
 			var repository *cloudformation.AWSECRRepository
 
 			JustBeforeEach(func() {
-				t := o.GetStackTemplate()
+				t, err := o.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSECRRepository{})))
 				var ok bool
 				repository, ok = t.Resources[v1beta1.ImageRepositoryResourceName].(*cloudformation.AWSECRRepository)
@@ -96,7 +99,8 @@ var _ = Describe("ImageRepository", func() {
 			var doc cloudformation.PolicyDocument
 
 			JustBeforeEach(func() {
-				t := o.GetStackTemplate()
+				t, err := o.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources[v1beta1.ImageRepositoryResourceIAMPolicy]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMPolicy{}))
 				policy = t.Resources[v1beta1.ImageRepositoryResourceIAMPolicy].(*cloudformation.AWSIAMPolicy)
 				Expect(policy.PolicyDocument).To(BeAssignableToTypeOf(cloudformation.PolicyDocument{}))

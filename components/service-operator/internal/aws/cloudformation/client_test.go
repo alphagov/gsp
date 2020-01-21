@@ -44,8 +44,8 @@ var _ = Describe("Client", func() {
 		var state string
 
 		JustBeforeEach(func() {
-			// always return a dummy template
-			stack.GetStackTemplateReturns(&cloudformation.Template{})
+			// always return a dummy template and no error
+			stack.GetStackTemplateReturns(&cloudformation.Template{}, nil)
 			// return state as set in subtests
 			awsClient.DescribeStacksWithContextReturns(&cloudformation.DescribeStacksOutput{
 				Stacks: []*cloudformation.State{

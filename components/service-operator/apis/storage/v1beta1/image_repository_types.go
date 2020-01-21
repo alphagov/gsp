@@ -87,7 +87,7 @@ func (s *ImageRepository) GetSecretName() string {
 }
 
 // Template returns a cloudformation Template for provisioning an ImageRepository
-func (s *ImageRepository) GetStackTemplate() *cloudformation.Template {
+func (s *ImageRepository) GetStackTemplate() (*cloudformation.Template, error) {
 	template := cloudformation.NewTemplate()
 
 	template.Parameters[IAMRoleParameterName] = map[string]string{
@@ -134,7 +134,7 @@ func (s *ImageRepository) GetStackTemplate() *cloudformation.Template {
 		"Value":       cloudformation.Join("", []string{"arn:aws:iam::", cloudformation.Ref(AccountIdParameterName), ":role/", cloudformation.Ref(IAMRoleParameterName)}),
 	}
 
-	return template
+	return template, nil
 }
 
 // GetStackRoleParameters returns additional params based on a target principal resource

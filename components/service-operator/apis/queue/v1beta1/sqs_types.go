@@ -98,7 +98,7 @@ func (s *SQS) GetSecretName() string {
 }
 
 // Template returns a cloudformation Template for provisioning an SQS queue
-func (s *SQS) GetStackTemplate() *cloudformation.Template {
+func (s *SQS) GetStackTemplate() (*cloudformation.Template, error) {
 	template := cloudformation.NewTemplate()
 
 	template.Parameters[IAMRoleParameterName] = map[string]string{
@@ -212,7 +212,7 @@ func (s *SQS) GetStackTemplate() *cloudformation.Template {
 		"Value":       cloudformation.Ref(IAMRoleParameterName),
 	}
 
-	return template
+	return template, nil
 }
 
 // GetStackRoleParameters returns additional params based on a target principal resource

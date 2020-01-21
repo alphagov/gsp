@@ -51,6 +51,7 @@ var NewTemplate = goformation.NewTemplate
 var Join = goformation.Join
 var GetAtt = goformation.GetAtt
 var Ref = goformation.Ref
+var Sub = goformation.Sub
 
 const CreateInProgress = cloudformation.StackStatusCreateInProgress
 const DeleteInProgress = cloudformation.StackStatusDeleteInProgress
@@ -164,8 +165,11 @@ func (r *Client) validateTemplateParams(t *Template, params []*Parameter) error 
 // create initiates a cloudformation create passing in the given params
 func (r *Client) create(ctx context.Context, stack Stack, params ...*Parameter) error {
 	// fetch and validate template
-	t := stack.GetStackTemplate()
-	err := r.validateTemplateParams(t, params)
+	t, err := stack.GetStackTemplate()
+	if err != nil {
+		return err
+	}
+	err = r.validateTemplateParams(t, params)
 	if err != nil {
 		return err
 	}
@@ -195,8 +199,11 @@ func (r *Client) create(ctx context.Context, stack Stack, params ...*Parameter) 
 // Update the stack and wait for update to complete.
 func (r *Client) update(ctx context.Context, stack Stack, params ...*Parameter) error {
 	// fetch and validate template params
-	t := stack.GetStackTemplate()
-	err := r.validateTemplateParams(t, params)
+	t, err := stack.GetStackTemplate()
+	if err != nil {
+		return err
+	}
+	err = r.validateTemplateParams(t, params)
 	if err != nil {
 		return err
 	}

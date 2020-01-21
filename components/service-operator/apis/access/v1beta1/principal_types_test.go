@@ -1,6 +1,9 @@
 package v1beta1_test
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -14,6 +17,7 @@ import (
 var _ = Describe("Principal", func() {
 
 	var principal v1beta1.Principal
+	var principalWithSvcAccTrust v1beta1.Principal
 
 	BeforeEach(func() {
 		os.Setenv("CLUSTER_NAME", "xxx") // required for env package
@@ -24,6 +28,18 @@ var _ = Describe("Principal", func() {
 				Labels: map[string]string{
 					cloudformation.AccessGroupLabel: "test.access.group",
 				},
+			},
+		}
+		principalWithSvcAccTrust = v1beta1.Principal{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "example",
+				Namespace: "default",
+				Labels: map[string]string{
+					cloudformation.AccessGroupLabel: "test.access.group",
+				},
+			},
+			Spec: v1beta1.PrincipalSpec{
+				TrustServiceAccount: "testacc",
 			},
 		}
 	})
@@ -44,7 +60,8 @@ var _ = Describe("Principal", func() {
 		})
 
 		It("should have expected output keys", func() {
-			t := principal.GetStackTemplate()
+			t, err := principal.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Outputs).To(And(
 				HaveKey("IAMRoleName"),
 				HaveKey("IAMRoleArn"),
@@ -59,9 +76,11 @@ var _ = Describe("Principal", func() {
 		Context("role resource", func() {
 
 			var role *cloudformation.AWSIAMRole
+			var roleWithSvcAccTrust *cloudformation.AWSIAMRole
 
 			JustBeforeEach(func() {
-				t := principal.GetStackTemplate()
+				t, err := principal.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources[v1beta1.IAMRoleResourceName]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMRole{}))
 				role = t.Resources[v1beta1.IAMRoleResourceName].(*cloudformation.AWSIAMRole)
 			})
@@ -74,6 +93,81 @@ var _ = Describe("Principal", func() {
 				Expect(role.PermissionsBoundary).ToNot(BeEmpty())
 			})
 
+			It("should set an assume role policy", func() {
+				subEncoded, ok := role.AssumeRolePolicyDocument.(string)
+				Expect(ok).To(Equal(true))
+
+				subJson, err := base64.StdEncoding.DecodeString(subEncoded)
+				Expect(err).ToNot(HaveOccurred())
+				type SubStruct struct {
+					FnSub string `json:"Fn::Sub"`
+				}
+				var sub SubStruct
+				err = json.Unmarshal(subJson, &sub)
+				Expect(err).ToNot(HaveOccurred())
+
+				var arpd cloudformation.AssumeRolePolicyDocument
+				err = json.Unmarshal([]byte(sub.FnSub), &arpd)
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(arpd.Version).To(Equal("2012-10-17"))
+				Expect(arpd.Statement).To(HaveLen(1))
+				statement := arpd.Statement[0]
+				Expect(statement.Effect).To(Equal("Allow"))
+				Expect(statement.Principal.Federated).To(BeEmpty())
+				Expect(statement.Principal.AWS).To(ConsistOf(
+					fmt.Sprintf("${%s}", v1beta1.IAMRolePrincipalParameterName),
+					fmt.Sprintf("${%s}", v1beta1.ServiceOperatorIAMRoleArn),
+				))
+				Expect(statement.Action).To(ConsistOf("sts:AssumeRole"))
+			})
+
+			It("should set an assume role policy with references to a service account if configured", func() {
+				t, err := principalWithSvcAccTrust.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(t.Resources[v1beta1.IAMRoleResourceName]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMRole{}))
+				roleWithSvcAccTrust = t.Resources[v1beta1.IAMRoleResourceName].(*cloudformation.AWSIAMRole)
+
+				subEncoded, ok := roleWithSvcAccTrust.AssumeRolePolicyDocument.(string)
+				Expect(ok).To(Equal(true))
+
+				subJson, err := base64.StdEncoding.DecodeString(subEncoded)
+				Expect(err).ToNot(HaveOccurred())
+				type SubStruct struct {
+					FnSub string `json:"Fn::Sub"`
+				}
+				var sub SubStruct
+				err = json.Unmarshal(subJson, &sub)
+				Expect(err).ToNot(HaveOccurred())
+
+				var arpd cloudformation.AssumeRolePolicyDocument
+				err = json.Unmarshal([]byte(sub.FnSub), &arpd)
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(arpd.Version).To(Equal("2012-10-17"))
+				Expect(arpd.Statement).To(HaveLen(2))
+
+				statement := arpd.Statement[0]
+				Expect(statement.Effect).To(Equal("Allow"))
+				Expect(statement.Principal.Federated).To(BeEmpty())
+				Expect(statement.Principal.AWS).To(ConsistOf(
+					fmt.Sprintf("${%s}", v1beta1.IAMRolePrincipalParameterName),
+					fmt.Sprintf("${%s}", v1beta1.ServiceOperatorIAMRoleArn),
+				))
+				Expect(statement.Action).To(ConsistOf("sts:AssumeRole"))
+
+				statement = arpd.Statement[1]
+				Expect(statement.Effect).To(Equal("Allow"))
+				Expect(statement.Principal.AWS).To(BeEmpty())
+				Expect(statement.Principal.Federated).To(ConsistOf(fmt.Sprintf("${%s}", v1beta1.IAMOIDCProviderARNParameterName)))
+				Expect(statement.Condition.StringEquals).To(And(
+					HaveLen(1),
+					HaveKeyWithValue(
+						fmt.Sprintf("${%s}:sub", v1beta1.IAMOIDCProviderURLParameterName),
+						fmt.Sprintf("system:serviceaccount:%s:%s", principalWithSvcAccTrust.GetNamespace(), principalWithSvcAccTrust.Spec.TrustServiceAccount),
+					),
+				))
+			})
 		})
 
 		Context("policy resource", func() {
@@ -81,7 +175,8 @@ var _ = Describe("Principal", func() {
 			var doc cloudformation.PolicyDocument
 
 			JustBeforeEach(func() {
-				t := principal.GetStackTemplate()
+				t, err := principal.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources[v1beta1.SharedPolicyResourceName]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMPolicy{}))
 				policy = t.Resources[v1beta1.SharedPolicyResourceName].(*cloudformation.AWSIAMPolicy)
 				Expect(policy.PolicyDocument).To(BeAssignableToTypeOf(cloudformation.PolicyDocument{}))

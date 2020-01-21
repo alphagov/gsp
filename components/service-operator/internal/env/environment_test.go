@@ -68,6 +68,28 @@ var _ = Describe("Environment", func() {
 		})
 	})
 
+	Context("AWSOIDCProviderURL", func() {
+		It("should read value from environment", func() {
+			os.Setenv("AWS_OIDC_PROVIDER_URL", knownValue)
+			Expect(env.AWSOIDCProviderURL()).To(Equal(knownValue))
+		})
+		It("should panic if not set", func() {
+			os.Unsetenv("AWS_OIDC_PROVIDER_URL")
+			Expect(func() { env.AWSOIDCProviderURL() }).To(Panic())
+		})
+	})
+
+	Context("AWSOIDCProviderARN", func() {
+		It("should read value from environment", func() {
+			os.Setenv("AWS_OIDC_PROVIDER_ARN", knownValue)
+			Expect(env.AWSOIDCProviderARN()).To(Equal(knownValue))
+		})
+		It("should panic if not set", func() {
+			os.Unsetenv("AWS_OIDC_PROVIDER_ARN")
+			Expect(func() { env.AWSOIDCProviderARN() }).To(Panic())
+		})
+	})
+
 	Context("AWSPrincipalPermissionsBoundaryARN", func() {
 		It("should read value from environment", func() {
 			os.Setenv("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN", knownValue)
