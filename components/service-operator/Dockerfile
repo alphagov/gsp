@@ -1,7 +1,7 @@
 # Build options
 
 # setup go build env
-FROM golang:1.12.5 as builder
+FROM golang:1.13.6 as builder
 WORKDIR /workspace
 
 # install kubebuilder and bundled control-plane for tests
