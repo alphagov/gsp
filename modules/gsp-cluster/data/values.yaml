@@ -153,7 +153,6 @@ kiam:
 fluentd-cloudwatch:
   extraVars:
     - "{ name: CLUSTER_NAME, value: ${cluster_name} }"
-  logGroupName: ${cloudwatch_log_group_name}
   rbac:
     serviceAccountAnnotations:
       eks.amazonaws.com/role-arn: ${cloudwatch_log_shipping_role}

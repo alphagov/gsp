@@ -19,7 +19,6 @@ data "aws_iam_policy_document" "cloudwatch_log_shipping_policy" {
     ]
 
     resources = [
-      aws_cloudwatch_log_group.logs.arn,
       aws_cloudwatch_log_group.application_logs.arn,
       aws_cloudwatch_log_group.dataplane_logs.arn,
       aws_cloudwatch_log_group.host_logs.arn,
@@ -62,11 +61,6 @@ resource "aws_iam_policy_attachment" "cloudwatch_log_shipping_policy" {
   name = "${var.cluster_name}_cloudwatch_log_shipping_role_policy_attachement"
   roles = [aws_iam_role.cloudwatch_log_shipping_role.name]
   policy_arn = aws_iam_policy.cloudwatch_log_shipping_policy.arn
-}
-
-resource "aws_cloudwatch_log_group" "logs" {
-  name              = var.cluster_domain
-  retention_in_days = 30
 }
 
 resource "aws_cloudwatch_log_group" "application_logs" {
