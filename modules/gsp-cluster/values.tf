@@ -49,7 +49,6 @@ data "template_file" "values" {
     kiam_agent_cert_b64e_pem         = base64encode(tls_locally_signed_cert.kiam_agent.cert_pem)
     kiam_agent_key_b64e_pem          = base64encode(tls_private_key.kiam_agent.private_key_pem)
     cloudwatch_log_shipping_role     = aws_iam_role.cloudwatch_log_shipping_role.arn
-    cloudwatch_log_group_name        = aws_cloudwatch_log_group.logs.name
     service_operator_boundary_arn    = aws_iam_policy.service-operator-managed-role-permissions-boundary.arn
     service_operator_role_arn        = aws_iam_role.gsp-service-operator.arn
     rds_from_worker_security_group   = aws_security_group.rds-from-worker.id
