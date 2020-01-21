@@ -7,7 +7,7 @@ require (
 	github.com/awslabs/goformation v0.0.0-20190320125420-ac0a17860cf1
 	github.com/go-logr/logr v0.1.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
-	github.com/onsi/ginkgo v1.8.0
+	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.5.0
 	github.com/sanathkr/yaml v0.0.0-20170819201035-0056894fa522
 	istio.io/istio v0.0.0-20190925083542-b158283f0728
