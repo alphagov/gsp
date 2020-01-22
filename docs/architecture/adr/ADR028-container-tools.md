@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR046](ADR046-replace-harbor-ecr.md)
 
 ## Context
 
