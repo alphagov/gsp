@@ -159,6 +159,7 @@ resource "aws_iam_policy_attachment" "service-operator" {
 data "aws_iam_policy_document" "service-operator-managed-role-permissions-boundary" {
   statement {
     actions = [
+      "ecr:*",
       "rds-data:*",
       "rds:*",
       "s3:DeleteObject",
