@@ -48,3 +48,4 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #043 - Kubernetes resource access rules](ADR043-k8s-resource-access.md)
 - [ADR #044 - Security improvements](ADR044-security-improvements.md)
 - [ADR #045 - Dev namespaces](ADR045-dev-namespaces.md)
+- [ADR #046 - Replace harbor with ECR](ADR046-replace-harbor-ecr.md)
