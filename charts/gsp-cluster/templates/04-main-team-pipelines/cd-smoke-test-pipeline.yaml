@@ -10,13 +10,6 @@ spec:
   exposed: true
   config:
 
-    harbor_source: &harbor_source
-      username: ((harbor.harbor_username))
-      password: ((harbor.harbor_password))
-      harbor:
-        prevent_vul: "false"
-        public: "false"
-
     task_toolbox: &task_toolbox
       type: docker-image
       source:
@@ -24,12 +17,6 @@ spec:
         tag: ((concourse.task-toolbox-tag))
 
     resource_types:
-    - name: harbor
-      type: docker-image
-      privileged: true
-      source:
-        repository: ((concourse.harbor-resource-image))
-        tag: ((concourse.harbor-resource-tag))
     - name: github
       type: registry-image
       source:
@@ -60,11 +47,12 @@ spec:
         - components/canary
 
     - name: image
-      type: harbor
+      type: docker-image
       icon: layers
       source:
-        <<: *harbor_source
-        repository: registry.((cluster.domain))/gsp/canary
+        username: ((canary.ImageRegistryUsername))
+        password: ((canary.ImageRegistryPassword))
+        repository: ((canary.ImageRepositoryURI))
 
     jobs:
     - name: build

@@ -1,0 +1,10 @@
+---
+apiVersion: storage.govsvc.uk/v1beta1
+kind: ImageRepository
+metadata:
+  name: canary
+  namespace: {{ .Values.global.cluster.name }}-main
+  labels:
+    group.access.govsvc.uk: canary
+spec:
+  aws: {}

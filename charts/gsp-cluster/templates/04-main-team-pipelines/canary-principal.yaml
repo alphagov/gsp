@@ -1,0 +1,8 @@
+---
+apiVersion: access.govsvc.uk/v1beta1
+kind: Principal
+metadata:
+  name: canary
+  namespace: {{ .Values.global.cluster.name }}-main
+  labels:
+    group.access.govsvc.uk: canary
