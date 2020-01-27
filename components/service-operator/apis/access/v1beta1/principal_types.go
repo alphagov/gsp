@@ -18,6 +18,7 @@ package v1beta1
 import (
 	"context"
 	"fmt"
+
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/ecr"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
@@ -141,9 +142,9 @@ func (s *Principal) GetTemplateSecrets(ctx context.Context, client sdk.Client, o
 		return nil, err
 	}
 
-	templateSecrets["ImageRepositoryUsername"] = ecrCredentials.Username
-	templateSecrets["ImageRepositoryPassword"] = ecrCredentials.Password
-	templateSecrets["ImageRepositoryEndpoint"] = ecrCredentials.Endpoint
+	templateSecrets["ImageRegistryUsername"] = ecrCredentials.Username
+	templateSecrets["ImageRegistryPassword"] = ecrCredentials.Password
+	templateSecrets["ImageRegistryEndpoint"] = ecrCredentials.Endpoint
 
 	return templateSecrets, nil
 }

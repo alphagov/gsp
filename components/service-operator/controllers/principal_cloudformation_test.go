@@ -115,18 +115,18 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				return secret.Data
 			}).Should(And(
-				HaveKeyWithValue("ImageRepositoryUsername", BeEquivalentTo("AWS")),
-				HaveKey("ImageRepositoryPassword"),
-				HaveKeyWithValue("ImageRepositoryEndpoint", BeEquivalentTo("https://011571571136.dkr.ecr.eu-west-2.amazonaws.com")),
+				HaveKeyWithValue("ImageRegistryUsername", BeEquivalentTo("AWS")),
+				HaveKey("ImageRegistryPassword"),
+				HaveKeyWithValue("ImageRegistryEndpoint", BeEquivalentTo("https://011571571136.dkr.ecr.eu-west-2.amazonaws.com")),
 			))
 		})
 
 		By("ensuring the secret is updated on credentials renewal", func() {
-			originalPassword := secret.Data["ImageRepositoryPassword"]
+			originalPassword := secret.Data["ImageRegistryPassword"]
 			Eventually(func() []byte {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
-				Expect(secret.Data["ImageRepositoryPassword"]).ToNot(BeEmpty())
-				return secret.Data["ImageRepositoryPassword"]
+				Expect(secret.Data["ImageRegistryPassword"]).ToNot(BeEmpty())
+				return secret.Data["ImageRegistryPassword"]
 			}, time.Minute*5).ShouldNot(BeEquivalentTo(originalPassword))
 		})
 
