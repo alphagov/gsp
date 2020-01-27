@@ -134,7 +134,7 @@ func SetupControllerEnv() (client.Client, func()) {
 		controllers.ImageRepositoryCloudFormationController(newAWSClient(map[string]string{
 			"ImageRepositoryName":   "xxx-test-test-image",
 			"ImageRepositoryRegion": "eu-west-2",
-			"ImageRepositoryURL":    "https://011571571136.dkr.ecr.eu-west-2.amazonaws.com/xxx-test-test-image",
+			"ImageRepositoryURI":    "011571571136.dkr.ecr.eu-west-2.amazonaws.com/xxx-test-test-image",
 			"IAMRoleName":           "svcop-xxx-test-test-role",
 			"IAMRoleArn":            "something",
 			"username":              "AWS",

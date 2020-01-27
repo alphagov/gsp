@@ -136,7 +136,7 @@ var _ = Describe("ImageRepositoryCloudFormationController", func() {
 				return secret.Data
 			}).Should(And(
 				HaveKeyWithValue("ImageRepositoryName", ContainSubstring("xxx-test-test-image")),
-				HaveKeyWithValue("ImageRepositoryURL", ContainSubstring("https://011571571136.dkr.ecr.eu-west-2.amazonaws.com/xxx-test-test-image")),
+				HaveKeyWithValue("ImageRepositoryURI", ContainSubstring("011571571136.dkr.ecr.eu-west-2.amazonaws.com/xxx-test-test-image")),
 				HaveKeyWithValue("IAMRoleName", BeEquivalentTo("svcop-xxx-test-test-role")),
 			))
 		})

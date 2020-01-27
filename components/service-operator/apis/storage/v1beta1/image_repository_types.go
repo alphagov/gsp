@@ -17,6 +17,7 @@ package v1beta1
 
 import (
 	"fmt"
+
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
@@ -31,7 +32,7 @@ func init() {
 const (
 	ImageRepositoryResourceName      = "ImageRepository"
 	ImageRepositoryName              = "ImageRepositoryName"
-	ImageRepositoryURL               = "ImageRepositoryURL"
+	ImageRepositoryURI               = "ImageRepositoryURI"
 	ImageRepositoryRegion            = "ImageRepositoryRegion"
 	ImageRepositoryResourceIAMPolicy = "ImageRepositoryIAMPolicy"
 	AccountIdParameterName           = "AWS::AccountId"
@@ -113,9 +114,9 @@ func (s *ImageRepository) GetStackTemplate() *cloudformation.Template {
 		"Value":       cloudformation.Ref(ImageRepositoryResourceName),
 	}
 
-	template.Outputs[ImageRepositoryURL] = map[string]interface{}{
-		"Description": "Repository URL to be returned to the user.",
-		"Value":       cloudformation.Join("", []string{"https://", cloudformation.Ref(AccountIdParameterName), ".dkr.ecr.eu-west-2.amazonaws.com/", repositoryName}),
+	template.Outputs[ImageRepositoryURI] = map[string]interface{}{
+		"Description": "Image repository URI to be returned to the user.",
+		"Value":       cloudformation.Join("", []string{cloudformation.Ref(AccountIdParameterName), ".dkr.ecr.eu-west-2.amazonaws.com/", repositoryName}),
 	}
 
 	template.Outputs[ImageRepositoryRegion] = map[string]interface{}{

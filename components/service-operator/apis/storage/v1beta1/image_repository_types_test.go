@@ -2,13 +2,14 @@ package v1beta1_test
 
 import (
 	"encoding/base64"
+	"os"
+
 	"github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/aws/aws-sdk-go/aws"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"os"
 )
 
 var _ = Describe("ImageRepository", func() {
@@ -58,7 +59,7 @@ var _ = Describe("ImageRepository", func() {
 			t := o.GetStackTemplate()
 			Expect(t.Outputs).To(And(
 				HaveKey("ImageRepositoryName"),
-				HaveKey("ImageRepositoryURL"),
+				HaveKey("ImageRepositoryURI"),
 				HaveKey("ImageRepositoryRegion"),
 				HaveKey("IAMRoleArn"),
 			))
