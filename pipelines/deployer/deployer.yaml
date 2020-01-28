@@ -513,11 +513,6 @@ resource_types:
   source:
     repository: ((github-resource-image))
     tag: ((github-resource-tag))
-- name: concourse-pipeline
-  type: docker-image
-  source:
-    repository: concourse/concourse-pipeline-resource
-    tag: "2.2.0"
 - name: s3-iam
   type: docker-image
   source:
@@ -562,13 +557,6 @@ resources:
     repository: ((users-repository))
     access_token: ((github-api-token))
     release: true
-- name: pipeline
-  type: concourse-pipeline
-  source:
-    teams:
-    - name: gsp
-      username: gsp
-      password: ((readonly_local_user_password))
 - name: cluster-state
   type: terraform
   source:
@@ -646,16 +634,12 @@ jobs:
     params:
       ACCOUNT_NAME: ((account-name))
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
-  - put: pipeline
-    params:
-      pipelines:
-      - name: ((concourse-pipeline-name))
-        team: ((concourse-team))
-        config_file: platform/pipelines/deployer/deployer.yaml
-        vars_files:
-        - platform/pipelines/deployer/deployer.defaults.yaml
-        - config/((config-path))
-        - trusted-contributors/github.vars.yaml
+  - set_pipeline: ((concourse-pipeline-name))
+    file: platform/pipelines/deployer/deployer.yaml
+    vars_files:
+    - platform/pipelines/deployer/deployer.defaults.yaml
+    - config/((config-path))
+    - trusted-contributors/github.vars.yaml
 
 - name: deploy
   serial: true
