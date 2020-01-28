@@ -18,9 +18,9 @@ data "aws_iam_policy_document" "trust_svcop" {
     }
 
     condition {
-      test = "StringEquals"
+      test     = "StringEquals"
       variable = "${replace(module.k8s-cluster.oidc_provider_url, "https://", "")}:sub"
-      values = ["system:serviceaccount:gsp-system:gsp-service-operator-service-account"]
+      values   = ["system:serviceaccount:gsp-system:gsp-service-operator-service-account"]
     }
   }
 }
@@ -80,6 +80,7 @@ data "aws_iam_policy_document" "service-operator" {
       "rds:*",
       "sqs:*",
       "s3:*",
+      "ecr:*",
     ]
 
     resources = [
@@ -117,6 +118,7 @@ data "aws_iam_policy_document" "service-operator" {
       "iam:DeleteRole",
       "iam:DeleteRolePolicy",
       "iam:GetRolePolicy",
+      "iam:UpdateAssumeRolePolicy",
     ]
 
     resources = [
