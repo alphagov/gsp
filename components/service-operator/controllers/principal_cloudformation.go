@@ -30,6 +30,6 @@ func PrincipalCloudFormationController(c sdk.Client) Controller {
 			},
 		},
 		RequeueOnSuccess:           true,
-		ReconcileSuccessRetryDelay: env.GetImageRegsitryCredentialsRenewalInterval(),
+		ReconcileSuccessRetryDelay: env.ImageRegistryCredentialsRenewalInterval(),
 	}
 }

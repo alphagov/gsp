@@ -41,7 +41,7 @@ func AWSRoleArn() string {
 	return MustGet("AWS_ROLE_ARN")
 }
 
-func GetImageRegistryCredentialsRenewalInterval() time.Duration {
+func ImageRegistryCredentialsRenewalInterval() time.Duration {
 	envVarName := "IMAGE_REGISTRY_CREDENTIALS_RENEWAL_INTERVAL"
 	envVarValue := os.Getenv(envVarName)
 	renewalInterval := time.Hour * 6
