@@ -164,7 +164,7 @@ func (r *Controller) Reconcile(req ctrl.Request) (res ctrl.Result, err error) {
 		// failed to reconcile, requeue as configured
 		res.Requeue = true
 		res.RequeueAfter = r.ReconcileErrorRetryDelay
-	} else if r.RequeueOnSuccess == true {
+	} else if r.RequeueOnSuccess {
 		// reconcile succeeded, requeue as configured
 		res.Requeue = true
 		res.RequeueAfter = r.ReconcileSuccessRetryDelay
