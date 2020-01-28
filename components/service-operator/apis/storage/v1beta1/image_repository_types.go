@@ -99,7 +99,7 @@ func (s *ImageRepository) GetStackTemplate() *cloudformation.Template {
 		RepositoryName: repositoryName,
 	}
 
-	imageRepositoryArn := cloudformation.Join("", []string{cloudformation.GetAtt(ImageRepositoryResourceName, "Arn")})
+	imageRepositoryArn := cloudformation.GetAtt(ImageRepositoryResourceName, "Arn")
 
 	template.Resources[ImageRepositoryResourceIAMPolicy] = &cloudformation.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"ecr", repositoryName}),

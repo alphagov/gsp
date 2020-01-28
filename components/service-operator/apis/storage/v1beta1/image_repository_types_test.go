@@ -124,9 +124,7 @@ var _ = Describe("ImageRepository", func() {
 				Expect(doc.Statement).To(HaveLen(1))
 				statement := doc.Statement[0]
 
-				wantedRepositoryArn, err := base64.StdEncoding.DecodeString(cloudformation.Join("", []string{
-					cloudformation.GetAtt(v1beta1.ImageRepositoryResourceName, "Arn"),
-				}))
+				wantedRepositoryArn, err := base64.StdEncoding.DecodeString(cloudformation.GetAtt(v1beta1.ImageRepositoryResourceName, "Arn"))
 				Expect(err).ToNot(HaveOccurred())
 
 				repositoryArn, err := base64.StdEncoding.DecodeString(statement.Resource[0])
