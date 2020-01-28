@@ -8,10 +8,22 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 )
 
 type FakeClient struct {
+	AssumeRoleStub        func(string) sdk.Client
+	assumeRoleMutex       sync.RWMutex
+	assumeRoleArgsForCall []struct {
+		arg1 string
+	}
+	assumeRoleReturns struct {
+		result1 sdk.Client
+	}
+	assumeRoleReturnsOnCall map[int]struct {
+		result1 sdk.Client
+	}
 	CreateStackWithContextStub        func(context.Context, *cloudformation.CreateStackInput, ...request.Option) (*cloudformation.CreateStackOutput, error)
 	createStackWithContextMutex       sync.RWMutex
 	createStackWithContextArgsForCall []struct {
@@ -72,6 +84,21 @@ type FakeClient struct {
 		result1 *cloudformation.DescribeStacksOutput
 		result2 error
 	}
+	GetAuthorizationTokenWithContextStub        func(context.Context, *ecr.GetAuthorizationTokenInput, ...request.Option) (*ecr.GetAuthorizationTokenOutput, error)
+	getAuthorizationTokenWithContextMutex       sync.RWMutex
+	getAuthorizationTokenWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *ecr.GetAuthorizationTokenInput
+		arg3 []request.Option
+	}
+	getAuthorizationTokenWithContextReturns struct {
+		result1 *ecr.GetAuthorizationTokenOutput
+		result2 error
+	}
+	getAuthorizationTokenWithContextReturnsOnCall map[int]struct {
+		result1 *ecr.GetAuthorizationTokenOutput
+		result2 error
+	}
 	GetSecretValueWithContextStub        func(context.Context, *secretsmanager.GetSecretValueInput, ...request.Option) (*secretsmanager.GetSecretValueOutput, error)
 	getSecretValueWithContextMutex       sync.RWMutex
 	getSecretValueWithContextArgsForCall []struct {
@@ -104,6 +131,66 @@ type FakeClient struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeClient) AssumeRole(arg1 string) sdk.Client {
+	fake.assumeRoleMutex.Lock()
+	ret, specificReturn := fake.assumeRoleReturnsOnCall[len(fake.assumeRoleArgsForCall)]
+	fake.assumeRoleArgsForCall = append(fake.assumeRoleArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("AssumeRole", []interface{}{arg1})
+	fake.assumeRoleMutex.Unlock()
+	if fake.AssumeRoleStub != nil {
+		return fake.AssumeRoleStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.assumeRoleReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeClient) AssumeRoleCallCount() int {
+	fake.assumeRoleMutex.RLock()
+	defer fake.assumeRoleMutex.RUnlock()
+	return len(fake.assumeRoleArgsForCall)
+}
+
+func (fake *FakeClient) AssumeRoleCalls(stub func(string) sdk.Client) {
+	fake.assumeRoleMutex.Lock()
+	defer fake.assumeRoleMutex.Unlock()
+	fake.AssumeRoleStub = stub
+}
+
+func (fake *FakeClient) AssumeRoleArgsForCall(i int) string {
+	fake.assumeRoleMutex.RLock()
+	defer fake.assumeRoleMutex.RUnlock()
+	argsForCall := fake.assumeRoleArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeClient) AssumeRoleReturns(result1 sdk.Client) {
+	fake.assumeRoleMutex.Lock()
+	defer fake.assumeRoleMutex.Unlock()
+	fake.AssumeRoleStub = nil
+	fake.assumeRoleReturns = struct {
+		result1 sdk.Client
+	}{result1}
+}
+
+func (fake *FakeClient) AssumeRoleReturnsOnCall(i int, result1 sdk.Client) {
+	fake.assumeRoleMutex.Lock()
+	defer fake.assumeRoleMutex.Unlock()
+	fake.AssumeRoleStub = nil
+	if fake.assumeRoleReturnsOnCall == nil {
+		fake.assumeRoleReturnsOnCall = make(map[int]struct {
+			result1 sdk.Client
+		})
+	}
+	fake.assumeRoleReturnsOnCall[i] = struct {
+		result1 sdk.Client
+	}{result1}
 }
 
 func (fake *FakeClient) CreateStackWithContext(arg1 context.Context, arg2 *cloudformation.CreateStackInput, arg3 ...request.Option) (*cloudformation.CreateStackOutput, error) {
@@ -366,6 +453,71 @@ func (fake *FakeClient) DescribeStacksWithContextReturnsOnCall(i int, result1 *c
 	}{result1, result2}
 }
 
+func (fake *FakeClient) GetAuthorizationTokenWithContext(arg1 context.Context, arg2 *ecr.GetAuthorizationTokenInput, arg3 ...request.Option) (*ecr.GetAuthorizationTokenOutput, error) {
+	fake.getAuthorizationTokenWithContextMutex.Lock()
+	ret, specificReturn := fake.getAuthorizationTokenWithContextReturnsOnCall[len(fake.getAuthorizationTokenWithContextArgsForCall)]
+	fake.getAuthorizationTokenWithContextArgsForCall = append(fake.getAuthorizationTokenWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *ecr.GetAuthorizationTokenInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("GetAuthorizationTokenWithContext", []interface{}{arg1, arg2, arg3})
+	fake.getAuthorizationTokenWithContextMutex.Unlock()
+	if fake.GetAuthorizationTokenWithContextStub != nil {
+		return fake.GetAuthorizationTokenWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.getAuthorizationTokenWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeClient) GetAuthorizationTokenWithContextCallCount() int {
+	fake.getAuthorizationTokenWithContextMutex.RLock()
+	defer fake.getAuthorizationTokenWithContextMutex.RUnlock()
+	return len(fake.getAuthorizationTokenWithContextArgsForCall)
+}
+
+func (fake *FakeClient) GetAuthorizationTokenWithContextCalls(stub func(context.Context, *ecr.GetAuthorizationTokenInput, ...request.Option) (*ecr.GetAuthorizationTokenOutput, error)) {
+	fake.getAuthorizationTokenWithContextMutex.Lock()
+	defer fake.getAuthorizationTokenWithContextMutex.Unlock()
+	fake.GetAuthorizationTokenWithContextStub = stub
+}
+
+func (fake *FakeClient) GetAuthorizationTokenWithContextArgsForCall(i int) (context.Context, *ecr.GetAuthorizationTokenInput, []request.Option) {
+	fake.getAuthorizationTokenWithContextMutex.RLock()
+	defer fake.getAuthorizationTokenWithContextMutex.RUnlock()
+	argsForCall := fake.getAuthorizationTokenWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeClient) GetAuthorizationTokenWithContextReturns(result1 *ecr.GetAuthorizationTokenOutput, result2 error) {
+	fake.getAuthorizationTokenWithContextMutex.Lock()
+	defer fake.getAuthorizationTokenWithContextMutex.Unlock()
+	fake.GetAuthorizationTokenWithContextStub = nil
+	fake.getAuthorizationTokenWithContextReturns = struct {
+		result1 *ecr.GetAuthorizationTokenOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeClient) GetAuthorizationTokenWithContextReturnsOnCall(i int, result1 *ecr.GetAuthorizationTokenOutput, result2 error) {
+	fake.getAuthorizationTokenWithContextMutex.Lock()
+	defer fake.getAuthorizationTokenWithContextMutex.Unlock()
+	fake.GetAuthorizationTokenWithContextStub = nil
+	if fake.getAuthorizationTokenWithContextReturnsOnCall == nil {
+		fake.getAuthorizationTokenWithContextReturnsOnCall = make(map[int]struct {
+			result1 *ecr.GetAuthorizationTokenOutput
+			result2 error
+		})
+	}
+	fake.getAuthorizationTokenWithContextReturnsOnCall[i] = struct {
+		result1 *ecr.GetAuthorizationTokenOutput
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeClient) GetSecretValueWithContext(arg1 context.Context, arg2 *secretsmanager.GetSecretValueInput, arg3 ...request.Option) (*secretsmanager.GetSecretValueOutput, error) {
 	fake.getSecretValueWithContextMutex.Lock()
 	ret, specificReturn := fake.getSecretValueWithContextReturnsOnCall[len(fake.getSecretValueWithContextArgsForCall)]
@@ -499,6 +651,8 @@ func (fake *FakeClient) UpdateStackWithContextReturnsOnCall(i int, result1 *clou
 func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.assumeRoleMutex.RLock()
+	defer fake.assumeRoleMutex.RUnlock()
 	fake.createStackWithContextMutex.RLock()
 	defer fake.createStackWithContextMutex.RUnlock()
 	fake.deleteStackWithContextMutex.RLock()
@@ -507,6 +661,8 @@ func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	defer fake.describeStackEventsWithContextMutex.RUnlock()
 	fake.describeStacksWithContextMutex.RLock()
 	defer fake.describeStacksWithContextMutex.RUnlock()
+	fake.getAuthorizationTokenWithContextMutex.RLock()
+	defer fake.getAuthorizationTokenWithContextMutex.RUnlock()
 	fake.getSecretValueWithContextMutex.RLock()
 	defer fake.getSecretValueWithContextMutex.RUnlock()
 	fake.updateStackWithContextMutex.RLock()

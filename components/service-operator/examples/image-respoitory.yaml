@@ -1,0 +1,9 @@
+---
+apiVersion: storage.govsvc.uk/v1beta1
+kind: ImageRepository
+metadata:
+  name: sample
+  labels:
+    group.access.govsvc.uk: gsp.examples.test
+spec:
+  aws: {}

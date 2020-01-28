@@ -43,9 +43,12 @@ var _ = Describe("Principal", func() {
 			Expect(principal.GetStackName()).To(HavePrefix("xxx-principal-default-example"))
 		})
 
-		It("should have outputs for role name", func() {
+		It("should have expected output keys", func() {
 			t := principal.GetStackTemplate()
-			Expect(t.Outputs).To(HaveKey("IAMRoleName"))
+			Expect(t.Outputs).To(And(
+				HaveKey("IAMRoleName"),
+				HaveKey("IAMRoleArn"),
+			))
 		})
 
 		It("should safelist the IAMRoleName output", func() {
@@ -73,6 +76,41 @@ var _ = Describe("Principal", func() {
 
 		})
 
+		Context("policy resource", func() {
+			var policy *cloudformation.AWSIAMPolicy
+			var doc cloudformation.PolicyDocument
+
+			JustBeforeEach(func() {
+				t := principal.GetStackTemplate()
+				Expect(t.Resources[v1beta1.SharedPolicyResourceName]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMPolicy{}))
+				policy = t.Resources[v1beta1.SharedPolicyResourceName].(*cloudformation.AWSIAMPolicy)
+				Expect(policy.PolicyDocument).To(BeAssignableToTypeOf(cloudformation.PolicyDocument{}))
+				doc = policy.PolicyDocument.(cloudformation.PolicyDocument)
+			})
+
+			It("should have a policy name", func() {
+				Expect(policy.PolicyName).To(Equal(principal.GetRoleName()))
+			})
+
+			It("should assign policy to the given role name", func() {
+				Expect(policy.Roles).To(ContainElement(cloudformation.Ref(v1beta1.IAMRoleResourceName)))
+			})
+
+			It("should have a policy document with relevant actions", func() {
+				Expect(doc.Statement).To(HaveLen(1))
+				statement := doc.Statement[0]
+				Expect(statement.Effect).To(Equal("Allow"))
+				Expect(statement.Action).To(ConsistOf(
+					"ecr:GetAuthorizationToken",
+				))
+			})
+
+			It("is generally scoped", func() {
+				Expect(doc.Statement).To(HaveLen(1))
+				statement := doc.Statement[0]
+				Expect(statement.Resource[0]).To(Equal("*"))
+			})
+		})
 	})
 
 })

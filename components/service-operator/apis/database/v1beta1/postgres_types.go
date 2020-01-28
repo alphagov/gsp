@@ -350,7 +350,7 @@ func (p *Postgres) GetStackPolicy() aws.StackPolicyDocument {
 			Effect:    "Deny",
 			Action:    []string{"Update:Replace", "Update:Delete"},
 			Principal: "*",
-			Resource:  fmt.Sprintf("LogicalResourceId/%s%d", PostgresResourceInstance , i),
+			Resource:  fmt.Sprintf("LogicalResourceId/%s%d", PostgresResourceInstance, i),
 		})
 
 		statements = append(statements, aws.StatementEntry{

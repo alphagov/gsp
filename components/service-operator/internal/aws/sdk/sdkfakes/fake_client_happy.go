@@ -3,6 +3,7 @@ package sdkfakes
 import (
 	"context"
 	"fmt"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	"math/rand"
 	"time"
 
@@ -124,6 +125,34 @@ func NewHappyClient(outputs map[string]string) *FakeClient {
 
 	client.UpdateStackWithContextStub = func(context.Context, *cloudformation.UpdateStackInput, ...request.Option) (*cloudformation.UpdateStackOutput, error) {
 		return nil, NoUpdateRequiredException
+	}
+
+	client.AssumeRoleReturns(client)
+
+	later := time.After(time.Second * 60)
+	client.GetAuthorizationTokenWithContextStub = func(context.Context, *ecr.GetAuthorizationTokenInput, ...request.Option) (*ecr.GetAuthorizationTokenOutput, error) {
+		select {
+		case <-later:
+			return &ecr.GetAuthorizationTokenOutput{
+				AuthorizationData: []*ecr.AuthorizationData{
+					{
+						AuthorizationToken: aws.String("d2hhdGV2ZXJ0aHJlZTp3aGF0ZXZlcmZvdXI="), // whateverthree:whateverfour
+						ExpiresAt:          nil,
+						ProxyEndpoint:      aws.String("https://011571571136.dkr.ecr.eu-west-2.amazonaws.com"),
+					},
+				},
+			}, nil
+		default:
+			return &ecr.GetAuthorizationTokenOutput{
+				AuthorizationData: []*ecr.AuthorizationData{
+					{
+						AuthorizationToken: aws.String("d2hhdGV2ZXJvbmU6d2hhdGV2ZXJ0d28="), // whateverone:whatevertwo
+						ExpiresAt:          nil,
+						ProxyEndpoint:      aws.String("https://011571571136.dkr.ecr.eu-west-2.amazonaws.com"),
+					},
+				},
+			}, nil
+		}
 	}
 
 	return client
