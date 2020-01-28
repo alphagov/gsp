@@ -29,7 +29,7 @@ func PrincipalCloudFormationController(c sdk.Client) Controller {
 				ParameterValue: aws.String(env.AWSRoleArn()),
 			},
 		},
-		RequeueOnSuccess: true,
-		ReconcileSuccessRetryDelay: env.GetImageRepositoryCredentialsRenewalInterval(),
+		RequeueOnSuccess:           true,
+		ReconcileSuccessRetryDelay: env.GetImageRegsitryCredentialsRenewalInterval(),
 	}
 }

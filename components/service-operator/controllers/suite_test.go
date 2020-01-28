@@ -64,7 +64,7 @@ func TestAPIs(t *testing.T) {
 func SetupControllerEnv() (client.Client, func()) {
 	os.Setenv("CLOUD_PROVIDER", "aws")
 	os.Setenv("CLUSTER_NAME", "xxx")
-	os.Setenv("IMAGE_REPOSITORY_CREDENTIALS_RENEWAL_INTERVAL", "30s")
+	os.Setenv("IMAGE_REGISTRY_CREDENTIALS_RENEWAL_INTERVAL", "30s")
 	ctx := context.Background()
 
 	log := zap.LoggerTo(GinkgoWriter, false)

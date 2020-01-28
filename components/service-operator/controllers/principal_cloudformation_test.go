@@ -110,7 +110,7 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 			}).Should(BeTrue())
 		})
 
-		By("creating a secret with repository details", func() {
+		By("creating a secret with registry details", func() {
 			Eventually(func() map[string][]byte {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				return secret.Data
