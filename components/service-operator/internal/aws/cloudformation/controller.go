@@ -367,8 +367,10 @@ func (r *Controller) updateCredentialsSecret(ctx context.Context, o StackSecretO
 			secret.Data[key] = []byte(value)
 		}
 		// mark the secret as owned by the o resource so it gets gc'd
-		if err := controllerutil.SetControllerReference(o, &secret, r.Scheme); err != nil {
-			return err
+		if !isAlreadyOwned(&secret) {
+			if err := controllerutil.SetControllerReference(o, &secret, r.Scheme); err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -446,4 +448,13 @@ func (r *Controller) destroyObjectWithContext(ctx context.Context, _ ctrl.Reques
 		object.RemoveFinalizer(o, Finalizer)
 	}
 	return nil
+}
+
+func isAlreadyOwned(o metav1.Object) bool {
+	for _, r := range o.GetOwnerReferences() {
+		if r.Controller != nil && *r.Controller {
+			return true
+		}
+	}
+	return false
 }
