@@ -66,9 +66,8 @@ var _ = Describe("ImageRepositoryCloudFormationController", func() {
 					APIVersion: storage.GroupVersion.Group,
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:         name,
-					GenerateName: "",
-					Namespace:    namespace,
+					Name:      name,
+					Namespace: namespace,
 					Labels: map[string]string{
 						cloudformation.AccessGroupLabel: "test.access.group",
 					},
