@@ -151,7 +151,7 @@ func (r *ReconcilePipeline) update(teamName string, instance *concoursev1beta1.P
 		return fmt.Errorf("couldn't obtain existing pipeline config: %s", err)
 	}
 	// set pipeline
-	_, _, _, err = concourseClient.Team(teamName).CreateOrUpdatePipelineConfig(pipelineName, existingConfigVersion, pipelineYAML, true)
+	_, _, _, err = concourseClient.Team(teamName).CreateOrUpdatePipelineConfig(pipelineName, existingConfigVersion, pipelineYAML, false)
 	if err != nil {
 		return fmt.Errorf("couldn't CreateOrUpdatePipelineConfig '%s' for team '%s': %s", pipelineName, teamName, err)
 	}
