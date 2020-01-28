@@ -454,6 +454,7 @@ rules:
 - apiGroups: ["storage.govsvc.uk"]
   resources:
   - s3buckets
+  - imagerepositories
   verbs:
   - delete
   - get
