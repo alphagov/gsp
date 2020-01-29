@@ -9,6 +9,7 @@ global:
     oidcProviderARN: ${cluster_oidc_provider_arn}
   account:
     name: ${account_name}
+    id: ${account_id}
   roles:
     harbor: ${harbor_iam_role_name}
   cloudHsm:
