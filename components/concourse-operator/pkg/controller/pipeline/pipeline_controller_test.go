@@ -156,7 +156,7 @@ func testPipeline(pipelineResource *concoursev1beta1.Pipeline, pipelineBytes []b
 		Name:       pipelineResource.ObjectMeta.Name,
 		Version:    "",
 		Pipeline:   pipelineBytes,
-		checkCreds: true,
+		checkCreds: false,
 	}
 	g.Eventually(func() *pipelineArgs {
 		if teamClient.CreateOrUpdatePipelineConfigCallCount() < 1 {
