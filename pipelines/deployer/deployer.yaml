@@ -636,7 +636,7 @@ jobs:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - set_pipeline: ((concourse-pipeline-name))
     file: platform/pipelines/deployer/deployer.yaml
-    vars_files:
+    var_files:
     - platform/pipelines/deployer/deployer.defaults.yaml
     - config/((config-path))
     - trusted-contributors/github.vars.yaml

@@ -281,7 +281,7 @@ jobs:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - set_pipeline: ((pipeline-name))
     file: platform/pipelines/release/release.yaml
-    vars_files:
+    var_files:
     - trusted-contributors/github.vars.yaml
     vars:
       branch: ((branch))
