@@ -74,8 +74,6 @@ spec:
           - name: src
           outputs:
           - name: image
-          caches:
-          - path: cache
           run:
             path: build
       - put: ecr
