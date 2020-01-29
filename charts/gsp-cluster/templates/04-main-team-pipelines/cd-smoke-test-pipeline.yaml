@@ -46,8 +46,8 @@ spec:
         paths:
         - components/canary
 
-    - name: image
-      type: docker-image
+    - name: ecr
+      type: registry-image
       icon: layers
       source:
         username: ((canary.ImageRegistryUsername))
@@ -61,21 +61,34 @@ spec:
       - get: timer
         trigger: true
       - get: src
-      - put: image
-        get_params: {skip_download: true}
+      - task: build
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: vito/oci-build-task}
+          params:
+            CONTEXT: src/components/canary
+          inputs:
+          - name: src
+          outputs:
+          - name: image
+          caches:
+          - path: cache
+          run:
+            path: build
+      - put: ecr
         params:
-          build: src/components/canary
-          dockerfile: src/components/canary/Dockerfile
-          tag_file: src/.git/short_ref
-          tag_as_latest: true
-          tag_prefix: v
+          image: image/image.tar
+          additional_tags: src/.git/short_ref
 
     - name: deploy
       serial: true
       plan:
       - get: src
         passed: ["build"]
-      - get: image
+      - get: ecr
         passed: ["build"]
         trigger: true
 
@@ -83,9 +96,11 @@ spec:
         config:
           platform: linux
           image_resource: *task_toolbox
+          params:
+            IMAGE_URI: ((canary.ImageRepositoryURI))
           inputs:
           - name: src
-          - name: image
+          - name: ecr
           outputs:
           - name: chart-values
           run:
@@ -95,13 +110,17 @@ spec:
               - -c
               - |
                 echo "generating helm values for latest image versions..."
+                IMAGE_TAG_TYPE=$(cat ecr/digest | cut -d ':' -f 1)
+                IMAGE_TAG=$(cat ecr/digest | cut -d ':' -f 2)
+                IMAGE_REPOSITORY="${IMAGE_URI}@${IMAGE_TAG_TYPE}"
+                BUILD_TIMESTAMP="$(date +%s)"
                 mkdir -p chart-values
                 cat << EOF > ./overrides.yaml
                 canary:
                   image:
-                    repository: $(cat image/repository)@$(cat image/digest | cut -d ':' -f 1)
-                    tag: $(cat image/digest | cut -d ':' -f 2)
-                  chartCommitTimestamp: $(date +%s)
+                    repository: "${IMAGE_REPOSITORY}"
+                    tag: "${IMAGE_TAG}"
+                  chartCommitTimestamp: ${BUILD_TIMESTAMP}
                 EOF
                 echo "merging with chart values..."
                 spruce merge ./src/components/canary/chart/values.yaml ./overrides.yaml | tee -a chart-values/values.yaml
