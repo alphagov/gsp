@@ -390,7 +390,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{pod=~\"gsp-concourse-web.*\"}) without (container)",
+          "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{pod=~\"gsp-concourse-web.*\"}) without (container)",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "CPU usage - {{pod}}",
@@ -476,7 +476,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{pod=~\"gsp-concourse-worker.*\"}) without (container)",
+          "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{pod=~\"gsp-concourse-worker.*\"}) without (container)",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "CPU usage - {{pod}}",
