@@ -169,11 +169,12 @@ gsp-monitoring:
           clustername: ${cluster_domain}
           product: ${account_name}
         additionalAlertManagerConfigs:
-        - static_configs:
-          - targets:
-            - "alerts-1.monitoring.gds-reliability.engineering"
-            - "alerts-2.monitoring.gds-reliability.engineering"
-            - "alerts-3.monitoring.gds-reliability.engineering"
+        - dns_sd_configs:
+          - names: [ alerts.monitoring.gds-reliability.engineering ]
+            type: A
+            port: 443
+          tls_config:
+            server_name: alerts.monitoring.gds-reliability.engineering
           scheme: https
     grafana:
       podAnnotations:
