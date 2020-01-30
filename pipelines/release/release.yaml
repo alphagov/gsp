@@ -28,6 +28,12 @@ resource_types:
     repository: "govsvc/concourse-github-resource"
     tag: "gsp-va191b03"
 
+- name: concourse-pipeline
+  type: docker-image
+  source:
+    repository: concourse/concourse-pipeline-resource
+    tag: "2.2.0"
+
 - name: paas-semver
   type: docker-image
   source:
@@ -183,6 +189,14 @@ resources:
     access_token: ((github-api-token))
     release: true
 
+- name: pipeline
+  type: concourse-pipeline
+  source:
+    teams:
+    - name: gsp
+      username: gsp
+      password: ((readonly_local_user_password))
+
 - name: concourse-github-resource
   type: docker-image
   source:
@@ -279,14 +293,18 @@ jobs:
     file: platform/pipelines/tasks/generate-trusted-contributors.yaml
     params:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
-  - set_pipeline: ((pipeline-name))
-    file: platform/pipelines/release/release.yaml
-    var_files:
-    - trusted-contributors/github.vars.yaml
-    vars:
-      branch: ((branch))
-      pipeline-name: ((pipeline-name))
-      github-release-tag-prefix: ((github-release-tag-prefix))
+  - put: pipeline
+    params:
+      pipelines:
+      - name: ((pipeline-name))
+        team: gsp
+        config_file: platform/pipelines/release/release.yaml
+        vars_files:
+        - trusted-contributors/github.vars.yaml
+        vars:
+          branch: ((branch))
+          pipeline-name: ((pipeline-name))
+          github-release-tag-prefix: ((github-release-tag-prefix))
 
 - name: build-concourse-task-toolbox
   serial: true
