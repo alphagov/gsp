@@ -18,7 +18,7 @@ prometheus-operator:
         product: local
       replicas: 2
       retention: "60d"
-      retentionSize: "45GB"
+      retentionSize: "190GB"
       walCompression: true
       ruleSelectorNilUsesHelmValues: false
       ruleSelector: {}
