@@ -182,13 +182,15 @@ var _ = Describe("Postgres", func() {
 	Context("cloudformation", func() {
 
 		It("should have inputs for vpc config", func() {
-			t := postgres.GetStackTemplate()
+			t, err := postgres.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Parameters).To(HaveKey("DBSubnetGroup"))
 			Expect(t.Parameters).To(HaveKey("VPCSecurityGroupID"))
 		})
 
 		It("should have outputs for connection details", func() {
-			t := postgres.GetStackTemplate()
+			t, err := postgres.GetStackTemplate()
+			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Outputs).To(HaveKey("Endpoint"))
 			Expect(t.Outputs).To(HaveKey("ReadEndpoint"))
 			Expect(t.Outputs).To(HaveKey("Port"))
@@ -201,7 +203,8 @@ var _ = Describe("Postgres", func() {
 			var cluster *cloudformation.AWSRDSDBCluster
 
 			JustBeforeEach(func() {
-				t := postgres.GetStackTemplate()
+				t, err := postgres.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources[v1beta1.PostgresResourceCluster]).To(BeAssignableToTypeOf(&cloudformation.AWSRDSDBCluster{}))
 				cluster = t.Resources[v1beta1.PostgresResourceCluster].(*cloudformation.AWSRDSDBCluster)
 			})
@@ -223,7 +226,8 @@ var _ = Describe("Postgres", func() {
 			var instances []*cloudformation.AWSRDSDBInstance
 
 			JustBeforeEach(func() {
-				t := postgres.GetStackTemplate()
+				t, err := postgres.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
 				instances = []*cloudformation.AWSRDSDBInstance{}
 				for _, r := range t.Resources {
 					inst, ok := r.(*cloudformation.AWSRDSDBInstance)

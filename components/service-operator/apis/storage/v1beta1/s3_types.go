@@ -144,7 +144,7 @@ func (s *S3Bucket) GetSecretName() string {
 }
 
 // Template returns a cloudformation Template for provisioning an S3Bucket
-func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
+func (s *S3Bucket) GetStackTemplate() (*cloudformation.Template, error) {
 	template := cloudformation.NewTemplate()
 
 	template.Parameters[IAMRoleParameterName] = map[string]string{
@@ -211,7 +211,7 @@ func (s *S3Bucket) GetStackTemplate() *cloudformation.Template {
 		"Value":       cloudformation.Ref(IAMRoleParameterName),
 	}
 
-	return template
+	return template, nil
 }
 
 func (s *S3Bucket) GetServiceEntryName() string {

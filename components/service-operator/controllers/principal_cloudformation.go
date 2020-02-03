@@ -6,6 +6,7 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/aws/aws-sdk-go/aws"
+	"strings"
 )
 
 func PrincipalCloudFormationController(c sdk.Client) Controller {
@@ -27,6 +28,14 @@ func PrincipalCloudFormationController(c sdk.Client) Controller {
 			{
 				ParameterKey:   aws.String(access.ServiceOperatorIAMRoleArn),
 				ParameterValue: aws.String(env.AWSRoleArn()),
+			},
+			{
+				ParameterKey:   aws.String(access.IAMOIDCProviderURLParameterName),
+				ParameterValue: aws.String(strings.Replace(env.AWSOIDCProviderURL(), "https://", "", 1)),
+			},
+			{
+				ParameterKey:   aws.String(access.IAMOIDCProviderARNParameterName),
+				ParameterValue: aws.String(env.AWSOIDCProviderARN()),
 			},
 		},
 		RequeueOnSuccess:           true,

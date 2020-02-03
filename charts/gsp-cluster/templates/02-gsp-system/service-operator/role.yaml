@@ -6,6 +6,16 @@ metadata:
   creationTimestamp: null
   name: {{ .Release.Name }}-service-operator-role
 rules:
+- resources:
+  - serviceaccount
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 - apiGroups:
   - access.govsvc.uk
   resources:

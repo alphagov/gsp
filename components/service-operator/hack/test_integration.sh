@@ -13,4 +13,7 @@ docker build \
 	--build-arg AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN=arn:aws:iam::${AWS_ACCOUNT_ID}:policy/sandbox-service-operator-managed-role-permissions-boundary \
 	--build-arg AWS_PRINCIPAL_SERVER_ROLE_ARN=arn:aws:iam::${AWS_ACCOUNT_ID}:role/sandbox_kiam_server \
 	--build-arg AWS_ROLE_ARN=arn:aws:iam::${AWS_ACCOUNT_ID}:role/admin \
+	--build-arg AWS_OIDC_PROVIDER_ARN=arn:aws:iam::${AWS_ACCOUNT_ID}:oidc-provider/oidc.eks.eu-west-2.amazonaws.com/id/D4AF693862F6BE27DFD2FCA407D8990D \
+	--build-arg AWS_OIDC_PROVIDER_URL=oidc.eks.eu-west-2.amazonaws.com/id/D4AF693862F6BE27DFD2FCA407D8990D \
+
 	.

@@ -12,7 +12,7 @@ import (
 // Stack represents a type that can marshall itself to a cloudformation config for use with Client
 type Stack interface {
 	GetStackName() string
-	GetStackTemplate() *Template
+	GetStackTemplate() (*Template, error)
 	object.Service
 }
 
@@ -49,6 +49,13 @@ type ServiceEntryCreator interface {
 	Stack
 	GetServiceEntryName() string
 	GetServiceEntrySpecs(outputs Outputs) ([]map[string]interface{}, error)
+}
+
+// ServiceAccountCreator names a ServiceAccount to be used to access created resources
+type ServiceAccountCreator interface {
+	Stack
+	GetServiceAccountName() string
+	GetServiceAccountAnnotations(outputs Outputs) map[string]string
 }
 
 // StackPolicyProvider allows a type to return a string representation of a

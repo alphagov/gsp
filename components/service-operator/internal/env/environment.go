@@ -32,6 +32,16 @@ func AWSPrincipalServerRoleARN() string {
 	return MustGet("AWS_PRINCIPAL_SERVER_ROLE_ARN")
 }
 
+// AWSOIDCProviderURL is the URL of the OIDC provider for our EKS cluster
+func AWSOIDCProviderURL() string {
+	return MustGet("AWS_OIDC_PROVIDER_URL")
+}
+
+// AWSOIDCProviderARN is the URL of the OIDC provider for our EKS cluster
+func AWSOIDCProviderARN() string {
+	return MustGet("AWS_OIDC_PROVIDER_ARN")
+}
+
 // AWSPrincipalPermissionsBoundaryARN is the arn of the policy that limits permissions
 func AWSPrincipalPermissionsBoundaryARN() string {
 	return MustGet("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN")

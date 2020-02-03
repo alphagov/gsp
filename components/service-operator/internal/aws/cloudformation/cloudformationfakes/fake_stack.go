@@ -204,15 +204,17 @@ type FakeStack struct {
 	getStackNameReturnsOnCall map[int]struct {
 		result1 string
 	}
-	GetStackTemplateStub        func() *cloudformationa.Template
+	GetStackTemplateStub        func() (*cloudformationa.Template, error)
 	getStackTemplateMutex       sync.RWMutex
 	getStackTemplateArgsForCall []struct {
 	}
 	getStackTemplateReturns struct {
 		result1 *cloudformationa.Template
+		result2 error
 	}
 	getStackTemplateReturnsOnCall map[int]struct {
 		result1 *cloudformationa.Template
+		result2 error
 	}
 	GetStateStub        func() object.State
 	getStateMutex       sync.RWMutex
@@ -1346,7 +1348,7 @@ func (fake *FakeStack) GetStackNameReturnsOnCall(i int, result1 string) {
 	}{result1}
 }
 
-func (fake *FakeStack) GetStackTemplate() *cloudformationa.Template {
+func (fake *FakeStack) GetStackTemplate() (*cloudformationa.Template, error) {
 	fake.getStackTemplateMutex.Lock()
 	ret, specificReturn := fake.getStackTemplateReturnsOnCall[len(fake.getStackTemplateArgsForCall)]
 	fake.getStackTemplateArgsForCall = append(fake.getStackTemplateArgsForCall, struct {
@@ -1357,10 +1359,10 @@ func (fake *FakeStack) GetStackTemplate() *cloudformationa.Template {
 		return fake.GetStackTemplateStub()
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
 	fakeReturns := fake.getStackTemplateReturns
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeStack) GetStackTemplateCallCount() int {
@@ -1369,33 +1371,36 @@ func (fake *FakeStack) GetStackTemplateCallCount() int {
 	return len(fake.getStackTemplateArgsForCall)
 }
 
-func (fake *FakeStack) GetStackTemplateCalls(stub func() *cloudformationa.Template) {
+func (fake *FakeStack) GetStackTemplateCalls(stub func() (*cloudformationa.Template, error)) {
 	fake.getStackTemplateMutex.Lock()
 	defer fake.getStackTemplateMutex.Unlock()
 	fake.GetStackTemplateStub = stub
 }
 
-func (fake *FakeStack) GetStackTemplateReturns(result1 *cloudformationa.Template) {
+func (fake *FakeStack) GetStackTemplateReturns(result1 *cloudformationa.Template, result2 error) {
 	fake.getStackTemplateMutex.Lock()
 	defer fake.getStackTemplateMutex.Unlock()
 	fake.GetStackTemplateStub = nil
 	fake.getStackTemplateReturns = struct {
 		result1 *cloudformationa.Template
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
-func (fake *FakeStack) GetStackTemplateReturnsOnCall(i int, result1 *cloudformationa.Template) {
+func (fake *FakeStack) GetStackTemplateReturnsOnCall(i int, result1 *cloudformationa.Template, result2 error) {
 	fake.getStackTemplateMutex.Lock()
 	defer fake.getStackTemplateMutex.Unlock()
 	fake.GetStackTemplateStub = nil
 	if fake.getStackTemplateReturnsOnCall == nil {
 		fake.getStackTemplateReturnsOnCall = make(map[int]struct {
 			result1 *cloudformationa.Template
+			result2 error
 		})
 	}
 	fake.getStackTemplateReturnsOnCall[i] = struct {
 		result1 *cloudformationa.Template
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeStack) GetState() object.State {

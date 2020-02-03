@@ -34,6 +34,10 @@ spec:
               description: Secret name to be used for storing relevant instance secrets
                 for further use.
               type: string
+            trustServiceAccount:
+              description: Name of a service account to trust with access to this
+                Principal, if any.
+              type: string
           type: object
         status:
           description: Status is the type shared by most service resources

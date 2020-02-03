@@ -104,7 +104,7 @@ func (p *Postgres) GetStackName() string {
 }
 
 // GetStackTemplate implements cloudformation.Stack to serialize the configuration as a cloudformaiton template
-func (p *Postgres) GetStackTemplate() *cloudformation.Template {
+func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 	template := cloudformation.NewTemplate()
 
 	template.Parameters[VPCSecurityGroupIDParameterName] = map[string]interface{}{
@@ -231,7 +231,7 @@ func (p *Postgres) GetStackTemplate() *cloudformation.Template {
 		"Value":       masterPasswordSecretRef,
 	}
 
-	return template
+	return template, nil
 }
 
 func (p *Postgres) GetServiceEntryName() string {
