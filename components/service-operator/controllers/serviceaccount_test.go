@@ -48,7 +48,7 @@ var _ = Describe("ServiceAccountController", func() {
 					},
 					Annotations: map[string]string{
 						"SomeExistingAnnotation": "value",
-					}
+					},
 				},
 			}
 		)

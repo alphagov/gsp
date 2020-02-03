@@ -170,6 +170,9 @@ func (r *ServiceAccountController) reconcileServiceAccountWithContext(ctx contex
 		return fmt.Errorf("principal not ready")
 	}
 
+	if sa.Annotations == nil {
+		sa.Annotations = map[string]string{}
+	}
 	sa.Annotations["eks.amazonaws.com/role-arn"] = principal.Status.AWS.Info[access.IAMRoleArnOutputName]
 
 	return nil
