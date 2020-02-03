@@ -19,7 +19,8 @@ import (
 
 var _ = Describe("PostgresCloudFormationController", func() {
 
-	var timeout time.Duration = time.Minute * 30
+	var within30mins time.Duration = time.Minute * 30
+	var within5mins = time.Minute * 5
 	var client client.Client
 	var ctx context.Context = context.Background()
 	var teardown func()
@@ -84,14 +85,14 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			Eventually(func() object.State {
 				_ = client.Get(ctx, resourceNamespacedName, &pg)
 				return pg.GetState()
-			}, timeout).Should(Equal(object.ReadyState))
+			}, within30mins).Should(Equal(object.ReadyState))
 		})
 
 		By("displaying an AWS CREATE_COMPLETE resource status after initial creation", func() {
 			Eventually(func() string {
 				_ = client.Get(ctx, resourceNamespacedName, &pg)
 				return pg.Status.AWS.Status
-			}, timeout).Should(Equal(cloudformation.CreateComplete))
+			}, within5mins).Should(Equal(cloudformation.CreateComplete))
 		})
 
 		By("displaying an AWS stack id in resource status", func() {
@@ -126,7 +127,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			Eventually(func() map[string][]byte {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				return secret.Data
-			}).Should(And(
+			}, within5mins).Should(And(
 				HaveKey("Username"),
 				HaveKey("Password"),
 				HaveKey("Endpoint"),
@@ -139,7 +140,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			Eventually(func() map[string]interface{} {
 				_ = client.Get(ctx, serviceEntryNamespacedName0, &serviceEntry)
 				return serviceEntry.Spec
-			}).Should(And(
+			}, within5mins).Should(And(
 				HaveKey("hosts"),
 				HaveKey("ports"),
 				HaveKey("addresses"),
@@ -154,7 +155,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 			Eventually(func() map[string]interface{} {
 				_ = client.Get(ctx, serviceEntryNamespacedName1, &serviceEntry)
 				return serviceEntry.Spec
-			}).Should(And(
+			}, within5mins).Should(And(
 				HaveKey("hosts"),
 				HaveKey("ports"),
 				HaveKey("addresses"),
@@ -195,7 +196,7 @@ var _ = Describe("PostgresCloudFormationController", func() {
 				err := client.List(ctx, &list)
 				Expect(err).ToNot(HaveOccurred())
 				return len(list.Items)
-			}, timeout).Should(Equal(0))
+			}, within30mins).Should(Equal(0))
 		})
 
 		// GC will remove this in a real cluster, but we don't have the hooks installed in our tests :(
