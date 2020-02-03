@@ -126,7 +126,7 @@ var _ = Describe("Principal", func() {
 			var role *cloudformation.AWSIAMRole
 
 			JustBeforeEach(func() {
-				t, err := principal.GetStackTemplate()
+				t, err := principalWithSvcAccTrust.GetStackTemplate()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources[v1beta1.IAMRoleResourceName]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMRole{}))
 				role = t.Resources[v1beta1.IAMRoleResourceName].(*cloudformation.AWSIAMRole)
