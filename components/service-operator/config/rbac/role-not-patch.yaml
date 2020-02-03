@@ -4,6 +4,7 @@
   - configmaps
   - events
   - secrets
+  - serviceaccounts
   verbs:
   - create
   - delete
