@@ -38,8 +38,6 @@ func (r *ServiceAccountController) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-// +kubebuilder:rbac:groups=,resources=serviceaccount,verbs=get;list;watch;create;update;patch;delete
-
 // Reconcile synchronises state between the resource and a cloudformation stack
 func (r *ServiceAccountController) Reconcile(req ctrl.Request) (res ctrl.Result, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 1)
