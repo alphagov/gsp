@@ -46,6 +46,9 @@ var _ = Describe("ServiceAccountController", func() {
 					Labels: map[string]string{
 						cloudformation.AccessGroupLabel: "test.access.group",
 					},
+					Annotations: map[string]string{
+						"SomeExistingAnnotation": "value",
+					}
 				},
 			}
 		)
@@ -89,7 +92,10 @@ var _ = Describe("ServiceAccountController", func() {
 			Eventually(func() map[string]string {
 				_ = client.Get(ctx, resourceNamespacedName, &svcacc)
 				return svcacc.ObjectMeta.Annotations
-			}, time.Minute*1).Should(HaveKey("eks.amazonaws.com/role-arn"))
+			}, time.Minute*1).Should(And(
+				HaveKey("eks.amazonaws.com/role-arn"),
+				HaveKeyWithValue("SomeExistingAnnotation", "value"),
+			))
 		})
 
 		By("deleting resource with kubernetes api", func() {
