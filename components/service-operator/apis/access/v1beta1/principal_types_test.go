@@ -74,9 +74,7 @@ var _ = Describe("Principal", func() {
 		})
 
 		Context("role resource", func() {
-
 			var role *cloudformation.AWSIAMRole
-			var roleWithSvcAccTrust *cloudformation.AWSIAMRole
 
 			JustBeforeEach(func() {
 				t, err := principal.GetStackTemplate()
@@ -122,13 +120,20 @@ var _ = Describe("Principal", func() {
 				Expect(statement.Action).To(ConsistOf("sts:AssumeRole"))
 			})
 
-			It("should set an assume role policy with references to a service account if configured", func() {
-				t, err := principalWithSvcAccTrust.GetStackTemplate()
+		})
+
+		Context("role resource with service account trust", func() {
+			var role *cloudformation.AWSIAMRole
+
+			JustBeforeEach(func() {
+				t, err := principal.GetStackTemplate()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources[v1beta1.IAMRoleResourceName]).To(BeAssignableToTypeOf(&cloudformation.AWSIAMRole{}))
-				roleWithSvcAccTrust = t.Resources[v1beta1.IAMRoleResourceName].(*cloudformation.AWSIAMRole)
+				role = t.Resources[v1beta1.IAMRoleResourceName].(*cloudformation.AWSIAMRole)
+			})
 
-				subEncoded, ok := roleWithSvcAccTrust.AssumeRolePolicyDocument.(string)
+			It("should set an assume role policy with references to a service account if configured", func() {
+				subEncoded, ok := role.AssumeRolePolicyDocument.(string)
 				Expect(ok).To(Equal(true))
 
 				subJson, err := base64.StdEncoding.DecodeString(subEncoded)
