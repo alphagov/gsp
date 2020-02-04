@@ -1,0 +1,21 @@
+{{ if .Values.gatekeeper.enabled }}
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: IsolateTenantIstioResources
+metadata:
+  name: isolate-tenant-istio-resources
+spec:
+  enforcementAction: deny
+  match:
+    excludedNamespaces:
+      - "kube-system"
+      - "gsp-system"
+      - "istio-system"
+    kinds:
+    - apiGroups:
+      - "networking.istio.io"
+      kinds:
+      - "DestinationRule"
+      - "ServiceEntry"
+      - "VirtualService"
+{{ end }}
