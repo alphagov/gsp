@@ -145,9 +145,22 @@ func (s *Principal) GetStackTemplate() (*cloudformation.Template, error) {
 	}
 
 	template.Resources[SharedPolicyResourceName] = &cloudformation.AWSIAMPolicy{
-		PolicyName:     s.GetRoleName(),
-		PolicyDocument: cloudformation.NewRolePolicyDocument([]string{"*"}, []string{"ecr:GetAuthorizationToken"}),
-		Roles:          []string{cloudformation.Ref(IAMRoleResourceName)},
+		PolicyName: s.GetRoleName(),
+		PolicyDocument: cloudformation.NewRolePolicyDocument([]string{"*"}, []string{
+			"ecr:GetAuthorizationToken",
+			"ecr:BatchCheckLayerAvailability",
+			"ecr:GetDownloadUrlForLayer",
+			"ecr:GetRepositoryPolicy",
+			"ecr:DescribeRepositories",
+			"ecr:ListImages",
+			"ecr:DescribeImages",
+			"ecr:BatchGetImage",
+			"ecr:GetLifecyclePolicy",
+			"ecr:GetLifecyclePolicyPreview",
+			"ecr:ListTagsForResource",
+			"ecr:DescribeImageScanFindings",
+		}),
+		Roles: []string{cloudformation.Ref(IAMRoleResourceName)},
 	}
 
 	template.Outputs[IAMRoleName] = map[string]interface{}{
