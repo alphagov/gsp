@@ -17,3 +17,4 @@
 - [Recover from gatekeeper outage](gds-supported-platform/recover-gatekeeper-outage.md)
 - [Sealing Secrets](gds-supported-platform/sealing-secrets.md)
 - [Set up monitoring and alerting with Prometheus and Alertmanager](gds-supported-platform/prometheus_alert_manager_grafana.md)
+- [Updating EKS](gds-supported-platform/updating-EKS.md)
