@@ -106,14 +106,18 @@ func (s *Principal) GetStackTemplate() (*cloudformation.Template, error) {
 	// We have to build the assume role policy document as JSON and put it through Fn::Sub as we'll
 	// need one of the parameters (the OIDC provider URL) to go into a condition key, so we can't
 	// use Ref.
-	var err error
 	var policyDocJson []byte
 	if s.Spec.TrustServiceAccount == "" {
+		var err error
 		policyDocJson, err = json.Marshal(cloudformation.NewAssumeRolePolicyDocument(
 			fmt.Sprintf("${%s}", IAMRolePrincipalParameterName),
 			fmt.Sprintf("${%s}", ServiceOperatorIAMRoleArn),
 		))
+		if err != nil {
+			return nil, err
+		}
 	} else {
+		var err error
 		policyDocJson, err = json.Marshal(cloudformation.NewAssumeRolePolicyDocumentWithServiceAccount(
 			fmt.Sprintf("${%s}", IAMRolePrincipalParameterName),
 			fmt.Sprintf("${%s}", ServiceOperatorIAMRoleArn),
@@ -121,15 +125,18 @@ func (s *Principal) GetStackTemplate() (*cloudformation.Template, error) {
 			fmt.Sprintf("${%s}:sub", IAMOIDCProviderURLParameterName),
 			fmt.Sprintf("system:serviceaccount:%s:%s", s.GetNamespace(), s.Spec.TrustServiceAccount),
 		))
-	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Yes this JSON encodes a string and then substrings it to remove the first and last
 	// characters (the quotes). This is due to https://github.com/awslabs/goformation/issues/194
 	encodedHack, err := json.Marshal(string(policyDocJson))
-	subbableHack := string(encodedHack[1:len(encodedHack)-1])
+	if err != nil {
+		return nil, err
+	}
+	subbableHack := string(encodedHack[1 : len(encodedHack)-1])
 
 	template.Resources[IAMRoleResourceName] = &cloudformation.AWSIAMRole{
 		RoleName:                 s.GetRoleName(),
