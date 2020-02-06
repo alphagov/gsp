@@ -196,12 +196,23 @@ var _ = Describe("Principal", func() {
 				Expect(policy.Roles).To(ContainElement(cloudformation.Ref(v1beta1.IAMRoleResourceName)))
 			})
 
-			It("should have a policy document with relevant actions", func() {
+			It("should have a policy document with relevant actions to read from any ecr repository", func() {
 				Expect(doc.Statement).To(HaveLen(1))
 				statement := doc.Statement[0]
 				Expect(statement.Effect).To(Equal("Allow"))
 				Expect(statement.Action).To(ConsistOf(
 					"ecr:GetAuthorizationToken",
+					"ecr:BatchCheckLayerAvailability",
+					"ecr:GetDownloadUrlForLayer",
+					"ecr:GetRepositoryPolicy",
+					"ecr:DescribeRepositories",
+					"ecr:ListImages",
+					"ecr:DescribeImages",
+					"ecr:BatchGetImage",
+					"ecr:GetLifecyclePolicy",
+					"ecr:GetLifecyclePolicyPreview",
+					"ecr:ListTagsForResource",
+					"ecr:DescribeImageScanFindings",
 				))
 			})
 
