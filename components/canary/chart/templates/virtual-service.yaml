@@ -18,3 +18,5 @@ spec:
           host: {{ include "gsp-canary.fullname" . }}
           port:
             number: {{ .Values.service.port }}
+  exportTo:
+  - "."
