@@ -349,7 +349,6 @@ spec:
           image_resource:
             type: docker-image
             source:
-              repository: govsvc/task-toolbox
               repository: {{ $.Values.concourseResources.task.image.repository | quote }}
               tag: {{ $.Values.concourseResources.task.image.tag | quote }}
           inputs:
