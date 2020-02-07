@@ -8,7 +8,7 @@ require (
 	github.com/go-logr/logr v0.1.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
 	github.com/onsi/ginkgo v1.12.0
-	github.com/onsi/gomega v1.8.1
+	github.com/onsi/gomega v1.9.0
 	github.com/sanathkr/yaml v0.0.0-20170819201035-0056894fa522
 	istio.io/istio v0.0.0-20190925083542-b158283f0728
 	k8s.io/api v0.0.0-20190409021203-6e4e0e4f393b
