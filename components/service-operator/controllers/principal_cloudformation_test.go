@@ -118,16 +118,46 @@ var _ = Describe("PrincipalCloudFormationController", func() {
 				HaveKeyWithValue("ImageRegistryUsername", BeEquivalentTo("AWS")),
 				HaveKey("ImageRegistryPassword"),
 				HaveKeyWithValue("ImageRegistryEndpoint", BeEquivalentTo("https://011571571136.dkr.ecr.eu-west-2.amazonaws.com")),
+				HaveKey("AccessKeyID"),
+				HaveKey("SecretAccessKey"),
+				HaveKey("SessionToken"),
 			))
 		})
 
-		By("ensuring the secret is updated on credentials renewal", func() {
-			originalPassword := secret.Data["ImageRegistryPassword"]
+		originalPassword := secret.Data["ImageRegistryPassword"]
+		originalAccessKeyId := secret.Data["AccessKeyID"]
+		originalSecretAccessKey := secret.Data["SecretAccessKey"]
+		originalSessionToken := secret.Data["SessionToken"]
+		By("ensuring the ECR secret is updated on credentials renewal", func() {
 			Eventually(func() []byte {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				Expect(secret.Data["ImageRegistryPassword"]).ToNot(BeEmpty())
 				return secret.Data["ImageRegistryPassword"]
 			}, time.Minute*5).ShouldNot(BeEquivalentTo(originalPassword))
+		})
+
+		By("ensuring the STS AccessKeyID secret is updated on credentials renewal", func() {
+			Eventually(func() []byte {
+				_ = client.Get(ctx, secretNamespacedName, &secret)
+				Expect(secret.Data["AccessKeyID"]).ToNot(BeEmpty())
+				return secret.Data["AccessKeyID"]
+			}, time.Minute*5).ShouldNot(BeEquivalentTo(originalAccessKeyId))
+		})
+
+		By("ensuring the STS SecretAccessKey secret is updated on credentials renewal", func() {
+			Eventually(func() []byte {
+				_ = client.Get(ctx, secretNamespacedName, &secret)
+				Expect(secret.Data["SecretAccessKey"]).ToNot(BeEmpty())
+				return secret.Data["SecretAccessKey"]
+			}, time.Minute*5).ShouldNot(BeEquivalentTo(originalSecretAccessKey))
+		})
+
+		By("ensuring the STS SessionToken secret is updated on credentials renewal", func() {
+			Eventually(func() []byte {
+				_ = client.Get(ctx, secretNamespacedName, &secret)
+				Expect(secret.Data["SessionToken"]).ToNot(BeEmpty())
+				return secret.Data["SessionToken"]
+			}, time.Minute*5).ShouldNot(BeEquivalentTo(originalSessionToken))
 		})
 
 		By("deleting resource with kubernetes api", func() {

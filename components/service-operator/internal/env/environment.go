@@ -67,6 +67,22 @@ func ImageRegistryCredentialsRenewalInterval() time.Duration {
 	return renewalInterval
 }
 
+func PrincipalCredentialsSessionDuration() time.Duration {
+	envVarName := "PRINCIPAL_CREDENTIALS_SESSION_DURATION"
+	envVarValue := os.Getenv(envVarName)
+	duration := time.Hour * 12
+
+	if envVarValue != "" {
+		var err error
+		duration, err = time.ParseDuration(envVarValue)
+		if err != nil {
+			panic(fmt.Errorf("failed to parse duration from %s (%s)", envVarName, envVarValue))
+		}
+	}
+
+	return duration
+}
+
 // MustGet is a panicy version of os.Getenv
 func MustGet(key string) string {
 	v := os.Getenv(key)
