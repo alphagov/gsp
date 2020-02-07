@@ -169,7 +169,6 @@ spec:
             - |
               echo "configuring kubectl"
               setup-kube-deployer
-              echo "${KUBERNETES_SERVICE_ACCOUNT}" | jq -r .["ca.crt"] > ca.crt
 
               echo "applying chart to ${RELEASE_NAMESPACE} namespace..."
               kapp deploy \
