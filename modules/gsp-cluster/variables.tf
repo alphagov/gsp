@@ -185,10 +185,6 @@ variable "availability_zones" {
   description = "List of availability zones for the cluster"
 }
 
-variable "harbor_rds_skip_final_snapshot" {
-  default = false
-}
-
 variable "managed_namespaces_zones" {
   default = []
   description = "List of details of delegated zones for managed namespaces"

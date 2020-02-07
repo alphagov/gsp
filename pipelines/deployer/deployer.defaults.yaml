@@ -37,5 +37,3 @@ terraform-resource-image: govsvc/terraform-resource
 terraform-resource-tag: latest
 
 cls-destination-enabled: false
-
-harbor-rds-skip-final-snapshot: false

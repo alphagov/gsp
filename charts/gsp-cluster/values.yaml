@@ -24,8 +24,6 @@ global:
     publicKey: ""
   concourse:
     enabled: true
-  harbor:
-    enabled: true
 
 adminRoleARNs: []
 permittedRolesRegex: ""
@@ -838,30 +836,6 @@ AWSSSMAgent:
     repository: govsvc/amazon-ssm-agent
     tag: latest
 
-harbor:
-  harborAdminPassword: ""
-  chartmuseum:
-    enabled: false
-  logLevel: warn
-  expose:
-    type: ingress
-    tls:
-      enabled: false
-  clair:
-    enabled: false
-  core:
-    replicas: 2
-  registry:
-    replicas: 2
-  notary:
-    server:
-      replicas: 4
-    signer:
-      replicas: 4
-    tlsCA: ""
-    tlsCert: ""
-    tlsKey: ""
-
 # sealed-secrets keys
 secrets:
   public_certificate: ""
@@ -876,10 +850,6 @@ concourseResources:
   github:
     image:
       repository: govsvc/concourse-github-resource
-      tag: latest
-  harbor:
-    image:
-      repository: govsvc/concourse-harbor-resource
       tag: latest
   task:
     image:

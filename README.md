@@ -16,8 +16,6 @@ GSP provides a suite of pre-configured components along with upstream Kubernetes
 - A declarative continuous delivery workflow - merging to master triggers deployment to production
 - A container platform based on industry standard [Docker](https://docs.docker.com/) and [Kubernetes](https://kubernetes.io)
 - Build and release automation powered by [ConcourseCI](https://concourse-ci.org/)
-- A private container registry with [Docker Registry](https://docs.docker.com/registry/)
-- Signing of docker image integrity with [Docker Notary](https://docs.docker.com/notary/)
 - Scanning of docker images for security vulnerabilities with [clair](https://github.com/coreos/clair)
 - Monitoring and alerting with [Prometheus](https://prometheus.io/), [Alertmanager](https://prometheus.io/docs/alerting/alertmanager/) and [Grafana](https://grafana.com/)
 - Secure git-based secrets configuration with [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets)

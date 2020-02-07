@@ -33,8 +33,6 @@ This view shows the high level components that make up the GDS Supported Platfor
 |`Amazon Web Services`| [AWS](https://aws.amazon.com) provides the underlying cloud infrastructure|
 |`CloudWatch`| collects log infomation to allow inspection and diagnosis of a running application|
 |`ConcourseCI`| is the release automation tool that runs build, test and deployment pipelines|
-|`Docker Notary`| signs and verifies docker image integrity |
-|`Docker Registry`| is the private container registry that stores the buid artefacts |
 |`Docker`| runs  containers |
 |`GDS Services`| services written by GDS service teams in a [GDS Way supported language](https://gds-way.cloudapps.digital/standards/programming-languages.html)|
 |`Grafana`| display application metrics|

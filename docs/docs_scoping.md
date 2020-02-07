@@ -6,7 +6,7 @@ Ingress:
 
 Concourse:
 
-- Harbor & Concourse & CLAIR & NOTARY
+- Concourse
 - How do I access Concourse
 - Link to Concourse docs
 

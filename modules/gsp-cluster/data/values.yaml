@@ -10,8 +10,6 @@ global:
   account:
     name: ${account_name}
     id: ${account_id}
-  roles:
-    harbor: ${harbor_iam_role_name}
   cloudHsm:
     enabled: false
     ip: "127.0.0.1"
@@ -27,14 +25,6 @@ permittedRolesRegex: ${permitted_roles_regex}
 
 httpsEgressSafelist: []
 httpEgressSafelist: []
-
-notary:
-  rootPassphrase: ${notary_root_passphrase}
-  rootKey: ${notary_root_key}
-  targetsPassphrase: ${notary_targets_passphrase}
-  snapshotPassphrase: ${notary_snapshot_passphrase}
-  delegationPassphrase: ${notary_delegation_passphrase}
-  delegationKey: ${notary_delegation_key}
 
 cluster-autoscaler:
   cloudProvider: aws
@@ -83,51 +73,6 @@ pipelineOperator:
   concourseUsername: pipeline-operator
   concoursePassword: >-
     ${concourse_admin_password}
-
-harbor:
-  harborAdminPassword: ${harbor_admin_password}
-  secretKey: ${harbor_secret_key}
-  externalURL: https://registry.${cluster_domain}
-  expose:
-    ingress:
-      hosts:
-        core: registry.${cluster_domain}
-        notary: notary.${cluster_domain}
-  persistence:
-    imageChartStorage:
-      type: s3
-      s3:
-        bucket: ${harbor_bucket_id}
-        region: ${harbor_bucket_region}
-        regionendpoint: s3.${harbor_bucket_region}.amazonaws.com
-  core:
-    secret: ${harbor_secret_key}
-  jobservice:
-    secret: ${harbor_secret_key}
-  registry:
-    secret: ${harbor_secret_key}
-    podAnnotations:
-      iam.amazonaws.com/role: ${harbor_iam_role_name}
-  chartmuseum:
-    podAnnotations:
-      iam.amazonaws.com/role: ${harbor_iam_role_name}
-  notary:
-    secretName: gsp-harbor-notary-tls
-    tlsCA: ${notary_ca_pem}
-    tlsCert: ${notary_cert_pem}
-    tlsKey: ${notary_root_key}
-  database:
-    type: external
-    external:
-      host: "${harbor_db_host}"
-      port: "${harbor_db_port}"
-      username: "${harbor_db_username}"
-      password: "${harbor_db_password}"
-      coreDatabase: "registry"
-      clairDatabase: "clair"
-      notaryServerDatabase: "notary_server"
-      notarySignerDatabase: "notary_signer"
-      sslmode: "require"
 
 secrets:
   public_certificate: ${sealed_secrets_public_cert}
