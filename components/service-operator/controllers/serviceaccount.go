@@ -9,11 +9,11 @@ import (
 	core "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"k8s.io/apimachinery/pkg/labels"
 
 	access "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
@@ -21,9 +21,9 @@ import (
 )
 
 type ServiceAccountController struct {
-	Scheme               *runtime.Scheme        // Scheme is required for operations like gc
-	Log                  logr.Logger            // Log will be used to report each reconcile
-	KubernetesClient     client.Client          // KubernetesClient is required to talk to api
+	Scheme           *runtime.Scheme // Scheme is required for operations like gc
+	Log              logr.Logger     // Log will be used to report each reconcile
+	KubernetesClient client.Client   // KubernetesClient is required to talk to api
 }
 
 // SetupWithManager validates and registers this controller with the manager and api
@@ -40,7 +40,7 @@ func (r *ServiceAccountController) SetupWithManager(mgr ctrl.Manager) error {
 
 // Reconcile synchronises state between the resource and a cloudformation stack
 func (r *ServiceAccountController) Reconcile(req ctrl.Request) (res ctrl.Result, err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 1)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 	defer cancel()
 	// execute reconciliation and log changes
 	op, err := r.reconcileWithContext(ctx, req)
@@ -93,12 +93,14 @@ func (r *ServiceAccountController) reconcileWithContext(ctx context.Context, req
 	return op, nil
 }
 
-func (r *ServiceAccountController) updatePrincipal(ctx context.Context, o *core.ServiceAccount) (*access.Principal, error) {
+func (r *ServiceAccountController) updatePrincipalForLabel(ctx context.Context, label string, o *core.ServiceAccount) (*access.Principal, error) {
 	// List principals with labels set by o.ObjectMeta.Labels
 	list := &access.PrincipalList{}
 	listOptsFunc := func(opts *client.ListOptions) {
 		opts.Namespace = o.GetNamespace()
-		opts.LabelSelector = labels.SelectorFromSet(o.ObjectMeta.Labels)
+		opts.LabelSelector = labels.SelectorFromSet(labels.Set{
+			cloudformation.AccessGroupLabel: label,
+		})
 	}
 	err := r.KubernetesClient.List(ctx, list, listOptsFunc)
 	if err != nil {
@@ -158,8 +160,16 @@ func (r *ServiceAccountController) reconcileServiceAccountWithContext(ctx contex
 		// The object is being deleted
 		return nil
 	}
+	// we are only interested in ServiceAccounts with our blessed label
+	if sa.ObjectMeta.Labels == nil {
+		return nil
+	}
+	label, ok := sa.ObjectMeta.Labels[cloudformation.AccessGroupLabel]
+	if !ok {
+		return nil
+	}
 
-	principal, err := r.updatePrincipal(ctx, sa)
+	principal, err := r.updatePrincipalForLabel(ctx, label, sa)
 	if err != nil {
 		return err
 	}
