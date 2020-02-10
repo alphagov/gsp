@@ -87,7 +87,7 @@ rules:
   verbs:
   - get
   - list
-  - watch  
+  - watch
 - apiGroups: ["apps"]
   resources:
   - deployments
@@ -238,6 +238,16 @@ rules:
   - tracespans
   verbs:
   - delete
+  - get
+  - list
+  - watch
+
+- apiGroups: ["constraints.gatekeeper.sh/v1beta1"]
+  resources:
+  - isolatetenantistioresources
+  - requireimagedigests
+  - toleratespecialnodes
+  verbs:
   - get
   - list
   - watch
