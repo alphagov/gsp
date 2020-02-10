@@ -44,6 +44,7 @@ var _ = Describe("ServiceAccountController", func() {
 					Name:      name,
 					Namespace: namespace,
 					Labels: map[string]string{
+						"ignored-label":                 "should-be-ignored",
 						cloudformation.AccessGroupLabel: "test.access.group",
 					},
 					Annotations: map[string]string{
