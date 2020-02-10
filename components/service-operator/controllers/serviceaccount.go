@@ -110,7 +110,7 @@ func (r *ServiceAccountController) updatePrincipal(ctx context.Context, o *core.
 		// if none are found, make a new one with GenerateName
 		principal = &access.Principal{
 			ObjectMeta: metav1.ObjectMeta{
-				GenerateName: o.GetName(),
+				GenerateName: fmt.Sprintf("%s-", o.GetName()),
 				Namespace:    o.GetNamespace(),
 			},
 		}
