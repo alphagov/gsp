@@ -133,8 +133,10 @@ func (r *ServiceAccountController) updatePrincipalForLabel(ctx context.Context, 
 			TrustServiceAccount: o.GetName(),
 		}
 		// mark the principal as owned by the o resource so it gets gc'd
-		if err := controllerutil.SetControllerReference(o, principal, r.Scheme); err != nil {
-			return err
+		if !isAlreadyOwned(principal) {
+			if err := controllerutil.SetControllerReference(o, principal, r.Scheme); err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -184,4 +186,13 @@ func (r *ServiceAccountController) reconcileServiceAccountWithContext(ctx contex
 	sa.Annotations["eks.amazonaws.com/role-arn"] = principal.Status.AWS.Info[access.IAMRoleArnOutputName]
 
 	return nil
+}
+
+func isAlreadyOwned(o metav1.Object) bool {
+	for _, r := range o.GetOwnerReferences() {
+		if r.Controller != nil && *r.Controller {
+			return true
+		}
+	}
+	return false
 }

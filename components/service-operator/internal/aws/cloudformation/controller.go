@@ -315,8 +315,10 @@ func (r *Controller) updateServiceEntry(ctx context.Context, o ServiceEntryCreat
 	op, err := controllerutil.CreateOrUpdate(ctx, r.KubernetesClient, serviceEntry, func() error {
 		serviceEntry.Spec = spec
 		// mark the serviceEntry as owned by the o resource so it gets gc'd
-		if err := controllerutil.SetControllerReference(o, serviceEntry, r.Scheme); err != nil {
-			return err
+		if !isAlreadyOwned(serviceEntry) {
+			if err := controllerutil.SetControllerReference(o, serviceEntry, r.Scheme); err != nil {
+				return err
+			}
 		}
 		return nil
 	})
