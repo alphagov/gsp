@@ -155,7 +155,6 @@ apply_cluster_chart: &apply_cluster_chart
     DEFAULT_NAMESPACE:
     CHART_RELEASE_NAME:
     GITHUB_API_TOKEN:
-    CLUSTER_PRIVATE_KEY:
     CLUSTER_PUBLIC_KEY:
     CONFIG_VALUES_PATH:
     GOOGLE_OAUTH_CLIENT_ID:
@@ -215,8 +214,6 @@ apply_cluster_chart: &apply_cluster_chart
         --set "githubAPIToken=${GITHUB_API_TOKEN}" \
         --set "googleOauthClientId=${GOOGLE_OAUTH_CLIENT_ID}" \
         --set "googleOauthClientSecret=${GOOGLE_OAUTH_CLIENT_SECRET}" \
-        --set "global.cluster.privateKey=${CLUSTER_PRIVATE_KEY}" \
-        --set "global.cluster.publicKey=${CLUSTER_PUBLIC_KEY}" \
         --set "global.cluster.releaseVersion=${RELEASE_TAG}" \
         --output-dir manifests \
         $GSP_CLUSTER_CHARTS_SOURCE
@@ -852,7 +849,6 @@ jobs:
       DEFAULT_NAMESPACE: gsp-system
       CHART_RELEASE_NAME: gsp
       GITHUB_API_TOKEN: ((github-api-token))
-      CLUSTER_PRIVATE_KEY: ((ci-system-gpg-private))
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
       CONFIG_VALUES_PATH: ((config-values-path))
       GOOGLE_OAUTH_CLIENT_ID: ((google-oauth-client-id))
