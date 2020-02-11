@@ -295,7 +295,7 @@ spec:
       type: registry-image
       source:
         repository: "govsvc/concourse-github-resource"
-        tag: "v0.0.2"
+        tag: "gsp-va191b03"
     resources:
     - name: src
       type: github
