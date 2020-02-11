@@ -244,9 +244,7 @@ rules:
 
 - apiGroups: ["constraints.gatekeeper.sh/v1beta1"]
   resources:
-  - isolatetenantistioresources
-  - requireimagedigests
-  - toleratespecialnodes
+  - "*"
   verbs:
   - get
   - list
