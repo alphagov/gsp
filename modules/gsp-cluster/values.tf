@@ -1,6 +1,11 @@
 data "aws_caller_identity" "current" {
 }
 
+resource "random_password" "concourse_password" {
+  length  = 64
+  special = false
+}
+
 data "template_file" "values" {
   template = file("${path.module}/data/values.yaml")
 
