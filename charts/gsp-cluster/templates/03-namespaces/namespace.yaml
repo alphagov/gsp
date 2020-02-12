@@ -165,8 +165,10 @@ metadata:
 data:
   github-resource-image: {{ $.Values.concourseResources.github.image.repository | b64enc }}
   github-resource-tag: {{ $.Values.concourseResources.github.image.tag | b64enc }}
+  github-resource-digest: {{ $.Values.concourseResources.github.image.digest | b64enc }}
   task-toolbox-image: {{ $.Values.concourseResources.task.image.repository | b64enc }}
   task-toolbox-tag: {{ $.Values.concourseResources.task.image.tag | b64enc }}
+  task-toolbox-digest: {{ $.Values.concourseResources.task.image.digest | b64enc }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -298,6 +300,10 @@ spec:
             source:
               repository: {{ $.Values.concourseResources.task.image.repository | quote }}
               tag: {{ $.Values.concourseResources.task.image.tag | quote }}
+            {{ if $.Values.concourseResources.task.image.digest != '' }}
+            version:
+              digest: {{ $.Values.concourseResources.task.image.digest | quote }}
+            {{ end }}
           inputs:
           - name: src
           params:

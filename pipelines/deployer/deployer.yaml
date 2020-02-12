@@ -510,6 +510,8 @@ resource_types:
   source:
     repository: ((github-resource-image))
     tag: ((github-resource-tag))
+  version:
+    digest: ((github-resource-digest))
 - name: concourse-pipeline
   type: docker-image
   source:

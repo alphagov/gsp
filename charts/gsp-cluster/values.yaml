@@ -851,10 +851,12 @@ concourseResources:
     image:
       repository: govsvc/concourse-github-resource
       tag: latest
+      digest: ''
   task:
     image:
       repository: govsvc/task-toolbox
       tag: latest
+      digest: ''
 
 # externalDns:
 # - namespace: verify-metadata-controller

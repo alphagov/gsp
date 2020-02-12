@@ -29,9 +29,11 @@ maximum-workers-per-az-count: 5
 
 task-toolbox-image: govsvc/task-toolbox
 task-toolbox-tag: latest
+task-toolbox-digest: ''
 
 github-resource-image: govsvc/concourse-github-resource
 github-resource-tag: latest
+github-resource-digest: ''
 
 terraform-resource-image: govsvc/terraform-resource
 terraform-resource-tag: latest
