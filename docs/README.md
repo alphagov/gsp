@@ -10,6 +10,7 @@
 - [GSP Architecture Cloud Infrastructure](/docs/architecture/gsp-architecture-cloud-infrastructure.md)
 - [GSP Architecture Overview](/docs/architecture/gsp-architecture-overview.md)
 - [Incident Reports](incident-reports)
+- [Permissions](gds-supported-platform/permissions.md)
 - [Per-namespace istio gateways](gds-supported-platform/per-namespace-gateway.md)
 - [Public DNS](gds-supported-platform/external-dns.md)
 - [Public TLS Certificates](gds-supported-platform/tls-certificates.md)
