@@ -53,7 +53,6 @@ namespaces:
   repository: verify-metadata-controller
   branch: master
   path: ci
-  permittedRolesRegex: "^$"
   requiredApprovalCount: 2
   scope: cluster
 - name: verify-proxy-node-build
