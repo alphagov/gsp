@@ -16,6 +16,7 @@ limitations under the License.
 package v1beta1
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
@@ -44,6 +45,24 @@ var _ cloudformation.Stack = &ImageRepository{}
 var _ cloudformation.StackPolicyAttacher = &ImageRepository{}
 var _ object.SecretNamer = &ImageRepository{}
 var _ cloudformation.StackSecretOutputter = &ImageRepository{}
+
+// DefaultLifecyclePolicy is the default policy assigned to ECR repositories
+var DefaultLifecyclePolicy = cloudformation.ECRLifecyclePolicy{
+	Rules: []cloudformation.ECRLifecyclePolicyRule{
+		{
+			RulePriority: 1,
+			Description:  "only keep 100 images",
+			Selection: cloudformation.ECRLifecyclePolicySelection{
+				TagStatus:   "any",
+				CountType:   cloudformation.ECRLifecycleMoreThan,
+				CountNumber: 100,
+			},
+			Action: cloudformation.ECRLifecyclePolicyAction{
+				Type: cloudformation.ECRLifecyclePolicyExpire,
+			},
+		},
+	},
+}
 
 // ImageRepositorySpec defines the desired state of ImageRepository
 type ImageRepositorySpec struct {
@@ -94,9 +113,17 @@ func (s *ImageRepository) GetStackTemplate() (*cloudformation.Template, error) {
 		"Type": "String",
 	}
 
+	lifecyclePolicyText, err := json.Marshal(DefaultLifecyclePolicy)
+	if err != nil {
+		return nil, err
+	}
+
 	repositoryName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
 	template.Resources[ImageRepositoryResourceName] = &cloudformation.AWSECRRepository{
 		RepositoryName: repositoryName,
+		LifecyclePolicy: &cloudformation.AWSECRRepository_LifecyclePolicy{
+			LifecyclePolicyText: string(lifecyclePolicyText),
+		},
 	}
 
 	imageRepositoryArn := cloudformation.GetAtt(ImageRepositoryResourceName, "Arn")
