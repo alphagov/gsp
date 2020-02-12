@@ -46,6 +46,7 @@ type AWSSecretsManagerSecretTargetAttachment = goresources.AWSSecretsManagerSecr
 type AWSSQSQueue = goresources.AWSSQSQueue
 type GenerateSecretString = goresources.AWSSecretsManagerSecret_GenerateSecretString
 type AWSECRRepository = goresources.AWSECRRepository
+type AWSECRRepository_LifecyclePolicy = goresources.AWSECRRepository_LifecyclePolicy
 
 var NewTemplate = goformation.NewTemplate
 var Join = goformation.Join
@@ -382,7 +383,7 @@ func (r *Client) updateStatus(stack Stack) {
 		}
 	}
 	// add any event details
-	if events != nil && len(events) > 0 {
+	if len(events) > 0 {
 		s.AWS.Events = []object.AWSEvent{}
 		for _, event := range events {
 			reason := "-"

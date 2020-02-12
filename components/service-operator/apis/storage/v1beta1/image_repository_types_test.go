@@ -92,6 +92,23 @@ var _ = Describe("ImageRepository", func() {
 			It("should have a repository name prefixed with cluster and namespace name", func() {
 				Expect(repository.RepositoryName).To(Equal("xxx-default-example"))
 			})
+
+			It("should have a lifecycle policy than only keeps last 100 images", func() {
+				Expect(repository.LifecyclePolicy.LifecyclePolicyText).To(MatchJSON(`{
+					"rules": [{
+						"rulePriority": 1,
+						"description": "only keep 100 images",
+						"selection": {
+							"tagStatus": "any",
+							"countType": "imageCountMoreThan",
+							"countNumber": 100
+						},
+						"action": {
+							"type": "expire"
+						}
+					}]
+				}`))
+			})
 		})
 
 		Context("policy resource", func() {
