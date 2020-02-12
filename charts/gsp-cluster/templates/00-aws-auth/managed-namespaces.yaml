@@ -1,6 +1,4 @@
 {{- range .Values.namespaces }}
-{{- $defaultedPermittedRolesRegex := .permittedRolesRegex | default "^$" }}
-{{- $permittedRolesRegex := printf "%s|^svcop-%s-%s-.*$" $defaultedPermittedRolesRegex $.Values.global.cluster.name .name }}
 ---
 apiVersion: v1
 kind: Namespace
@@ -14,6 +12,4 @@ metadata:
 {{- if .talksToPsn }}
     talksToPsn: "true"
 {{- end }}
-  annotations:
-    iam.amazonaws.com/permitted: {{ $permittedRolesRegex | quote }}
 {{- end }}
