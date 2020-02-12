@@ -5,6 +5,7 @@
 - [Accessing Dashboard](gds-supported-platform/accessing-dashboard.md)
 - [Architecture Decision Records](/docs/architecture/adr)
 - [Bootstrapping GSP on-demand clusters](gds-supported-platform/bootstrapping-clusters.md)
+- [Dev namespaces](gds-supported-platform/dev-namespaces.md)
 - [GSP Architecture](/docs/architecture/gsp-architecture.md)
 - [GSP Architecture Continuous Deployment](/docs/architecture/gsp-architecture-continuous-deployment.md)
 - [GSP Architecture Cloud Infrastructure](/docs/architecture/gsp-architecture-cloud-infrastructure.md)
