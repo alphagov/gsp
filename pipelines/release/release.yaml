@@ -6,7 +6,6 @@ groups:
   - build-service-operator
   - build-concourse-operator
   - build-concourse-github-resource
-  - build-concourse-harbor-resource
   - build-concourse-terraform-resource
   - build-aws-ssm-agent
   - bump-version
@@ -116,19 +115,6 @@ resources:
     required_approval_count: 1
     branch: ((branch))
 
-- name: concourse-harbor-resource-source
-  type: github
-  source:
-    uri: https://github.com/alphagov/gsp.git
-    organization: alphagov
-    repository: gsp
-    paths:
-      - components/concourse-harbor-resource
-    github_api_token: ((github-api-token))
-    approvers: ((config-approvers))
-    required_approval_count: 1
-    branch: ((branch))
-
 - name: concourse-terraform-resource-source
   type: github
   source:
@@ -203,13 +189,6 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
     repository: govsvc/concourse-github-resource
-
-- name: concourse-harbor-resource
-  type: docker-image
-  source:
-    username: ((dockerhub-username))
-    password: ((dockerhub-password))
-    repository: govsvc/concourse-harbor-resource
 
 - name: concourse-terraform-resource
   type: docker-image
@@ -386,22 +365,6 @@ jobs:
     get_params:
       skip_download: true
 
-- name: build-concourse-harbor-resource
-  serial: true
-  serial_groups: [build-concourse-harbor-resource]
-  plan:
-  - get: concourse-harbor-resource-source
-    trigger: true
-  - put: concourse-harbor-resource
-    params:
-      build: concourse-harbor-resource-source/components/concourse-harbor-resource
-      dockerfile: concourse-harbor-resource-source/components/concourse-harbor-resource/Dockerfile
-      tag_file: concourse-harbor-resource-source/.git/short_ref
-      tag_prefix: ((github-release-tag-prefix))v
-      tag_as_latest: true
-    get_params:
-      skip_download: true
-
 - name: build-concourse-terraform-resource
   serial: true
   serial_groups: [build-concourse-terraform-resource]
@@ -478,7 +441,6 @@ jobs:
     - build-aws-node-lifecycle-hook
     - build-concourse-task-toolbox
     - build-concourse-github-resource
-    - build-concourse-harbor-resource
     - build-concourse-terraform-resource
     - build-aws-ssm-agent
     - build-concourse-operator
@@ -496,9 +458,6 @@ jobs:
       trigger: true
     - get: concourse-github-resource
       passed: [build-concourse-github-resource]
-      trigger: true
-    - get: concourse-harbor-resource
-      passed: [build-concourse-harbor-resource]
       trigger: true
     - get: concourse-terraform-resource
       passed: [build-concourse-terraform-resource]
@@ -532,8 +491,6 @@ jobs:
       passed: [bump-version]
     - get: concourse-github-resource
       passed: [bump-version]
-    - get: concourse-harbor-resource
-      passed: [bump-version]
     - get: concourse-terraform-resource
       passed: [bump-version]
     - get: aws-ssm-agent
@@ -554,8 +511,6 @@ jobs:
       passed: [build-concourse-operator]
     - get: concourse-github-resource-source
       passed: [build-concourse-github-resource]
-    - get: concourse-harbor-resource-source
-      passed: [build-concourse-harbor-resource]
     - get: concourse-terraform-resource-source
       passed: [build-concourse-terraform-resource]
     - get: aws-ssm-agent-source
@@ -579,7 +534,6 @@ jobs:
       - name: platform
       - name: concourse-task-toolbox
       - name: concourse-github-resource
-      - name: concourse-harbor-resource
       - name: concourse-terraform-resource
       - name: aws-ssm-agent
       - name: concourse-operator
@@ -619,11 +573,6 @@ jobs:
                   repository: $(cat concourse-github-resource/repository)
                   tag: $(cat concourse-github-resource/tag)
                   digest: $(cat concourse-github-resource/digest | cut -d ':' -f 2)
-              harbor:
-                image:
-                  repository: $(cat concourse-harbor-resource/repository)
-                  tag: $(cat concourse-harbor-resource/tag)
-                  digest: $(cat concourse-harbor-resource/digest | cut -d ':' -f 2)
             EOF
             echo "merging with cluster values..."
             spruce merge ./platform/charts/gsp-cluster/values.yaml ./overrides.yaml | tee -a cluster-values/values.yaml
@@ -638,7 +587,6 @@ jobs:
       - name: concourse-task-toolbox-source
       - name: concourse-operator-source
       - name: concourse-github-resource-source
-      - name: concourse-harbor-resource-source
       - name: concourse-terraform-resource-source
       - name: aws-ssm-agent-source
       outputs:

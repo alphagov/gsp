@@ -11,6 +11,5 @@ spec:
       - apiGroups: [""]
         kinds: ["Pod"]
   parameters:
-    registry: "registry.{{ .Values.global.cluster.domain }}"
     aws_account_id: {{ .Values.global.account.id | quote }}
 {{ end }}

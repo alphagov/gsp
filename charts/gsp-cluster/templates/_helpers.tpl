@@ -52,17 +52,3 @@ a way to grab the templated values out.
 {{- define "concourse.namespace.prefix" -}}
 {{- printf "%s-" .Release.Name -}}
 {{- end -}}
-
-{{- define "dockerconfig.creds" -}}
-{{- printf "admin:%s" .Values.harbor.harborAdminPassword | b64enc -}}
-{{- end -}}
-
-{{- define "dockerconfig.json" -}}
-{
-    "auths": {
-        "https://registry.{{ .Values.global.cluster.domain }}/": {
-            "auth": "{{ include "dockerconfig.creds" . }}"
-        }
-    }
-}
-{{- end -}}

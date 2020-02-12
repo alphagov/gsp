@@ -149,32 +149,6 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: harbor
-  namespace: {{ .name }}
-data:
-  root_key: {{ $.Values.notary.rootKey | b64enc }}
-  ci_key: {{ $.Values.notary.delegationKey | b64enc }}
-  harbor_username: {{ "admin" | b64enc }}
-  harbor_password: {{ $.Values.harbor.harborAdminPassword | b64enc }}
-  harbor_url: {{ (printf "https://registry.%s" $.Values.global.cluster.domain) | b64enc }}
-  notary_root_passphrase: {{ $.Values.notary.rootPassphrase | b64enc }}
-  notary_targets_passphrase: {{ $.Values.notary.targetsPassphrase | b64enc }}
-  notary_snapshot_passphrase: {{ $.Values.notary.snapshotPassphrase | b64enc }}
-  notary_delegation_passphrase: {{ $.Values.notary.delegationPassphrase | b64enc }}
-  notary_url: {{ (printf "https://notary.%s" $.Values.global.cluster.domain) | b64enc }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: registry-creds
-  namespace: {{ .name }}
-data:
-  .dockerconfigjson: {{ include "dockerconfig.json" $ | b64enc }}
-type: kubernetes.io/dockerconfigjson
----
-apiVersion: v1
-kind: Secret
-metadata:
   name: cluster
   namespace: {{ .name }}
 data:
@@ -191,8 +165,6 @@ metadata:
 data:
   github-resource-image: {{ $.Values.concourseResources.github.image.repository | b64enc }}
   github-resource-tag: {{ $.Values.concourseResources.github.image.tag | b64enc }}
-  harbor-resource-image: {{ $.Values.concourseResources.harbor.image.repository | b64enc }}
-  harbor-resource-tag: {{ $.Values.concourseResources.harbor.image.tag | b64enc }}
   task-toolbox-image: {{ $.Values.concourseResources.task.image.repository | b64enc }}
   task-toolbox-tag: {{ $.Values.concourseResources.task.image.tag | b64enc }}
 ---

@@ -7,8 +7,6 @@ spec:
   secretName: {{ .Release.Name }}-ingress-certificate
   dnsNames:
   - "ci.{{ .Values.global.cluster.domain }}"
-  - "registry.{{ .Values.global.cluster.domain }}"
-  - "notary.{{ .Values.global.cluster.domain }}"
   - "grafana.{{ .Values.global.cluster.domain }}"
   issuerRef:
     name: letsencrypt-r53
