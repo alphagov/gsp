@@ -7,3 +7,4 @@ metadata:
     namespace: gsp-system
     istio-injection: disabled
     control-plane: "true"
+    talksToImds: "true"

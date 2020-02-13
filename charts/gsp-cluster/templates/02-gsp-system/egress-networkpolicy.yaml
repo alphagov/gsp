@@ -29,5 +29,19 @@ spec:
       - 2223
       - 2224
       - 2225
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: talksToImds != 'true'
+    destination:
+      nets:
+      - 169.254.169.254/32
+  - action: Deny
+    protocol: TCP
+    source:
+      namespaceSelector: talksToImds != 'true'
+    destination:
+      nets:
+      - 169.254.169.254/32
   - action: Allow
 
