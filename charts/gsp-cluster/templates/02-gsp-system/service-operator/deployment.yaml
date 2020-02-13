@@ -47,8 +47,6 @@ spec:
           value: {{ .Values.RDSFromWorkerSecurityGroup | quote }}
         - name: AWS_RDS_SUBNET_GROUP_NAME
           value: {{ .Values.privateDBSubnetGroup | quote }}
-        - name: AWS_PRINCIPAL_SERVER_ROLE_ARN
-          value: {{ .Values.serviceOperator.kiamServerRoleARN | quote }}
         - name: AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN
           value: {{ .Values.serviceOperator.permissionsBoundaryARN | quote }}
         resources:

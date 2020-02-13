@@ -18,10 +18,6 @@ func PrincipalCloudFormationController(c sdk.Client) Controller {
 		},
 		Parameters: []*cloudformation.Parameter{
 			{
-				ParameterKey:   aws.String(access.IAMRolePrincipalParameterName),
-				ParameterValue: aws.String(env.AWSPrincipalServerRoleARN()),
-			},
-			{
 				ParameterKey:   aws.String(access.IAMPermissionsBoundaryParameterName),
 				ParameterValue: aws.String(env.AWSPrincipalPermissionsBoundaryARN()),
 			},

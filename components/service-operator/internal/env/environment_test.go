@@ -57,17 +57,6 @@ var _ = Describe("Environment", func() {
 		})
 	})
 
-	Context("AWSPrincipalServerRoleARN", func() {
-		It("should read value from environment", func() {
-			os.Setenv("AWS_PRINCIPAL_SERVER_ROLE_ARN", knownValue)
-			Expect(env.AWSPrincipalServerRoleARN()).To(Equal(knownValue))
-		})
-		It("should panic if not set", func() {
-			os.Unsetenv("AWS_PRINCIPAL_SERVER_ROLE_ARN")
-			Expect(func() { env.AWSPrincipalServerRoleARN() }).To(Panic())
-		})
-	})
-
 	Context("AWSOIDCProviderURL", func() {
 		It("should read value from environment", func() {
 			os.Setenv("AWS_OIDC_PROVIDER_URL", knownValue)

@@ -188,7 +188,6 @@ func newAWSClient(fakeOutputs map[string]string) sdk.Client {
 		// set dummy values when running against mock
 		os.Setenv("AWS_RDS_SECURITY_GROUP_ID", "dummy-value")
 		os.Setenv("AWS_RDS_SUBNET_GROUP_NAME", "dummy-value")
-		os.Setenv("AWS_PRINCIPAL_SERVER_ROLE_ARN", "dummy-value")
 		os.Setenv("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN", "dummy-value")
 		os.Setenv("AWS_ROLE_ARN", "arn:aws:iam::011571571136:role/sandbox-service-operator")
 		os.Setenv("AWS_OIDC_PROVIDER_ARN", "dummy-value")

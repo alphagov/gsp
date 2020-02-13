@@ -27,11 +27,6 @@ func AWSRDSSubnetGroupName() string {
 	return MustGet("AWS_RDS_SUBNET_GROUP_NAME")
 }
 
-// AWSPrincipalServerRoleARN is the arn of the role that can assume any provisioned roles
-func AWSPrincipalServerRoleARN() string {
-	return MustGet("AWS_PRINCIPAL_SERVER_ROLE_ARN")
-}
-
 // AWSOIDCProviderURL is the URL of the OIDC provider for our EKS cluster
 func AWSOIDCProviderURL() string {
 	return MustGet("AWS_OIDC_PROVIDER_URL")
