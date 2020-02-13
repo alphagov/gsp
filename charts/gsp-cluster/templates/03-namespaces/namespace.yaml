@@ -346,7 +346,8 @@ metadata:
   namespace: {{ .name }}
   labels:
     delete-me: "true"
-data: {}
+data:
+  .dockerconfigjson: "{}"
 type: kubernetes.io/dockerconfigjson
 ---
 apiVersion: v1
