@@ -347,7 +347,7 @@ metadata:
   labels:
     delete-me: "true"
 data:
-  .dockerconfigjson: "{}"
+  .dockerconfigjson: e30K
 type: kubernetes.io/dockerconfigjson
 ---
 apiVersion: v1
