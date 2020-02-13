@@ -261,6 +261,10 @@ apply_cluster_chart: &apply_cluster_chart
       kubectl delete --ignore-not-found=true -n gsp-system DestinationRule gsp-gsp-cluster-notary gsp-gsp-cluster-registry gsp-gsp-cluster-registry-portal
       kubectl delete --ignore-not-found=true -n gsp-system Job gsp-ensure-harbor-databases
       kubectl delete --ignore-not-found=true -n gsp-system cm gsp-ensure-harbor-databases
+
+      # Temporary: Delete Kiam resources
+      kubectl delete --ignore-not-found=true -n gsp-system -l app=kiam daemonset,service,serviceaccount,clusterrole,clusterrolebinding
+      kubectl delete --ignore-not-found=true -n gsp-system secret gsp-kiam-agent gsp-kiam-server
   inputs:
   - name: cluster-values
   - name: config
