@@ -44,6 +44,18 @@ data "aws_iam_policy_document" "ecr_access" {
   }
 }
 
+data "aws_iam_policy_document" "cloudwatch_metrics_read_only" {
+  statement {
+    actions = [
+      "cloudwatch:Describe*",
+      "cloudwatch:Get*",
+      "cloudwatch:List*",
+    ]
+
+    resources = ["*"]
+  }
+}
+
 resource "aws_iam_role" "eks-cluster" {
   name               = "${var.cluster_name}-cluster"
   assume_role_policy = data.aws_iam_policy_document.eks-cluster-assume-role-policy.json
@@ -103,5 +115,25 @@ resource "aws_iam_role_policy_attachment" "worker_nodes_ecr_access" {
 
 resource "aws_iam_role_policy_attachment" "ci_nodes_ecr_access" {
   policy_arn = aws_iam_policy.ecr_access.arn
+  role       = replace(data.aws_arn.ci-nodes-role.resource, "role/", "")
+}
+
+resource "aws_iam_policy" "cloudwatch_metrics_read_only" {
+  name   = "${var.cluster_name}-cloudwatch_metrics_read_only"
+  policy = data.aws_iam_policy_document.cloudwatch_metrics_read_only.json
+}
+
+resource "aws_iam_role_policy_attachment" "worker-nodes-cloudwatch" {
+  policy_arn = aws_iam_policy.cloudwatch_metrics_read_only.arn
+  role       = replace(data.aws_arn.worker-nodes-role.resource, "role/", "")
+}
+
+resource "aws_iam_role_policy_attachment" "kiam-nodes-cloudwatch" {
+  policy_arn = aws_iam_policy.cloudwatch_metrics_read_only.arn
+  role       = replace(data.aws_arn.kiam-server-nodes-role.resource, "role/", "")
+}
+
+resource "aws_iam_role_policy_attachment" "ci-nodes-cloudwatch" {
+  policy_arn = aws_iam_policy.cloudwatch_metrics_read_only.arn
   role       = replace(data.aws_arn.ci-nodes-role.resource, "role/", "")
 }
