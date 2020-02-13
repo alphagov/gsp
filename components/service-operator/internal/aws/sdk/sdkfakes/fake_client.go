@@ -4,8 +4,10 @@ package sdkfakes
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ecr"
@@ -98,6 +100,18 @@ type FakeClient struct {
 	getAuthorizationTokenWithContextReturnsOnCall map[int]struct {
 		result1 *ecr.GetAuthorizationTokenOutput
 		result2 error
+	}
+	GetRoleCredentialsStub        func(string, time.Duration) *credentials.Credentials
+	getRoleCredentialsMutex       sync.RWMutex
+	getRoleCredentialsArgsForCall []struct {
+		arg1 string
+		arg2 time.Duration
+	}
+	getRoleCredentialsReturns struct {
+		result1 *credentials.Credentials
+	}
+	getRoleCredentialsReturnsOnCall map[int]struct {
+		result1 *credentials.Credentials
 	}
 	GetSecretValueWithContextStub        func(context.Context, *secretsmanager.GetSecretValueInput, ...request.Option) (*secretsmanager.GetSecretValueOutput, error)
 	getSecretValueWithContextMutex       sync.RWMutex
@@ -518,6 +532,67 @@ func (fake *FakeClient) GetAuthorizationTokenWithContextReturnsOnCall(i int, res
 	}{result1, result2}
 }
 
+func (fake *FakeClient) GetRoleCredentials(arg1 string, arg2 time.Duration) *credentials.Credentials {
+	fake.getRoleCredentialsMutex.Lock()
+	ret, specificReturn := fake.getRoleCredentialsReturnsOnCall[len(fake.getRoleCredentialsArgsForCall)]
+	fake.getRoleCredentialsArgsForCall = append(fake.getRoleCredentialsArgsForCall, struct {
+		arg1 string
+		arg2 time.Duration
+	}{arg1, arg2})
+	fake.recordInvocation("GetRoleCredentials", []interface{}{arg1, arg2})
+	fake.getRoleCredentialsMutex.Unlock()
+	if fake.GetRoleCredentialsStub != nil {
+		return fake.GetRoleCredentialsStub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.getRoleCredentialsReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeClient) GetRoleCredentialsCallCount() int {
+	fake.getRoleCredentialsMutex.RLock()
+	defer fake.getRoleCredentialsMutex.RUnlock()
+	return len(fake.getRoleCredentialsArgsForCall)
+}
+
+func (fake *FakeClient) GetRoleCredentialsCalls(stub func(string, time.Duration) *credentials.Credentials) {
+	fake.getRoleCredentialsMutex.Lock()
+	defer fake.getRoleCredentialsMutex.Unlock()
+	fake.GetRoleCredentialsStub = stub
+}
+
+func (fake *FakeClient) GetRoleCredentialsArgsForCall(i int) (string, time.Duration) {
+	fake.getRoleCredentialsMutex.RLock()
+	defer fake.getRoleCredentialsMutex.RUnlock()
+	argsForCall := fake.getRoleCredentialsArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeClient) GetRoleCredentialsReturns(result1 *credentials.Credentials) {
+	fake.getRoleCredentialsMutex.Lock()
+	defer fake.getRoleCredentialsMutex.Unlock()
+	fake.GetRoleCredentialsStub = nil
+	fake.getRoleCredentialsReturns = struct {
+		result1 *credentials.Credentials
+	}{result1}
+}
+
+func (fake *FakeClient) GetRoleCredentialsReturnsOnCall(i int, result1 *credentials.Credentials) {
+	fake.getRoleCredentialsMutex.Lock()
+	defer fake.getRoleCredentialsMutex.Unlock()
+	fake.GetRoleCredentialsStub = nil
+	if fake.getRoleCredentialsReturnsOnCall == nil {
+		fake.getRoleCredentialsReturnsOnCall = make(map[int]struct {
+			result1 *credentials.Credentials
+		})
+	}
+	fake.getRoleCredentialsReturnsOnCall[i] = struct {
+		result1 *credentials.Credentials
+	}{result1}
+}
+
 func (fake *FakeClient) GetSecretValueWithContext(arg1 context.Context, arg2 *secretsmanager.GetSecretValueInput, arg3 ...request.Option) (*secretsmanager.GetSecretValueOutput, error) {
 	fake.getSecretValueWithContextMutex.Lock()
 	ret, specificReturn := fake.getSecretValueWithContextReturnsOnCall[len(fake.getSecretValueWithContextArgsForCall)]
@@ -663,6 +738,8 @@ func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	defer fake.describeStacksWithContextMutex.RUnlock()
 	fake.getAuthorizationTokenWithContextMutex.RLock()
 	defer fake.getAuthorizationTokenWithContextMutex.RUnlock()
+	fake.getRoleCredentialsMutex.RLock()
+	defer fake.getRoleCredentialsMutex.RUnlock()
 	fake.getSecretValueWithContextMutex.RLock()
 	defer fake.getSecretValueWithContextMutex.RUnlock()
 	fake.updateStackWithContextMutex.RLock()

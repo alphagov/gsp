@@ -1,13 +1,17 @@
 package sdk
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	"github.com/aws/aws-sdk-go/service/sts"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Client
@@ -25,6 +29,7 @@ type Client interface {
 	GetSecretValueWithContext(aws.Context, *secretsmanager.GetSecretValueInput, ...request.Option) (*secretsmanager.GetSecretValueOutput, error)
 	GetAuthorizationTokenWithContext(aws.Context, *ecr.GetAuthorizationTokenInput, ...request.Option) (*ecr.GetAuthorizationTokenOutput, error)
 	AssumeRole(roleArn string) Client
+	GetRoleCredentials(roleARN string, sessionDuration time.Duration) *credentials.Credentials
 }
 
 // NewClient creates a new AWS client that implements the Client interface.
@@ -54,10 +59,18 @@ type client struct {
 	*ecr.ECR
 }
 
-func (c *client) AssumeRole(roleARN string) Client {
+func (c *client) GetRoleCredentials(roleARN string, sessionDuration time.Duration) *credentials.Credentials {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
-	creds := stscreds.NewCredentials(sess, roleARN)
-	return NewClient(&aws.Config{Credentials: creds})
+
+	return credentials.NewCredentials(&stscreds.AssumeRoleProvider{
+		Client:   sts.New(sess),
+		RoleARN:  roleARN,
+		Duration: sessionDuration,
+	})
+}
+
+func (c *client) AssumeRole(roleARN string) Client {
+	return NewClient(&aws.Config{Credentials: c.GetRoleCredentials(roleARN, stscreds.DefaultDuration)})
 }

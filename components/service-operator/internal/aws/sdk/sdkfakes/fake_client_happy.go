@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/sanathkr/yaml"
@@ -129,10 +130,30 @@ func NewHappyClient(outputs map[string]string) *FakeClient {
 
 	client.AssumeRoleReturns(client)
 
-	later := time.After(time.Second * 60)
+	getRoleCredsLater := time.After(time.Second * 60)
+	client.GetRoleCredentialsStub = func(string, time.Duration) *credentials.Credentials {
+		select {
+		case <-getRoleCredsLater:
+			return credentials.NewStaticCredentialsFromCreds(credentials.Value{
+				AccessKeyID: "some second value",
+				SecretAccessKey: "some new secret!",
+				SessionToken: "different session token",
+				ProviderName: "static but really just a fake to make client happy",
+			})
+		default:
+			return credentials.NewStaticCredentialsFromCreds(credentials.Value{
+				AccessKeyID: "some value",
+				SecretAccessKey: "zomg seekrits",
+				SessionToken: "session here",
+				ProviderName: "static but really just a fake to make client happy",
+			})
+		}
+	}
+
+	getAuthTokenLater := time.After(time.Second * 60)
 	client.GetAuthorizationTokenWithContextStub = func(context.Context, *ecr.GetAuthorizationTokenInput, ...request.Option) (*ecr.GetAuthorizationTokenOutput, error) {
 		select {
-		case <-later:
+		case <-getAuthTokenLater:
 			return &ecr.GetAuthorizationTokenOutput{
 				AuthorizationData: []*ecr.AuthorizationData{
 					{
