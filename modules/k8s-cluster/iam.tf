@@ -31,13 +31,12 @@ data "aws_iam_policy_document" "ssm-minimal" {
   }
 }
 
-data "aws_iam_policy_document" "ecr_access" {
+data "aws_iam_policy_document" "cloudwatch_metrics_read_only" {
   statement {
     actions = [
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:BatchGetImage",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:GetAuthorizationToken",
+      "cloudwatch:Describe*",
+      "cloudwatch:Get*",
+      "cloudwatch:List*",
     ]
 
     resources = ["*"]
@@ -91,17 +90,22 @@ resource "aws_iam_role_policy_attachment" "ci-nodes-ssm" {
   role       = replace(data.aws_arn.ci-nodes-role.resource, "role/", "")
 }
 
-resource "aws_iam_policy" "ecr_access" {
-  name   = "${var.cluster_name}-ecr-access"
-  policy = data.aws_iam_policy_document.ecr_access.json
+resource "aws_iam_policy" "cloudwatch_metrics_read_only" {
+  name   = "${var.cluster_name}-cloudwatch_metrics_read_only"
+  policy = data.aws_iam_policy_document.cloudwatch_metrics_read_only.json
 }
 
-resource "aws_iam_role_policy_attachment" "worker_nodes_ecr_access" {
-  policy_arn = aws_iam_policy.ecr_access.arn
+resource "aws_iam_role_policy_attachment" "worker-nodes-cloudwatch" {
+  policy_arn = aws_iam_policy.cloudwatch_metrics_read_only.arn
   role       = replace(data.aws_arn.worker-nodes-role.resource, "role/", "")
 }
 
-resource "aws_iam_role_policy_attachment" "ci_nodes_ecr_access" {
-  policy_arn = aws_iam_policy.ecr_access.arn
+resource "aws_iam_role_policy_attachment" "kiam-nodes-cloudwatch" {
+  policy_arn = aws_iam_policy.cloudwatch_metrics_read_only.arn
+  role       = replace(data.aws_arn.kiam-server-nodes-role.resource, "role/", "")
+}
+
+resource "aws_iam_role_policy_attachment" "ci-nodes-cloudwatch" {
+  policy_arn = aws_iam_policy.cloudwatch_metrics_read_only.arn
   role       = replace(data.aws_arn.ci-nodes-role.resource, "role/", "")
 }

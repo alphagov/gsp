@@ -289,6 +289,11 @@ prometheus-operator:
     sidecar:
       dashboards:
         searchNamespace: ALL
+    nodeSelector:
+      node-role.kubernetes.io/cluster-management: ""
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/cluster-management
 
   prometheusOperator:
     kubeletService:
