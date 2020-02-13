@@ -7,5 +7,3 @@ metadata:
     namespace: gsp-system
     istio-injection: disabled
     control-plane: "true"
-  annotations:
-    iam.amazonaws.com/permitted: {{ .Values.permittedRolesRegex | quote }}

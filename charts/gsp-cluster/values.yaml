@@ -26,7 +26,6 @@ global:
     enabled: true
 
 adminRoleARNs: []
-permittedRolesRegex: ""
 
 githubAPIToken: ""
 
@@ -55,7 +54,6 @@ httpEgressSafelist: []
 #   repository: verify-metadata-controller
 #   branch: master
 #   path: ci
-#   permittedRolesRegex: "^$"
 #   requiredApprovalCount: 2
 #   scope: cluster
 
