@@ -103,8 +103,6 @@ gsp-monitoring:
             server_name: alerts.monitoring.gds-reliability.engineering
           scheme: https
     grafana:
-      podAnnotations:
-        iam.amazonaws.com/role: ${grafana_iam_role_name}
       adminPassword: ${grafana_default_admin_password}
       grafana.ini:
         server:
