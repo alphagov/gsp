@@ -253,6 +253,14 @@ apply_cluster_chart: &apply_cluster_chart
       apply manifests/gsp-istio/charts/istio
       apply manifests/${CHART_NAME}/templates/01-aws-system/
       apply manifests/
+
+      # Temporary: Delete old Harbor resources
+      kubectl delete --ignore-not-found=true -A secret -l delete-me=true
+      kubectl delete --ignore-not-found=true -n gsp-system secret gsp-harbor-notary-tls harbor-db-password
+      kubectl delete --ignore-not-found=true -n gsp-system VirtualService gsp-notary gsp-registry
+      kubectl delete --ignore-not-found=true -n gsp-system DestinationRule gsp-gsp-cluster-notary gsp-gsp-cluster-registry gsp-gsp-cluster-registry-portal
+      kubectl delete --ignore-not-found=true -n gsp-system Job gsp-ensure-harbor-databases
+      kubectl delete --ignore-not-found=true -n gsp-system cm gsp-ensure-harbor-databases
   inputs:
   - name: cluster-values
   - name: config
