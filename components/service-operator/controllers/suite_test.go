@@ -65,7 +65,6 @@ func SetupControllerEnv() (client.Client, func()) {
 	os.Setenv("CLOUD_PROVIDER", "aws")
 	os.Setenv("CLUSTER_NAME", "xxx")
 	os.Setenv("IMAGE_REGISTRY_CREDENTIALS_RENEWAL_INTERVAL", "30s")
-	os.Setenv("PRINCIPAL_CREDENTIALS_SESSION_DURATION", "1h")
 	ctx := context.Background()
 
 	log := zap.LoggerTo(GinkgoWriter, false)

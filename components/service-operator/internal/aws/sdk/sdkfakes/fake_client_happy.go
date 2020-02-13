@@ -131,7 +131,7 @@ func NewHappyClient(outputs map[string]string) *FakeClient {
 	client.AssumeRoleReturns(client)
 
 	getRoleCredsLater := time.After(time.Second * 60)
-	client.GetRoleCredentialsStub = func(string, time.Duration) *credentials.Credentials {
+	client.GetRoleCredentialsStub = func(string) *credentials.Credentials {
 		select {
 		case <-getRoleCredsLater:
 			return credentials.NewStaticCredentialsFromCreds(credentials.Value{

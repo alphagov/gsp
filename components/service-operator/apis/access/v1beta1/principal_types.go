@@ -142,7 +142,6 @@ func (s *Principal) GetStackTemplate() (*cloudformation.Template, error) {
 		RoleName:                 s.GetRoleName(),
 		AssumeRolePolicyDocument: cloudformation.Sub(subbableHack),
 		PermissionsBoundary:      cloudformation.Ref(IAMPermissionsBoundaryParameterName),
-		MaxSessionDuration:       43200, // 12 hours
 	}
 
 	template.Resources[SharedPolicyResourceName] = &cloudformation.AWSIAMPolicy{
@@ -206,7 +205,7 @@ func (s *Principal) GetTemplateSecrets(ctx context.Context, client sdk.Client, o
 	templateSecrets["ImageRegistryPassword"] = ecrCredentials.Password
 	templateSecrets["ImageRegistryEndpoint"] = ecrCredentials.Endpoint
 
-	assumedRoleCredentials, err := client.GetRoleCredentials(roleArn, env.PrincipalCredentialsSessionDuration()).Get()
+	assumedRoleCredentials, err := client.GetRoleCredentials(roleArn).Get()
 	if err != nil {
 		return nil, err
 	}
