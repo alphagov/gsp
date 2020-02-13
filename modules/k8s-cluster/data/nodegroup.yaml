@@ -331,10 +331,3 @@ Outputs:
     Description: The security group for the node group
     Value: !Ref NodeSecurityGroup
 
-  HTTPTargetGroup:
-    Description: A target group to node port 31380
-    Value: !Ref HTTPTargetGroup
-
-  TCPTargetGroup:
-    Description: A target group to node port 31390
-    Value: !Ref TCPTargetGroup
