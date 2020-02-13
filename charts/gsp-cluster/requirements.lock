@@ -8,11 +8,8 @@ dependencies:
 - name: fluentd-cloudwatch
   repository: https://kubernetes-charts-incubator.storage.googleapis.com/
   version: 0.12.1
-- name: kiam
-  repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 2.5.1
 - name: cert-manager
   repository: https://charts.jetstack.io/
   version: v0.11.0
-digest: sha256:ac6ec81355089047d3a5708e70b50da0b012bb0d5fc8a6cfd204cec5ff317930
-generated: "2020-02-07T20:26:27.123467431Z"
+digest: sha256:6e2defa5dac2857ae23ca3ed60024f6ec8f6ef57b1dceb27de4f6c2d6ae9800c
+generated: "2020-02-13T16:19:52.966761Z"

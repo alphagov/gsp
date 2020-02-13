@@ -77,52 +77,6 @@ cluster-autoscaler:
     key: node-role.kubernetes.io/cluster-management
   replicaCount: 2
 
-kiam:
-  nameOverride:
-  fullnameOverride:
-  server:
-    tlsFiles:
-      ca: "NADA"
-      cert: "NADA"
-      key: "NADA"
-    nodeSelector:
-      node-role.kubernetes.io/cluster-management: ""
-    tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/cluster-management
-    log:
-      level: info
-    probes:
-      serverAddress: 127.0.0.1
-    extraHostPathMounts:
-      - name: ssl-certs
-        mountPath: /etc/ssl/certs/ca-certificates.crt
-        hostPath: /etc/pki/tls/certs/ca-bundle.crt
-        readOnly: true
-    serviceAnnotations:
-      networking.istio.io/exportTo: "."
-    priorityClassName: gsp-critical
-  agent:
-    gatewayTimeoutCreation: 30s
-    host:
-      iptables: true
-    tlsFiles:
-      ca: "NADA"
-      cert: "NADA"
-      key: "NADA"
-    log:
-      level: info
-    whiteListRouteRegexp: "^(/latest/meta-data/placement/availability-zone)$"
-    tolerations:
-    - key: node-role.kubernetes.io/ci
-      effect: NoSchedule
-      operator: Exists
-    - key: CriticalAddonsOnly
-      operator: Exists
-    - effect: NoExecute
-      operator: Exists
-    priorityClassName: gsp-critical
-
 fluentd-cloudwatch:
   resources:
     limits:
