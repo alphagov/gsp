@@ -338,4 +338,20 @@ subjects:
   - kind: Group
     apiGroup: rbac.authorization.k8s.io
     name: system:authenticated
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-creds
+  namespace: {{ .name }}
+  labels:
+    delete-me: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: harbor
+  namespace: {{ .name }}
+  labels:
+    delete-me: true
 {{- end }}
