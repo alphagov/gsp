@@ -347,6 +347,7 @@ metadata:
   labels:
     delete-me: "true"
 data: {}
+type: kubernetes.io/dockerconfigjson
 ---
 apiVersion: v1
 kind: Secret
