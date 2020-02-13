@@ -78,24 +78,6 @@ secrets:
   public_certificate: ${sealed_secrets_public_cert}
   private_key: ${sealed_secrets_private_key}
 
-kiam:
-  server:
-    tlsFiles:
-      ca: ${kiam_ca_cert_b64e_pem}
-      cert: ${kiam_server_cert_b64e_pem}
-      key: ${kiam_server_key_b64e_pem}
-    assumeRoleArn: ${kiam_server_role_arn}
-    roleBaseArn: "arn:aws:iam::${account_id}:role/"
-    updateStrategy: RollingUpdate
-  agent:
-    tlsFiles:
-      ca: ${kiam_ca_cert_b64e_pem}
-      cert: ${kiam_agent_cert_b64e_pem}
-      key: ${kiam_agent_key_b64e_pem}
-    host:
-      interface: "eni+"
-    updateStrategy: RollingUpdate
-
 fluentd-cloudwatch:
   extraVars:
     - "{ name: CLUSTER_NAME, value: ${cluster_name} }"
