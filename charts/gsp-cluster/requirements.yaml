@@ -11,10 +11,6 @@ dependencies:
     version: 0.12.1
     repository: https://kubernetes-charts-incubator.storage.googleapis.com/
     condition: global.runningOnAws
-  - name: "kiam"
-    version: 2.5.1
-    repository: https://kubernetes-charts.storage.googleapis.com/
-    condition: global.runningOnAws
   - name: "cert-manager"
     version: v0.11.0
     repository: https://charts.jetstack.io/
