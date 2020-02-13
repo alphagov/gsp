@@ -4,7 +4,6 @@ package sdkfakes
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -101,11 +100,10 @@ type FakeClient struct {
 		result1 *ecr.GetAuthorizationTokenOutput
 		result2 error
 	}
-	GetRoleCredentialsStub        func(string, time.Duration) *credentials.Credentials
+	GetRoleCredentialsStub        func(string) *credentials.Credentials
 	getRoleCredentialsMutex       sync.RWMutex
 	getRoleCredentialsArgsForCall []struct {
 		arg1 string
-		arg2 time.Duration
 	}
 	getRoleCredentialsReturns struct {
 		result1 *credentials.Credentials
@@ -532,17 +530,16 @@ func (fake *FakeClient) GetAuthorizationTokenWithContextReturnsOnCall(i int, res
 	}{result1, result2}
 }
 
-func (fake *FakeClient) GetRoleCredentials(arg1 string, arg2 time.Duration) *credentials.Credentials {
+func (fake *FakeClient) GetRoleCredentials(arg1 string) *credentials.Credentials {
 	fake.getRoleCredentialsMutex.Lock()
 	ret, specificReturn := fake.getRoleCredentialsReturnsOnCall[len(fake.getRoleCredentialsArgsForCall)]
 	fake.getRoleCredentialsArgsForCall = append(fake.getRoleCredentialsArgsForCall, struct {
 		arg1 string
-		arg2 time.Duration
-	}{arg1, arg2})
-	fake.recordInvocation("GetRoleCredentials", []interface{}{arg1, arg2})
+	}{arg1})
+	fake.recordInvocation("GetRoleCredentials", []interface{}{arg1})
 	fake.getRoleCredentialsMutex.Unlock()
 	if fake.GetRoleCredentialsStub != nil {
-		return fake.GetRoleCredentialsStub(arg1, arg2)
+		return fake.GetRoleCredentialsStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
@@ -557,17 +554,17 @@ func (fake *FakeClient) GetRoleCredentialsCallCount() int {
 	return len(fake.getRoleCredentialsArgsForCall)
 }
 
-func (fake *FakeClient) GetRoleCredentialsCalls(stub func(string, time.Duration) *credentials.Credentials) {
+func (fake *FakeClient) GetRoleCredentialsCalls(stub func(string) *credentials.Credentials) {
 	fake.getRoleCredentialsMutex.Lock()
 	defer fake.getRoleCredentialsMutex.Unlock()
 	fake.GetRoleCredentialsStub = stub
 }
 
-func (fake *FakeClient) GetRoleCredentialsArgsForCall(i int) (string, time.Duration) {
+func (fake *FakeClient) GetRoleCredentialsArgsForCall(i int) string {
 	fake.getRoleCredentialsMutex.RLock()
 	defer fake.getRoleCredentialsMutex.RUnlock()
 	argsForCall := fake.getRoleCredentialsArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1
 }
 
 func (fake *FakeClient) GetRoleCredentialsReturns(result1 *credentials.Credentials) {

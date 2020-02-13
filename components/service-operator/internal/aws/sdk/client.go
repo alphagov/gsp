@@ -1,8 +1,6 @@
 package sdk
 
 import (
-	"time"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
@@ -29,7 +27,7 @@ type Client interface {
 	GetSecretValueWithContext(aws.Context, *secretsmanager.GetSecretValueInput, ...request.Option) (*secretsmanager.GetSecretValueOutput, error)
 	GetAuthorizationTokenWithContext(aws.Context, *ecr.GetAuthorizationTokenInput, ...request.Option) (*ecr.GetAuthorizationTokenOutput, error)
 	AssumeRole(roleArn string) Client
-	GetRoleCredentials(roleARN string, sessionDuration time.Duration) *credentials.Credentials
+	GetRoleCredentials(roleARN string) *credentials.Credentials
 }
 
 // NewClient creates a new AWS client that implements the Client interface.
@@ -59,7 +57,7 @@ type client struct {
 	*ecr.ECR
 }
 
-func (c *client) GetRoleCredentials(roleARN string, sessionDuration time.Duration) *credentials.Credentials {
+func (c *client) GetRoleCredentials(roleARN string) *credentials.Credentials {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
@@ -67,10 +65,10 @@ func (c *client) GetRoleCredentials(roleARN string, sessionDuration time.Duratio
 	return credentials.NewCredentials(&stscreds.AssumeRoleProvider{
 		Client:   sts.New(sess),
 		RoleARN:  roleARN,
-		Duration: sessionDuration,
+		Duration: stscreds.DefaultDuration,
 	})
 }
 
 func (c *client) AssumeRole(roleARN string) Client {
-	return NewClient(&aws.Config{Credentials: c.GetRoleCredentials(roleARN, stscreds.DefaultDuration)})
+	return NewClient(&aws.Config{Credentials: c.GetRoleCredentials(roleARN)})
 }

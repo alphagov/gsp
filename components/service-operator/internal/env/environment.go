@@ -54,7 +54,7 @@ func AWSRoleArn() string {
 func ImageRegistryCredentialsRenewalInterval() time.Duration {
 	envVarName := "IMAGE_REGISTRY_CREDENTIALS_RENEWAL_INTERVAL"
 	envVarValue := os.Getenv(envVarName)
-	renewalInterval := time.Hour * 6
+	renewalInterval := time.Minute * 30
 
 	if envVarValue != "" {
 		var err error
@@ -65,22 +65,6 @@ func ImageRegistryCredentialsRenewalInterval() time.Duration {
 	}
 
 	return renewalInterval
-}
-
-func PrincipalCredentialsSessionDuration() time.Duration {
-	envVarName := "PRINCIPAL_CREDENTIALS_SESSION_DURATION"
-	envVarValue := os.Getenv(envVarName)
-	duration := time.Hour * 12
-
-	if envVarValue != "" {
-		var err error
-		duration, err = time.ParseDuration(envVarValue)
-		if err != nil {
-			panic(fmt.Errorf("failed to parse duration from %s (%s)", envVarName, envVarValue))
-		}
-	}
-
-	return duration
 }
 
 // MustGet is a panicy version of os.Getenv
