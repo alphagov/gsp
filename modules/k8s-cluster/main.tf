@@ -135,7 +135,6 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     VpcId                       = var.vpc_id
     Subnets                     = element(data.aws_subnet.private_subnets.*.id, count.index)
     NodeSecurityGroups          = "${aws_security_group.node.id},${aws_security_group.worker.id}"
-    NodeTargetGroups            = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
   }
 
   depends_on = [

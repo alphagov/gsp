@@ -267,20 +267,6 @@ Resources:
       ToPort: 443
       FromPort: 443
 
-  HTTPTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Port: 31380
-      Protocol: HTTP
-      VpcId: !Ref VpcId
-
-  TCPTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Port: 31390
-      Protocol: TCP
-      VpcId: !Ref VpcId
-
   NodeGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -289,9 +275,6 @@ Resources:
       MinSize: !Ref NodeAutoScalingGroupMinSize
       MaxSize: !Ref NodeAutoScalingGroupMaxSize
       VPCZoneIdentifier: !Ref Subnets
-      TargetGroupARNs:
-        - !Ref HTTPTargetGroup
-        - !Ref TCPTargetGroup
       Tags:
         - Key: Name
           Value: !Sub ${ClusterName}-${NodeGroupName}

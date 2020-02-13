@@ -129,10 +129,6 @@ Parameters:
     Description: The security groups to attach to the workers.
     Type: List<AWS::EC2::SecurityGroup::Id>
 
-  NodeTargetGroups:
-    Description: The target groups in which to register the workers.
-    Type: List<String>
-
   NodeInstanceProfile:
     Description: The instance profile ARN to associate with the workers.
     Type: String
@@ -164,7 +160,6 @@ Metadata:
           - VpcId
           - Subnets
           - NodeSecurityGroups
-          - NodeTargetGroups
 
 Resources:
 
@@ -178,7 +173,6 @@ Resources:
       MinSize: !Ref NodeAutoScalingGroupMinSize
       MaxSize: !Ref NodeAutoScalingGroupMaxSize
       VPCZoneIdentifier: !Ref Subnets
-      TargetGroupARNs: !Ref NodeTargetGroups
       # TODO: this is where we can in future provision spot instances
       # MixedInstancesPolicy:
       #   InstancesDistribution:
