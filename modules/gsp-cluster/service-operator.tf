@@ -98,7 +98,6 @@ data "aws_iam_policy_document" "service-operator" {
       "iam:PutRolePolicy",
       "iam:TagRole",
       "iam:UntagRole",
-      "iam:UpdateRole",
     ]
 
     resources = [
@@ -120,6 +119,7 @@ data "aws_iam_policy_document" "service-operator" {
       "iam:DeleteRolePolicy",
       "iam:GetRolePolicy",
       "iam:UpdateAssumeRolePolicy",
+      "iam:UpdateRole",
     ]
 
     resources = [
