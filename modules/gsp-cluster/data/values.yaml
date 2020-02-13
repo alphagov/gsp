@@ -117,7 +117,6 @@ gsp-monitoring:
           auto_assign_org_role: Editor
 
 serviceOperator:
-  kiamServerRoleARN: ${kiam_server_role_arn}
   roleARN: ${service_operator_role_arn}
   permissionsBoundaryARN: ${service_operator_boundary_arn}
 
