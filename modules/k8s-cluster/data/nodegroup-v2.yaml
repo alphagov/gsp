@@ -129,10 +129,6 @@ Parameters:
     Description: The security groups to attach to the workers.
     Type: List<AWS::EC2::SecurityGroup::Id>
 
-  NodeInstanceProfile:
-    Description: The instance profile ARN to associate with the workers.
-    Type: String
-
 Metadata:
 
   AWS::CloudFormation::Interface:
@@ -150,7 +146,6 @@ Metadata:
           - NodeAutoScalingGroupDesiredCapacity
           - NodeAutoScalingGroupMaxSize
           - NodeInstanceType
-          - NodeInstanceProfile
           - NodeImageId
           - NodeVolumeSize
           - BootstrapArguments
@@ -162,6 +157,29 @@ Metadata:
           - NodeSecurityGroups
 
 Resources:
+
+  NodeInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref NodeInstanceRole
+
+  NodeInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
 
   NodeGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -207,8 +225,7 @@ Resources:
     Properties:
       LaunchTemplateName: !Sub ${ClusterName}-${NodeGroupName}
       LaunchTemplateData:
-        IamInstanceProfile:
-          Arn: !Ref NodeInstanceProfile
+        IamInstanceProfile: !Ref NodeInstanceProfile
         ImageId: !Ref NodeImageId
         InstanceType: !Ref NodeInstanceType
         SecurityGroupIds: !Ref NodeSecurityGroups

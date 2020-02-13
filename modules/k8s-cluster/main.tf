@@ -129,7 +129,6 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     ))
     NodeAutoScalingGroupMaxSize = var.maximum_workers_per_az_count
     NodeInstanceType            = var.worker_instance_type
-    NodeInstanceProfile         = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
     NodeVolumeSize              = "40"
     BootstrapArguments          = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
     VpcId                       = var.vpc_id
