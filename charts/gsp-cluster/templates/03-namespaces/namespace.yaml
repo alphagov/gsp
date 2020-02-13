@@ -345,7 +345,8 @@ metadata:
   name: registry-creds
   namespace: {{ .name }}
   labels:
-    delete-me: true
+    delete-me: "true"
+data: {}
 ---
 apiVersion: v1
 kind: Secret
@@ -353,5 +354,6 @@ metadata:
   name: harbor
   namespace: {{ .name }}
   labels:
-    delete-me: true
+    delete-me: "true"
+data: {}
 {{- end }}
