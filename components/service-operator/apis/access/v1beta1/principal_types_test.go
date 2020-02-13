@@ -114,7 +114,6 @@ var _ = Describe("Principal", func() {
 				Expect(statement.Effect).To(Equal("Allow"))
 				Expect(statement.Principal.Federated).To(BeEmpty())
 				Expect(statement.Principal.AWS).To(ConsistOf(
-					fmt.Sprintf("${%s}", v1beta1.IAMRolePrincipalParameterName),
 					fmt.Sprintf("${%s}", v1beta1.ServiceOperatorIAMRoleArn),
 				))
 				Expect(statement.Action).To(ConsistOf("sts:AssumeRole"))
@@ -156,7 +155,6 @@ var _ = Describe("Principal", func() {
 				Expect(statement.Effect).To(Equal("Allow"))
 				Expect(statement.Principal.Federated).To(BeEmpty())
 				Expect(statement.Principal.AWS).To(ConsistOf(
-					fmt.Sprintf("${%s}", v1beta1.IAMRolePrincipalParameterName),
 					fmt.Sprintf("${%s}", v1beta1.ServiceOperatorIAMRoleArn),
 				))
 				Expect(statement.Action).To(ConsistOf("sts:AssumeRole"))
