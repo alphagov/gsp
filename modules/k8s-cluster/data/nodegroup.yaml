@@ -319,10 +319,6 @@ Outputs:
     Description: The ASG Name
     Value: !Ref NodeGroup
 
-  NodeInstanceProfile:
-    Description: The node instance profile ARN
-    Value: !GetAtt NodeInstanceProfile.Arn
-
   NodeInstanceRole:
     Description: The node instance role ARN
     Value: !GetAtt NodeInstanceRole.Arn

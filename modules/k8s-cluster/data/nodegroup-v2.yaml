@@ -225,7 +225,8 @@ Resources:
     Properties:
       LaunchTemplateName: !Sub ${ClusterName}-${NodeGroupName}
       LaunchTemplateData:
-        IamInstanceProfile: !Ref NodeInstanceProfile
+        IamInstanceProfile:
+          Arn: !GetAtt NodeInstanceProfile.Arn
         ImageId: !Ref NodeImageId
         InstanceType: !Ref NodeInstanceType
         SecurityGroupIds: !Ref NodeSecurityGroups
