@@ -253,6 +253,8 @@ prometheus-operator:
         - source_labels: [instance]
           target_label: node
   grafana:
+    podLabels:
+      talksToAWSMetadataService: "true"
     additionalDataSources:
       - name: Cloudwatch
         type: cloudwatch

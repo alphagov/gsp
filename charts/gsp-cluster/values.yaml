@@ -58,6 +58,8 @@ httpEgressSafelist: []
 #   scope: cluster
 
 cluster-autoscaler:
+  podLabels:
+    talksToAWSMetadataService: "true"
   extraArgs:
     balance-similar-node-groups: true
   image:
