@@ -43,7 +43,6 @@ const (
 	IAMRoleResourceName                 = "IAMRole"
 	IAMRoleName                         = "IAMRoleName"
 	IAMRoleArnOutputName                = "IAMRoleArn"
-	IAMRolePrincipalParameterName       = "IAMRolePrincipal"
 	IAMPermissionsBoundaryParameterName = "IAMPermissionsBoundary"
 	ServiceOperatorIAMRoleArn           = "ServiceOperatorIAMRoleArn"
 	SharedPolicyResourceName            = "ECRSharedPolicy"
@@ -86,9 +85,6 @@ func (s *Principal) GetRoleName() string {
 func (s *Principal) GetStackTemplate() (*cloudformation.Template, error) {
 	template := cloudformation.NewTemplate()
 
-	template.Parameters[IAMRolePrincipalParameterName] = map[string]string{
-		"Type": "String",
-	}
 	template.Parameters[IAMPermissionsBoundaryParameterName] = map[string]string{
 		"Type": "String",
 	}
@@ -110,7 +106,6 @@ func (s *Principal) GetStackTemplate() (*cloudformation.Template, error) {
 	if s.Spec.TrustServiceAccount == "" {
 		var err error
 		policyDocJson, err = json.Marshal(cloudformation.NewAssumeRolePolicyDocument(
-			fmt.Sprintf("${%s}", IAMRolePrincipalParameterName),
 			fmt.Sprintf("${%s}", ServiceOperatorIAMRoleArn),
 		))
 		if err != nil {
@@ -119,7 +114,6 @@ func (s *Principal) GetStackTemplate() (*cloudformation.Template, error) {
 	} else {
 		var err error
 		policyDocJson, err = json.Marshal(cloudformation.NewAssumeRolePolicyDocumentWithServiceAccount(
-			fmt.Sprintf("${%s}", IAMRolePrincipalParameterName),
 			fmt.Sprintf("${%s}", ServiceOperatorIAMRoleArn),
 			fmt.Sprintf("${%s}", IAMOIDCProviderARNParameterName),
 			fmt.Sprintf("${%s}:sub", IAMOIDCProviderURLParameterName),

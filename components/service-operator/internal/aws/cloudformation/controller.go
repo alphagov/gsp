@@ -400,10 +400,9 @@ func (r *Controller) updateCredentialsSecret(ctx context.Context, o StackSecretO
 //        controller target roles based on annotation, (simple but may not work
 //        well with multiple CLOUD_PROVIDER values in the future OR (2)
 //        targeting "Pods" with a label selector instead of "Principal", and
-//        letting a controller manage both the creation of IAMRoles and the
-//        assignment of kiam annotations which would mean this controller would
-//        only need to know instead an IAMPolicy kubernetes object and have a
-//        policy OR (3) something else
+//        letting a controller manage the creation of IAMRoles which would mean
+//        this controller would only need to know instead an IAMPolicy kubernetes
+//        object and have a policy OR (3) something else
 func (r *Controller) getRoleParams(ctx context.Context, o StackPolicyAttacher) ([]*Parameter, error) {
 	list := r.PrincipalListKind.DeepCopyObject().(object.PrincipalLister)
 	listOptsFunc := func(opts *client.ListOptions) {
