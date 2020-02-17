@@ -21,14 +21,12 @@ __[edit draw.io diagram](https://www.draw.io/?state=%7B%22ids%22:%5B%221hUinA_Be
 
 7. The cluster relies on [AWS IAM](https://aws.amazon.com/iam) for identity and authorisation
 
-8. The cluster uses [kiam](https://github.com/uswitch/kiam) to allow cluster users to associate [AWS IAM](https://aws.amazon.com/iam) roles to kubernetes pods
+8. The cluster contains an autoscaling group containing a continuous integration service based on [ConcourseCI](http://concourse.ci/)
 
-9. The cluster contains an autoscaling group containing a continuous integration service based on [ConcourseCI](http://concourse.ci/)
+9. By default there are three [kubernetes worker nodes](https://kubernetes.io/docs/concepts/architecture/nodes/) for the cluster split across the three availability zones
 
-10. By default there are three [kubernetes worker nodes](https://kubernetes.io/docs/concepts/architecture/nodes/) for the cluster split across the three availability zones
+10. All accounts benefit from [AWS Shield](https://aws.amazon.com/shield/) protection against distributed denial of service attacks
 
-11. All accounts benefit from [AWS Shield](https://aws.amazon.com/shield/) protection against distributed denial of service attacks
+11. The cluster aggregates selected log events to [AWS CloudWatch](https://aws.amazon.com/cloudwatch/) for ongoing processing by the Cyber Security team
 
-12. The cluster aggregates selected log events to [AWS CloudWatch](https://aws.amazon.com/cloudwatch/) for ongoing processing by the Cyber Security team
-
-13. CloudWatch logs are shipped externally to Splunk using [AWS Lambda](https://aws.amazon.com/lambda/)
+12. CloudWatch logs are shipped externally to Splunk using [AWS Lambda](https://aws.amazon.com/lambda/)
