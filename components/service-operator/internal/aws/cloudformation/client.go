@@ -14,8 +14,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	goformation "github.com/awslabs/goformation/cloudformation"
-	goresources "github.com/awslabs/goformation/cloudformation/resources"
+	goformation "github.com/awslabs/goformation/v4/cloudformation"
+	goformationtags "github.com/awslabs/goformation/v4/cloudformation/tags"
+	goformationrds "github.com/awslabs/goformation/v4/cloudformation/rds"
+	goformationiam "github.com/awslabs/goformation/v4/cloudformation/iam"
+	goformations3 "github.com/awslabs/goformation/v4/cloudformation/s3"
+	goformationsqs "github.com/awslabs/goformation/v4/cloudformation/sqs"
+	goformationecr "github.com/awslabs/goformation/v4/cloudformation/ecr"
+	goformationsecretsmanager "github.com/awslabs/goformation/v4/cloudformation/secretsmanager"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -33,20 +39,20 @@ type DescribeStacksOutput = cloudformation.DescribeStacksOutput
 type GetSecretValueInput = secretsmanager.GetSecretValueInput
 type Parameter = cloudformation.Parameter
 type Template = goformation.Template
-type Tag = goresources.Tag
-type AWSRDSDBCluster = goresources.AWSRDSDBCluster
-type AWSRDSDBInstance = goresources.AWSRDSDBInstance
-type AWSRDSDBClusterParameterGroup = goresources.AWSRDSDBClusterParameterGroup
-type AWSRDSDBParameterGroup = goresources.AWSRDSDBParameterGroup
-type AWSIAMPolicy = goresources.AWSIAMPolicy
-type AWSIAMRole = goresources.AWSIAMRole
-type AWSS3Bucket = goresources.AWSS3Bucket
-type AWSSecretsManagerSecret = goresources.AWSSecretsManagerSecret
-type AWSSecretsManagerSecretTargetAttachment = goresources.AWSSecretsManagerSecretTargetAttachment
-type AWSSQSQueue = goresources.AWSSQSQueue
-type GenerateSecretString = goresources.AWSSecretsManagerSecret_GenerateSecretString
-type AWSECRRepository = goresources.AWSECRRepository
-type AWSECRRepository_LifecyclePolicy = goresources.AWSECRRepository_LifecyclePolicy
+type Tag = goformationtags.Tag
+type AWSRDSDBCluster = goformationrds.DBCluster
+type AWSRDSDBInstance = goformationrds.DBInstance
+type AWSRDSDBClusterParameterGroup = goformationrds.DBClusterParameterGroup
+type AWSRDSDBParameterGroup = goformationrds.DBParameterGroup
+type AWSIAMPolicy = goformationiam.Policy
+type AWSIAMRole = goformationiam.Role
+type AWSS3Bucket = goformations3.Bucket
+type AWSSecretsManagerSecret = goformationsecretsmanager.Secret
+type AWSSecretsManagerSecretTargetAttachment = goformationsecretsmanager.SecretTargetAttachment
+type AWSSQSQueue = goformationsqs.Queue
+type GenerateSecretString = goformationsecretsmanager.Secret_GenerateSecretString
+type AWSECRRepository = goformationecr.Repository
+type AWSECRRepository_LifecyclePolicy = goformationecr.Repository_LifecyclePolicy
 
 var NewTemplate = goformation.NewTemplate
 var Join = goformation.Join
