@@ -6,7 +6,7 @@ import (
 
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
-	cloudformationa "github.com/awslabs/goformation/cloudformation"
+	cloudformationa "github.com/awslabs/goformation/v4/cloudformation"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
