@@ -22,7 +22,6 @@ import (
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/awslabs/goformation/cloudformation/resources"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -105,7 +104,7 @@ func (s *SQS) GetStackTemplate() (*cloudformation.Template, error) {
 		"Type": "String",
 	}
 
-	tags := []resources.Tag{
+	tags := []cloudformation.Tag{
 		{
 			Key:   "Cluster",
 			Value: env.ClusterName(),
@@ -139,9 +138,9 @@ func (s *SQS) GetStackTemplate() (*cloudformation.Template, error) {
 		redrivePolicy = ""
 	}
 
-	template.Resources[SQSResourceName] = &resources.AWSSQSQueue{
+	template.Resources[SQSResourceName] = &cloudformation.AWSSQSQueue{
 		QueueName:                     queueName,
-		Tags:                          append(tags, resources.Tag{Key: "QueueType", Value: "Main"}),
+		Tags:                          append(tags, cloudformation.Tag{Key: "QueueType", Value: "Main"}),
 		ContentBasedDeduplication:     s.Spec.AWS.ContentBasedDeduplication,
 		DelaySeconds:                  s.Spec.AWS.DelaySeconds,
 		FifoQueue:                     s.Spec.AWS.FifoQueue,
@@ -153,9 +152,9 @@ func (s *SQS) GetStackTemplate() (*cloudformation.Template, error) {
 	}
 
 	dlQueueName := fmt.Sprintf("%s-dl", queueName)
-	template.Resources[SQSDLQResourceName] = &resources.AWSSQSQueue{
+	template.Resources[SQSDLQResourceName] = &cloudformation.AWSSQSQueue{
 		QueueName:              dlQueueName,
-		Tags:                   append(tags, resources.Tag{Key: "QueueType", Value: "Dead-Letter"}),
+		Tags:                   append(tags, cloudformation.Tag{Key: "QueueType", Value: "Dead-Letter"}),
 		FifoQueue:              s.Spec.AWS.FifoQueue,
 		MessageRetentionPeriod: s.Spec.AWS.MessageRetentionPeriod,
 
@@ -189,7 +188,7 @@ func (s *SQS) GetStackTemplate() (*cloudformation.Template, error) {
 		},
 	}
 
-	template.Resources[SQSResourceIAMPolicy] = &resources.AWSIAMPolicy{
+	template.Resources[SQSResourceIAMPolicy] = &cloudformation.AWSIAMPolicy{
 		PolicyName:     cloudformation.Join("-", []string{"sqs", "access", cloudformation.GetAtt(SQSResourceName, "QueueName")}),
 		PolicyDocument: policy,
 		Roles: []string{
