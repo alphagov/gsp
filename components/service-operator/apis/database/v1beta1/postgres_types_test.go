@@ -249,6 +249,7 @@ var _ = Describe("Postgres", func() {
 					Expect(instance.Engine).To(Equal("aurora-postgresql"))
 					Expect(instance.Tags).To(Equal(tags))
 					Expect(instance.DeleteAutomatedBackups).To(Equal(false))
+					Expect(instance.CACertificateIdentifier).To(Equal("rds-ca-2019"))
 				}
 			})
 

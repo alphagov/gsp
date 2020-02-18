@@ -177,14 +177,15 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 	}
 	for i := 0; i < instanceCount; i++ {
 		template.Resources[fmt.Sprintf("%s%d", PostgresResourceInstance, i)] = &cloudformation.AWSRDSDBInstance{
-			DBClusterIdentifier:    cloudformation.Ref(PostgresResourceCluster),
-			DBInstanceClass:        coalesce(p.Spec.AWS.InstanceType, DefaultClass),
-			Engine:                 Engine,
-			PubliclyAccessible:     false,
-			DBParameterGroupName:   cloudformation.Ref(PostgresResourceParameterGroup),
-			Tags:                   tags,
-			DBSubnetGroupName:      cloudformation.Ref(DBSubnetGroupNameParameterName),
-			DeleteAutomatedBackups: false,
+			DBClusterIdentifier:     cloudformation.Ref(PostgresResourceCluster),
+			DBInstanceClass:         coalesce(p.Spec.AWS.InstanceType, DefaultClass),
+			Engine:                  Engine,
+			PubliclyAccessible:      false,
+			DBParameterGroupName:    cloudformation.Ref(PostgresResourceParameterGroup),
+			Tags:                    tags,
+			DBSubnetGroupName:       cloudformation.Ref(DBSubnetGroupNameParameterName),
+			DeleteAutomatedBackups:  false,
+			CACertificateIdentifier: "rds-ca-2019",
 		}
 	}
 
