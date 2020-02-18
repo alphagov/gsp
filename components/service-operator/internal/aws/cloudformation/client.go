@@ -20,7 +20,7 @@ import (
 )
 
 // Alias types from the various cloudformation packages so we can access
-// relevant parts via this package for convinience
+// relevant parts via this package for convenience
 type State = cloudformation.Stack
 type StateEvent = cloudformation.StackEvent
 type Output = cloudformation.Output
