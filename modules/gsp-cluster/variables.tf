@@ -36,11 +36,6 @@ variable "dev_user_arns" {
   default     = []
 }
 
-variable "worker_instance_type" {
-  type    = string
-  default = "t3.medium"
-}
-
 variable "minimum_workers_per_az_count" {
   type    = string
   default = "1"

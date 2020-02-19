@@ -72,7 +72,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     NodeAutoScalingGroupMinSize         = "0"
     NodeAutoScalingGroupDesiredCapacity = "0"
     NodeAutoScalingGroupMaxSize         = "0"
-    NodeInstanceType                    = var.worker_instance_type
+    NodeInstanceType                    = "t3.medium"
     NodeVolumeSize                      = "40"
     BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
     VpcId                               = var.vpc_id
@@ -131,7 +131,6 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
 
     NodeAutoScalingGroupOnDemandPercentageAboveBase = var.worker_on_demand_percentage_above_base
 
-    NodeInstanceType    = var.worker_instance_type
     NodeInstanceProfile = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
     NodeVolumeSize      = "40"
     BootstrapArguments  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""

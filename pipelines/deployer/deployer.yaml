@@ -591,7 +591,6 @@ resources:
       hsm_splunk_index: ((hsm-splunk-index))
       eks_version: ((eks-version))
       worker_eks_version: ((worker-eks-version))
-      worker_instance_type: ((worker-instance-type))
       minimum_workers_per_az_count: ((minimum-workers-per-az-count))
       maximum_workers_per_az_count: ((maximum-workers-per-az-count))
       worker_on_demand_percentage_above_base: ((worker-on-demand-percentage-above-base))
