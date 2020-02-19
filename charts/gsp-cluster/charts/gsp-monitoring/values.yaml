@@ -25,6 +25,13 @@ prometheus-operator:
       secrets: [ istio.gsp-prometheus-operator-prometheus ]
       serviceMonitorSelectorNilUsesHelmValues: false
       serviceMonitorSelector: {}
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 8Gi
+        requests:
+          cpu: 1000m
+          memory: 8Gi
       storageSpec:
         volumeClaimTemplate:
           spec:
