@@ -1,7 +1,7 @@
 # Using GSP Service Operator
 
 ## How to use it
-GSP Service Operator is a tool we use to allow GSP users to write kubeyaml resources that will generate SQS Queues or S3 Buckets (access control via Principal objects), or RDS databases (Postgres, access control via credentials we provide).
+GSP Service Operator is a tool we use to allow GSP users to write kubeyaml resources that will generate SQS Queues or S3 Buckets (access control via Service accounts), or RDS databases (Postgres, access control via credentials we provide).
 
 Here's an example of an SQS Queue:
 ```yaml
@@ -20,15 +20,15 @@ items:
       messageRetentionPeriod: 3600
       maximumMessageSize: 1024
     secret: alexs-test-queue-secret
-- kind: Principal
-  apiVersion: access.govsvc.uk/v1beta1
+- kind: ServiceAccount
+  apiVersion: v1
   metadata:
-    name: alexs-test-princ
+    name: alexs-test-sa
     namespace: sandbox-gsp-service-operator-test
     labels:
       group.access.govsvc.uk: alexs-test-principal
 ```
-This will create an SQS Queue on AWS named alexs-test-queue, with a message retention period of 1 hour, and a maximum message size of 1KiB. It will also ensure you can get access to the created queue. It will store the queue URL in a secret named `alexs-test-queue-secret` that we will use below.
+This will create an SQS Queue on AWS named `alexs-test-queue`, with a message retention period of 1 hour, and a maximum message size of 1KiB. It will also ensure you can get access to the created queue. It will store the queue URL in a secret named `alexs-test-queue-secret` that we will use below.
 
 Here's an example of an S3 Bucket:
 
@@ -46,16 +46,16 @@ items:
   spec:
     aws: {}
     secret: alexs-test-bucket-secret
-- kind: Principal
-  apiVersion: access.govsvc.uk/v1beta1
+- kind: ServiceAccount
+  apiVersion: v1
   metadata:
-    name: alexs-test-princ
+    name: alexs-test-sa
     namespace: sandbox-gsp-service-operator-test
     labels:
       group.access.govsvc.uk: alexs-test-principal
 ```
 
-This will create an S3 Bucket on AWS including the name alexs-test-bucket. It will ensure you can get access to the created bucket via the IAM Role created by the Principal. It will store the created bucket name and URL inside the specified secret.
+This will create an S3 Bucket on AWS including the name `alexs-test-bucket`. It will ensure you can get access to the created bucket via an IAM Role available to the Service Account. It will store the created bucket name and URL inside the specified secret.
 
 Here's an example of a Postgres database:
 
@@ -74,16 +74,9 @@ items:
     aws:
       instanceType: db.t3.medium
     secret: alexs-test-db-secret
-- kind: Principal
-  apiVersion: access.govsvc.uk/v1beta1
-  metadata:
-    name: alexs-test-princ
-    namespace: sandbox-gsp-service-operator-test
-    labels:
-      group.access.govsvc.uk: alexs-test-principal
 ```
 
-This will create a Postgres database on AWS including the name alexs-test-db, with an instance type of db.t3.medium. It will ensure you can get access to the created database via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
+This will create a Postgres database on AWS including the name `alexs-test-db`, with an instance type of `db.t3.medium`. It will ensure you can get access to the created database via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
 
 ## How to connect to a created queue
 
@@ -93,9 +86,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: alexs-test-pod
-  annotations:
-    iam.amazonaws.com/role: svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ
 spec:
+  serviceAccount: alexs-test-sa
   containers:
   - name: myapp-container
     image: governmentpaas/awscli
@@ -111,7 +103,8 @@ spec:
 
 You will be able to access the URL of the Queue from inside your pod using `cat /secrets/QueueURL`.
 
-When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ will have been created - in the form of svcop-{cluster}-{namespace}-{resourcename}. Your namespace will have an annotation that allows it to access such roles, so you will just need to annotate your pod to assume the role and then you can simply do this inside:
+The service account that the pod runs with will have access to a role that has access to the SQS queue. It should be possible to do the following (for this example we will use `gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -it /bin/ash`):
+
 ```
 / # aws sqs send-message --queue-url $(cat /secrets/QueueURL) --message-body sup --region eu-west-2
 {
@@ -139,9 +132,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: alexs-test-pod
-  annotations:
-    iam.amazonaws.com/role: svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ
 spec:
+  serviceAccount: alexs-test-sa
   containers:
   - name: myapp-container
     image: governmentpaas/awscli
@@ -156,7 +148,7 @@ spec:
 
 You will be able to access the URL of the Bucket from inside your pod using `cat /secrets/S3BucketURL`.
 
-When the Principal creation is handled a role like svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ will have been created - in the form of svcop-{cluster}-{namespace}-{resourcename}. Your namespace will have an annotation that allows it to access such roles, so you will just need to annotate your pod to assume the role and then do this (for this example we will use `gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -it /bin/ash`):
+The service account that the pod runs with will have access to a role that has access to the S3 bucket. It should be possible to do the following (for this example we will use `gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -it /bin/ash`):
 
 ```
 / # echo hello > world
@@ -177,8 +169,6 @@ apiVersion: v1
 kind: Pod
 metadata:
     name: alexs-test-pod
-    annotations:
-        iam.amazonaws.com/role: svcop-sandbox-sandbox-gsp-service-operator-test-alexs-test-princ
 spec:
     containers:
     -   name: myapp-container
