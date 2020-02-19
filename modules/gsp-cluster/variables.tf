@@ -56,6 +56,11 @@ variable "maximum_workers_per_az_count" {
   default = "5"
 }
 
+variable "worker_on_demand_percentage_above_base" {
+  type    = "string"
+  default = "100"
+}
+
 variable "ci_worker_count" {
   type    = string
   default = "2"
@@ -186,11 +191,11 @@ variable "availability_zones" {
 }
 
 variable "managed_namespaces_zones" {
-  default = []
+  default     = []
   description = "List of details of delegated zones for managed namespaces"
 }
 
 variable "cluster_zone_ids" {
-  default = []
+  default     = []
   description = "List of DNS zone IDs associated with the cluster"
 }
