@@ -6,7 +6,6 @@ module "k8s-cluster" {
   public_subnet_ids  = var.public_subnet_ids
   cluster_name       = var.cluster_name
 
-  worker_instance_type                   = var.worker_instance_type
   minimum_workers_per_az_count           = var.minimum_workers_per_az_count
   desired_workers_per_az_map             = var.desired_workers_per_az_map
   maximum_workers_per_az_count           = var.maximum_workers_per_az_count

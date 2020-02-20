@@ -48,11 +48,6 @@ variable "hsm_splunk_index" {
   type = string
 }
 
-variable "worker_instance_type" {
-  type    = string
-  default = "m5.large"
-}
-
 variable "minimum_workers_per_az_count" {
   type = string
 }
@@ -161,7 +156,6 @@ module "gsp-cluster" {
 
   eks_version                  = var.eks_version
   worker_eks_version           = var.worker_eks_version
-  worker_instance_type         = var.worker_instance_type
   minimum_workers_per_az_count = var.minimum_workers_per_az_count
   desired_workers_per_az_map   = var.desired_workers_per_az_map
   maximum_workers_per_az_count = var.maximum_workers_per_az_count
