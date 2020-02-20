@@ -616,13 +616,6 @@ resources:
   source:
     repository: ((task-toolbox-image))
     tag: ((task-toolbox-tag))
-- name: daily
-  type: time
-  icon: update
-  source:
-    start: 6:00 AM
-    stop: 7:00 PM
-    location: Europe/London
 
 jobs:
 - name: update
@@ -671,8 +664,6 @@ jobs:
       trigger: true
       params:
         include_source_tarball: true
-    - get: daily
-      trigger: true
     - get: aws-node-lifecycle-hook
     - get: config
       passed: [update]
@@ -765,28 +756,16 @@ jobs:
           echo "assuming aws deployer role..."
           AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
           eval "${AWS_CREDS}"
-          echo "Looking for worker node ASGs for this cluster and make a map of their AZs to desired counts..."
-          JQ_FILTER=$(echo '{desired_workers_per_az_map: [' \
+          # Look for worker node ASGs for this cluster and make a map of their AZs to desired counts
+          export JQ_FILTER=$(echo '{desired_workers_per_az_map: [' \
             '.AutoScalingGroups[] | ' \
              "select (.Tags | from_entries .Name | startswith(\"$CLUSTER_NAME-worker-\")) | " \
             '{key: .AvailabilityZones[0], value: .DesiredCapacity}' \
           '] | from_entries}')
-          aws autoscaling describe-auto-scaling-groups \
-            | jq "$JQ_FILTER" \
-            > desired_map.json
-          echo "add worker generation timestamp var (ensures nodes are rolled periodically)..."
-          jq "{worker_generation_timestamp: .version.time}" daily/input \
-            > worker_generation_timestamp.json
-          echo "merging into tfvars.json..."
+          export DESIRED_MAP=$(aws autoscaling describe-auto-scaling-groups | jq "$JQ_FILTER")
           mkdir -p terraform-var-overrides
-          jq -s '.[0] * .[1]' \
-            desired_map.json \
-            worker_generation_timestamp.json \
-            > terraform-var-overrides/overrides.tfvars.json
-          cat terraform-var-overrides/overrides.tfvars.json
-          echo "OK!"
-      inputs:
-      - name: daily
+          echo $DESIRED_MAP
+          echo $DESIRED_MAP > terraform-var-overrides/overrides.tfvars.json
       outputs:
       - name: terraform-var-overrides
   - task: generate-managed-namespaces-zones
