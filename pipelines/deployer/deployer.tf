@@ -65,6 +65,11 @@ variable "worker_on_demand_percentage_above_base" {
   type = "string"
 }
 
+variable "worker_generation_timestamp" {
+  type    = string
+  default = "none"
+}
+
 variable "ci_worker_instance_type" {
   type    = string
   default = "m5.large"
@@ -74,6 +79,7 @@ variable "ci_worker_count" {
   type    = string
   default = "3"
 }
+
 
 variable "eks_version" {
   description = "EKS platform version (https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html)"
@@ -159,6 +165,7 @@ module "gsp-cluster" {
   minimum_workers_per_az_count = var.minimum_workers_per_az_count
   desired_workers_per_az_map   = var.desired_workers_per_az_map
   maximum_workers_per_az_count = var.maximum_workers_per_az_count
+  worker_generation_timestamp  = var.worker_generation_timestamp
 
   worker_on_demand_percentage_above_base = var.worker_on_demand_percentage_above_base
 

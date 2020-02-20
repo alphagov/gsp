@@ -66,6 +66,11 @@ variable "ci_worker_instance_type" {
   default = "m5.large"
 }
 
+variable "worker_generation_timestamp" {
+  type    = string
+  default = "none"
+}
+
 variable "addons" {
   type = map(string)
 

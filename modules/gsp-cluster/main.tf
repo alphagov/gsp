@@ -20,5 +20,6 @@ module "k8s-cluster" {
     formatlist("%s/32", var.egress_ips),
     var.gds_external_cidrs,
   )
+  worker_generation_timestamp = var.worker_generation_timestamp
 }
 
