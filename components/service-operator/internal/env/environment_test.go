@@ -57,6 +57,28 @@ var _ = Describe("Environment", func() {
 		})
 	})
 
+	Context("AWSElasticacheClusterSecurityGroupID", func() {
+		It("should read value from environment", func() {
+			os.Setenv("AWS_ELASTICACHE_CLUSTER_SECURITY_GROUP_ID", knownValue)
+			Expect(env.AWSElasticacheClusterSecurityGroupID()).To(Equal(knownValue))
+		})
+		It("should panic if not set", func() {
+			os.Unsetenv("AWS_ELASTICACHE_CLUSTER_SECURITY_GROUP_ID")
+			Expect(func() { env.AWSElasticacheClusterSecurityGroupID() }).To(Panic())
+		})
+	})
+
+	Context("AWSElasticacheClusterSubnetGroupName", func() {
+		It("should read value from environment", func() {
+			os.Setenv("AWS_ELASTICACHE_CLUSTER_SUBNET_GROUP_NAME", knownValue)
+			Expect(env.AWSElasticacheClusterSubnetGroupName()).To(Equal(knownValue))
+		})
+		It("should panic if not set", func() {
+			os.Unsetenv("AWS_ELASTICACHE_CLUSTER_SUBNET_GROUP_NAME")
+			Expect(func() { env.AWSElasticacheClusterSubnetGroupName() }).To(Panic())
+		})
+	})
+
 	Context("AWSOIDCProviderURL", func() {
 		It("should read value from environment", func() {
 			os.Setenv("AWS_OIDC_PROVIDER_URL", knownValue)

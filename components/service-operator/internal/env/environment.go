@@ -27,6 +27,16 @@ func AWSRDSSubnetGroupName() string {
 	return MustGet("AWS_RDS_SUBNET_GROUP_NAME")
 }
 
+// AWSElasticacheClusterSecurityGroupID returns security group to assign to Elasticache Cluster provisioned resources
+func AWSElasticacheClusterSecurityGroupID() string {
+	return MustGet("AWS_ELASTICACHE_CLUSTER_SECURITY_GROUP_ID")
+}
+
+// AWSElasticacheClusterSubnetGroupName returns the subnet to provision Elasticache Cluster resources into
+func AWSElasticacheClusterSubnetGroupName() string {
+	return MustGet("AWS_ELASTICACHE_CLUSTER_SUBNET_GROUP_NAME")
+}
+
 // AWSOIDCProviderURL is the URL of the OIDC provider for our EKS cluster
 func AWSOIDCProviderURL() string {
 	return MustGet("AWS_OIDC_PROVIDER_URL")

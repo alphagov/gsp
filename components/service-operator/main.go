@@ -23,6 +23,7 @@ import (
 	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	storagev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
+	cachev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/cache/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/controllers"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/istio"
@@ -46,6 +47,7 @@ func init() {
 	_ = queuev1beta1.AddToScheme(scheme)
 	_ = accessv1beta1.AddToScheme(scheme)
 	_ = storagev1beta1.AddToScheme(scheme)
+	_ = cachev1beta1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -75,6 +77,7 @@ func run() error {
 		controllers.SQSCloudFormationController(c),
 		controllers.S3CloudFormationController(c),
 		controllers.ImageRepositoryCloudFormationController(c),
+		controllers.ElasticacheClusterCloudFormationController(c),
 		&controllers.ServiceAccountController{},
 	}
 
