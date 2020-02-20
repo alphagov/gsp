@@ -27,21 +27,23 @@ prometheus-operator:
       serviceMonitorSelector: {}
       resources:
         limits:
-          cpu: 1000m
-          memory: 8Gi
+          cpu: 2000m
+          memory: 12Gi
         requests:
-          cpu: 1000m
-          memory: 8Gi
+          cpu: 2000m
+          memory: 12Gi
       storageSpec:
         volumeClaimTemplate:
           spec:
             accessModes: ["ReadWriteOnce"]
             resources:
               requests:
-                storage: 200Gi
+                storage: 500Gi
             storageClassName: gp2
       query:
-        timeout: 30s
+        maxConcurrency: 2
+        maxSamples: 1000000
+        timeout: 10s
       additionalScrapeConfigs:
       - job_name: 'istio-mesh'
         kubernetes_sd_configs:
