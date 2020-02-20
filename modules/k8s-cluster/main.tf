@@ -204,7 +204,7 @@ resource "aws_cloudformation_stack" "ci-nodes" {
     NodeAutoScalingGroupMaxSize         = var.ci_worker_count + 1
     NodeInstanceType                    = var.ci_worker_instance_type
     NodeVolumeSize                      = "75"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule --event-qps=0\""
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci,generation=${var.worker_generation_timestamp} --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule --event-qps=0\""
     VpcId                               = var.vpc_id
     Subnets                             = join(",", var.private_subnet_ids)
   }
