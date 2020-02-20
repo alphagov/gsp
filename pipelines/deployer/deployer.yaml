@@ -775,8 +775,7 @@ jobs:
             | jq "$JQ_FILTER" \
             > desired_map.json
           echo "add worker generation timestamp var (ensures nodes are rolled periodically)..."
-          DAILY_TIMESTAMP=$(jq .version.time daily/input | sed 's/[^0-9"]//g')
-          jq "{worker_generation_timestamp: $DAILY_TIMESTAMP}" daily/input \
+          jq "{worker_generation_timestamp: .version.time}" daily/input \
             > worker_generation_timestamp.json
           echo "merging into tfvars.json..."
           mkdir -p terraform-var-overrides
