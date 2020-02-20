@@ -22,6 +22,7 @@ import (
 	goformationsqs "github.com/awslabs/goformation/v4/cloudformation/sqs"
 	goformationecr "github.com/awslabs/goformation/v4/cloudformation/ecr"
 	goformationsecretsmanager "github.com/awslabs/goformation/v4/cloudformation/secretsmanager"
+	goformationelasticache "github.com/awslabs/goformation/v4/cloudformation/elasticache"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -53,6 +54,7 @@ type AWSSQSQueue = goformationsqs.Queue
 type GenerateSecretString = goformationsecretsmanager.Secret_GenerateSecretString
 type AWSECRRepository = goformationecr.Repository
 type AWSECRRepository_LifecyclePolicy = goformationecr.Repository_LifecyclePolicy
+type AWSElastiCacheCluster = goformationelasticache.CacheCluster
 
 var NewTemplate = goformation.NewTemplate
 var Join = goformation.Join

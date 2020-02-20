@@ -210,6 +210,8 @@ postgres=>
 
 You could also get the read endpoint using the ReadEndpoint key.
 
+TODO: document ElastiCache Cluster support.
+
 ## How it works
 You don't need to know this to use it, this information is for cluster operators.
 GSP Service Operator consists of a container that runs essentially a daemon, and a kubeyaml config that sets up the container, provides a bunch of custom resource definitions (e.g., there is a definition in there for SQS Queues), etc. - it also gives the container access to interact with the cluster.

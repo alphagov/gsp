@@ -47,6 +47,10 @@ spec:
           value: {{ .Values.RDSFromWorkerSecurityGroup | quote }}
         - name: AWS_RDS_SUBNET_GROUP_NAME
           value: {{ .Values.privateDBSubnetGroup | quote }}
+        - name: AWS_ELASTICACHE_CLUSTER_SECURITY_GROUP_ID
+          value: {{ .Values.elasticacheClusterFromWorkerSecurityGroup | quote }}
+        - name: AWS_ELASTICACHE_CLUSTER_SUBNET_GROUP_NAME
+          value: {{ .Values.privateElasticacheClusterSubnetGroup | quote }}
         - name: AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN
           value: {{ .Values.serviceOperator.permissionsBoundaryARN | quote }}
         resources:

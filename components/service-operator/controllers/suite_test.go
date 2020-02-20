@@ -26,6 +26,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	accessv1beta1 "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
+	cachev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/cache/v1beta1"
 	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	storagev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
@@ -95,6 +96,9 @@ func SetupControllerEnv() (client.Client, func()) {
 	err = accessv1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = cachev1beta1.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	err = storagev1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -140,6 +144,10 @@ func SetupControllerEnv() (client.Client, func()) {
 			"username":              "AWS",
 			"password":              "notinspectedbytest",
 			"endpoint":              "https://011571571136.dkr.ecr.eu-west-2.amazonaws.com",
+		})),
+		controllers.ElasticacheClusterCloudFormationController(newAWSClient(map[string]string{
+			"ClusterRedisHostname": "something-ro.local.govsandbox.uk",
+			"ClusterRedisPort":     "3306",
 		})),
 		&controllers.ServiceAccountController{},
 	}
@@ -188,6 +196,8 @@ func newAWSClient(fakeOutputs map[string]string) sdk.Client {
 		// set dummy values when running against mock
 		os.Setenv("AWS_RDS_SECURITY_GROUP_ID", "dummy-value")
 		os.Setenv("AWS_RDS_SUBNET_GROUP_NAME", "dummy-value")
+		os.Setenv("AWS_ELASTICACHE_CLUSTER_SECURITY_GROUP_ID", "dummy-value")
+		os.Setenv("AWS_ELASTICACHE_CLUSTER_SUBNET_GROUP_NAME", "dummy-value")
 		os.Setenv("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN", "dummy-value")
 		os.Setenv("AWS_ROLE_ARN", "arn:aws:iam::011571571136:role/sandbox-service-operator")
 		os.Setenv("AWS_OIDC_PROVIDER_ARN", "dummy-value")
