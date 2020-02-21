@@ -114,9 +114,9 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		Engine:                      "redis",
 		AutomaticFailoverEnabled:    true,
 		ReplicationGroupDescription: clusterName, // TODO: hmmm
-		ReplicationGroupId:          clusterName,
+		ReplicationGroupId:          clusterName, // TODO: this is limited to 40 characters and len("verify-verify-doc-checking-prod-") is 32 which will only give them 8 characters to work in
 		CacheNodeType:               "cache.t3.micro", // TODO: make configurable
-		EngineVersion:               "1.4.24", // TODO: make configurable
+		EngineVersion:               "5.0.6", // TODO: make configurable
 		NumCacheClusters:            2, // TODO: make configurable
 		Port:                        6379,
 		CacheSubnetGroupName:        cloudformation.Ref(CacheSubnetGroupParameterName),
