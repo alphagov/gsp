@@ -54,7 +54,7 @@ type AWSSQSQueue = goformationsqs.Queue
 type GenerateSecretString = goformationsecretsmanager.Secret_GenerateSecretString
 type AWSECRRepository = goformationecr.Repository
 type AWSECRRepository_LifecyclePolicy = goformationecr.Repository_LifecyclePolicy
-type AWSElastiCacheCluster = goformationelasticache.CacheCluster
+type AWSElastiCacheReplicationGroup = goformationelasticache.ReplicationGroup
 
 var NewTemplate = goformation.NewTemplate
 var Join = goformation.Join

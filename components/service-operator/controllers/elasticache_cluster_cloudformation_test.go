@@ -100,7 +100,7 @@ var _ = Describe("ElasticacheClusterCloudFormationController", func() {
 			Eventually(func() string {
 				_ = client.Get(ctx, resourceNamespacedName, &ecc)
 				return ecc.Status.AWS.Name
-			}).Should(ContainSubstring("xxx-postgres-test-test-db"))
+			}).Should(ContainSubstring("xxx-elasticache-test-test-cluster"))
 		})
 
 		By("ensuring a finalizer is present on resource to prevent deletion", func() { // TODO: move to cloudformation.Controller unit test

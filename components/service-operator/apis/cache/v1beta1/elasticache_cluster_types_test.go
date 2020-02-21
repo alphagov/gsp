@@ -117,19 +117,19 @@ var _ = Describe("ElasticacheCluster", func() {
 		})
 
 		Context("elasticache cluster resource", func() {
-			var cluster *cloudformation.AWSElastiCacheCluster
+			var cluster *cloudformation.AWSElastiCacheReplicationGroup
 
 			JustBeforeEach(func() {
 				t, err := o.GetStackTemplate()
 				Expect(err).ToNot(HaveOccurred())
-				Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSElastiCacheCluster{})))
+				Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSElastiCacheReplicationGroup{})))
 				var ok bool
-				cluster, ok = t.Resources[v1beta1.ElasticacheClusterResourceName].(*cloudformation.AWSElastiCacheCluster)
+				cluster, ok = t.Resources[v1beta1.ElasticacheClusterResourceName].(*cloudformation.AWSElastiCacheReplicationGroup)
 				Expect(ok).To(BeTrue())
 			})
 
-			It("should have a cluster name prefixed with cluster and namespace name", func() {
-				Expect(cluster.ClusterName).To(Equal("xxx-default-example"))
+			It("should have a replication group ID prefixed with cluster and namespace name", func() {
+				Expect(cluster.ReplicationGroupId).To(Equal("xxx-default-example"))
 			})
 
 			It("should be redis", func() {
@@ -145,14 +145,14 @@ var _ = Describe("ElasticacheCluster", func() {
 			})
 
 			It("should set our VPC subnet group ID", func() {
-				Expect(cluster.VpcSecurityGroupIds).To(ConsistOf(
+				Expect(cluster.SecurityGroupIds).To(ConsistOf(
 					cloudformation.Ref(VPCSecurityGroupIDParameterName),
 				))
 			})
 /*
 TODO: configurable CacheNodeType
 TODO: configurable EngineVersion
-TODO: configurable NumCacheNodes
+TODO: configurable NumCacheClusters
 TODO: configurable PreferredMaintenanceWindow
 TODO: Tags
 */

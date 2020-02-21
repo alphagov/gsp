@@ -107,19 +107,24 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 	}
 
 	clusterName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
-	template.Resources[ElasticacheClusterResourceName] = &cloudformation.AWSElastiCacheCluster{
-		Engine:        "redis",
-		ClusterName:   clusterName,
-		CacheNodeType: "cache.t3.micro", // TODO: make configurable
-		EngineVersion: "1.4.24", // TODO: make configurable
-		NumCacheNodes: 1, // TODO: make configurable
-		Port:          6379,
+	template.Resources[ElasticacheClusterResourceName] = &cloudformation.AWSElastiCacheReplicationGroup{
 		// TODO: make PreferredMaintenanceWindow configurable?
 		// TODO: add Tags?
-		CacheSubnetGroupName: cloudformation.Ref(CacheSubnetGroupParameterName),
-		VpcSecurityGroupIds: []string{
+
+		Engine:                      "redis",
+		AutomaticFailoverEnabled:    true,
+		ReplicationGroupDescription: "", // TODO
+		ReplicationGroupId:          clusterName,
+		CacheNodeType:               "cache.t3.micro", // TODO: make configurable
+		EngineVersion:               "1.4.24", // TODO: make configurable
+		NumCacheClusters:            1, // TODO: make configurable
+		Port:                        6379,
+		CacheSubnetGroupName:        cloudformation.Ref(CacheSubnetGroupParameterName),
+		SecurityGroupIds:            []string{
 			cloudformation.Ref(VPCSecurityGroupIDParameterName),
 		},
+		TransitEncryptionEnabled:    true,
+		AuthToken:                   "hunter2hunter2hunter2", // TODO
 	}
 
 	template.Outputs[ElasticacheClusterRedisHostnameOutputName] = map[string]interface{}{
