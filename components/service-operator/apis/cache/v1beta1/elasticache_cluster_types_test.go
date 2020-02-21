@@ -1,12 +1,11 @@
 package v1beta1_test
 
 import (
-	"encoding/base64"
 	"os"
+	"strconv"
 
 	"github.com/alphagov/gsp/components/service-operator/apis/cache/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
-	"github.com/aws/aws-sdk-go/aws"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -141,12 +140,12 @@ var _ = Describe("ElasticacheCluster", func() {
 			})
 
 			It("should set our cache subnet group name", func() {
-				Expect(cluster.CacheSubnetGroupName).To(Equal(cloudformation.Ref(CacheSubnetGroupParameterName)))
+				Expect(cluster.CacheSubnetGroupName).To(Equal(cloudformation.Ref(v1beta1.CacheSubnetGroupParameterName)))
 			})
 
 			It("should set our VPC subnet group ID", func() {
 				Expect(cluster.SecurityGroupIds).To(ConsistOf(
-					cloudformation.Ref(VPCSecurityGroupIDParameterName),
+					cloudformation.Ref(v1beta1.VPCSecurityGroupIDParameterName),
 				))
 			})
 /*
