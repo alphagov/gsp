@@ -129,11 +129,11 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 
 	template.Outputs[ElasticacheClusterRedisHostnameOutputName] = map[string]interface{}{
 		"Description": "Elasticache Cluster Redis hostname to be returned to the user.",
-		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "RedisEndpoint.Address"),
+		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Address"),
 	}
 	template.Outputs[ElasticacheClusterRedisPortOutputName] = map[string]interface{}{
 		"Description": "Elasticache Cluster Redis port to be returned to the user.",
-		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "RedisEndpoint.Port"),
+		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Port"),
 	}
 
 	return template, nil
