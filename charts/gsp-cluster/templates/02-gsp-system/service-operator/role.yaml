@@ -27,6 +27,26 @@ rules:
   - patch
   - update
 - apiGroups:
+  - cache.govsvc.uk
+  resources:
+  - elasticacheclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cache.govsvc.uk
+  resources:
+  - elasticacheclusters/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - database.govsvc.uk
   resources:
   - postgres
