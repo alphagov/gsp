@@ -60,20 +60,15 @@ This will create an S3 Bucket on AWS including the name `alexs-test-bucket`. It 
 Here's an example of a Postgres database:
 
 ```
-apiVersion: v1
-kind: List
-items:
-- kind: Postgres
-  apiVersion: database.govsvc.uk/v1beta1
-  metadata:
-    name: alexs-test-db
-    namespace: sandbox-gsp-service-operator-test
-    labels:
-      group.access.govsvc.uk: alexs-test-principal
-  spec:
-    aws:
-      instanceType: db.t3.medium
-    secret: alexs-test-db-secret
+kind: Postgres
+apiVersion: database.govsvc.uk/v1beta1
+metadata:
+  name: alexs-test-db
+  namespace: sandbox-gsp-service-operator-test
+spec:
+  aws:
+    instanceType: db.t3.medium
+  secret: alexs-test-db-secret
 ```
 
 This will create a Postgres database on AWS including the name `alexs-test-db`, with an instance type of `db.t3.medium`. It will ensure you can get access to the created database via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
