@@ -113,7 +113,7 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 
 		Engine:                      "redis",
 		AutomaticFailoverEnabled:    true,
-		ReplicationGroupDescription: "", // TODO
+		ReplicationGroupDescription: clusterName, // TODO: hmmm
 		ReplicationGroupId:          clusterName,
 		CacheNodeType:               "cache.t3.micro", // TODO: make configurable
 		EngineVersion:               "1.4.24", // TODO: make configurable
