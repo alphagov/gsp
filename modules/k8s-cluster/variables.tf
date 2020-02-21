@@ -26,11 +26,6 @@ variable "worker_eks_version" {
   type = string
 }
 
-variable "worker_generation_timestamp" {
-  type    = string
-  default = "none"
-}
-
 variable "minimum_workers_per_az_count" {
   type    = string
   default = "1"
