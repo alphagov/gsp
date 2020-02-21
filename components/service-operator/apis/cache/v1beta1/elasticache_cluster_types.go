@@ -117,7 +117,7 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		ReplicationGroupId:          clusterName,
 		CacheNodeType:               "cache.t3.micro", // TODO: make configurable
 		EngineVersion:               "1.4.24", // TODO: make configurable
-		NumCacheClusters:            1, // TODO: make configurable
+		NumCacheClusters:            2, // TODO: make configurable
 		Port:                        6379,
 		CacheSubnetGroupName:        cloudformation.Ref(CacheSubnetGroupParameterName),
 		SecurityGroupIds:            []string{
@@ -135,6 +135,13 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		"Description": "Elasticache Cluster Redis port to be returned to the user.",
 		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Port"),
 	}
+	/*
+	TODO:
+ReadEndPoint.Addresses.List
+    A string with a list of endpoints for the read-only replicas. The order of the addresses maps to the order of the ports from the ReadEndPoint.Ports attribute.
+ReadEndPoint.Ports.List
+    A string with a list of ports for the read-only replicas. The order of the ports maps to the order of the addresses from the ReadEndPoint.Addresses attribute.
+*/
 
 	return template, nil
 }
