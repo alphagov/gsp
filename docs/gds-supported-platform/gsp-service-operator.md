@@ -73,6 +73,30 @@ spec:
 
 This will create a Postgres database on AWS including the name `alexs-test-db`, with an instance type of `db.t3.medium`. It will ensure you can get access to the created database via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
 
+Here's an example of a ElastiCache Cluster:
+
+```
+kind: ElasticacheCluster
+apiVersion: cache.govsvc.uk/v1beta1
+metadata:
+  name: alexs-test
+  namespace: ondemand-0-main
+spec:
+  aws:
+    nodeType: cache.t3.micro
+    engineVersion: 5.0.6
+    numCacheClusters: 2
+  secret: alexs-test-cluster-secret
+```
+
+This will create an ElastiCache redis cluster on AWS including the name `alexs-test`, with an instance type of `cache.t3.micro`. It will ensure you can get access to the created cluster via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
+The combination of the following must fit into 40 characters, be made of alphanumeric characters and hyphens, and cannot contain two consecutive hyphens:
+* your cluster's name (e.g. `sandbox`)
+* a hyphen (`-`)
+* your namespace's name (e.g. `sandbox-main`)
+* a hyphen (`-`)
+* your ElasticacheCluster resource's name
+
 ## How to connect to a created queue
 
 The URL of the Queue will be stored inside the `secret` you specified as `QueueURL` (in addition, if you specified the `redriveMaxReceiveCount` parameter in the spec a redrive policy will have been configured with it pointing at the queue URL stored in key `DLQueueURL`). If you make a pod like:
@@ -205,32 +229,48 @@ postgres=>
 
 You could also get the read endpoint using the ReadEndpoint key.
 
-TODO: document ElastiCache Cluster support.
-gds sandbox -c ondemand-0 kubectl run test -n gsp-system --rm --image=redis --generator=run-pod/v1 -it /bin/bashapt update
-apt install -y stunnel
-echo "fips = no" > /etc/stunnel/redis-cli.conf
-echo "setuid = root" >> /etc/stunnel/redis-cli.conf
-echo "setgid = root" >> /etc/stunnel/redis-cli.conf
-echo "pid = /var/run/stunnel.pid" >> /etc/stunnel/redis-cli.conf
-echo "debug = 7" >> /etc/stunnel/redis-cli.conf
-echo "options = NO_SSLv2" >> /etc/stunnel/redis-cli.conf
-echo "options = NO_SSLv3" >> /etc/stunnel/redis-cli.conf
-echo "[redis-cli]" >> /etc/stunnel/redis-cli.conf
-echo "  client = yes" >> /etc/stunnel/redis-cli.conf
-echo "  accept = 127.0.0.1:6379" >> /etc/stunnel/redis-cli.conf
-echo "  connect = master.ondemand-0-ondemand-0-main-alexs-test.mrmyg7.euw2.cache.amazonaws.com:6379" >> /etc/stunnel/redis-cli.conf
-stunnel /etc/stunnel/redis-cli.conf
-redis-cli -h 127.0.0.1auth hunter2hunter2hunter2
-hgetall *
+## How to connect to a created ElastiCache Cluster
 
-The combination of:
-* your cluster's name (e.g. `sandbox`)
-* a hyphen (`-`)
-* your namespace's name (e.g. `sandbox-main`)
-* a hyphen (`-`)
-* your ElastiCacheCluster resource's name
+If you make a pod like the one above:
 
-Must fit into 40 characters, be made of alphanumeric characters and hyphens, and cannot contain two consecutive hyphens.
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alexs-test-pod
+spec:
+  containers:
+  - name: myapp-container
+    image: alexmonk/redisandstunnel
+    command: ['sleep', '1000000']
+    env:
+    - name: STUNNEL_HOSTNAME
+      valueFrom:
+        secretKeyRef:
+          name: alexs-test-cluster-secret
+          key: ClusterPrimaryRedisHostname
+    - name: STUNNEL_PORT
+      valueFrom:
+        secretKeyRef:
+          name: alexs-test-cluster-secret
+          key: ClusterPrimaryRedisPort
+    - name: REDISCLI_AUTH
+      valueFrom:
+        secretKeyRef:
+          name: alexs-test-cluster-secret
+          key: SecretAuthToken
+```
+
+You will be able to exec into this pod and connect to Redis after configuring and running stunnel:
+```
+$ gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -c myapp-container -it /bin/bash
+root@alexs-test-pod:/data# echo "  connect = $STUNNEL_HOSTNAME:$STUNNEL_PORT" >> /etc/stunnel/redis-cli.conf
+root@alexs-test-pod:/data# stunnel /etc/stunnel/redis-cli.conf
+root@alexs-test-pod:/data# redis-cli -h 127.0.0.1
+127.0.0.1:6379> hgetall *
+(empty list or set)
+127.0.0.1:6379>
+```
 
 ## How it works
 You don't need to know this to use it, this information is for cluster operators.
