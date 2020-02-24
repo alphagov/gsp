@@ -263,7 +263,7 @@ resource "aws_db_subnet_group" "private" {
 
 resource "aws_security_group" "elasticache-cluster-from-worker" {
   name        = "${var.cluster_name}_elasticache_cluster_from_worker"
-  description = "Allow SQL traffic from worker nodes to Elasticache Cluster instances"
+  description = "Allow Redis traffic from worker nodes to Elasticache Cluster instances"
   vpc_id      = var.vpc_id
 
   ingress {
