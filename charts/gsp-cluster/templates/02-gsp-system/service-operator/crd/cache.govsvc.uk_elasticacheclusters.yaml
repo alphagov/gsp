@@ -32,6 +32,28 @@ spec:
           properties:
             aws:
               description: AWS specific subsection of the resource.
+              properties:
+                engineVersion:
+                  description: EngineVersion defines the version of Redis running
+                    in the cluster.
+                  type: string
+                nodeType:
+                  description: NodeType defines the amount of RAM and CPUs nodes in
+                    the cluster have as well as their network performance
+                  type: string
+                numCacheClusters:
+                  description: NumCacheClusters defines the number of clusters that
+                    belong to our replication group. A number between 2 and 6 inclusive.
+                  type: integer
+                preferredMaintenanceWindow:
+                  description: PreferredMaintenanceWindow defines the weekly window
+                    during which maintenance is performed on the cluster. The minimum
+                    period is 60 minutes.
+                  type: string
+              required:
+              - engineVersion
+              - nodeType
+              - numCacheClusters
               type: object
             secret:
               description: Secret name to be used for storing relevant instance secrets

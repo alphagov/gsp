@@ -25,7 +25,11 @@ var _ = Describe("ElasticacheCluster", func() {
 					cloudformation.AccessGroupLabel: "test.access.group",
 				},
 			},
-			Spec: v1beta1.ElasticacheClusterSpec{},
+			Spec: v1beta1.ElasticacheClusterSpec{
+				NodeType:         "cache.t3.micro",
+				EngineVersion:    "5.0.6",
+				NumCacheClusters: 2,
+			},
 		}
 	})
 
@@ -189,12 +193,18 @@ var _ = Describe("ElasticacheCluster", func() {
 			It("should have an auth token set", func() {
 				Expect(cluster.AuthToken).ToNot(BeEmpty())
 			})
-/*
-TODO: configurable CacheNodeType
-TODO: configurable EngineVersion
-TODO: configurable NumCacheClusters
-TODO: configurable PreferredMaintenanceWindow
-*/
+
+			It("should set node type appropriately", func() {
+				Expect(cluster.CacheNodeType).To(Equal("cache.t3.micro"))
+			})
+
+			It("should set engine version appropriately", func() {
+				Expect(cluster.EngineVersion).To(Equal("5.0.6"))
+			})
+
+			It("should set cache cluster count appropriately", func() {
+				Expect(cluster.NumCacheClusters).To(Equal(2))
+			})
 		})
 	})
 })

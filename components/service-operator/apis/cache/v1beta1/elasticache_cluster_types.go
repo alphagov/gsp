@@ -52,10 +52,17 @@ var _ cloudformation.ServiceEntryCreator = &ElasticacheCluster{}
 
 // AWS allows specifying configuration for the elasticache cluster
 type ElasticacheClusterAWSSpec struct {
-	// InstanceType essentially defines the amount of memory and cpus on the database.
-	//InstanceType string `json:"instanceType,omitempty"`
-	// InstanceCount is the number of database instances in the cluster (defaults to 2 if not set)
-	//InstanceCount int `json:"instanceCount,omitempty"`
+	// NodeType defines the amount of RAM and CPUs nodes in the cluster have as well as their network performance
+	NodeType string `json:"nodeType"`
+
+	// EngineVersion defines the version of Redis running in the cluster.
+	EngineVersion string `json:"engineVersion"`
+
+	// NumCacheClusters defines the number of clusters that belong to our replication group. A number between 2 and 6 inclusive.
+	NumCacheClusters int `json:"numCacheClusters"`
+
+	// PreferredMaintenanceWindow defines the weekly window during which maintenance is performed on the cluster. The minimum period is 60 minutes.
+	PreferredMaintenanceWindow string `json:"preferredMaintenanceWindow,omitempty"`
 }
 
 // ElasticacheClusterSpec defines the desired state of ElasticacheCluster
@@ -132,15 +139,13 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		"AuthToken}}",
 	})
 	template.Resources[ElasticacheClusterResourceName] = &cloudformation.AWSElastiCacheReplicationGroup{
-		// TODO: make PreferredMaintenanceWindow configurable?
-
 		Engine:                      "redis",
 		AutomaticFailoverEnabled:    true,
 		ReplicationGroupDescription: clusterName,
 		ReplicationGroupId:          clusterName,
-		CacheNodeType:               "cache.t3.micro", // TODO: make configurable
-		EngineVersion:               "5.0.6", // TODO: make configurable
-		NumCacheClusters:            2, // TODO: make configurable
+		CacheNodeType:               s.Spec.AWS.NodeType,
+		EngineVersion:               s.Spec.AWS.EngineVersion,
+		NumCacheClusters:            s.Spec.AWS.NumCacheClusters,
 		Port:                        6379,
 		CacheSubnetGroupName:        cloudformation.Ref(CacheSubnetGroupParameterName),
 		SecurityGroupIds:            []string{
@@ -170,6 +175,7 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 				Value: s.GetNamespace(),
 			},
 		},
+		PreferredMaintenanceWindow: s.Spec.AWS.PreferredMaintenanceWindow,
 	}
 
 	template.Outputs[ElasticacheClusterRedisPrimaryHostnameOutputName] = map[string]interface{}{
