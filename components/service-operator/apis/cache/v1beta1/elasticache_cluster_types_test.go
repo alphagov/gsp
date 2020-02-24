@@ -58,7 +58,7 @@ var _ = Describe("ElasticacheCluster", func() {
 
 		specs, err := o.GetServiceEntrySpecs(outputs)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(specs).To(HaveLen(1))
+		Expect(specs).To(HaveLen(1)) // TODO this needs to change now
 		Expect(specs).To(ConsistOf(
 			And(
 				HaveKeyWithValue("resolution", "STATIC"),

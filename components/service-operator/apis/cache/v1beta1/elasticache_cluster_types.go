@@ -20,6 +20,8 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/sanathkr/yaml"
+
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
@@ -216,11 +218,11 @@ func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs
 		return nil, err
 	}
 	if len(rwAddresses) < 1 {
-		return nil, fmt.Errorf("list of endpoint IPs was empty - failed to resolve?")
+		return nil, fmt.Errorf("list of rw endpoint IPs was empty - failed to resolve?")
 	}
 	rwAddress := rwAddresses[0].String()
 	if rwAddress == "<nil>" {
-		return nil, fmt.Errorf("unexpected nil returned for endpoint IP")
+		return nil, fmt.Errorf("unexpected nil returned for rw endpoint IP")
 	}
 
 	specs := []map[string]interface{}{
@@ -249,7 +251,60 @@ func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs
 		},
 	}
 
-	// TODO: read-only endpoints
+	// read-only endpoints
+	var roHostnames []string
+	err = yaml.Unmarshal([]byte(outputs[ElasticacheClusterRedisReadHostnamesOutputName]), &roHostnames)
+	if err != nil {
+		return nil, fmt.Errorf("error YAML-unmarshalling read hostnames")
+	}
+
+	var roPorts []int
+	err = yaml.Unmarshal([]byte(outputs[ElasticacheClusterRedisReadPortsOutputName]), &roPorts)
+	if err != nil {
+		return nil, fmt.Errorf("error YAML-unmarshalling read ports")
+	}
+
+	if len(roHostnames) != len(roPorts) {
+		return nil, fmt.Errorf("read hostnames and read ports lists have different lengths")
+	}
+
+	for i := 0; i < len(roHostnames); i++ {
+		adresses, err := net.LookupIP(roHostnames[i])
+		if err != nil {
+			return nil, err
+		}
+		if len(adresses) < 1 {
+			return nil, fmt.Errorf("list of ro endpoint IPs was empty - failed to resolve?")
+		}
+		address := adresses[0].String()
+		if address == "<nil>" {
+			return nil, fmt.Errorf("unexpected nil returned for ro endpoint IP")
+		}
+
+		specs = append(specs, map[string]interface{}{
+			"addresses": []string{
+				address,
+			},
+			"endpoints": []map[string]interface{}{
+				{
+					"address": address,
+				},
+			},
+			"hosts": []string{
+				roHostnames[i],
+			},
+			"ports": []interface{}{
+				map[string]interface{}{
+					"name":     "redis",
+					"number":   roPorts[i],
+					"protocol": "TCP",
+				},
+			},
+			"location":   "MESH_EXTERNAL",
+			"resolution": "STATIC",
+			"exportTo":   []string{"."},
+		})
+	}
 
 	return specs, nil
 }
