@@ -34,8 +34,10 @@ const (
 	ElasticacheClusterResourceName            = "ElasticacheCluster"
 	CacheSubnetGroupParameterName             = "CacheSubnetGroup"
 	VPCSecurityGroupIDParameterName           = "VPCSecurityGroupID"
-	ElasticacheClusterRedisHostnameOutputName = "ClusterRedisHostname"
-	ElasticacheClusterRedisPortOutputName     = "ClusterRedisPort"
+	ElasticacheClusterRedisConfigurationHostnameOutputName = "ClusterConfigurationRedisHostname"
+	ElasticacheClusterRedisConfigurationPortOutputName     = "ClusterConfigurationRedisPort"
+	ElasticacheClusterRedisPrimaryHostnameOutputName = "ClusterPrimaryRedisHostname"
+	ElasticacheClusterRedisPrimaryPortOutputName     = "ClusterPrimaryRedisPort"
 )
 
 // ensure implements required interfaces
@@ -127,11 +129,11 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		AuthToken:                   "hunter2hunter2hunter2", // TODO
 	}
 
-	template.Outputs[ElasticacheClusterRedisHostnameOutputName] = map[string]interface{}{
+	template.Outputs[ElasticacheClusterRedisPrimaryHostnameOutputName] = map[string]interface{}{
 		"Description": "Elasticache Cluster Redis hostname to be returned to the user.",
 		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Address"),
 	}
-	template.Outputs[ElasticacheClusterRedisPortOutputName] = map[string]interface{}{
+	template.Outputs[ElasticacheClusterRedisPrimaryPortOutputName] = map[string]interface{}{
 		"Description": "Elasticache Cluster Redis port to be returned to the user.",
 		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Port"),
 	}
@@ -155,12 +157,12 @@ func (s *ElasticacheCluster) GetServiceEntryName() string {
 
 // ServiceEntry to whitelist egress access to cluster port and hosts.
 func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[string]interface{}, error) {
-	port, err := strconv.Atoi(outputs[ElasticacheClusterRedisPortOutputName])
+	port, err := strconv.Atoi(outputs[ElasticacheClusterRedisPrimaryPortOutputName])
 	if err != nil {
 		return nil, err
 	}
 
-	rwAddresses, err := net.LookupIP(outputs[ElasticacheClusterRedisHostnameOutputName])
+	rwAddresses, err := net.LookupIP(outputs[ElasticacheClusterRedisPrimaryHostnameOutputName])
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +185,7 @@ func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs
 				},
 			},
 			"hosts": []string{
-				outputs[ElasticacheClusterRedisHostnameOutputName],
+				outputs[ElasticacheClusterRedisPrimaryHostnameOutputName],
 			},
 			"ports": []interface{}{
 				map[string]interface{}{
