@@ -111,7 +111,6 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 	clusterName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
 	template.Resources[ElasticacheClusterResourceName] = &cloudformation.AWSElastiCacheReplicationGroup{
 		// TODO: make PreferredMaintenanceWindow configurable?
-		// TODO: add Tags?
 
 		Engine:                      "redis",
 		AutomaticFailoverEnabled:    true,
@@ -127,6 +126,28 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		},
 		TransitEncryptionEnabled:    true,
 		AuthToken:                   "hunter2hunter2hunter2", // TODO
+		Tags:                        []cloudformation.Tag{
+			{
+				Key:   "Cluster",
+				Value: env.ClusterName(),
+			},
+			{
+				Key:   "Service",
+				Value: "elasticache",
+			},
+			{
+				Key:   "Name",
+				Value: s.GetName(),
+			},
+			{
+				Key:   "Namespace",
+				Value: s.GetNamespace(),
+			},
+			{
+				Key:   "Environment",
+				Value: s.GetNamespace(),
+			},
+		},
 	}
 
 	template.Outputs[ElasticacheClusterRedisPrimaryHostnameOutputName] = map[string]interface{}{

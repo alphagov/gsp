@@ -143,6 +143,18 @@ var _ = Describe("ElasticacheCluster", func() {
 				Expect(cluster.CacheSubnetGroupName).To(Equal(cloudformation.Ref(v1beta1.CacheSubnetGroupParameterName)))
 			})
 
+			It("should have appropriate tags", func() {
+				Expect(cluster.Tags).To(Equal(
+					[]cloudformation.Tag{
+						{Key: "Cluster", Value: env.ClusterName()},
+						{Key: "Service", Value: "elasticache"},
+						{Key: "Name", Value: "example"},
+						{Key: "Namespace", Value: "default"},
+						{Key: "Environment", Value: "default"},
+					}
+				))
+			})
+
 			It("should set our VPC subnet group ID", func() {
 				Expect(cluster.SecurityGroupIds).To(ConsistOf(
 					cloudformation.Ref(v1beta1.VPCSecurityGroupIDParameterName),
@@ -153,7 +165,6 @@ TODO: configurable CacheNodeType
 TODO: configurable EngineVersion
 TODO: configurable NumCacheClusters
 TODO: configurable PreferredMaintenanceWindow
-TODO: Tags
 */
 		})
 	})
