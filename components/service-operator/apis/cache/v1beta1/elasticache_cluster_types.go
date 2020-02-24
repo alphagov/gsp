@@ -36,6 +36,8 @@ const (
 	VPCSecurityGroupIDParameterName                   = "VPCSecurityGroupID"
 	ElasticacheClusterRedisPrimaryHostnameOutputName  = "ClusterPrimaryRedisHostname"
 	ElasticacheClusterRedisPrimaryPortOutputName      = "ClusterPrimaryRedisPort"
+	ElasticacheClusterRedisReadHostnamesOutputName    = "ClusterReadRedisHostnames"
+	ElasticacheClusterRedisReadPortsOutputName        = "ClusterReadRedisPorts"
 	AuthTokenSecretResourceName                       = "AuthTokenSecret"
 	AuthTokenSecretAttachmentResourceName             = "AuthTokenSecretAttachment"
 	ElasticacheClusterRedisAuthTokenOutputName        = "SecretAuthToken"
@@ -181,17 +183,19 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Port"),
 	}
 
+	template.Outputs[ElasticacheClusterRedisReadHostnamesOutputName] = map[string]interface{}{
+		"Description": "Elasticache Cluster Redis read hostnames to be returned to the user.",
+		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "ReadEndPoint.Addresses.List"),
+	}
+	template.Outputs[ElasticacheClusterRedisReadPortsOutputName] = map[string]interface{}{
+		"Description": "Elasticache Cluster Redis read ports to be returned to the user.",
+		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "ReadEndPoint.Ports.List"),
+	}
+
 	template.Outputs[ElasticacheClusterRedisAuthTokenOutputName] = map[string]interface{}{
 		"Description": "Elasticache Cluster Redis authentication token to be returned to the user.",
 		"Value": authTokenRef,
 	}
-	/*
-	TODO: read endpoints:
-ReadEndPoint.Addresses.List
-    A string with a list of endpoints for the read-only replicas. The order of the addresses maps to the order of the ports from the ReadEndPoint.Ports attribute.
-ReadEndPoint.Ports.List
-    A string with a list of ports for the read-only replicas. The order of the ports maps to the order of the addresses from the ReadEndPoint.Addresses attribute.
-*/
 
 	return template, nil
 }
@@ -248,5 +252,8 @@ func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs
 			"exportTo":   []string{"."},
 		},
 	}
+
+	// TODO: read-only endpoints
+
 	return specs, nil
 }
