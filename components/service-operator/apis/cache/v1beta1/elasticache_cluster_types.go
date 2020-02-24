@@ -129,15 +129,6 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		AuthToken:                   "hunter2hunter2hunter2", // TODO
 	}
 
-	template.Outputs[ElasticacheClusterRedisConfigurationHostnameOutputName] = map[string]interface{}{
-		"Description": "Elasticache Cluster Redis configuration hostname to be returned to the user.",
-		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "ConfigurationEndPoint.Address"),
-	}
-	template.Outputs[ElasticacheClusterRedisConfigurationPortOutputName] = map[string]interface{}{
-		"Description": "Elasticache Cluster Redis configuratin port to be returned to the user.",
-		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "ConfigurationEndPoint.Port"),
-	}
-
 	template.Outputs[ElasticacheClusterRedisPrimaryHostnameOutputName] = map[string]interface{}{
 		"Description": "Elasticache Cluster Redis primary hostname to be returned to the user.",
 		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Address"),
@@ -166,24 +157,6 @@ func (s *ElasticacheCluster) GetServiceEntryName() string {
 
 // ServiceEntry to whitelist egress access to cluster port and hosts.
 func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[string]interface{}, error) {
-	// configuration
-	configPort, err := strconv.Atoi(outputs[ElasticacheClusterRedisConfigurationPortOutputName])
-	if err != nil {
-		return nil, err
-	}
-
-	configAddresses, err := net.LookupIP(outputs[ElasticacheClusterRedisConfigurationHostnameOutputName])
-	if err != nil {
-		return nil, err
-	}
-	if len(configAddresses) < 1 {
-		return nil, fmt.Errorf("list of endpoint IPs was empty - failed to resolve?")
-	}
-	configAddress := configAddresses[0].String()
-	if configAddress == "<nil>" {
-		return nil, fmt.Errorf("unexpected nil returned for endpoint IP")
-	}
-
 	// primary
 	rwPort, err := strconv.Atoi(outputs[ElasticacheClusterRedisPrimaryPortOutputName])
 	if err != nil {
@@ -203,29 +176,6 @@ func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs
 	}
 
 	specs := []map[string]interface{}{
-		{
-			"addresses": []string{
-				configAddress,
-			},
-			"endpoints": []map[string]interface{}{
-				{
-					"address": configAddress,
-				},
-			},
-			"hosts": []string{
-				outputs[ElasticacheClusterRedisConfigurationHostnameOutputName],
-			},
-			"ports": []interface{}{
-				map[string]interface{}{
-					"name":     "redis",
-					"number":   configPort,
-					"protocol": "TCP",
-				},
-			},
-			"location":   "MESH_EXTERNAL",
-			"resolution": "STATIC",
-			"exportTo":   []string{"."},
-		},
 		{
 			"addresses": []string{
 				rwAddress,
