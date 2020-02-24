@@ -39,7 +39,6 @@ const (
 	ElasticacheClusterRedisReadHostnamesOutputName    = "ClusterReadRedisHostnames"
 	ElasticacheClusterRedisReadPortsOutputName        = "ClusterReadRedisPorts"
 	AuthTokenSecretResourceName                       = "AuthTokenSecret"
-	AuthTokenSecretAttachmentResourceName             = "AuthTokenSecretAttachment"
 	ElasticacheClusterRedisAuthTokenOutputName        = "SecretAuthToken"
 )
 
@@ -166,12 +165,6 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 				Value: s.GetNamespace(),
 			},
 		},
-	}
-
-	template.Resources[AuthTokenSecretAttachmentResourceName] = &cloudformation.AWSSecretsManagerSecretTargetAttachment{
-		SecretId:   cloudformation.Ref(AuthTokenSecretResourceName),
-		TargetId:   cloudformation.Ref(ElasticacheClusterResourceName),
-		TargetType: "AWS::ElastiCache::ReplicationGroup",
 	}
 
 	template.Outputs[ElasticacheClusterRedisPrimaryHostnameOutputName] = map[string]interface{}{
