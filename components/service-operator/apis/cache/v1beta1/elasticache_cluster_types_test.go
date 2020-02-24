@@ -50,15 +50,17 @@ var _ = Describe("ElasticacheCluster", func() {
 
 	It("should produce the correct service entry", func() {
 		outputs := cloudformation.Outputs{
-			v1beta1.ElasticacheClusterRedisHostnameOutputName: "test-endpoint.local.govsandbox.uk",
-			v1beta1.ElasticacheClusterRedisPortOutputName:     "6379",
+			v1beta1.ElasticacheClusterRedisPrimaryHostnameOutputName: "test-endpoint.local.govsandbox.uk",
+			v1beta1.ElasticacheClusterRedisPrimaryPortOutputName:     "6379",
+			v1beta1.ElasticacheClusterRedisReadHostnamesOutputName:   "[test-endpoint-ro.local.govsandbox.uk]"
+			v1beta1.ElasticacheClusterRedisReadPortsOutputName:       "[6379]"
 		}
 		portnum, err := strconv.Atoi(outputs[v1beta1.ElasticacheClusterRedisPortOutputName])
 		Expect(err).NotTo(HaveOccurred())
 
 		specs, err := o.GetServiceEntrySpecs(outputs)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(specs).To(HaveLen(1)) // TODO this needs to change now
+		Expect(specs).To(HaveLen(2))
 		Expect(specs).To(ConsistOf(
 			And(
 				HaveKeyWithValue("resolution", "STATIC"),
@@ -74,6 +76,28 @@ var _ = Describe("ElasticacheCluster", func() {
 					map[string]interface{}{
 						"name":     "redis",
 						"number":   portnum,
+						"protocol": "TCP",
+					},
+				)),
+				HaveKeyWithValue("exportTo", And(
+					HaveLen(1),
+					ContainElement("."),
+				)),
+			),
+			And(
+				HaveKeyWithValue("resolution", "STATIC"),
+				HaveKeyWithValue("location", "MESH_EXTERNAL"),
+				HaveKeyWithValue("addresses", ContainElement("127.0.0.1")),
+				HaveKeyWithValue("endpoints", ContainElement(
+					map[string]interface{}{
+						"address": "127.0.0.1",
+					},
+				)),
+				HaveKeyWithValue("hosts", ContainElement("test-endpoint-ro.local.govsandbox.uk")),
+				HaveKeyWithValue("ports", ContainElement(
+					map[string]interface{}{
+						"name":     "redis",
+						"number":   6379,
 						"protocol": "TCP",
 					},
 				)),
