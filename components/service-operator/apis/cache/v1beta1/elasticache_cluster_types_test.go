@@ -110,8 +110,9 @@ var _ = Describe("ElasticacheCluster", func() {
 			t, err := o.GetStackTemplate()
 			Expect(err).ToNot(HaveOccurred())
 			Expect(t.Outputs).To(And(
-				HaveKey("ClusterRedisHostname"),
-				HaveKey("ClusterRedisPort"),
+				HaveKey("ClusterPrimaryRedisHostname"),
+				HaveKey("ClusterPrimaryRedisPort"),
+				HaveKey("SecretAuthToken"),
 			))
 		})
 
@@ -159,6 +160,10 @@ var _ = Describe("ElasticacheCluster", func() {
 				Expect(cluster.SecurityGroupIds).To(ConsistOf(
 					cloudformation.Ref(v1beta1.VPCSecurityGroupIDParameterName),
 				))
+			})
+
+			It("should have an auth token set", func() {
+				Expect(cluster.AuthToken).ToNot(BeEmpty())
 			})
 /*
 TODO: configurable CacheNodeType

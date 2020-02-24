@@ -31,13 +31,14 @@ func init() {
 }
 
 const (
-	ElasticacheClusterResourceName            = "ElasticacheCluster"
-	CacheSubnetGroupParameterName             = "CacheSubnetGroup"
-	VPCSecurityGroupIDParameterName           = "VPCSecurityGroupID"
-	ElasticacheClusterRedisConfigurationHostnameOutputName = "ClusterConfigurationRedisHostname"
-	ElasticacheClusterRedisConfigurationPortOutputName     = "ClusterConfigurationRedisPort"
-	ElasticacheClusterRedisPrimaryHostnameOutputName = "ClusterPrimaryRedisHostname"
-	ElasticacheClusterRedisPrimaryPortOutputName     = "ClusterPrimaryRedisPort"
+	ElasticacheClusterResourceName                    = "ElasticacheCluster"
+	CacheSubnetGroupParameterName                     = "CacheSubnetGroup"
+	VPCSecurityGroupIDParameterName                   = "VPCSecurityGroupID"
+	ElasticacheClusterRedisPrimaryHostnameOutputName  = "ClusterPrimaryRedisHostname"
+	ElasticacheClusterRedisPrimaryPortOutputName      = "ClusterPrimaryRedisPort"
+	AuthTokenSecretResourceName                       = "AuthTokenSecret"
+	AuthTokenSecretAttachmentResourceName             = "AuthTokenSecretAttachment"
+	ElasticacheClusterRedisAuthTokenOutputName        = "SecretAuthToken"
 )
 
 // ensure implements required interfaces
@@ -108,7 +109,22 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		"Type": "String",
 	}
 
+	// generate secret in cloudformation not in operator (keeps state in aws)
+	template.Resources[AuthTokenSecretResourceName] = &cloudformation.AWSSecretsManagerSecret{
+		Description: "Auth token for the elasticache cluster",
+		GenerateSecretString: &cloudformation.GenerateSecretString{
+			ExcludeCharacters: "\"%'()*+,./:;=?@[\\]_`{|}~",
+			PasswordLength:    128,
+		},
+	}
+
 	clusterName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
+	authTokenRef := cloudformation.Join(":", []string{
+		"{{resolve",
+		"secretsmanager",
+		cloudformation.Ref(AuthTokenSecretResourceName),
+		"SecretString}}",
+	})
 	template.Resources[ElasticacheClusterResourceName] = &cloudformation.AWSElastiCacheReplicationGroup{
 		// TODO: make PreferredMaintenanceWindow configurable?
 
@@ -125,7 +141,7 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 			cloudformation.Ref(VPCSecurityGroupIDParameterName),
 		},
 		TransitEncryptionEnabled:    true,
-		AuthToken:                   "hunter2hunter2hunter2", // TODO
+		AuthToken:                   authTokenRef,
 		Tags:                        []cloudformation.Tag{
 			{
 				Key:   "Cluster",
@@ -150,6 +166,12 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		},
 	}
 
+	template.Resources[AuthTokenSecretAttachmentResourceName] = &cloudformation.AWSSecretsManagerSecretTargetAttachment{
+		SecretId:   cloudformation.Ref(AuthTokenSecretResourceName),
+		TargetId:   cloudformation.Ref(ElasticacheClusterResourceName),
+		TargetType: "AWS::ElastiCache::ReplicationGroup",
+	}
+
 	template.Outputs[ElasticacheClusterRedisPrimaryHostnameOutputName] = map[string]interface{}{
 		"Description": "Elasticache Cluster Redis primary hostname to be returned to the user.",
 		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Address"),
@@ -158,8 +180,13 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		"Description": "Elasticache Cluster Redis primary port to be returned to the user.",
 		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Port"),
 	}
+
+	template.Outputs[ElasticacheClusterRedisAuthTokenOutputName] = map[string]interface{}{
+		"Description": "Elasticache Cluster Redis authentication token to be returned to the user.",
+		"Value": authTokenRef,
+	}
 	/*
-	TODO:
+	TODO: read endpoints:
 ReadEndPoint.Addresses.List
     A string with a list of endpoints for the read-only replicas. The order of the addresses maps to the order of the ports from the ReadEndPoint.Ports attribute.
 ReadEndPoint.Ports.List

@@ -1,4 +1,3 @@
-// TODO
 package controllers_test
 
 import (
@@ -122,9 +121,9 @@ var _ = Describe("ElasticacheClusterCloudFormationController", func() {
 				_ = client.Get(ctx, secretNamespacedName, &secret)
 				return secret.Data
 			}, within5mins).Should(And(
-				HaveKey("ClusterRedisHostname"),
-				HaveKey("ClusterRedisPort"),
-				// TODO: more here with credentials outputs
+				HaveKey("ClusterPrimaryRedisHostname"),
+				HaveKey("ClusterPrimaryRedisPort"),
+				HaveKey("SecretAuthToken"),
 			))
 		})
 

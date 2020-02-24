@@ -206,6 +206,22 @@ postgres=>
 You could also get the read endpoint using the ReadEndpoint key.
 
 TODO: document ElastiCache Cluster support.
+gds sandbox -c ondemand-0 kubectl run test -n gsp-system --rm --image=redis --generator=run-pod/v1 -it /bin/bashapt update
+apt install -y stunnel
+echo "fips = no" > /etc/stunnel/redis-cli.conf
+echo "setuid = root" >> /etc/stunnel/redis-cli.conf
+echo "setgid = root" >> /etc/stunnel/redis-cli.conf
+echo "pid = /var/run/stunnel.pid" >> /etc/stunnel/redis-cli.conf
+echo "debug = 7" >> /etc/stunnel/redis-cli.conf
+echo "options = NO_SSLv2" >> /etc/stunnel/redis-cli.conf
+echo "options = NO_SSLv3" >> /etc/stunnel/redis-cli.conf
+echo "[redis-cli]" >> /etc/stunnel/redis-cli.conf
+echo "  client = yes" >> /etc/stunnel/redis-cli.conf
+echo "  accept = 127.0.0.1:6379" >> /etc/stunnel/redis-cli.conf
+echo "  connect = master.ondemand-0-ondemand-0-main-alexs-test.mrmyg7.euw2.cache.amazonaws.com:6379" >> /etc/stunnel/redis-cli.conf
+stunnel /etc/stunnel/redis-cli.conf
+redis-cli -h 127.0.0.1auth hunter2hunter2hunter2
+hgetall *
 
 ## How it works
 You don't need to know this to use it, this information is for cluster operators.
