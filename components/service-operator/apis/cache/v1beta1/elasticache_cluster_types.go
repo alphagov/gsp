@@ -114,8 +114,10 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 	template.Resources[AuthTokenSecretResourceName] = &cloudformation.AWSSecretsManagerSecret{
 		Description: "Auth token for the elasticache cluster",
 		GenerateSecretString: &cloudformation.GenerateSecretString{
-			ExcludeCharacters: "\"%'()*+,./:;=?@[\\]_`{|}~",
-			PasswordLength:    128,
+			ExcludeCharacters:    "\"%'()*+,./:;=?@[\\]_`{|}~",
+			PasswordLength:       128,
+			SecretStringTemplate: `{}`,
+			GenerateStringKey:    "AuthToken",
 		},
 	}
 
@@ -124,7 +126,8 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		"{{resolve",
 		"secretsmanager",
 		cloudformation.Ref(AuthTokenSecretResourceName),
-		"SecretString}}",
+		"SecretString",
+		"AuthToken}}",
 	})
 	template.Resources[ElasticacheClusterResourceName] = &cloudformation.AWSElastiCacheReplicationGroup{
 		// TODO: make PreferredMaintenanceWindow configurable?
