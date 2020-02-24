@@ -130,8 +130,8 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 
 		Engine:                      "redis",
 		AutomaticFailoverEnabled:    true,
-		ReplicationGroupDescription: clusterName, // TODO: hmmm
-		ReplicationGroupId:          clusterName, // TODO: this is limited to 40 characters and len("verify-verify-doc-checking-build-") is 33 which will only give them 7 characters to work in
+		ReplicationGroupDescription: clusterName,
+		ReplicationGroupId:          clusterName,
 		CacheNodeType:               "cache.t3.micro", // TODO: make configurable
 		EngineVersion:               "5.0.6", // TODO: make configurable
 		NumCacheClusters:            2, // TODO: make configurable

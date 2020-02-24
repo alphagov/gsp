@@ -223,6 +223,15 @@ stunnel /etc/stunnel/redis-cli.conf
 redis-cli -h 127.0.0.1auth hunter2hunter2hunter2
 hgetall *
 
+The combination of:
+* your cluster's name (e.g. `sandbox`)
+* a hyphen (`-`)
+* your namespace's name (e.g. `sandbox-main`)
+* a hyphen (`-`)
+* your ElastiCacheCluster resource's name
+
+Must fit into 40 characters, be made of alphanumeric characters and hyphens, and cannot contain two consecutive hyphens.
+
 ## How it works
 You don't need to know this to use it, this information is for cluster operators.
 GSP Service Operator consists of a container that runs essentially a daemon, and a kubeyaml config that sets up the container, provides a bunch of custom resource definitions (e.g., there is a definition in there for SQS Queues), etc. - it also gives the container access to interact with the cluster.
