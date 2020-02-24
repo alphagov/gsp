@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/aws/aws-sdk-go v1.29.8
-	github.com/awslabs/goformation/v4 v4.5.1
+	github.com/awslabs/goformation/v4 v4.6.0
 	github.com/go-logr/logr v0.1.0
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
