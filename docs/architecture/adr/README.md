@@ -49,4 +49,4 @@ We document our decisions using [Architecture Decision Records](https://github.c
 - [ADR #044 - Security improvements](ADR044-security-improvements.md)
 - [ADR #045 - Dev namespaces](ADR045-dev-namespaces.md)
 - [ADR #046 - Replace harbor with ECR](ADR046-replace-harbor-ecr.md)
-- [ADR #047 - Remove Kiam](ADR047-replace-kiam-with-iam-roles-for-service-accounts.md)
+- [ADR #047 - Replace Kiam with IAM Roles for Service Accounts](ADR047-replace-kiam-with-iam-roles-for-service-accounts.md)
