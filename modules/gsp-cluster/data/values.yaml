@@ -38,14 +38,6 @@ concourse:
     githubClientId: ${github_client_id}
     githubClientSecret: ${github_client_secret}
     githubCaCert: ${github_ca_cert}
-  worker:
-    replicas: ${concourse_worker_count}
-    nodeSelector:
-      node-role.kubernetes.io/ci: ""
-    tolerations:
-      - key: "node-role.kubernetes.io/ci"
-        operator: Exists
-        effect: NoSchedule
   concourse:
     web:
       externalUrl: https://ci.${cluster_domain}
