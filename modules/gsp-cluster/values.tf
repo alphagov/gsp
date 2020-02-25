@@ -34,8 +34,8 @@ data "template_file" "values" {
     service_operator_role_arn                      = aws_iam_role.gsp-service-operator.arn
     rds_from_worker_security_group                 = aws_security_group.rds-from-worker.id
     private_db_subnet_group                        = aws_db_subnet_group.private.id
-    elasticache_cluster_from_worker_security_group = aws_security_group.elasticache-cluster-from-worker.id
-    private_elasticache_cluster_subnet_group       = aws_elasticache_subnet_group.private.id
+    redis_from_worker_security_group               = aws_security_group.redis-from-worker.id
+    private_redis_subnet_group                     = aws_elasticache_subnet_group.private.id
     external_dns_map                               = yamlencode(local.external_dns)
     grafana_default_admin_password                 = jsonencode(random_password.grafana_default_admin_password.result)
     eks_version                                    = var.eks_version

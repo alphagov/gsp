@@ -29,29 +29,29 @@ import (
 )
 
 func init() {
-	SchemeBuilder.Register(&ElasticacheCluster{}, &ElasticacheClusterList{})
+	SchemeBuilder.Register(&Redis{}, &RedisList{})
 }
 
 const (
-	ElasticacheClusterResourceName                    = "ElasticacheCluster"
-	CacheSubnetGroupParameterName                     = "CacheSubnetGroup"
-	VPCSecurityGroupIDParameterName                   = "VPCSecurityGroupID"
-	ElasticacheClusterRedisPrimaryHostnameOutputName  = "ClusterPrimaryRedisHostname"
-	ElasticacheClusterRedisPrimaryPortOutputName      = "ClusterPrimaryRedisPort"
-	ElasticacheClusterRedisReadHostnamesOutputName    = "ClusterReadRedisHostnames"
-	ElasticacheClusterRedisReadPortsOutputName        = "ClusterReadRedisPorts"
-	AuthTokenSecretResourceName                       = "AuthTokenSecret"
-	ElasticacheClusterRedisAuthTokenOutputName        = "SecretAuthToken"
+	RedisResourceName               = "Redis"
+	CacheSubnetGroupParameterName   = "CacheSubnetGroup"
+	VPCSecurityGroupIDParameterName = "VPCSecurityGroupID"
+	RedisPrimaryHostnameOutputName  = "ClusterPrimaryRedisHostname"
+	RedisPrimaryPortOutputName      = "ClusterPrimaryRedisPort"
+	RedisReadHostnamesOutputName    = "ClusterReadRedisHostnames"
+	RedisReadPortsOutputName        = "ClusterReadRedisPorts"
+	AuthTokenSecretResourceName     = "AuthTokenSecret"
+	RedisAuthTokenOutputName        = "SecretAuthToken"
 )
 
 // ensure implements required interfaces
-var _ cloudformation.Stack = &ElasticacheCluster{}
-var _ object.SecretNamer = &ElasticacheCluster{}
-var _ cloudformation.StackSecretOutputter = &ElasticacheCluster{}
-var _ cloudformation.ServiceEntryCreator = &ElasticacheCluster{}
+var _ cloudformation.Stack = &Redis{}
+var _ object.SecretNamer = &Redis{}
+var _ cloudformation.StackSecretOutputter = &Redis{}
+var _ cloudformation.ServiceEntryCreator = &Redis{}
 
-// AWS allows specifying configuration for the elasticache cluster
-type ElasticacheClusterAWSSpec struct {
+// AWS allows specifying configuration for the redis
+type RedisAWSSpec struct {
 	// NodeType defines the amount of RAM and CPUs nodes in the cluster have as well as their network performance
 	NodeType string `json:"nodeType"`
 
@@ -65,10 +65,10 @@ type ElasticacheClusterAWSSpec struct {
 	PreferredMaintenanceWindow string `json:"preferredMaintenanceWindow,omitempty"`
 }
 
-// ElasticacheClusterSpec defines the desired state of ElasticacheCluster
-type ElasticacheClusterSpec struct {
+// RedisSpec defines the desired state of Redis
+type RedisSpec struct {
 	// AWS specific subsection of the resource.
-	AWS ElasticacheClusterAWSSpec `json:"aws,omitempty"`
+	AWS RedisAWSSpec `json:"aws,omitempty"`
 	// Secret name to be used for storing relevant instance secrets for further use.
 	Secret string `json:"secret,omitempty"`
 	// ServiceEntry name to be used for storing the egress firewall rule to allow tenant access to the cluster
@@ -77,39 +77,39 @@ type ElasticacheClusterSpec struct {
 
 // +kubebuilder:object:root=true
 
-// ElasticacheClusterList contains a list of ElasticacheCluster
-type ElasticacheClusterList struct {
+// RedisList contains a list of Redis
+type RedisList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []ElasticacheCluster `json:"items"`
+	Items           []Redis `json:"items"`
 }
 
 // +kubebuilder:object:root=true
 
-// ElasticacheCluster is the Schema for the ElasticacheCluster API
-type ElasticacheCluster struct {
+// Redis is the Schema for the Redis API
+type Redis struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec          ElasticacheClusterSpec `json:"spec,omitempty"`
+	Spec          RedisSpec `json:"spec,omitempty"`
 	object.Status `json:"status,omitempty"`
 }
 
-// Name returns the name of the ElasticacheCluster cloudformation stack
-func (s *ElasticacheCluster) GetStackName() string {
-	return fmt.Sprintf("%s-%s-%s-%s", env.ClusterName(), "elasticache", s.Namespace, s.ObjectMeta.Name)
+// Name returns the name of the Redis cloudformation stack
+func (s *Redis) GetStackName() string {
+	return fmt.Sprintf("%s-%s-%s-%s", env.ClusterName(), "redis", s.Namespace, s.ObjectMeta.Name)
 }
 
 // SecretName returns the name of the secret that will be populated with data
-func (s *ElasticacheCluster) GetSecretName() string {
+func (s *Redis) GetSecretName() string {
 	if s.Spec.Secret == "" {
 		return s.GetName()
 	}
 	return s.Spec.Secret
 }
 
-// Template returns a cloudformation Template for provisioning an ElasticacheCluster
-func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error) {
+// Template returns a cloudformation Template for provisioning an Redis
+func (s *Redis) GetStackTemplate() (*cloudformation.Template, error) {
 	template := cloudformation.NewTemplate()
 
 	template.Parameters[VPCSecurityGroupIDParameterName] = map[string]interface{}{
@@ -121,7 +121,7 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 
 	// generate secret in cloudformation not in operator (keeps state in aws)
 	template.Resources[AuthTokenSecretResourceName] = &cloudformation.AWSSecretsManagerSecret{
-		Description: "Auth token for the elasticache cluster",
+		Description: "Auth token for the redis",
 		GenerateSecretString: &cloudformation.GenerateSecretString{
 			ExcludeCharacters:    "\"%'()*+,./:;=?@[\\]_`{|}~",
 			PasswordLength:       128,
@@ -138,7 +138,7 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		"SecretString",
 		"AuthToken}}",
 	})
-	template.Resources[ElasticacheClusterResourceName] = &cloudformation.AWSElastiCacheReplicationGroup{
+	template.Resources[RedisResourceName] = &cloudformation.AWSElastiCacheReplicationGroup{
 		Engine:                      "redis",
 		AutomaticFailoverEnabled:    true,
 		ReplicationGroupDescription: clusterName,
@@ -160,7 +160,7 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 			},
 			{
 				Key:   "Service",
-				Value: "elasticache",
+				Value: "redis",
 			},
 			{
 				Key:   "Name",
@@ -178,33 +178,33 @@ func (s *ElasticacheCluster) GetStackTemplate() (*cloudformation.Template, error
 		PreferredMaintenanceWindow: s.Spec.AWS.PreferredMaintenanceWindow,
 	}
 
-	template.Outputs[ElasticacheClusterRedisPrimaryHostnameOutputName] = map[string]interface{}{
-		"Description": "Elasticache Cluster Redis primary hostname to be returned to the user.",
-		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Address"),
+	template.Outputs[RedisPrimaryHostnameOutputName] = map[string]interface{}{
+		"Description": "Redis primary hostname to be returned to the user.",
+		"Value":       cloudformation.GetAtt(RedisResourceName, "PrimaryEndPoint.Address"),
 	}
-	template.Outputs[ElasticacheClusterRedisPrimaryPortOutputName] = map[string]interface{}{
-		"Description": "Elasticache Cluster Redis primary port to be returned to the user.",
-		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "PrimaryEndPoint.Port"),
-	}
-
-	template.Outputs[ElasticacheClusterRedisReadHostnamesOutputName] = map[string]interface{}{
-		"Description": "Elasticache Cluster Redis read hostnames to be returned to the user.",
-		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "ReadEndPoint.Addresses"),
-	}
-	template.Outputs[ElasticacheClusterRedisReadPortsOutputName] = map[string]interface{}{
-		"Description": "Elasticache Cluster Redis read ports to be returned to the user.",
-		"Value":       cloudformation.GetAtt(ElasticacheClusterResourceName, "ReadEndPoint.Ports"),
+	template.Outputs[RedisPrimaryPortOutputName] = map[string]interface{}{
+		"Description": "Redis primary port to be returned to the user.",
+		"Value":       cloudformation.GetAtt(RedisResourceName, "PrimaryEndPoint.Port"),
 	}
 
-	template.Outputs[ElasticacheClusterRedisAuthTokenOutputName] = map[string]interface{}{
-		"Description": "Elasticache Cluster Redis authentication token to be returned to the user.",
+	template.Outputs[RedisReadHostnamesOutputName] = map[string]interface{}{
+		"Description": "Redis read hostnames to be returned to the user.",
+		"Value":       cloudformation.GetAtt(RedisResourceName, "ReadEndPoint.Addresses"),
+	}
+	template.Outputs[RedisReadPortsOutputName] = map[string]interface{}{
+		"Description": "Redis read ports to be returned to the user.",
+		"Value":       cloudformation.GetAtt(RedisResourceName, "ReadEndPoint.Ports"),
+	}
+
+	template.Outputs[RedisAuthTokenOutputName] = map[string]interface{}{
+		"Description": "Redis authentication token to be returned to the user.",
 		"Value":       authTokenRef,
 	}
 
 	return template, nil
 }
 
-func (s *ElasticacheCluster) GetServiceEntryName() string {
+func (s *Redis) GetServiceEntryName() string {
 	if s.Spec.ServiceEntry == "" {
 		return s.GetName()
 	}
@@ -212,14 +212,14 @@ func (s *ElasticacheCluster) GetServiceEntryName() string {
 }
 
 // ServiceEntry to whitelist egress access to cluster port and hosts.
-func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[string]interface{}, error) {
+func (s *Redis) GetServiceEntrySpecs(outputs cloudformation.Outputs) ([]map[string]interface{}, error) {
 	// primary
-	rwPort, err := strconv.Atoi(outputs[ElasticacheClusterRedisPrimaryPortOutputName])
+	rwPort, err := strconv.Atoi(outputs[RedisPrimaryPortOutputName])
 	if err != nil {
 		return nil, err
 	}
 
-	rwAddresses, err := net.LookupIP(outputs[ElasticacheClusterRedisPrimaryHostnameOutputName])
+	rwAddresses, err := net.LookupIP(outputs[RedisPrimaryHostnameOutputName])
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +242,7 @@ func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs
 				},
 			},
 			"hosts": []string{
-				outputs[ElasticacheClusterRedisPrimaryHostnameOutputName],
+				outputs[RedisPrimaryHostnameOutputName],
 			},
 			"ports": []interface{}{
 				map[string]interface{}{
@@ -259,13 +259,13 @@ func (s *ElasticacheCluster) GetServiceEntrySpecs(outputs cloudformation.Outputs
 
 	// read-only endpoints
 	var roHostnames []string
-	err = yaml.Unmarshal([]byte(outputs[ElasticacheClusterRedisReadHostnamesOutputName]), &roHostnames)
+	err = yaml.Unmarshal([]byte(outputs[RedisReadHostnamesOutputName]), &roHostnames)
 	if err != nil {
 		return nil, fmt.Errorf("error YAML-unmarshalling read hostnames")
 	}
 
 	var roPorts []int
-	err = yaml.Unmarshal([]byte(outputs[ElasticacheClusterRedisReadPortsOutputName]), &roPorts)
+	err = yaml.Unmarshal([]byte(outputs[RedisReadPortsOutputName]), &roPorts)
 	if err != nil {
 		return nil, fmt.Errorf("error YAML-unmarshalling read ports")
 	}

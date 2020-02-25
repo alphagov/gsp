@@ -17,7 +17,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var _ = Describe("ElasticacheClusterCloudFormationController", func() {
+var _ = Describe("RedisCloudFormationController", func() {
 
 	var within30mins time.Duration = time.Minute * 30
 	var within5mins = time.Minute * 5
@@ -33,12 +33,12 @@ var _ = Describe("ElasticacheClusterCloudFormationController", func() {
 		teardown()
 	})
 
-	It("Should create and destroy an ElastiCache cluster", func() {
+	It("Should create and destroy a Redis", func() {
 
 		var (
 			name                   = fmt.Sprintf("test-cluster-%s", time.Now().Format("20060102150405"))
-			secretName             = "test-elasticache-secret"
-			serviceEntryName       = "test-elasticache-service-entry"
+			secretName             = "test-redis-secret"
+			serviceEntryName       = "test-redis-service-entry"
 			namespace              = "test"
 			resourceNamespacedName = types.NamespacedName{
 				Namespace: namespace,
@@ -52,7 +52,7 @@ var _ = Describe("ElasticacheClusterCloudFormationController", func() {
 				Namespace: namespace,
 				Name:      fmt.Sprintf("%s-0", serviceEntryName),
 			}
-			ecc = cache.ElasticacheCluster{
+			ecc = cache.Redis{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      name,
 					Namespace: namespace,
@@ -60,10 +60,10 @@ var _ = Describe("ElasticacheClusterCloudFormationController", func() {
 						cloudformation.AccessGroupLabel: "test.access.group",
 					},
 				},
-				Spec: cache.ElasticacheClusterSpec{
+				Spec: cache.RedisSpec{
 					Secret:       secretName,
 					ServiceEntry: serviceEntryName,
-					AWS:          cache.ElasticacheClusterAWSSpec{
+					AWS:          cache.RedisAWSSpec{
 						NodeType:         "cache.t3.micro",
 						EngineVersion:    "5.0.6",
 						NumCacheClusters: 2,
@@ -103,7 +103,7 @@ var _ = Describe("ElasticacheClusterCloudFormationController", func() {
 			Eventually(func() string {
 				_ = client.Get(ctx, resourceNamespacedName, &ecc)
 				return ecc.Status.AWS.Name
-			}).Should(ContainSubstring("xxx-elasticache-test-test-cluster"))
+			}).Should(ContainSubstring("xxx-redis-test-test-cluster"))
 		})
 
 		By("ensuring a finalizer is present on resource to prevent deletion", func() { // TODO: move to cloudformation.Controller unit test
@@ -164,7 +164,7 @@ var _ = Describe("ElasticacheClusterCloudFormationController", func() {
 		})
 
 		By("ensuring the resources have been removed", func() {
-			var list cache.ElasticacheClusterList
+			var list cache.RedisList
 			Eventually(func() int {
 				err := client.List(ctx, &list)
 				Expect(err).ToNot(HaveOccurred())

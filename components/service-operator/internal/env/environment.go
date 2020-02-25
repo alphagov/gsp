@@ -27,14 +27,14 @@ func AWSRDSSubnetGroupName() string {
 	return MustGet("AWS_RDS_SUBNET_GROUP_NAME")
 }
 
-// AWSElasticacheClusterSecurityGroupID returns security group to assign to Elasticache Cluster provisioned resources
-func AWSElasticacheClusterSecurityGroupID() string {
-	return MustGet("AWS_ELASTICACHE_CLUSTER_SECURITY_GROUP_ID")
+// AWSRedisSecurityGroupID returns security group to assign to Redis provisioned resources
+func AWSRedisSecurityGroupID() string {
+	return MustGet("AWS_REDIS_SECURITY_GROUP_ID")
 }
 
-// AWSElasticacheClusterSubnetGroupName returns the subnet to provision Elasticache Cluster resources into
-func AWSElasticacheClusterSubnetGroupName() string {
-	return MustGet("AWS_ELASTICACHE_CLUSTER_SUBNET_GROUP_NAME")
+// AWSRedisSubnetGroupName returns the subnet to provision Redis resources into
+func AWSRedisSubnetGroupName() string {
+	return MustGet("AWS_REDIS_SUBNET_GROUP_NAME")
 }
 
 // AWSOIDCProviderURL is the URL of the OIDC provider for our EKS cluster

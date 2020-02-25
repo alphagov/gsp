@@ -119,8 +119,8 @@ serviceOperator:
 RDSFromWorkerSecurityGroup: ${rds_from_worker_security_group}
 privateDBSubnetGroup: ${private_db_subnet_group}
 
-elasticacheClusterFromWorkerSecurityGroup: ${elasticache_cluster_from_worker_security_group}
-privateElasticacheClusterSubnetGroup: ${private_elasticache_cluster_subnet_group}
+redisFromWorkerSecurityGroup: ${redis_from_worker_security_group}
+privateRedisSubnetGroup: ${private_redis_subnet_group}
 
 ${external_dns_map}
 

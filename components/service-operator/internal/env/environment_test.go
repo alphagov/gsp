@@ -57,25 +57,25 @@ var _ = Describe("Environment", func() {
 		})
 	})
 
-	Context("AWSElasticacheClusterSecurityGroupID", func() {
+	Context("AWSRedisSecurityGroupID", func() {
 		It("should read value from environment", func() {
-			os.Setenv("AWS_ELASTICACHE_CLUSTER_SECURITY_GROUP_ID", knownValue)
-			Expect(env.AWSElasticacheClusterSecurityGroupID()).To(Equal(knownValue))
+			os.Setenv("AWS_REDIS_SECURITY_GROUP_ID", knownValue)
+			Expect(env.AWSRedisSecurityGroupID()).To(Equal(knownValue))
 		})
 		It("should panic if not set", func() {
-			os.Unsetenv("AWS_ELASTICACHE_CLUSTER_SECURITY_GROUP_ID")
-			Expect(func() { env.AWSElasticacheClusterSecurityGroupID() }).To(Panic())
+			os.Unsetenv("AWS_REDIS_SECURITY_GROUP_ID")
+			Expect(func() { env.AWSRedisSecurityGroupID() }).To(Panic())
 		})
 	})
 
-	Context("AWSElasticacheClusterSubnetGroupName", func() {
+	Context("AWSRedisSubnetGroupName", func() {
 		It("should read value from environment", func() {
-			os.Setenv("AWS_ELASTICACHE_CLUSTER_SUBNET_GROUP_NAME", knownValue)
-			Expect(env.AWSElasticacheClusterSubnetGroupName()).To(Equal(knownValue))
+			os.Setenv("AWS_REDIS_SUBNET_GROUP_NAME", knownValue)
+			Expect(env.AWSRedisSubnetGroupName()).To(Equal(knownValue))
 		})
 		It("should panic if not set", func() {
-			os.Unsetenv("AWS_ELASTICACHE_CLUSTER_SUBNET_GROUP_NAME")
-			Expect(func() { env.AWSElasticacheClusterSubnetGroupName() }).To(Panic())
+			os.Unsetenv("AWS_REDIS_SUBNET_GROUP_NAME")
+			Expect(func() { env.AWSRedisSubnetGroupName() }).To(Panic())
 		})
 	})
 

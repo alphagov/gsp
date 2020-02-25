@@ -12,13 +12,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var _ = Describe("ElasticacheCluster", func() {
+var _ = Describe("Redis", func() {
 
-	var o v1beta1.ElasticacheCluster
+	var o v1beta1.Redis
 
 	BeforeEach(func() {
 		os.Setenv("CLUSTER_NAME", "xxx") // required for env package
-		o = v1beta1.ElasticacheCluster{
+		o = v1beta1.Redis{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "example",
 				Namespace: "default",
@@ -26,8 +26,8 @@ var _ = Describe("ElasticacheCluster", func() {
 					cloudformation.AccessGroupLabel: "test.access.group",
 				},
 			},
-			Spec: v1beta1.ElasticacheClusterSpec{
-				AWS: v1beta1.ElasticacheClusterAWSSpec{
+			Spec: v1beta1.RedisSpec{
+				AWS: v1beta1.RedisAWSSpec{
 					NodeType:         "cache.t3.micro",
 					EngineVersion:    "5.0.6",
 					NumCacheClusters: 2,
@@ -57,12 +57,12 @@ var _ = Describe("ElasticacheCluster", func() {
 
 	It("should produce the correct service entry", func() {
 		outputs := cloudformation.Outputs{
-			v1beta1.ElasticacheClusterRedisPrimaryHostnameOutputName: "test-endpoint.local.govsandbox.uk",
-			v1beta1.ElasticacheClusterRedisPrimaryPortOutputName:     "6379",
-			v1beta1.ElasticacheClusterRedisReadHostnamesOutputName:   "[test-endpoint-ro.local.govsandbox.uk]",
-			v1beta1.ElasticacheClusterRedisReadPortsOutputName:       "[6379]",
+			v1beta1.RedisPrimaryHostnameOutputName: "test-endpoint.local.govsandbox.uk",
+			v1beta1.RedisPrimaryPortOutputName:     "6379",
+			v1beta1.RedisReadHostnamesOutputName:   "[test-endpoint-ro.local.govsandbox.uk]",
+			v1beta1.RedisReadPortsOutputName:       "[6379]",
 		}
-		portnum, err := strconv.Atoi(outputs[v1beta1.ElasticacheClusterRedisPrimaryPortOutputName])
+		portnum, err := strconv.Atoi(outputs[v1beta1.RedisPrimaryPortOutputName])
 		Expect(err).NotTo(HaveOccurred())
 
 		specs, err := o.GetServiceEntrySpecs(outputs)
@@ -78,7 +78,7 @@ var _ = Describe("ElasticacheCluster", func() {
 						"address": "127.0.0.1",
 					},
 				)),
-				HaveKeyWithValue("hosts", ContainElement(outputs[v1beta1.ElasticacheClusterRedisPrimaryHostnameOutputName])),
+				HaveKeyWithValue("hosts", ContainElement(outputs[v1beta1.RedisPrimaryHostnameOutputName])),
 				HaveKeyWithValue("ports", ContainElement(
 					map[string]interface{}{
 						"name":     "redis",
@@ -119,10 +119,21 @@ var _ = Describe("ElasticacheCluster", func() {
 
 	It("should error if port is not numeric", func() {
 		outputs := cloudformation.Outputs{
-			v1beta1.ElasticacheClusterRedisPrimaryHostnameOutputName: "test-endpoint",
-			v1beta1.ElasticacheClusterRedisPrimaryPortOutputName:     "asd",
+			v1beta1.RedisPrimaryHostnameOutputName: "test-endpoint",
+			v1beta1.RedisPrimaryPortOutputName:     "asd",
+			v1beta1.RedisReadHostnamesOutputName:   "[test-endpoint-ro]",
+			v1beta1.RedisReadPortsOutputName:       "[6379]",
 		}
 		_, err := o.GetServiceEntrySpecs(outputs)
+		Expect(err).To(HaveOccurred())
+
+		outputs = cloudformation.Outputs{
+			v1beta1.RedisPrimaryHostnameOutputName: "test-endpoint",
+			v1beta1.RedisPrimaryPortOutputName:     "6379",
+			v1beta1.RedisReadHostnamesOutputName:   "[test-endpoint-ro]",
+			v1beta1.RedisReadPortsOutputName:       "[asd]",
+		}
+		_, err = o.GetServiceEntrySpecs(outputs)
 		Expect(err).To(HaveOccurred())
 	})
 
@@ -147,7 +158,7 @@ var _ = Describe("ElasticacheCluster", func() {
 			))
 		})
 
-		Context("elasticache cluster resource", func() {
+		Context("redis resource", func() {
 			var cluster *cloudformation.AWSElastiCacheReplicationGroup
 
 			JustBeforeEach(func() {
@@ -155,7 +166,7 @@ var _ = Describe("ElasticacheCluster", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(t.Resources).To(ContainElement(BeAssignableToTypeOf(&cloudformation.AWSElastiCacheReplicationGroup{})))
 				var ok bool
-				cluster, ok = t.Resources[v1beta1.ElasticacheClusterResourceName].(*cloudformation.AWSElastiCacheReplicationGroup)
+				cluster, ok = t.Resources[v1beta1.RedisResourceName].(*cloudformation.AWSElastiCacheReplicationGroup)
 				Expect(ok).To(BeTrue())
 			})
 
@@ -179,7 +190,7 @@ var _ = Describe("ElasticacheCluster", func() {
 				Expect(cluster.Tags).To(Equal(
 					[]cloudformation.Tag{
 						{Key: "Cluster", Value: env.ClusterName()},
-						{Key: "Service", Value: "elasticache"},
+						{Key: "Service", Value: "redis"},
 						{Key: "Name", Value: "example"},
 						{Key: "Namespace", Value: "default"},
 						{Key: "Environment", Value: "default"},

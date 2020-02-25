@@ -73,10 +73,10 @@ spec:
 
 This will create a Postgres database on AWS including the name `alexs-test-db`, with an instance type of `db.t3.medium`. It will ensure you can get access to the created database via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
 
-Here's an example of a ElastiCache Cluster:
+Here's an example of a Redis:
 
 ```
-kind: ElasticacheCluster
+kind: Redis
 apiVersion: cache.govsvc.uk/v1beta1
 metadata:
   name: alexs-test
@@ -95,7 +95,7 @@ The combination of the following must fit into 40 characters, be made of alphanu
 * a hyphen (`-`)
 * your namespace's name (e.g. `sandbox-main`)
 * a hyphen (`-`)
-* your ElasticacheCluster resource's name
+* your Redis resource's name
 
 ## How to connect to a created queue
 
@@ -229,7 +229,7 @@ postgres=>
 
 You could also get the read endpoint using the ReadEndpoint key.
 
-## How to connect to a created ElastiCache Cluster
+## How to connect to a created Redis
 
 If you make a pod like the one above:
 
