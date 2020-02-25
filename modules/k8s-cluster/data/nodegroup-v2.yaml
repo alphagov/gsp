@@ -126,9 +126,11 @@ Resources:
             - InstanceType: m5.xlarge
             - InstanceType: m5d.xlarge
             - InstanceType: m5a.xlarge
+            - InstanceType: m5ad.xlarge
             - InstanceType: r5.xlarge
             - InstanceType: r5d.xlarge
             - InstanceType: r5a.xlarge
+            - InstanceType: r5ad.xlarge
       Tags:
         - Key: Name
           Value: !Sub ${ClusterName}-${NodeGroupName}
