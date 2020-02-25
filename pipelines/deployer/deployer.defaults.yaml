@@ -26,6 +26,7 @@ config-approval-count: 2
 
 minimum-workers-per-az-count: 1
 maximum-workers-per-az-count: 5
+worker-on-demand-base-capacity: 1
 worker-on-demand-percentage-above-base: 100
 
 task-toolbox-image: govsvc/task-toolbox

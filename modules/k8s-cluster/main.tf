@@ -129,6 +129,7 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     ))
     NodeAutoScalingGroupMaxSize = var.maximum_workers_per_az_count
 
+    NodeAutoScalingGroupOnDemandBaseCapacity        = var.worker_on_demand_base_capacity
     NodeAutoScalingGroupOnDemandPercentageAboveBase = var.worker_on_demand_percentage_above_base
 
     NodeInstanceProfile = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]

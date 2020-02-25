@@ -9,6 +9,7 @@ module "k8s-cluster" {
   minimum_workers_per_az_count           = var.minimum_workers_per_az_count
   desired_workers_per_az_map             = var.desired_workers_per_az_map
   maximum_workers_per_az_count           = var.maximum_workers_per_az_count
+  worker_on_demand_base_capacity         = var.worker_on_demand_base_capacity
   worker_on_demand_percentage_above_base = var.worker_on_demand_percentage_above_base
 
   ci_worker_count         = var.ci_worker_count

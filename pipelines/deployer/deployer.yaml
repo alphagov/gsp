@@ -593,6 +593,7 @@ resources:
       worker_eks_version: ((worker-eks-version))
       minimum_workers_per_az_count: ((minimum-workers-per-az-count))
       maximum_workers_per_az_count: ((maximum-workers-per-az-count))
+      worker_on_demand_base_capacity: ((worker-on-demand-base-capacity))
       worker_on_demand_percentage_above_base: ((worker-on-demand-percentage-above-base))
       enable_nlb: ((enable-nlb))
       ci_worker_instance_type: ((ci-worker-instance-type))
