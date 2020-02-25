@@ -33,15 +33,15 @@ func init() {
 }
 
 const (
-	RedisResourceName               = "Redis"
-	CacheSubnetGroupParameterName   = "CacheSubnetGroup"
-	VPCSecurityGroupIDParameterName = "VPCSecurityGroupID"
-	RedisPrimaryHostnameOutputName  = "ClusterPrimaryRedisHostname"
-	RedisPrimaryPortOutputName      = "ClusterPrimaryRedisPort"
-	RedisReadHostnamesOutputName    = "ClusterReadRedisHostnames"
-	RedisReadPortsOutputName        = "ClusterReadRedisPorts"
-	AuthTokenSecretResourceName     = "AuthTokenSecret"
-	RedisAuthTokenOutputName        = "SecretAuthToken"
+	RedisResourceName                    = "Redis"
+	CacheSubnetGroupParameterName        = "CacheSubnetGroup"
+	RedisVPCSecurityGroupIDParameterName = "VPCSecurityGroupID"
+	RedisPrimaryHostnameOutputName       = "ClusterPrimaryRedisHostname"
+	RedisPrimaryPortOutputName           = "ClusterPrimaryRedisPort"
+	RedisReadHostnamesOutputName         = "ClusterReadRedisHostnames"
+	RedisReadPortsOutputName             = "ClusterReadRedisPorts"
+	AuthTokenSecretResourceName          = "AuthTokenSecret"
+	RedisAuthTokenOutputName             = "SecretAuthToken"
 )
 
 // ensure implements required interfaces
@@ -112,7 +112,7 @@ func (s *Redis) GetSecretName() string {
 func (s *Redis) GetStackTemplate() (*cloudformation.Template, error) {
 	template := cloudformation.NewTemplate()
 
-	template.Parameters[VPCSecurityGroupIDParameterName] = map[string]interface{}{
+	template.Parameters[RedisVPCSecurityGroupIDParameterName] = map[string]interface{}{
 		"Type": "String",
 	}
 	template.Parameters[CacheSubnetGroupParameterName] = map[string]interface{}{
@@ -149,7 +149,7 @@ func (s *Redis) GetStackTemplate() (*cloudformation.Template, error) {
 		Port:                        6379,
 		CacheSubnetGroupName:        cloudformation.Ref(CacheSubnetGroupParameterName),
 		SecurityGroupIds:            []string{
-			cloudformation.Ref(VPCSecurityGroupIDParameterName),
+			cloudformation.Ref(RedisVPCSecurityGroupIDParameterName),
 		},
 		TransitEncryptionEnabled:    true,
 		AuthToken:                   authTokenRef,

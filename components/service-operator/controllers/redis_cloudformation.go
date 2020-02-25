@@ -20,7 +20,7 @@ func RedisCloudFormationController(c sdk.Client) Controller {
 		},
 		Parameters: []*cloudformation.Parameter{
 			{
-				ParameterKey:   aws.String(cache.VPCSecurityGroupIDParameterName),
+				ParameterKey:   aws.String(cache.RedisVPCSecurityGroupIDParameterName),
 				ParameterValue: aws.String(env.AWSRedisSecurityGroupID()),
 			},
 			{
