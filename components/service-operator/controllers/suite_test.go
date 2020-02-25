@@ -141,6 +141,13 @@ func SetupControllerEnv() (client.Client, func()) {
 			"password":              "notinspectedbytest",
 			"endpoint":              "https://011571571136.dkr.ecr.eu-west-2.amazonaws.com",
 		})),
+		controllers.RedisCloudFormationController(newAWSClient(map[string]string{
+			"ClusterPrimaryRedisHostname": "something-ro.local.govsandbox.uk",
+			"ClusterPrimaryRedisPort":     "6379",
+			"SecretAuthToken":             "hunter2hunter2hunter2",
+			"ClusterReadRedisHostnames":   "[something-ro.local.govsandbox.uk]",
+			"ClusterReadRedisPorts":       "[6379]",
+		})),
 		&controllers.ServiceAccountController{},
 	}
 
@@ -188,6 +195,8 @@ func newAWSClient(fakeOutputs map[string]string) sdk.Client {
 		// set dummy values when running against mock
 		os.Setenv("AWS_RDS_SECURITY_GROUP_ID", "dummy-value")
 		os.Setenv("AWS_RDS_SUBNET_GROUP_NAME", "dummy-value")
+		os.Setenv("AWS_REDIS_SECURITY_GROUP_ID", "dummy-value")
+		os.Setenv("AWS_REDIS_SUBNET_GROUP_NAME", "dummy-value")
 		os.Setenv("AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN", "dummy-value")
 		os.Setenv("AWS_ROLE_ARN", "arn:aws:iam::011571571136:role/sandbox-service-operator")
 		os.Setenv("AWS_OIDC_PROVIDER_ARN", "dummy-value")

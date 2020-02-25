@@ -1,0 +1,124 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  creationTimestamp: null
+  name: redis.database.govsvc.uk
+spec:
+  group: database.govsvc.uk
+  names:
+    kind: Redis
+    plural: redis
+  scope: ""
+  validation:
+    openAPIV3Schema:
+      description: Redis is the Schema for the Redis API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: RedisSpec defines the desired state of Redis
+          properties:
+            aws:
+              description: AWS specific subsection of the resource.
+              properties:
+                engineVersion:
+                  description: EngineVersion defines the version of Redis running
+                    in the cluster.
+                  type: string
+                nodeType:
+                  description: NodeType defines the amount of RAM and CPUs nodes in
+                    the cluster have as well as their network performance
+                  type: string
+                numCacheClusters:
+                  description: NumCacheClusters defines the number of clusters that
+                    belong to our replication group. A number between 2 and 6 inclusive.
+                  type: integer
+                preferredMaintenanceWindow:
+                  description: PreferredMaintenanceWindow defines the weekly window
+                    during which maintenance is performed on the cluster. The minimum
+                    period is 60 minutes.
+                  type: string
+              required:
+              - engineVersion
+              - nodeType
+              - numCacheClusters
+              type: object
+            secret:
+              description: Secret name to be used for storing relevant instance secrets
+                for further use.
+              type: string
+            serviceEntry:
+              description: ServiceEntry name to be used for storing the egress firewall
+                rule to allow tenant access to the cluster
+              type: string
+          type: object
+        status:
+          description: Status is the type shared by most service resources
+          properties:
+            aws:
+              description: AWS specific status
+              properties:
+                events:
+                  description: Events will hold more in-depth details of the current
+                    state of the instance.
+                  items:
+                    description: AWSEvent is a single action taken against the resource
+                      at any given time.
+                    properties:
+                      reason:
+                        description: Reason for the current status of the instance.
+                        type: string
+                      status:
+                        description: Status of the currently running instance.
+                        type: string
+                      time:
+                        description: Time of the event cast.
+                        format: date-time
+                        type: string
+                    type: object
+                  type: array
+                id:
+                  description: ID of an instance for a reference.
+                  type: string
+                info:
+                  additionalProperties:
+                    type: string
+                  description: Info shows any outputs returned from GetStackOutputWhitelist
+                  type: object
+                name:
+                  description: Name of an instance for a reference.
+                  type: string
+                reason:
+                  description: Reason for the current status of the instance.
+                  type: string
+                status:
+                  description: Status of the currently running instance.
+                  type: string
+              type: object
+            state:
+              description: Generic service state
+              type: string
+          type: object
+      type: object
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

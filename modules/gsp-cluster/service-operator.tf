@@ -81,6 +81,7 @@ data "aws_iam_policy_document" "service-operator" {
       "sqs:*",
       "s3:*",
       "ecr:*",
+      "elasticache:*",
     ]
 
     resources = [
@@ -163,6 +164,7 @@ data "aws_iam_policy_document" "service-operator-managed-role-permissions-bounda
   statement {
     actions = [
       "ecr:*",
+      "elasticache:*",
       "rds-data:*",
       "rds:*",
       "s3:DeleteObject",
@@ -259,3 +261,23 @@ resource "aws_db_subnet_group" "private" {
   subnet_ids = var.private_subnet_ids
 }
 
+resource "aws_security_group" "redis-from-worker" {
+  name        = "${var.cluster_name}_redis_from_worker"
+  description = "Allow Redis traffic from worker nodes to Redis instances"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port = 6379
+    to_port   = 6379
+    protocol  = "tcp"
+    security_groups = [
+      module.k8s-cluster.worker_security_group_id,
+      module.k8s-cluster.ci_security_group_id,
+    ]
+  }
+}
+
+resource "aws_elasticache_subnet_group" "private" {
+  name       = "${var.cluster_name}-private"
+  subnet_ids = var.private_subnet_ids
+}

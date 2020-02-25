@@ -27,6 +27,16 @@ func AWSRDSSubnetGroupName() string {
 	return MustGet("AWS_RDS_SUBNET_GROUP_NAME")
 }
 
+// AWSRedisSecurityGroupID returns security group to assign to Redis provisioned resources
+func AWSRedisSecurityGroupID() string {
+	return MustGet("AWS_REDIS_SECURITY_GROUP_ID")
+}
+
+// AWSRedisSubnetGroupName returns the subnet to provision Redis resources into
+func AWSRedisSubnetGroupName() string {
+	return MustGet("AWS_REDIS_SUBNET_GROUP_NAME")
+}
+
 // AWSOIDCProviderURL is the URL of the OIDC provider for our EKS cluster
 func AWSOIDCProviderURL() string {
 	return MustGet("AWS_OIDC_PROVIDER_URL")

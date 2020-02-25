@@ -47,6 +47,10 @@ spec:
           value: {{ .Values.RDSFromWorkerSecurityGroup | quote }}
         - name: AWS_RDS_SUBNET_GROUP_NAME
           value: {{ .Values.privateDBSubnetGroup | quote }}
+        - name: AWS_REDIS_SECURITY_GROUP_ID
+          value: {{ .Values.redisFromWorkerSecurityGroup | quote }}
+        - name: AWS_REDIS_SUBNET_GROUP_NAME
+          value: {{ .Values.privateRedisSubnetGroup | quote }}
         - name: AWS_PRINCIPAL_PERMISSIONS_BOUNDARY_ARN
           value: {{ .Values.serviceOperator.permissionsBoundaryARN | quote }}
         resources:

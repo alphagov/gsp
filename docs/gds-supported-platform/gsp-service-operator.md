@@ -60,23 +60,42 @@ This will create an S3 Bucket on AWS including the name `alexs-test-bucket`. It 
 Here's an example of a Postgres database:
 
 ```
-apiVersion: v1
-kind: List
-items:
-- kind: Postgres
-  apiVersion: database.govsvc.uk/v1beta1
-  metadata:
-    name: alexs-test-db
-    namespace: sandbox-gsp-service-operator-test
-    labels:
-      group.access.govsvc.uk: alexs-test-principal
-  spec:
-    aws:
-      instanceType: db.t3.medium
-    secret: alexs-test-db-secret
+kind: Postgres
+apiVersion: database.govsvc.uk/v1beta1
+metadata:
+  name: alexs-test-db
+  namespace: sandbox-gsp-service-operator-test
+spec:
+  aws:
+    instanceType: db.t3.medium
+  secret: alexs-test-db-secret
 ```
 
 This will create a Postgres database on AWS including the name `alexs-test-db`, with an instance type of `db.t3.medium`. It will ensure you can get access to the created database via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
+
+Here's an example of a Redis:
+
+```
+kind: Redis
+apiVersion: cache.govsvc.uk/v1beta1
+metadata:
+  name: alexs-test
+  namespace: ondemand-0-main
+spec:
+  aws:
+    nodeType: cache.t3.micro
+    engineVersion: 5.0.6
+    numCacheClusters: 2
+  secret: alexs-test-cluster-secret
+```
+
+This will create an ElastiCache redis cluster on AWS including the name `alexs-test`, with an instance type of `cache.t3.micro`. It will ensure you can get access to the created cluster via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
+The combination of the following must fit into 40 characters, be made of alphanumeric characters and hyphens, and cannot contain two consecutive hyphens:
+* your cluster's name (e.g. `sandbox`)
+* a hyphen (`-`)
+* your namespace's name (e.g. `sandbox-main`)
+* a hyphen (`-`)
+* your Redis resource's name
 
 ## How to connect to a created queue
 
@@ -209,6 +228,49 @@ postgres=>
 ```
 
 You could also get the read endpoint using the ReadEndpoint key.
+
+## How to connect to a created Redis
+
+If you make a pod like the one above:
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alexs-test-pod
+spec:
+  containers:
+  - name: myapp-container
+    image: govsvc/redis-and-stunnel
+    command: ['sleep', '1000000']
+    env:
+    - name: STUNNEL_HOSTNAME
+      valueFrom:
+        secretKeyRef:
+          name: alexs-test-cluster-secret
+          key: ClusterPrimaryRedisHostname
+    - name: STUNNEL_PORT
+      valueFrom:
+        secretKeyRef:
+          name: alexs-test-cluster-secret
+          key: ClusterPrimaryRedisPort
+    - name: REDISCLI_AUTH
+      valueFrom:
+        secretKeyRef:
+          name: alexs-test-cluster-secret
+          key: SecretAuthToken
+```
+
+You will be able to exec into this pod and connect to Redis after configuring and running stunnel:
+```
+$ gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -c myapp-container -it /bin/bash
+root@alexs-test-pod:/data# echo "  connect = $STUNNEL_HOSTNAME:$STUNNEL_PORT" >> /etc/stunnel/redis-cli.conf
+root@alexs-test-pod:/data# stunnel /etc/stunnel/redis-cli.conf
+root@alexs-test-pod:/data# redis-cli -h 127.0.0.1
+127.0.0.1:6379> hgetall *
+(empty list or set)
+127.0.0.1:6379>
+```
 
 ## How it works
 You don't need to know this to use it, this information is for cluster operators.

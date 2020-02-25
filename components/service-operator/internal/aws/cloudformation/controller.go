@@ -141,6 +141,8 @@ func (r *Controller) SetupWithManager(mgr ctrl.Manager) error {
 // +kubebuilder:rbac:groups=queue.govsvc.uk,resources=sqs/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=database.govsvc.uk,resources=postgres,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=database.govsvc.uk,resources=postgres/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=database.govsvc.uk,resources=redis,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=database.govsvc.uk,resources=redis/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=access.govsvc.uk,resources=principals/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=storage.govsvc.uk,resources=s3buckets,verbs=get;list;watch;create;update;patch;delete

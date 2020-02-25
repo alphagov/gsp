@@ -57,6 +57,28 @@ var _ = Describe("Environment", func() {
 		})
 	})
 
+	Context("AWSRedisSecurityGroupID", func() {
+		It("should read value from environment", func() {
+			os.Setenv("AWS_REDIS_SECURITY_GROUP_ID", knownValue)
+			Expect(env.AWSRedisSecurityGroupID()).To(Equal(knownValue))
+		})
+		It("should panic if not set", func() {
+			os.Unsetenv("AWS_REDIS_SECURITY_GROUP_ID")
+			Expect(func() { env.AWSRedisSecurityGroupID() }).To(Panic())
+		})
+	})
+
+	Context("AWSRedisSubnetGroupName", func() {
+		It("should read value from environment", func() {
+			os.Setenv("AWS_REDIS_SUBNET_GROUP_NAME", knownValue)
+			Expect(env.AWSRedisSubnetGroupName()).To(Equal(knownValue))
+		})
+		It("should panic if not set", func() {
+			os.Unsetenv("AWS_REDIS_SUBNET_GROUP_NAME")
+			Expect(func() { env.AWSRedisSubnetGroupName() }).To(Panic())
+		})
+	})
+
 	Context("AWSOIDCProviderURL", func() {
 		It("should read value from environment", func() {
 			os.Setenv("AWS_OIDC_PROVIDER_URL", knownValue)

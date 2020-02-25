@@ -75,6 +75,7 @@ func run() error {
 		controllers.SQSCloudFormationController(c),
 		controllers.S3CloudFormationController(c),
 		controllers.ImageRepositoryCloudFormationController(c),
+		controllers.RedisCloudFormationController(c),
 		&controllers.ServiceAccountController{},
 	}
 
