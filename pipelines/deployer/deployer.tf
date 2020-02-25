@@ -61,6 +61,10 @@ variable "maximum_workers_per_az_count" {
   type = string
 }
 
+variable "worker_on_demand_base_capacity" {
+  type = "string"
+}
+
 variable "worker_on_demand_percentage_above_base" {
   type = "string"
 }

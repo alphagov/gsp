@@ -28,8 +28,13 @@ Parameters:
     Type: Number
     Default: 1
 
+  NodeAutoScalingGroupOnDemandBaseCapacity:
+    Description: Number of nodes which must be provisioned as on-demand (rather than spot)
+    Type: Number
+    Default: 1
+
   NodeAutoScalingGroupOnDemandPercentageAboveBase:
-    Description: Percentage of nodes above the base capacity (minimum size) to launch as on-demand (rather than spot instances)
+    Description: Percentage of nodes above the base capacity to launch as on-demand (rather than spot instances)
     Type: Number
     Default: 100
 
@@ -116,7 +121,7 @@ Resources:
       TargetGroupARNs: !Ref NodeTargetGroups
       MixedInstancesPolicy:
         InstancesDistribution:
-          OnDemandBaseCapacity: !Ref NodeAutoScalingGroupMinSize
+          OnDemandBaseCapacity: !Ref NodeAutoScalingGroupOnDemandBaseCapacity
           OnDemandPercentageAboveBaseCapacity: !Ref NodeAutoScalingGroupOnDemandPercentageAboveBase
         LaunchTemplate:
           LaunchTemplateSpecification:

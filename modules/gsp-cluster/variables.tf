@@ -51,6 +51,11 @@ variable "maximum_workers_per_az_count" {
   default = "5"
 }
 
+variable "worker_on_demand_base_capacity" {
+  type    = "string"
+  default = "1"
+}
+
 variable "worker_on_demand_percentage_above_base" {
   type    = "string"
   default = "100"
