@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/alphagov/gsp/components/service-operator/apis/cache/v1beta1"
+	"github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	. "github.com/onsi/ginkgo"

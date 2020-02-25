@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	cache "github.com/alphagov/gsp/components/service-operator/apis/cache/v1beta1"
+	cache "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	. "github.com/onsi/ginkgo"

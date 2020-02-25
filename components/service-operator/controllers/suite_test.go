@@ -26,7 +26,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	accessv1beta1 "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
-	cachev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/cache/v1beta1"
 	databasev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	queuev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/queue/v1beta1"
 	storagev1beta1 "github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
@@ -94,9 +93,6 @@ func SetupControllerEnv() (client.Client, func()) {
 	Expect(err).NotTo(HaveOccurred())
 
 	err = accessv1beta1.AddToScheme(scheme.Scheme)
-	Expect(err).NotTo(HaveOccurred())
-
-	err = cachev1beta1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	err = storagev1beta1.AddToScheme(scheme.Scheme)

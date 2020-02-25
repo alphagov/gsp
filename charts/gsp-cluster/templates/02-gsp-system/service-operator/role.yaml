@@ -27,26 +27,6 @@ rules:
   - patch
   - update
 - apiGroups:
-  - cache.govsvc.uk
-  resources:
-  - redis
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - cache.govsvc.uk
-  resources:
-  - redis/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
   - database.govsvc.uk
   resources:
   - postgres
@@ -62,6 +42,26 @@ rules:
   - database.govsvc.uk
   resources:
   - postgres/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - database.govsvc.uk
+  resources:
+  - redis
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - database.govsvc.uk
+  resources:
+  - redis/status
   verbs:
   - get
   - patch

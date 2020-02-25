@@ -2,7 +2,7 @@ package controllers
 
 import (
 	access "github.com/alphagov/gsp/components/service-operator/apis/access/v1beta1"
-	cache "github.com/alphagov/gsp/components/service-operator/apis/cache/v1beta1"
+	cache "github.com/alphagov/gsp/components/service-operator/apis/database/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
