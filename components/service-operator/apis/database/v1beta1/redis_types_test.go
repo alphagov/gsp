@@ -145,7 +145,7 @@ var _ = Describe("Redis", func() {
 	Context("cloudformation", func() {
 
 		It("should generate a unique stack name prefixed with cluster name", func() {
-			Expect(o.GetStackName()).To(HavePrefix("xxx-ecr-default-example"))
+			Expect(o.GetStackName()).To(HavePrefix("xxx-redis-default-example"))
 		})
 
 		It("should have outputs for connection details", func() {
