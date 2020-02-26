@@ -470,6 +470,12 @@ drain_cluster_task: &drain_cluster_task
       echo 'deleting PodDisruptionBudgets'
       kubectl delete -A --all poddisruptionbudget
 
+      echo 'deleting deployments and statefulsets'
+      kubectl delete -A --all deployment,statefulset
+
+      echo 'deleting volumes and claims'
+      kubectl delete -A --all pv,pvc
+
       echo "fetching cluster VPC ID..."
       CLUSTER_VPC_ID=$(aws eks describe-cluster --name "${CLUSTER_NAME}" | jq .cluster.resourcesVpcConfig.vpcId -r)
       echo "deleting any LoadBalancer services..."
