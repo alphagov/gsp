@@ -77,7 +77,7 @@ Here's an example of a Redis:
 
 ```
 kind: Redis
-apiVersion: cache.govsvc.uk/v1beta1
+apiVersion: database.govsvc.uk/v1beta1
 metadata:
   name: alexs-test
   namespace: ondemand-0-main
