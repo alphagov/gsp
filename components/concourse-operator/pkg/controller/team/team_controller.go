@@ -122,10 +122,9 @@ func (r *ReconcileTeam) Reconcile(request reconcile.Request) (reconcile.Result, 
 		if containsString(instance.ObjectMeta.Finalizers, deleteFinalizer) {
 			// our finalizer is present, so lets handle our external dependency
 			if err := r.destroy(instance); err != nil {
-				// if fail to delete the external dependency here, return with error
-				// so that it can be retried
+				// we only log the error here not block deleteion of the resource as there are some
+				// limitations around deleting teams that are hard to reconcile (must always be one admin team for example)
 				fmt.Println("DESTROY FAILED:", instance.ObjectMeta.Namespace, instance.ObjectMeta.Name, err)
-				return reconcile.Result{}, err
 			}
 			// remove our finalizer from the list and update it.
 			instance.ObjectMeta.Finalizers = removeString(instance.ObjectMeta.Finalizers, deleteFinalizer)
@@ -183,6 +182,9 @@ func (r *ReconcileTeam) update(instance *concoursev1beta1.Team) error {
 }
 
 func (r *ReconcileTeam) destroy(instance *concoursev1beta1.Team) error {
+	if instance.ObjectMeta.Name == MainTeam {
+		return nil // deleting the main team is not possible
+	}
 	concourseClient, err := r.newClient(MainTeam)
 	if err != nil {
 		return err
