@@ -463,12 +463,21 @@ drain_cluster_task: &drain_cluster_task
       aws eks update-kubeconfig --name "${CLUSTER_NAME}" --kubeconfig ./kubeconfig
       export KUBECONFIG=$(pwd)/kubeconfig
 
+      echo 'deleting concourse pipelines'
+      kubectl delete -A --all pipelines
+
       export RESOURCE_TYPES=$(kubectl get crd -o json | jq -r '.items[] | select (.spec.group | endswith(".govsvc.uk")) | .spec.names.singular')
       echo 'deleting govsvc.uk CRDs'
       kubectl delete -A --all $(echo $RESOURCE_TYPES | tr ' ' ',')
 
       echo 'deleting PodDisruptionBudgets'
       kubectl delete -A --all poddisruptionbudget
+
+      echo 'deleting deployments and statefulsets'
+      kubectl delete -A --all deployment,statefulset
+
+      echo 'deleting volumes and claims'
+      kubectl delete -A --all pv,pvc
 
       echo "fetching cluster VPC ID..."
       CLUSTER_VPC_ID=$(aws eks describe-cluster --name "${CLUSTER_NAME}" | jq .cluster.resourcesVpcConfig.vpcId -r)
