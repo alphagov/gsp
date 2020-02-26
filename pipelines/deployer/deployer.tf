@@ -171,6 +171,7 @@ module "gsp-cluster" {
   maximum_workers_per_az_count = var.maximum_workers_per_az_count
   worker_generation_timestamp  = var.worker_generation_timestamp
 
+  worker_on_demand_base_capacity         = var.worker_on_demand_base_capacity
   worker_on_demand_percentage_above_base = var.worker_on_demand_percentage_above_base
 
   ci_worker_instance_type = var.ci_worker_instance_type
