@@ -1,4 +1,4 @@
-{{- if .Values.global.runningOnAws }}
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -153,4 +153,3 @@ rules:
   - patch
   - update
   - watch
-{{ end }}
