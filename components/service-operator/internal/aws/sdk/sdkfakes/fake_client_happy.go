@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-sdk-go/service/ecr"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"math/rand"
 	"time"
 
@@ -174,6 +175,64 @@ func NewHappyClient(outputs map[string]string) *FakeClient {
 				},
 			}, nil
 		}
+	}
+
+	client.DescribeImagesPagesWithContextStub = func(_ context.Context, input *ecr.DescribeImagesInput, fn func(page *ecr.DescribeImagesOutput, lastPage bool) bool, o ...request.Option) error {
+		fn(
+			&ecr.DescribeImagesOutput{
+				ImageDetails: []*ecr.ImageDetail{
+					&ecr.ImageDetail{
+						ImageDigest:      aws.String("sha256:some long sha256 sum"),
+						ImagePushedAt:    aws.Time(time.Now()),
+						ImageScanStatus:  &ecr.ImageScanStatus{
+							Description:  aws.String("not done"),
+							Status:       aws.String("fake client happy"),
+						},
+						ImageSizeInBytes: aws.Int64(42),
+						ImageTags:        []*string{
+							aws.String("latest"),
+						},
+						RegistryId:       input.RegistryId,
+						RepositoryName:   input.RepositoryName,
+					},
+				},
+			},
+			true,
+		)
+		return nil
+	}
+	client.BatchDeleteImageWithContextStub = func(_ context.Context, input *ecr.BatchDeleteImageInput, o ...request.Option) (*ecr.BatchDeleteImageOutput, error) {
+		return &ecr.BatchDeleteImageOutput{
+			Failures: []*ecr.ImageFailure{},
+			ImageIds: input.ImageIds,
+		}, nil
+	}
+
+	client.ListObjectsV2PagesWithContextStub = func(_ context.Context, _ *s3.ListObjectsV2Input, fn func(page *s3.ListObjectsV2Output, lastPage bool) bool, o ...request.Option) error {
+		fn(
+			&s3.ListObjectsV2Output{
+				Contents: []*s3.Object{
+					&s3.Object{
+						ETag:         aws.String("some etag"),
+						Key:          aws.String("important.file"),
+						LastModified: aws.Time(time.Now()),
+						Owner:        &s3.Owner{
+							DisplayName: aws.String("Alex"),
+							ID:          aws.String("0"),
+						},
+						Size:         aws.Int64(42),
+						StorageClass: aws.String("STANDARD"),
+					},
+				},
+			},
+			true,
+		)
+		return nil
+	}
+	client.DeleteObjectsWithContextStub = func(context.Context, *s3.DeleteObjectsInput, ...request.Option) (*s3.DeleteObjectsOutput, error) {
+		return &s3.DeleteObjectsOutput{
+			Errors: []*s3.Error{},
+		}, nil
 	}
 
 	return client

@@ -69,3 +69,8 @@ type StackSecretContributor interface {
 	Stack
 	GetTemplateSecrets(ctx context.Context, client sdk.Client, outputs Outputs) (map[string]string, error)
 }
+
+type StackObjectEmptier interface {
+	Stack
+	Empty(ctx context.Context, client sdk.Client) error
+}

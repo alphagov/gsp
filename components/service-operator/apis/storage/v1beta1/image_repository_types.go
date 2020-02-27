@@ -16,13 +16,17 @@ limitations under the License.
 package v1beta1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -45,6 +49,7 @@ var _ cloudformation.Stack = &ImageRepository{}
 var _ cloudformation.StackPolicyAttacher = &ImageRepository{}
 var _ object.SecretNamer = &ImageRepository{}
 var _ cloudformation.StackSecretOutputter = &ImageRepository{}
+var _ cloudformation.StackObjectEmptier = &ImageRepository{}
 
 // DefaultLifecyclePolicy is the default policy assigned to ECR repositories
 var DefaultLifecyclePolicy = cloudformation.ECRLifecyclePolicy{
@@ -118,7 +123,7 @@ func (s *ImageRepository) GetStackTemplate() (*cloudformation.Template, error) {
 		return nil, err
 	}
 
-	repositoryName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
+	repositoryName := s.GetAWSName()
 	template.Resources[ImageRepositoryResourceName] = &cloudformation.AWSECRRepository{
 		RepositoryName: repositoryName,
 		LifecyclePolicy: &cloudformation.AWSECRRepository_LifecyclePolicy{
@@ -164,6 +169,10 @@ func (s *ImageRepository) GetStackTemplate() (*cloudformation.Template, error) {
 	return template, nil
 }
 
+func (s *ImageRepository) GetAWSName() string {
+	return fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
+}
+
 // GetStackRoleParameters returns additional params based on a target principal resource
 func (s *ImageRepository) GetStackRoleParameters(roleName string) ([]*cloudformation.Parameter, error) {
 	params := []*cloudformation.Parameter{
@@ -173,4 +182,54 @@ func (s *ImageRepository) GetStackRoleParameters(roleName string) ([]*cloudforma
 		},
 	}
 	return params, nil
+}
+
+func (s *ImageRepository) Empty(ctx context.Context, client sdk.Client) error {
+	var imageIdBatches [][]*ecr.ImageIdentifier
+	err := client.DescribeImagesPagesWithContext(
+		ctx,
+		&ecr.DescribeImagesInput{
+			RepositoryName: aws.String(s.GetAWSName()),
+		},
+		func(images *ecr.DescribeImagesOutput, _ bool) bool {
+			var imageIds []*ecr.ImageIdentifier
+			for _, image := range images.ImageDetails {
+				imageIds = append(imageIds, &ecr.ImageIdentifier{
+					ImageDigest: image.ImageDigest,
+				})
+			}
+			if len(imageIds) > 0 {
+				imageIdBatches = append(imageIdBatches, imageIds)
+			}
+			return true
+		},
+	)
+
+	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			if awsErr.Code() == "RepositoryNotFoundException" {
+				return nil
+			}
+		}
+
+		return err
+	}
+
+	for _, batch := range imageIdBatches {
+		output, err := client.BatchDeleteImageWithContext(
+			ctx,
+			&ecr.BatchDeleteImageInput{
+				RepositoryName: aws.String(s.GetAWSName()),
+				ImageIds:       batch,
+			},
+		)
+		if err != nil {
+			return err
+		}
+		for _, failure := range output.Failures {
+			return fmt.Errorf("%s", *failure.FailureReason)
+		}
+	}
+
+	return nil
 }
