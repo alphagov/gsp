@@ -59,6 +59,8 @@ type RedisAWSSpec struct {
 	EngineVersion string `json:"engineVersion"`
 
 	// NumCacheClusters defines the number of clusters that belong to our replication group. A number between 2 and 6 inclusive.
+	// +kubebuilder:validation:Minimum=2
+	// +kubebuilder:validation:Maximum=6
 	NumCacheClusters int `json:"numCacheClusters"`
 
 	// PreferredMaintenanceWindow defines the weekly window during which maintenance is performed on the cluster. The minimum period is 60 minutes.

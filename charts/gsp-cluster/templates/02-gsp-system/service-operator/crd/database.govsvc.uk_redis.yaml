@@ -3,14 +3,18 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
   creationTimestamp: null
   name: redis.database.govsvc.uk
 spec:
   group: database.govsvc.uk
   names:
     kind: Redis
+    listKind: RedisList
     plural: redis
-  scope: ""
+    singular: redis
+  scope: Namespaced
   validation:
     openAPIV3Schema:
       description: Redis is the Schema for the Redis API
@@ -44,6 +48,8 @@ spec:
                 numCacheClusters:
                   description: NumCacheClusters defines the number of clusters that
                     belong to our replication group. A number between 2 and 6 inclusive.
+                  maximum: 6
+                  minimum: 2
                   type: integer
                 preferredMaintenanceWindow:
                   description: PreferredMaintenanceWindow defines the weekly window
@@ -112,6 +118,7 @@ spec:
               type: string
           type: object
       type: object
+  version: v1beta1
   versions:
   - name: v1beta1
     served: true
