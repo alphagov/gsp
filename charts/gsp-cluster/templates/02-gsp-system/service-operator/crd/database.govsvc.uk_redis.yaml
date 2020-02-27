@@ -48,6 +48,8 @@ spec:
                 numCacheClusters:
                   description: NumCacheClusters defines the number of clusters that
                     belong to our replication group. A number between 2 and 6 inclusive.
+                  maximum: 6
+                  minimum: 2
                   type: integer
                 preferredMaintenanceWindow:
                   description: PreferredMaintenanceWindow defines the weekly window
