@@ -90,6 +90,13 @@ spec:
 ```
 
 This will create an ElastiCache redis cluster on AWS including the name `alexs-test`, with an instance type of `cache.t3.micro`. It will ensure you can get access to the created cluster via the details written into the secret whose name you specify (it will create the secret for you if it does not already exist). It will store details such as the hostname, port, username, and password in this secret.
+
+Constraints on the `aws` parameters:
+* `numCacheClusters` needs to be an integer between 2 and 6 inclusive.
+* `nodeType` needs to be a value found on https://aws.amazon.com/elasticache/pricing/
+* `engineVersion` needs to be a value fonud by running `aws elasticache describe-cache-engine-versions | jq '.CacheEngineVersions[] | select (.Engine == "redis").EngineVersion'`
+* `preferredMaintenanceWindow` maps to https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticache-replicationgroup.html#cfn-elasticache-replicationgroup-preferredmaintenancewindow
+
 The combination of the following must fit into 40 characters, be made of alphanumeric characters and hyphens, and cannot contain two consecutive hyphens:
 * your cluster's name (e.g. `sandbox`)
 * a hyphen (`-`)
