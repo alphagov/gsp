@@ -505,6 +505,11 @@ drain_cluster_task: &drain_cluster_task
           aws ec2 wait instance-terminated --instance-ids $INSTANCES
         fi
       done
+      echo "tidying up any orphaned volumes...."
+      VOLUME_IDS=$(aws ec2 describe-volumes --filters "Name=tag:kubernetes.io/cluster/${CLUSTER_NAME},Values=owned" --max-items 1000 | jq '.Volumes[].VolumeId' -r)
+      for VOLUME_ID in $VOLUME_IDS; do
+        aws ec2 delete-volume --volume-id "${VOLUME_ID}"
+      done
   inputs:
   - name: platform
 
