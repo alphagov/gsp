@@ -442,6 +442,13 @@ func (r *Controller) getRoleParams(ctx context.Context, o StackPolicyAttacher) (
 // destroyObjectWithContext triggers the stack destroy and removes finalizer once done
 func (r *Controller) destroyObjectWithContext(ctx context.Context, _ ctrl.Request, o Stack) error {
 	if object.HasFinalizer(o, Finalizer) {
+		if stackThatEmptiesObjects, ok := o.(StackObjectEmptier); ok {
+			err := stackThatEmptiesObjects.Empty(ctx, r.CloudFormationClient.Client)
+			if err != nil {
+				return err
+			}
+		}
+
 		// our finalizer is present, so lets attempt deletion
 		err := r.CloudFormationClient.Destroy(ctx, o)
 		if err != nil {

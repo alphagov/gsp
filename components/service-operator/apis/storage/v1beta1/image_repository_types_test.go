@@ -1,12 +1,19 @@
 package v1beta1_test
 
 import (
+	"context"
 	"encoding/base64"
 	"os"
+	"time"
 
 	"github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk/sdkfakes"
+
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/service/ecr"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -42,6 +49,76 @@ var _ = Describe("ImageRepository", func() {
 	It("implements runtime.Object", func() {
 		o2 := o.DeepCopyObject()
 		Expect(o2).ToNot(BeZero())
+	})
+
+	It("should call the AWS API when emptied", func() {
+		client := &sdkfakes.FakeClient{}
+		client.DescribeImagesPagesWithContextStub = func(_ context.Context, input *ecr.DescribeImagesInput, fn func(page *ecr.DescribeImagesOutput, lastPage bool) bool, o ...request.Option) error {
+			fn(
+				&ecr.DescribeImagesOutput{
+					ImageDetails: []*ecr.ImageDetail{
+						&ecr.ImageDetail{
+							ImageDigest:      aws.String("sha256:some long sha256 sum"),
+							ImagePushedAt:    aws.Time(time.Now()),
+							ImageScanStatus:  &ecr.ImageScanStatus{
+								Description:  aws.String("not done"),
+								Status:       aws.String("fake client happy"),
+							},
+							ImageSizeInBytes: aws.Int64(42),
+							ImageTags:        []*string{
+								aws.String("latest"),
+							},
+							RegistryId:       input.RegistryId,
+							RepositoryName:   input.RepositoryName,
+						},
+					},
+				},
+				false,
+			)
+			fn(
+				&ecr.DescribeImagesOutput{
+					ImageDetails: []*ecr.ImageDetail{
+						&ecr.ImageDetail{
+							ImageDigest:      aws.String("sha256:another long sha256 sum"),
+							ImagePushedAt:    aws.Time(time.Now()),
+							ImageScanStatus:  &ecr.ImageScanStatus{
+								Description:  aws.String("not done"),
+								Status:       aws.String("fake client happy"),
+							},
+							ImageSizeInBytes: aws.Int64(42),
+							ImageTags:        []*string{
+								aws.String("latest"),
+							},
+							RegistryId:       input.RegistryId,
+							RepositoryName:   input.RepositoryName,
+						},
+					},
+				},
+				true,
+			)
+			return nil
+		}
+		client.BatchDeleteImageWithContextStub = func(_ context.Context, input *ecr.BatchDeleteImageInput, o ...request.Option) (*ecr.BatchDeleteImageOutput, error) {
+			return &ecr.BatchDeleteImageOutput{
+				Failures: []*ecr.ImageFailure{},
+				ImageIds: input.ImageIds,
+			}, nil
+		}
+		err := o.Empty(context.Background(), client)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(client.BatchDeleteImageWithContextCallCount()).To(Equal(2))
+
+		_, input, _ := client.BatchDeleteImageWithContextArgsForCall(0)
+		Expect(input.RepositoryName).To(Equal(aws.String(o.GetAWSName())))
+		Expect(input.ImageIds).To(ConsistOf(&ecr.ImageIdentifier{
+			ImageDigest: aws.String("sha256:some long sha256 sum"),
+		}))
+
+		_, input, _ = client.BatchDeleteImageWithContextArgsForCall(1)
+		Expect(input.RepositoryName).To(Equal(aws.String(o.GetAWSName())))
+		Expect(input.ImageIds).To(ConsistOf(&ecr.ImageIdentifier{
+			ImageDigest: aws.String("sha256:another long sha256 sum"),
+		}))
 	})
 
 	Context("cloudformation", func() {

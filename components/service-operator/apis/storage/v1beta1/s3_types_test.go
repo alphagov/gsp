@@ -1,17 +1,23 @@
 package v1beta1_test
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/service/s3"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/alphagov/gsp/components/service-operator/apis/storage/v1beta1"
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk/sdkfakes"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 )
 
@@ -97,6 +103,70 @@ var _ = Describe("S3Bucket", func() {
 	It("implements runtime.Object", func() {
 		o2 := o.DeepCopyObject()
 		Expect(o2).ToNot(BeZero())
+	})
+
+	It("should call the AWS API when emptied", func() {
+		client := &sdkfakes.FakeClient{}
+		client.ListObjectsV2PagesWithContextStub = func(_ context.Context, _ *s3.ListObjectsV2Input, fn func(page *s3.ListObjectsV2Output, lastPage bool) bool, o ...request.Option) error {
+			fn(
+				&s3.ListObjectsV2Output{
+					Contents: []*s3.Object{
+						&s3.Object{
+							ETag:         aws.String("some etag"),
+							Key:          aws.String("important.file"),
+							LastModified: aws.Time(time.Now()),
+							Owner:        &s3.Owner{
+								DisplayName: aws.String("Alex"),
+								ID:          aws.String("0"),
+							},
+							Size:         aws.Int64(42),
+							StorageClass: aws.String("STANDARD"),
+						},
+					},
+				},
+				false,
+			)
+			fn(
+				&s3.ListObjectsV2Output{
+					Contents: []*s3.Object{
+						&s3.Object{
+							ETag:         aws.String("some etag"),
+							Key:          aws.String("another.important.file"),
+							LastModified: aws.Time(time.Now()),
+							Owner:        &s3.Owner{
+								DisplayName: aws.String("Alex"),
+								ID:          aws.String("0"),
+							},
+							Size:         aws.Int64(42),
+							StorageClass: aws.String("STANDARD"),
+						},
+					},
+				},
+				true,
+			)
+			return nil
+		}
+		client.DeleteObjectsWithContextStub = func(context.Context, *s3.DeleteObjectsInput, ...request.Option) (*s3.DeleteObjectsOutput, error) {
+			return &s3.DeleteObjectsOutput{
+				Errors: []*s3.Error{},
+			}, nil
+		}
+
+		err := o.Empty(context.Background(), client)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(client.DeleteObjectsWithContextCallCount()).To(Equal(2))
+
+		_, input, _ := client.DeleteObjectsWithContextArgsForCall(0)
+		Expect(input.Bucket).To(Equal(aws.String(o.GetAWSName())))
+		Expect(input.Delete.Objects).To(ConsistOf(&s3.ObjectIdentifier{
+			Key: aws.String("important.file"),
+		}))
+
+		_, input, _ = client.DeleteObjectsWithContextArgsForCall(1)
+		Expect(input.Bucket).To(Equal(aws.String(o.GetAWSName())))
+		Expect(input.Delete.Objects).To(ConsistOf(&s3.ObjectIdentifier{
+			Key: aws.String("another.important.file"),
+		}))
 	})
 
 	Context("cloudformation", func() {

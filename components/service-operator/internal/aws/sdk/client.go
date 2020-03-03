@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Client
@@ -24,8 +25,17 @@ type Client interface {
 	CreateStackWithContext(aws.Context, *cloudformation.CreateStackInput, ...request.Option) (*cloudformation.CreateStackOutput, error)
 	UpdateStackWithContext(aws.Context, *cloudformation.UpdateStackInput, ...request.Option) (*cloudformation.UpdateStackOutput, error)
 	DeleteStackWithContext(aws.Context, *cloudformation.DeleteStackInput, ...request.Option) (*cloudformation.DeleteStackOutput, error)
+
 	GetSecretValueWithContext(aws.Context, *secretsmanager.GetSecretValueInput, ...request.Option) (*secretsmanager.GetSecretValueOutput, error)
+
 	GetAuthorizationTokenWithContext(aws.Context, *ecr.GetAuthorizationTokenInput, ...request.Option) (*ecr.GetAuthorizationTokenOutput, error)
+
+	DescribeImagesPagesWithContext(aws.Context, *ecr.DescribeImagesInput, func(*ecr.DescribeImagesOutput, bool) bool, ...request.Option) error
+	BatchDeleteImageWithContext(aws.Context, *ecr.BatchDeleteImageInput, ...request.Option) (*ecr.BatchDeleteImageOutput, error)
+
+	ListObjectsV2PagesWithContext(aws.Context, *s3.ListObjectsV2Input, func(*s3.ListObjectsV2Output, bool) bool, ...request.Option) error
+	DeleteObjectsWithContext(aws.Context, *s3.DeleteObjectsInput, ...request.Option) (*s3.DeleteObjectsOutput, error)
+
 	AssumeRole(roleArn string) Client
 	GetRoleCredentials(roleARN string) *credentials.Credentials
 }
@@ -45,6 +55,7 @@ func NewClient(optionalConfig ...*aws.Config) Client {
 		SecretsManager: secretsmanager.New(sess, cfg),
 		CloudFormation: cloudformation.New(sess, cfg),
 		ECR:            ecr.New(sess, cfg),
+		S3:             s3.New(sess, cfg),
 	}
 }
 
@@ -55,6 +66,7 @@ type client struct {
 	*secretsmanager.SecretsManager
 	*cloudformation.CloudFormation
 	*ecr.ECR
+	*s3.S3
 }
 
 func (c *client) GetRoleCredentials(roleARN string) *credentials.Credentials {

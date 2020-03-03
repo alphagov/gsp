@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ecr"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 )
 
@@ -24,6 +25,21 @@ type FakeClient struct {
 	}
 	assumeRoleReturnsOnCall map[int]struct {
 		result1 sdk.Client
+	}
+	BatchDeleteImageWithContextStub        func(context.Context, *ecr.BatchDeleteImageInput, ...request.Option) (*ecr.BatchDeleteImageOutput, error)
+	batchDeleteImageWithContextMutex       sync.RWMutex
+	batchDeleteImageWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *ecr.BatchDeleteImageInput
+		arg3 []request.Option
+	}
+	batchDeleteImageWithContextReturns struct {
+		result1 *ecr.BatchDeleteImageOutput
+		result2 error
+	}
+	batchDeleteImageWithContextReturnsOnCall map[int]struct {
+		result1 *ecr.BatchDeleteImageOutput
+		result2 error
 	}
 	CreateStackWithContextStub        func(context.Context, *cloudformation.CreateStackInput, ...request.Option) (*cloudformation.CreateStackOutput, error)
 	createStackWithContextMutex       sync.RWMutex
@@ -40,6 +56,21 @@ type FakeClient struct {
 		result1 *cloudformation.CreateStackOutput
 		result2 error
 	}
+	DeleteObjectsWithContextStub        func(context.Context, *s3.DeleteObjectsInput, ...request.Option) (*s3.DeleteObjectsOutput, error)
+	deleteObjectsWithContextMutex       sync.RWMutex
+	deleteObjectsWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *s3.DeleteObjectsInput
+		arg3 []request.Option
+	}
+	deleteObjectsWithContextReturns struct {
+		result1 *s3.DeleteObjectsOutput
+		result2 error
+	}
+	deleteObjectsWithContextReturnsOnCall map[int]struct {
+		result1 *s3.DeleteObjectsOutput
+		result2 error
+	}
 	DeleteStackWithContextStub        func(context.Context, *cloudformation.DeleteStackInput, ...request.Option) (*cloudformation.DeleteStackOutput, error)
 	deleteStackWithContextMutex       sync.RWMutex
 	deleteStackWithContextArgsForCall []struct {
@@ -54,6 +85,20 @@ type FakeClient struct {
 	deleteStackWithContextReturnsOnCall map[int]struct {
 		result1 *cloudformation.DeleteStackOutput
 		result2 error
+	}
+	DescribeImagesPagesWithContextStub        func(context.Context, *ecr.DescribeImagesInput, func(*ecr.DescribeImagesOutput, bool) bool, ...request.Option) error
+	describeImagesPagesWithContextMutex       sync.RWMutex
+	describeImagesPagesWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *ecr.DescribeImagesInput
+		arg3 func(*ecr.DescribeImagesOutput, bool) bool
+		arg4 []request.Option
+	}
+	describeImagesPagesWithContextReturns struct {
+		result1 error
+	}
+	describeImagesPagesWithContextReturnsOnCall map[int]struct {
+		result1 error
 	}
 	DescribeStackEventsWithContextStub        func(context.Context, *cloudformation.DescribeStackEventsInput, ...request.Option) (*cloudformation.DescribeStackEventsOutput, error)
 	describeStackEventsWithContextMutex       sync.RWMutex
@@ -125,6 +170,20 @@ type FakeClient struct {
 	getSecretValueWithContextReturnsOnCall map[int]struct {
 		result1 *secretsmanager.GetSecretValueOutput
 		result2 error
+	}
+	ListObjectsV2PagesWithContextStub        func(context.Context, *s3.ListObjectsV2Input, func(*s3.ListObjectsV2Output, bool) bool, ...request.Option) error
+	listObjectsV2PagesWithContextMutex       sync.RWMutex
+	listObjectsV2PagesWithContextArgsForCall []struct {
+		arg1 context.Context
+		arg2 *s3.ListObjectsV2Input
+		arg3 func(*s3.ListObjectsV2Output, bool) bool
+		arg4 []request.Option
+	}
+	listObjectsV2PagesWithContextReturns struct {
+		result1 error
+	}
+	listObjectsV2PagesWithContextReturnsOnCall map[int]struct {
+		result1 error
 	}
 	UpdateStackWithContextStub        func(context.Context, *cloudformation.UpdateStackInput, ...request.Option) (*cloudformation.UpdateStackOutput, error)
 	updateStackWithContextMutex       sync.RWMutex
@@ -205,6 +264,71 @@ func (fake *FakeClient) AssumeRoleReturnsOnCall(i int, result1 sdk.Client) {
 	}{result1}
 }
 
+func (fake *FakeClient) BatchDeleteImageWithContext(arg1 context.Context, arg2 *ecr.BatchDeleteImageInput, arg3 ...request.Option) (*ecr.BatchDeleteImageOutput, error) {
+	fake.batchDeleteImageWithContextMutex.Lock()
+	ret, specificReturn := fake.batchDeleteImageWithContextReturnsOnCall[len(fake.batchDeleteImageWithContextArgsForCall)]
+	fake.batchDeleteImageWithContextArgsForCall = append(fake.batchDeleteImageWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *ecr.BatchDeleteImageInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("BatchDeleteImageWithContext", []interface{}{arg1, arg2, arg3})
+	fake.batchDeleteImageWithContextMutex.Unlock()
+	if fake.BatchDeleteImageWithContextStub != nil {
+		return fake.BatchDeleteImageWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.batchDeleteImageWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeClient) BatchDeleteImageWithContextCallCount() int {
+	fake.batchDeleteImageWithContextMutex.RLock()
+	defer fake.batchDeleteImageWithContextMutex.RUnlock()
+	return len(fake.batchDeleteImageWithContextArgsForCall)
+}
+
+func (fake *FakeClient) BatchDeleteImageWithContextCalls(stub func(context.Context, *ecr.BatchDeleteImageInput, ...request.Option) (*ecr.BatchDeleteImageOutput, error)) {
+	fake.batchDeleteImageWithContextMutex.Lock()
+	defer fake.batchDeleteImageWithContextMutex.Unlock()
+	fake.BatchDeleteImageWithContextStub = stub
+}
+
+func (fake *FakeClient) BatchDeleteImageWithContextArgsForCall(i int) (context.Context, *ecr.BatchDeleteImageInput, []request.Option) {
+	fake.batchDeleteImageWithContextMutex.RLock()
+	defer fake.batchDeleteImageWithContextMutex.RUnlock()
+	argsForCall := fake.batchDeleteImageWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeClient) BatchDeleteImageWithContextReturns(result1 *ecr.BatchDeleteImageOutput, result2 error) {
+	fake.batchDeleteImageWithContextMutex.Lock()
+	defer fake.batchDeleteImageWithContextMutex.Unlock()
+	fake.BatchDeleteImageWithContextStub = nil
+	fake.batchDeleteImageWithContextReturns = struct {
+		result1 *ecr.BatchDeleteImageOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeClient) BatchDeleteImageWithContextReturnsOnCall(i int, result1 *ecr.BatchDeleteImageOutput, result2 error) {
+	fake.batchDeleteImageWithContextMutex.Lock()
+	defer fake.batchDeleteImageWithContextMutex.Unlock()
+	fake.BatchDeleteImageWithContextStub = nil
+	if fake.batchDeleteImageWithContextReturnsOnCall == nil {
+		fake.batchDeleteImageWithContextReturnsOnCall = make(map[int]struct {
+			result1 *ecr.BatchDeleteImageOutput
+			result2 error
+		})
+	}
+	fake.batchDeleteImageWithContextReturnsOnCall[i] = struct {
+		result1 *ecr.BatchDeleteImageOutput
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeClient) CreateStackWithContext(arg1 context.Context, arg2 *cloudformation.CreateStackInput, arg3 ...request.Option) (*cloudformation.CreateStackOutput, error) {
 	fake.createStackWithContextMutex.Lock()
 	ret, specificReturn := fake.createStackWithContextReturnsOnCall[len(fake.createStackWithContextArgsForCall)]
@@ -266,6 +390,71 @@ func (fake *FakeClient) CreateStackWithContextReturnsOnCall(i int, result1 *clou
 	}
 	fake.createStackWithContextReturnsOnCall[i] = struct {
 		result1 *cloudformation.CreateStackOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeClient) DeleteObjectsWithContext(arg1 context.Context, arg2 *s3.DeleteObjectsInput, arg3 ...request.Option) (*s3.DeleteObjectsOutput, error) {
+	fake.deleteObjectsWithContextMutex.Lock()
+	ret, specificReturn := fake.deleteObjectsWithContextReturnsOnCall[len(fake.deleteObjectsWithContextArgsForCall)]
+	fake.deleteObjectsWithContextArgsForCall = append(fake.deleteObjectsWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *s3.DeleteObjectsInput
+		arg3 []request.Option
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DeleteObjectsWithContext", []interface{}{arg1, arg2, arg3})
+	fake.deleteObjectsWithContextMutex.Unlock()
+	if fake.DeleteObjectsWithContextStub != nil {
+		return fake.DeleteObjectsWithContextStub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.deleteObjectsWithContextReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeClient) DeleteObjectsWithContextCallCount() int {
+	fake.deleteObjectsWithContextMutex.RLock()
+	defer fake.deleteObjectsWithContextMutex.RUnlock()
+	return len(fake.deleteObjectsWithContextArgsForCall)
+}
+
+func (fake *FakeClient) DeleteObjectsWithContextCalls(stub func(context.Context, *s3.DeleteObjectsInput, ...request.Option) (*s3.DeleteObjectsOutput, error)) {
+	fake.deleteObjectsWithContextMutex.Lock()
+	defer fake.deleteObjectsWithContextMutex.Unlock()
+	fake.DeleteObjectsWithContextStub = stub
+}
+
+func (fake *FakeClient) DeleteObjectsWithContextArgsForCall(i int) (context.Context, *s3.DeleteObjectsInput, []request.Option) {
+	fake.deleteObjectsWithContextMutex.RLock()
+	defer fake.deleteObjectsWithContextMutex.RUnlock()
+	argsForCall := fake.deleteObjectsWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeClient) DeleteObjectsWithContextReturns(result1 *s3.DeleteObjectsOutput, result2 error) {
+	fake.deleteObjectsWithContextMutex.Lock()
+	defer fake.deleteObjectsWithContextMutex.Unlock()
+	fake.DeleteObjectsWithContextStub = nil
+	fake.deleteObjectsWithContextReturns = struct {
+		result1 *s3.DeleteObjectsOutput
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeClient) DeleteObjectsWithContextReturnsOnCall(i int, result1 *s3.DeleteObjectsOutput, result2 error) {
+	fake.deleteObjectsWithContextMutex.Lock()
+	defer fake.deleteObjectsWithContextMutex.Unlock()
+	fake.DeleteObjectsWithContextStub = nil
+	if fake.deleteObjectsWithContextReturnsOnCall == nil {
+		fake.deleteObjectsWithContextReturnsOnCall = make(map[int]struct {
+			result1 *s3.DeleteObjectsOutput
+			result2 error
+		})
+	}
+	fake.deleteObjectsWithContextReturnsOnCall[i] = struct {
+		result1 *s3.DeleteObjectsOutput
 		result2 error
 	}{result1, result2}
 }
@@ -333,6 +522,69 @@ func (fake *FakeClient) DeleteStackWithContextReturnsOnCall(i int, result1 *clou
 		result1 *cloudformation.DeleteStackOutput
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *FakeClient) DescribeImagesPagesWithContext(arg1 context.Context, arg2 *ecr.DescribeImagesInput, arg3 func(*ecr.DescribeImagesOutput, bool) bool, arg4 ...request.Option) error {
+	fake.describeImagesPagesWithContextMutex.Lock()
+	ret, specificReturn := fake.describeImagesPagesWithContextReturnsOnCall[len(fake.describeImagesPagesWithContextArgsForCall)]
+	fake.describeImagesPagesWithContextArgsForCall = append(fake.describeImagesPagesWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *ecr.DescribeImagesInput
+		arg3 func(*ecr.DescribeImagesOutput, bool) bool
+		arg4 []request.Option
+	}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("DescribeImagesPagesWithContext", []interface{}{arg1, arg2, arg3, arg4})
+	fake.describeImagesPagesWithContextMutex.Unlock()
+	if fake.DescribeImagesPagesWithContextStub != nil {
+		return fake.DescribeImagesPagesWithContextStub(arg1, arg2, arg3, arg4...)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.describeImagesPagesWithContextReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeClient) DescribeImagesPagesWithContextCallCount() int {
+	fake.describeImagesPagesWithContextMutex.RLock()
+	defer fake.describeImagesPagesWithContextMutex.RUnlock()
+	return len(fake.describeImagesPagesWithContextArgsForCall)
+}
+
+func (fake *FakeClient) DescribeImagesPagesWithContextCalls(stub func(context.Context, *ecr.DescribeImagesInput, func(*ecr.DescribeImagesOutput, bool) bool, ...request.Option) error) {
+	fake.describeImagesPagesWithContextMutex.Lock()
+	defer fake.describeImagesPagesWithContextMutex.Unlock()
+	fake.DescribeImagesPagesWithContextStub = stub
+}
+
+func (fake *FakeClient) DescribeImagesPagesWithContextArgsForCall(i int) (context.Context, *ecr.DescribeImagesInput, func(*ecr.DescribeImagesOutput, bool) bool, []request.Option) {
+	fake.describeImagesPagesWithContextMutex.RLock()
+	defer fake.describeImagesPagesWithContextMutex.RUnlock()
+	argsForCall := fake.describeImagesPagesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *FakeClient) DescribeImagesPagesWithContextReturns(result1 error) {
+	fake.describeImagesPagesWithContextMutex.Lock()
+	defer fake.describeImagesPagesWithContextMutex.Unlock()
+	fake.DescribeImagesPagesWithContextStub = nil
+	fake.describeImagesPagesWithContextReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeClient) DescribeImagesPagesWithContextReturnsOnCall(i int, result1 error) {
+	fake.describeImagesPagesWithContextMutex.Lock()
+	defer fake.describeImagesPagesWithContextMutex.Unlock()
+	fake.DescribeImagesPagesWithContextStub = nil
+	if fake.describeImagesPagesWithContextReturnsOnCall == nil {
+		fake.describeImagesPagesWithContextReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.describeImagesPagesWithContextReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeClient) DescribeStackEventsWithContext(arg1 context.Context, arg2 *cloudformation.DescribeStackEventsInput, arg3 ...request.Option) (*cloudformation.DescribeStackEventsOutput, error) {
@@ -655,6 +907,69 @@ func (fake *FakeClient) GetSecretValueWithContextReturnsOnCall(i int, result1 *s
 	}{result1, result2}
 }
 
+func (fake *FakeClient) ListObjectsV2PagesWithContext(arg1 context.Context, arg2 *s3.ListObjectsV2Input, arg3 func(*s3.ListObjectsV2Output, bool) bool, arg4 ...request.Option) error {
+	fake.listObjectsV2PagesWithContextMutex.Lock()
+	ret, specificReturn := fake.listObjectsV2PagesWithContextReturnsOnCall[len(fake.listObjectsV2PagesWithContextArgsForCall)]
+	fake.listObjectsV2PagesWithContextArgsForCall = append(fake.listObjectsV2PagesWithContextArgsForCall, struct {
+		arg1 context.Context
+		arg2 *s3.ListObjectsV2Input
+		arg3 func(*s3.ListObjectsV2Output, bool) bool
+		arg4 []request.Option
+	}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("ListObjectsV2PagesWithContext", []interface{}{arg1, arg2, arg3, arg4})
+	fake.listObjectsV2PagesWithContextMutex.Unlock()
+	if fake.ListObjectsV2PagesWithContextStub != nil {
+		return fake.ListObjectsV2PagesWithContextStub(arg1, arg2, arg3, arg4...)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.listObjectsV2PagesWithContextReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeClient) ListObjectsV2PagesWithContextCallCount() int {
+	fake.listObjectsV2PagesWithContextMutex.RLock()
+	defer fake.listObjectsV2PagesWithContextMutex.RUnlock()
+	return len(fake.listObjectsV2PagesWithContextArgsForCall)
+}
+
+func (fake *FakeClient) ListObjectsV2PagesWithContextCalls(stub func(context.Context, *s3.ListObjectsV2Input, func(*s3.ListObjectsV2Output, bool) bool, ...request.Option) error) {
+	fake.listObjectsV2PagesWithContextMutex.Lock()
+	defer fake.listObjectsV2PagesWithContextMutex.Unlock()
+	fake.ListObjectsV2PagesWithContextStub = stub
+}
+
+func (fake *FakeClient) ListObjectsV2PagesWithContextArgsForCall(i int) (context.Context, *s3.ListObjectsV2Input, func(*s3.ListObjectsV2Output, bool) bool, []request.Option) {
+	fake.listObjectsV2PagesWithContextMutex.RLock()
+	defer fake.listObjectsV2PagesWithContextMutex.RUnlock()
+	argsForCall := fake.listObjectsV2PagesWithContextArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *FakeClient) ListObjectsV2PagesWithContextReturns(result1 error) {
+	fake.listObjectsV2PagesWithContextMutex.Lock()
+	defer fake.listObjectsV2PagesWithContextMutex.Unlock()
+	fake.ListObjectsV2PagesWithContextStub = nil
+	fake.listObjectsV2PagesWithContextReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeClient) ListObjectsV2PagesWithContextReturnsOnCall(i int, result1 error) {
+	fake.listObjectsV2PagesWithContextMutex.Lock()
+	defer fake.listObjectsV2PagesWithContextMutex.Unlock()
+	fake.ListObjectsV2PagesWithContextStub = nil
+	if fake.listObjectsV2PagesWithContextReturnsOnCall == nil {
+		fake.listObjectsV2PagesWithContextReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.listObjectsV2PagesWithContextReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *FakeClient) UpdateStackWithContext(arg1 context.Context, arg2 *cloudformation.UpdateStackInput, arg3 ...request.Option) (*cloudformation.UpdateStackOutput, error) {
 	fake.updateStackWithContextMutex.Lock()
 	ret, specificReturn := fake.updateStackWithContextReturnsOnCall[len(fake.updateStackWithContextArgsForCall)]
@@ -725,10 +1040,16 @@ func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.assumeRoleMutex.RLock()
 	defer fake.assumeRoleMutex.RUnlock()
+	fake.batchDeleteImageWithContextMutex.RLock()
+	defer fake.batchDeleteImageWithContextMutex.RUnlock()
 	fake.createStackWithContextMutex.RLock()
 	defer fake.createStackWithContextMutex.RUnlock()
+	fake.deleteObjectsWithContextMutex.RLock()
+	defer fake.deleteObjectsWithContextMutex.RUnlock()
 	fake.deleteStackWithContextMutex.RLock()
 	defer fake.deleteStackWithContextMutex.RUnlock()
+	fake.describeImagesPagesWithContextMutex.RLock()
+	defer fake.describeImagesPagesWithContextMutex.RUnlock()
 	fake.describeStackEventsWithContextMutex.RLock()
 	defer fake.describeStackEventsWithContextMutex.RUnlock()
 	fake.describeStacksWithContextMutex.RLock()
@@ -739,6 +1060,8 @@ func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	defer fake.getRoleCredentialsMutex.RUnlock()
 	fake.getSecretValueWithContextMutex.RLock()
 	defer fake.getSecretValueWithContextMutex.RUnlock()
+	fake.listObjectsV2PagesWithContextMutex.RLock()
+	defer fake.listObjectsV2PagesWithContextMutex.RUnlock()
 	fake.updateStackWithContextMutex.RLock()
 	defer fake.updateStackWithContextMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

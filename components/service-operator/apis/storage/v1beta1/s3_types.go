@@ -16,12 +16,16 @@ limitations under the License.
 package v1beta1
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/alphagov/gsp/components/service-operator/internal/aws/cloudformation"
+	"github.com/alphagov/gsp/components/service-operator/internal/aws/sdk"
 	"github.com/alphagov/gsp/components/service-operator/internal/env"
 	"github.com/alphagov/gsp/components/service-operator/internal/object"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/s3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -95,6 +99,7 @@ var _ cloudformation.Stack = &S3Bucket{}
 var _ cloudformation.StackPolicyAttacher = &S3Bucket{}
 var _ object.SecretNamer = &S3Bucket{}
 var _ cloudformation.ServiceEntryCreator = &S3Bucket{}
+var _ cloudformation.StackObjectEmptier = &S3Bucket{}
 
 // AWS allows specifying configuration for the S3Bucket
 type AWS struct {
@@ -174,7 +179,7 @@ func (s *S3Bucket) GetStackTemplate() (*cloudformation.Template, error) {
 		},
 	}
 
-	bucketName := fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
+	bucketName := s.GetAWSName()
 	template.Resources[S3BucketResourceName] = &cloudformation.AWSS3Bucket{
 		BucketName: bucketName,
 		Tags:       tags,
@@ -212,6 +217,10 @@ func (s *S3Bucket) GetStackTemplate() (*cloudformation.Template, error) {
 	}
 
 	return template, nil
+}
+
+func (s *S3Bucket) GetAWSName() string {
+	return fmt.Sprintf("%s-%s-%s", env.ClusterName(), s.Namespace, s.ObjectMeta.Name)
 }
 
 func (s *S3Bucket) GetServiceEntryName() string {
@@ -267,4 +276,56 @@ func (s *S3Bucket) GetStackRoleParameters(roleName string) ([]*cloudformation.Pa
 		},
 	}
 	return params, nil
+}
+
+func (s *S3Bucket) Empty(ctx context.Context, client sdk.Client) error {
+	var objectIdBatches [][]*s3.ObjectIdentifier
+	err := client.ListObjectsV2PagesWithContext(
+		ctx,
+		&s3.ListObjectsV2Input{
+			Bucket:  aws.String(s.GetAWSName()),
+		},
+		func (objects *s3.ListObjectsV2Output, lastPage bool) bool {
+			var objectIDs []*s3.ObjectIdentifier
+			for _, object := range objects.Contents {
+				objectIDs = append(objectIDs, &s3.ObjectIdentifier{
+					Key: object.Key,
+				})
+			}
+			if len(objectIDs) > 0 {
+				objectIdBatches = append(objectIdBatches, objectIDs)
+			}
+			return true
+		},
+	)
+
+	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			if awsErr.Code() == "NoSuchBucket" {
+				return nil
+			}
+		}
+
+		return err
+	}
+
+	for _, batch := range objectIdBatches {
+		output, err := client.DeleteObjectsWithContext(
+			ctx,
+			&s3.DeleteObjectsInput{
+				Bucket: aws.String(s.GetAWSName()),
+				Delete: &s3.Delete{
+					Objects: batch,
+				},
+			},
+		)
+		if err != nil {
+			return err
+		}
+		for _, failure := range output.Errors {
+			return fmt.Errorf("%s", *failure.Message)
+		}
+	}
+
+	return nil
 }
