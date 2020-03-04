@@ -1050,6 +1050,7 @@ jobs:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
   - task: drain-cluster
+    attempts: 3
     image: task-toolbox
     config: *drain_cluster_task
     params:
