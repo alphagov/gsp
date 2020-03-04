@@ -15,7 +15,7 @@ unpack_release: &unpack_release
   platform: linux
   params:
     CLUSTER_PUBLIC_KEY:
-    PLATFORM_RESOURCE_TYPE: 
+    PLATFORM_RESOURCE_TYPE:
   run:
     path: /bin/bash
     args:
@@ -159,8 +159,8 @@ apply_cluster_chart: &apply_cluster_chart
     CONFIG_VALUES_PATH:
     GOOGLE_OAUTH_CLIENT_ID:
     GOOGLE_OAUTH_CLIENT_SECRET:
-    PLATFORM_RESOURCE_TYPE: 
-    PLATFORM_VERSION: 
+    PLATFORM_RESOURCE_TYPE:
+    PLATFORM_VERSION:
   run:
     path: /bin/bash
     args:
@@ -454,49 +454,66 @@ drain_cluster_task: &drain_cluster_task
       echo "assuming aws deployer role..."
       AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
       eval "${AWS_CREDS}"
+      echo "---> OK"
+
       echo "checking there is a cluster to drain"
       if ! (aws eks list-clusters 1>/dev/null && aws eks describe-cluster --name "${CLUSTER_NAME}" 2>/dev/null 1>/dev/null); then
         echo 'no eks cluster running: skipping drain'
         exit 0
       fi
+      echo "---> OK"
+
       echo "fetching kubeconfig from aws..."
       aws eks update-kubeconfig --name "${CLUSTER_NAME}" --kubeconfig ./kubeconfig
       export KUBECONFIG=$(pwd)/kubeconfig
+      echo "---> OK"
+
+      echo "fetching vpc id from cluster..."
+      CLUSTER_VPC_ID=$(aws eks describe-cluster --name "${CLUSTER_NAME}" | jq .cluster.resourcesVpcConfig.vpcId -r)
+      echo "---> OK"
 
       echo 'deleting concourse pipelines'
       kubectl delete -A --all pipelines
+      echo "---> OK"
 
+      echo 'deleting govsvc.uk custom resources'
       export RESOURCE_TYPES=$(kubectl get crd -o json | jq -r '.items[] | select (.spec.group | endswith(".govsvc.uk")) | .spec.names.singular')
-      echo 'deleting govsvc.uk CRDs'
       kubectl delete -A --all $(echo $RESOURCE_TYPES | tr ' ' ',')
+      echo "---> OK"
 
       echo 'deleting PodDisruptionBudgets'
       kubectl delete -A --all poddisruptionbudget
+      echo "---> OK"
 
       echo 'deleting deployments and statefulsets'
       kubectl delete -A --all deployment,statefulset
+      echo "---> OK"
 
       echo 'deleting volumes and claims'
       kubectl delete -A --all pv,pvc
+      echo "---> OK"
 
-      echo "fetching cluster VPC ID..."
-      CLUSTER_VPC_ID=$(aws eks describe-cluster --name "${CLUSTER_NAME}" | jq .cluster.resourcesVpcConfig.vpcId -r)
       echo "deleting any LoadBalancer services..."
       kubectl get svc -o json --all-namespaces | jq '.items[] | select(.spec.type == "LoadBalancer")' | kubectl delete -f - --wait
-      echo "checking for any ELBs that belong to cluster..."
+      echo "---> OK"
+
+      echo "waiting for ELBs to terminate..."
       ELB_ARNS_JSON=$(aws elbv2 describe-load-balancers | jq "{LoadBalancerArns: [ .LoadBalancers[] | select(.VpcId == \"${CLUSTER_VPC_ID}\") | select(.LoadBalancerName != \"${CLUSTER_NAME}-ingress\") | .LoadBalancerArn ]}" -c)
       ELB_ARNS_COUNT=$(echo $ELB_ARNS_JSON | jq '.LoadBalancerArns | length')
-      echo "waiting for ${ELB_ARNS_COUNT} ELBs to terminate..."
       if [[ "${ELB_ARNS_COUNT}" != "0" ]]; then
         aws elbv2 wait load-balancers-deleted --cli-input-json "${ELB_ARNS_JSON}"
       fi
+      echo "---> OK"
+
       echo "checking for ASGs that belong to this cluster..."
       CLUSTER_ASGS=$(aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | select( .Tags[].Key == \"kubernetes.io/cluster/${CLUSTER_NAME}\")" | jq -r .AutoScalingGroupName)
       for ASG_NAME in $CLUSTER_ASGS; do
         echo "scaling ${ASG_NAME} to zero..."
         aws autoscaling update-auto-scaling-group --auto-scaling-group-name "${ASG_NAME}" --min-size 0 --max-size 0 --desired-capacity 0
       done
-      echo "checking if any nodes are still running ..."
+      echo "---> OK"
+
+      echo "checking if any nodes are still running..."
       for ASG_NAME in $CLUSTER_ASGS; do
         echo "checking number of instances remaining in ${ASG_NAME}..."
         INSTANCES=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "${ASG_NAME}" --query "AutoScalingGroups[0].Instances[*].InstanceId" --output text)
@@ -505,11 +522,14 @@ drain_cluster_task: &drain_cluster_task
           aws ec2 wait instance-terminated --instance-ids $INSTANCES
         fi
       done
+      echo "---> OK"
+
       echo "tidying up any orphaned volumes...."
       VOLUME_IDS=$(aws ec2 describe-volumes --filters "Name=tag:kubernetes.io/cluster/${CLUSTER_NAME},Values=owned" --max-items 1000 | jq '.Volumes[].VolumeId' -r)
       for VOLUME_ID in $VOLUME_IDS; do
         aws ec2 delete-volume --volume-id "${VOLUME_ID}"
       done
+      echo "---> OK"
   inputs:
   - name: platform
 
@@ -1030,6 +1050,7 @@ jobs:
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
   - task: drain-cluster
+    attempts: 3
     image: task-toolbox
     config: *drain_cluster_task
     params:
