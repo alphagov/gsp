@@ -28,6 +28,7 @@ data "aws_iam_policy_document" "user-defaults" {
 
     actions = [
       "eks:DescribeCluster*",
+      "rds:DownloadDBLogFilePortion",
     ]
 
     resources = ["*"]
