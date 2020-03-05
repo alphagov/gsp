@@ -296,6 +296,7 @@ rules:
 - apiGroups: ["database.govsvc.uk"]
   resources:
   - postgres
+  - redis
   verbs:
   - delete
   - get

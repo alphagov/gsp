@@ -165,6 +165,7 @@ rules:
 - apiGroups: ["database.govsvc.uk"]
   resources:
   - postgres
+  - redis
   verbs:
   - create
   - patch
