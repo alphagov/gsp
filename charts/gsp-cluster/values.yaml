@@ -11,6 +11,7 @@ global:
   roles:
     canary: ""
   cloudHsm:
+    public: false
     enabled: false
     ip: "127.0.0.1"
   kubeApiService:
