@@ -1,5 +1,9 @@
 # GSP [![IRC](https://img.shields.io/badge/kubernetes-v1.14.8-0099ef.svg)]() <img align="right" src="./docs/assets/gsp.png" alt="gsp" width="30%" height="whatever">
 
+***
+This project solves some specific needs of GDS. It is not generally useful for people outside of GDS. You should consider using [GOV.UK PaaS](https://www.cloud.service.gov.uk/) if you are looking for somewhere to run your services.
+***
+
 GSP (GDS Supported Platform) is a Kubernetes distribution maintained by the [Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service) created to meet the common needs of running digital services in production.
 
 * Reduce onboarding/support burden by sharing a consistent base and common declarative language
