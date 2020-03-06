@@ -190,38 +190,6 @@ resource "aws_autoscaling_lifecycle_hook" "kiam-nodes-lifecycle-hook" {
   lifecycle_transition   = "autoscaling:EC2_INSTANCE_TERMINATING"
 }
 
-resource "aws_cloudformation_stack" "ci-nodes" {
-  name          = "${var.cluster_name}-ci-nodes"
-  template_body = file("${path.module}/data/nodegroup.yaml")
-  capabilities  = ["CAPABILITY_IAM"]
-
-  parameters = {
-    NodeImageId                         = "/aws/service/eks/optimized-ami/${var.worker_eks_version}/amazon-linux-2/recommended/image_id"
-    ClusterName                         = var.cluster_name
-    ClusterControlPlaneSecurityGroup    = aws_security_group.controller.id
-    NodeGroupName                       = "ci"
-    NodeAutoScalingGroupMinSize         = var.ci_worker_count
-    NodeAutoScalingGroupDesiredCapacity = var.ci_worker_count
-    NodeAutoScalingGroupMaxSize         = var.ci_worker_count + 1
-    NodeInstanceType                    = var.ci_worker_instance_type
-    NodeVolumeSize                      = "75"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/ci --register-with-taints=node-role.kubernetes.io/ci=:NoSchedule --event-qps=0\""
-    NodeGroupGenerationTimestamp        = var.worker_generation_timestamp
-    VpcId                               = var.vpc_id
-    Subnets                             = join(",", var.private_subnet_ids)
-  }
-
-  depends_on = [aws_eks_cluster.eks-cluster]
-}
-
-resource "aws_autoscaling_lifecycle_hook" "ci-nodes-lifecycle-hook" {
-  name                   = "${var.cluster_name}-ci"
-  autoscaling_group_name = lookup(aws_cloudformation_stack.ci-nodes.outputs, "AutoScalingGroupName", "")
-  default_result         = "ABANDON"
-  heartbeat_timeout      = 180
-  lifecycle_transition   = "autoscaling:EC2_INSTANCE_TERMINATING"
-}
-
 data "template_file" "kubeconfig" {
   template = file("${path.module}/data/kubeconfig")
 

@@ -23,7 +23,6 @@ data "template_file" "values" {
     concourse_admin_password                       = random_password.concourse_password.result
     concourse_teams                                = jsonencode(concat(["main"], var.concourse_teams))
     concourse_main_team_github_teams               = jsonencode(var.concourse_main_team_github_teams)
-    concourse_worker_count                         = var.ci_worker_count
     github_client_id                               = jsonencode(var.github_client_id)
     github_client_secret                           = jsonencode(var.github_client_secret)
     github_ca_cert                                 = jsonencode(var.github_ca_cert)

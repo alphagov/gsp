@@ -74,16 +74,6 @@ variable "worker_generation_timestamp" {
   default = "none"
 }
 
-variable "ci_worker_instance_type" {
-  type    = string
-  default = "m5.large"
-}
-
-variable "ci_worker_count" {
-  type    = string
-  default = "3"
-}
-
 
 variable "eks_version" {
   description = "EKS platform version (https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html)"
@@ -173,9 +163,6 @@ module "gsp-cluster" {
 
   worker_on_demand_base_capacity         = var.worker_on_demand_base_capacity
   worker_on_demand_percentage_above_base = var.worker_on_demand_percentage_above_base
-
-  ci_worker_instance_type = var.ci_worker_instance_type
-  ci_worker_count         = var.ci_worker_count
 
   vpc_id = module.gsp-network.vpc_id
 

@@ -14,7 +14,6 @@ output "bootstrap_role_arns" {
   value = [
     aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceRole"],
     aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"],
-    aws_cloudformation_stack.ci-nodes.outputs["NodeInstanceRole"],
   ]
 }
 
@@ -32,10 +31,6 @@ output "eks-log-group-name" {
 
 output "worker_security_group_id" {
   value = aws_security_group.worker.id
-}
-
-output "ci_security_group_id" {
-  value = aws_cloudformation_stack.ci-nodes.outputs["NodeSecurityGroup"]
 }
 
 output "oidc_provider_url" {

@@ -169,10 +169,6 @@ prometheus-operator:
           regex: true
           target_label: node_role
           replacement: worker
-        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
-          regex: true
-          target_label: node_role
-          replacement: ci
         - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
           regex: true
           target_label: node_role
@@ -198,10 +194,6 @@ prometheus-operator:
           regex: true
           target_label: node_role
           replacement: worker
-        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
-          regex: true
-          target_label: node_role
-          replacement: ci
         - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
           regex: true
           target_label: node_role
@@ -224,10 +216,6 @@ prometheus-operator:
           regex: true
           target_label: node_role
           replacement: worker
-        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
-          regex: true
-          target_label: node_role
-          replacement: ci
         - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
           regex: true
           target_label: node_role
@@ -251,10 +239,6 @@ prometheus-operator:
           regex: true
           target_label: node_role
           replacement: worker
-        - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_ci]
-          regex: true
-          target_label: node_role
-          replacement: ci
         - source_labels: [__meta_kubernetes_node_labelpresent_node_role_kubernetes_io_cluster_management]
           regex: true
           target_label: node_role

@@ -66,10 +66,6 @@ data "aws_arn" "kiam-server-nodes-role" {
   arn = aws_cloudformation_stack.kiam-server-nodes.outputs["NodeInstanceRole"]
 }
 
-data "aws_arn" "ci-nodes-role" {
-  arn = aws_cloudformation_stack.ci-nodes.outputs["NodeInstanceRole"]
-}
-
 resource "aws_iam_policy" "ssm-minimal" {
   name   = "${var.cluster_name}-ssm-minimal"
   policy = data.aws_iam_policy_document.ssm-minimal.json
@@ -85,11 +81,6 @@ resource "aws_iam_role_policy_attachment" "kiam-nodes-ssm" {
   role       = replace(data.aws_arn.kiam-server-nodes-role.resource, "role/", "")
 }
 
-resource "aws_iam_role_policy_attachment" "ci-nodes-ssm" {
-  policy_arn = aws_iam_policy.ssm-minimal.arn
-  role       = replace(data.aws_arn.ci-nodes-role.resource, "role/", "")
-}
-
 resource "aws_iam_policy" "cloudwatch_metrics_read_only" {
   name   = "${var.cluster_name}-cloudwatch_metrics_read_only"
   policy = data.aws_iam_policy_document.cloudwatch_metrics_read_only.json
@@ -103,9 +94,4 @@ resource "aws_iam_role_policy_attachment" "worker-nodes-cloudwatch" {
 resource "aws_iam_role_policy_attachment" "kiam-nodes-cloudwatch" {
   policy_arn = aws_iam_policy.cloudwatch_metrics_read_only.arn
   role       = replace(data.aws_arn.kiam-server-nodes-role.resource, "role/", "")
-}
-
-resource "aws_iam_role_policy_attachment" "ci-nodes-cloudwatch" {
-  policy_arn = aws_iam_policy.cloudwatch_metrics_read_only.arn
-  role       = replace(data.aws_arn.ci-nodes-role.resource, "role/", "")
 }

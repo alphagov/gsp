@@ -10,7 +10,7 @@ violation[{"msg": msg}] {
   input.review.object.metadata.namespace != "gsp-system"
   input.review.object.metadata.namespace != "kube-system"
 
-  msg := "cannot tolerate ci or cluster-management roles outside gsp-system/kube-system namespaces"
+  msg := "cannot tolerate cluster-management role outside gsp-system/kube-system namespaces"
 }
 
 violation[{"msg": msg}] {
@@ -23,7 +23,7 @@ violation[{"msg": msg}] {
   input.review.object.metadata.namespace != "gsp-system"
   input.review.object.metadata.namespace != "kube-system"
 
-  msg := "cannot tolerate ci or cluster-management roles without effect outside gsp-system/kube-system namespaces"
+  msg := "cannot tolerate cluster-management role without effect outside gsp-system/kube-system namespaces"
 }
 
 violation[{"msg": msg}] {

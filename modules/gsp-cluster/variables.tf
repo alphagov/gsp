@@ -61,16 +61,6 @@ variable "worker_on_demand_percentage_above_base" {
   default = "100"
 }
 
-variable "ci_worker_count" {
-  type    = string
-  default = "2"
-}
-
-variable "ci_worker_instance_type" {
-  type    = string
-  default = "m5.large"
-}
-
 variable "worker_generation_timestamp" {
   type    = string
   default = "none"
