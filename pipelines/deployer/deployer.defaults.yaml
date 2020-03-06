@@ -23,6 +23,7 @@ disable-destroy: true
 
 config-approvers: []
 config-approval-count: 2
+config-resource-type: github
 
 minimum-workers-per-az-count: 1
 maximum-workers-per-az-count: 5

@@ -4,6 +4,7 @@
 
 * Write a cluster-config file and values file into a branch of tech-ops-cluster-config.git, like [tech-ops-cluster-config #268](https://github.com/alphagov/tech-ops-cluster-config/pull/268/files)
   * Set `config-version` to the branch name you chose.
+  * Set `config-resource-type` to `git` (default is `github` and it would require us to have a PR open for our branch).
   * Set `config-path` to the path to your new cluster YAML file, relative to the root of tech-ops-cluster-config.
   * Set `config-values-path` to the path of your new cluster values YAML file, relative to the root of tech-ops-cluster-config.
   * Set `splunk-enabled` to "0" if you don't require Splunk in your cluster.
@@ -21,7 +22,7 @@
       * google-oauth-client-secret: "NOTID"
       * google-oauth-client-id: "NOTASECRET"
 
-* Commit and push that, open a draft PR. You don't need to get it merged.
+* Commit and push that to the branch you chose in `config-version`.
 * Ensure your fly config has a `cd-gsp` target pointing to the `gsp` team in Big Concourse.
 * Change directory to top level of `gsp` repo
 * `CLUSTER_CONFIG=../tech-ops-cluster-config/clusters/name-of-my-cluster.yaml ./hack/set-deployer-pipeline.sh`
