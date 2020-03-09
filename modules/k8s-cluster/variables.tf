@@ -55,13 +55,3 @@ variable "worker_on_demand_percentage_above_base" {
   type    = "string"
   default = "100"
 }
-
-variable "ci_worker_instance_type" {
-  type    = string
-  default = "t3.medium"
-}
-
-variable "ci_worker_count" {
-  type    = string
-  default = "3"
-}

@@ -630,8 +630,6 @@ resources:
       worker_on_demand_base_capacity: ((worker-on-demand-base-capacity))
       worker_on_demand_percentage_above_base: ((worker-on-demand-percentage-above-base))
       enable_nlb: ((enable-nlb))
-      ci_worker_instance_type: ((ci-worker-instance-type))
-      ci_worker_count: ((ci-worker-count))
       cls_destination_enabled: ((cls-destination-enabled))
       cls_destination_arn: ((cls-destination-arn))
 - name: user-state

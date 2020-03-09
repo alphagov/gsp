@@ -12,9 +12,6 @@ module "k8s-cluster" {
   worker_on_demand_base_capacity         = var.worker_on_demand_base_capacity
   worker_on_demand_percentage_above_base = var.worker_on_demand_percentage_above_base
 
-  ci_worker_count         = var.ci_worker_count
-  ci_worker_instance_type = var.ci_worker_instance_type
-
   eks_version        = var.eks_version
   worker_eks_version = var.worker_eks_version
   apiserver_allowed_cidrs = concat(

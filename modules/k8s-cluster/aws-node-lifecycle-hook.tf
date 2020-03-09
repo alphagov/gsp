@@ -111,7 +111,6 @@ resource "aws_cloudwatch_event_rule" "aws-node-lifecycle-hook" {
     ],
     [
       lookup(aws_cloudformation_stack.kiam-server-nodes.outputs, "AutoScalingGroupName", ""),
-      lookup(aws_cloudformation_stack.ci-nodes.outputs, "AutoScalingGroupName", "")
     ]
   )
 )}
