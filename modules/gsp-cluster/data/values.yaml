@@ -11,6 +11,7 @@ global:
     name: ${account_name}
     id: ${account_id}
   cloudHsm:
+    public: false
     enabled: false
     ip: "127.0.0.1"
   # move these to gsp-namespace terraform output

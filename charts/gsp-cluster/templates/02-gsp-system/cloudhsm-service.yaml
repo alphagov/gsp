@@ -1,4 +1,4 @@
-{{ if .Values.cloudHSMExpose }}
+{{ if .Values.global.cloudHsm.public }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
