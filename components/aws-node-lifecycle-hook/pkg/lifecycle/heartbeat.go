@@ -28,8 +28,6 @@ func heartbeat(ctx context.Context, asgClient awsclient.Client, asgEvent ASGLife
 			})
 			if err != nil {
 				log.Printf("heartbeat failed for %s: %s", asgEvent.EC2InstanceId, err)
-			} else {
-				log.Printf("heartbeat ok for %s", asgEvent.EC2InstanceId)
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -18,14 +19,23 @@ import (
 )
 
 const (
-	ASGScaleInEvent = "EC2 Instance-terminate Lifecycle Action"
-	ASGSource       = "aws.autoscaling"
-	ASGTransition   = "autoscaling:EC2_INSTANCE_TERMINATING"
+	ASGScaleInEvent            = "EC2 Instance-terminate Lifecycle Action"
+	ASGSource                  = "aws.autoscaling"
+	ASGTransition              = "autoscaling:EC2_INSTANCE_TERMINATING"
+	EC2SpotInterruptionWarning = "EC2 Spot Instance Interruption Warning"
+	EC2SpotActionStop          = "stop"
+	EC2SpotActionTerminate     = "terminate"
+	EC2SpotActionHibernate     = "hibernate"
 )
 
 var (
 	ASGActionContinue = aws.String("CONTINUE")
 )
+
+type EC2SpotInterruptionEventDetail struct {
+	InstanceID     string `json:"instance-id"`
+	InstanceAction string `json:"instance-action,omitempty"`
+}
 
 type ASGLifecycleEventDetail struct {
 	LifecycleActionToken string
@@ -48,12 +58,26 @@ func (h *Handler) HandleEvent(ctx context.Context, event *events.CloudWatchEvent
 	case ASGScaleInEvent:
 		var asgEvent ASGLifecycleEventDetail
 		if err := json.Unmarshal(event.Detail, &asgEvent); err != nil {
-			return fmt.Errorf("cannot decode event detail")
+			return fmt.Errorf("cannot decode ASGLifecycleEventDetail: %s", err)
 		}
 		if asgEvent.EC2InstanceId == "" {
-			return fmt.Errorf("EC2InstanceId missing from event detail")
+			return fmt.Errorf("EC2InstanceId missing from ASGLifecycleEventDetail")
 		}
 		return h.ScaleIn(ctx, asgEvent)
+	case EC2SpotInterruptionWarning:
+		var spotTerminationEvent EC2SpotInterruptionEventDetail
+		if err := json.Unmarshal(event.Detail, &spotTerminationEvent); err != nil {
+			return fmt.Errorf("cannot decode EC2SpotInterruptionEventDetail: %s", err)
+		}
+		if spotTerminationEvent.InstanceID == "" {
+			return fmt.Errorf("InstanceId missing from EC2SpotInterruptionEventDetail")
+		}
+		switch spotTerminationEvent.InstanceAction {
+		case EC2SpotActionStop, EC2SpotActionTerminate, EC2SpotActionHibernate:
+			return h.drain(ctx, spotTerminationEvent.InstanceID)
+		default:
+			return fmt.Errorf("cannot handle EC2SpotInterruptionWarning action: %v", spotTerminationEvent.InstanceAction)
+		}
 	default:
 		return fmt.Errorf("cannot handle event of type: %s", event.DetailType)
 	}
@@ -83,6 +107,11 @@ func (h *Handler) scaleIn(ctx context.Context, asgEvent ASGLifecycleEventDetail)
 	defer cancel()
 	// start heartbeat to keep instance in wait state
 	go heartbeat(ctx, h.AWSClient, asgEvent, h.HeartbeatInterval)
+	// attempt cordon/drain
+	return h.drain(ctx, asgEvent.EC2InstanceId)
+}
+
+func (h *Handler) drain(ctx context.Context, instanceID string) error {
 	// find the kubernetes node by instance id
 	nodes, err := h.KubernetesClient.CoreV1().Nodes().List(metav1.ListOptions{})
 	if err != nil {
@@ -90,21 +119,22 @@ func (h *Handler) scaleIn(ctx context.Context, asgEvent ASGLifecycleEventDetail)
 	}
 	var node *corev1.Node
 	for _, n := range nodes.Items {
-		if strings.HasSuffix(n.Spec.ProviderID, asgEvent.EC2InstanceId) {
+		if strings.HasSuffix(n.Spec.ProviderID, instanceID) {
 			node = &n
 			break
 		}
 	}
 	if node == nil {
-		return fmt.Errorf("failed to find node with id: %s", asgEvent.EC2InstanceId)
+		log.Printf("no kubernetes node found (or node already drained/removed) for instance id %s", instanceID)
+		return nil // nothing to do
 	}
 	// cordon the node so no pods can be bound
 	if err := h.Cordon(h.KubernetesClient, node); err != nil {
-		return fmt.Errorf("failed to cordon node: %s", err)
+		return fmt.Errorf("failed to cordon kubernetes node %s: %s", node.Spec.ProviderID, err)
 	}
 	// evict pods from the node
 	if err := h.Drain(h.KubernetesClient, node); err != nil {
-		return fmt.Errorf("failed to drain node: %s", err)
+		return fmt.Errorf("failed to drain kubernetes node %s: %s", node.Spec.ProviderID, err)
 	}
 	// done
 	return nil
