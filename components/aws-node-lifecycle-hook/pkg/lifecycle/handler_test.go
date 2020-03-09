@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/alphagov/gsp/components/aws-node-lifecycle-hook/pkg/awsclient/fakeawsclient"
@@ -20,8 +19,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-var origStderr = os.Stderr
 
 var _ = Describe("LifecycleHandler", func() {
 
@@ -126,7 +123,7 @@ var _ = Describe("LifecycleHandler", func() {
 		It("should return an error about not being able to unmarshal payload", func() {
 			err := handler.HandleEvent(ctx, cloudwatchEvent)
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("cannot decode event detail"))
+			Expect(err.Error()).To(ContainSubstring("cannot decode"))
 		})
 	})
 
@@ -222,7 +219,7 @@ var _ = Describe("LifecycleHandler", func() {
 
 			It("should return an error about cordon failure", func() {
 				Expect(handlerErr).To(HaveOccurred())
-				Expect(handlerErr.Error()).To(ContainSubstring("failed to cordon node"))
+				Expect(handlerErr.Error()).To(ContainSubstring("failed to cordon kubernetes node"))
 			})
 		})
 
@@ -233,7 +230,7 @@ var _ = Describe("LifecycleHandler", func() {
 
 			It("should return an error about drain failure", func() {
 				Expect(handlerErr).To(HaveOccurred())
-				Expect(handlerErr.Error()).To(ContainSubstring("failed to drain node"))
+				Expect(handlerErr.Error()).To(ContainSubstring("failed to drain kubernetes node"))
 			})
 		})
 
@@ -257,9 +254,8 @@ var _ = Describe("LifecycleHandler", func() {
 				corev1client.NodesReturns(nodeLister)
 			})
 
-			It("should return an error about missing node", func() {
-				Expect(handlerErr).To(HaveOccurred())
-				Expect(handlerErr.Error()).To(ContainSubstring("failed to find node"))
+			It("should LOG an error about missing node and return ok", func() {
+				Expect(handlerErr).ToNot(HaveOccurred())
 			})
 		})
 
@@ -304,6 +300,50 @@ var _ = Describe("LifecycleHandler", func() {
 				Consistently(fakeAWSClient.RecordLifecycleActionHeartbeatWithContextCallCount).Should(Equal(heartbeatCount))
 			})
 
+		})
+	})
+
+	Context("receives a spot termination warning", func() {
+
+		var handlerErr error
+
+		JustBeforeEach(func() {
+			spotTerminationEvent := lifecycle.EC2SpotInterruptionEventDetail{
+				InstanceID:     "i-222222222",
+				InstanceAction: lifecycle.EC2SpotActionTerminate,
+			}
+			eventBytes, err := json.Marshal(spotTerminationEvent)
+			Expect(err).ToNot(HaveOccurred())
+			cloudwatchEvent = &events.CloudWatchEvent{
+				Version:    "xxxx",
+				ID:         "1",
+				Source:     "aws.ec2",
+				AccountID:  "123456789",
+				Time:       time.Now(),
+				Region:     "eu-west-2",
+				Resources:  []string{},
+				DetailType: lifecycle.EC2SpotInterruptionWarning,
+				Detail:     json.RawMessage(eventBytes),
+			}
+			handlerErr = handler.HandleEvent(ctx, cloudwatchEvent)
+		})
+
+		It("should not error", func() {
+			Expect(handlerErr).ToNot(HaveOccurred())
+		})
+
+		It("should cordon the node", func() {
+			Expect(fakeK8sDrainer.CordonCallCount()).To(Equal(1))
+			c, node := fakeK8sDrainer.CordonArgsForCall(0)
+			Expect(c).To(Equal(fakeK8sClient))
+			Expect(node.ObjectMeta.Name).To(Equal("node-two"))
+		})
+
+		It("should drain the node", func() {
+			Expect(fakeK8sDrainer.DrainCallCount()).To(Equal(1))
+			c, node := fakeK8sDrainer.DrainArgsForCall(0)
+			Expect(c).To(Equal(fakeK8sClient))
+			Expect(node.ObjectMeta.Name).To(Equal("node-two"))
 		})
 	})
 })

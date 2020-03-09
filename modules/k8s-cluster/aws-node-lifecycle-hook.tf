@@ -125,3 +125,24 @@ resource "aws_cloudwatch_event_target" "aws-node-lifecycle-hook" {
   arn       = aws_lambda_function.aws-node-lifecycle-hook.arn
 }
 
+resource "aws_cloudwatch_event_rule" "aws-node-spot-termination-hook" {
+  name        = "${var.cluster_name}-spot-termination-hook"
+  description = "Execute Spot Termination Lifecycle Logic"
+
+  event_pattern = <<PATTERN
+{
+  "detail-type": [
+    "EC2 Spot Instance Interruption Warning"
+  ],
+  "source": [
+    "aws.ec2"
+  ]
+}
+PATTERN
+}
+
+resource "aws_cloudwatch_event_target" "aws-node-spot-termination-hook" {
+  rule      = aws_cloudwatch_event_rule.aws-node-spot-termination-hook.name
+  target_id = "SpotLifecycleLambda"
+  arn       = aws_lambda_function.aws-node-lifecycle-hook.arn
+}
