@@ -268,7 +268,7 @@ spec:
         tag: "gsp-va191b03"
     resources:
     - name: src
-      type: github
+      type: {{ .configureNamespaceResourceType | default "github" }}
       icon: github-circle
       source:
         uri: "https://github.com/{{ .owner }}/{{ .repository }}.git"
