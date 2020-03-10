@@ -8,3 +8,6 @@ metadata:
     istio-injection: disabled
     control-plane: "true"
     talksToAWSMetadataService: "true"
+{{ if .Values.global.cloudHsm.public }}
+    talksToHsm: "true"
+{{ end }}
