@@ -132,13 +132,14 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     NodeAutoScalingGroupOnDemandBaseCapacity        = var.worker_on_demand_base_capacity
     NodeAutoScalingGroupOnDemandPercentageAboveBase = var.worker_on_demand_percentage_above_base
 
-    NodeInstanceProfile = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
-    NodeVolumeSize      = "40"
-    BootstrapArguments  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
-    VpcId               = var.vpc_id
-    Subnets             = element(data.aws_subnet.private_subnets.*.id, count.index)
-    NodeSecurityGroups  = "${aws_security_group.node.id},${aws_security_group.worker.id}"
-    NodeTargetGroups    = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
+    NodeInstanceProfile          = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
+    NodeVolumeSize               = "40"
+    BootstrapArguments           = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
+    NodeGroupGenerationTimestamp = var.worker_generation_timestamp
+    VpcId                        = var.vpc_id
+    Subnets                      = element(data.aws_subnet.private_subnets.*.id, count.index)
+    NodeSecurityGroups           = "${aws_security_group.node.id},${aws_security_group.worker.id}"
+    NodeTargetGroups             = "${aws_cloudformation_stack.worker-nodes.outputs["HTTPTargetGroup"]},${aws_cloudformation_stack.worker-nodes.outputs["TCPTargetGroup"]}"
   }
 
   depends_on = [

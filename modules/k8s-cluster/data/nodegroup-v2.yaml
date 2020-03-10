@@ -56,6 +56,11 @@ Parameters:
     Description: Unique identifier for the Node Group.
     Type: String
 
+  NodeGroupGenerationTimestamp:
+    Description: The date/time that the node group was configured. The value is used like a cache-busting value to trigger cloudformation update.
+    Type: String
+    Default: "none"
+
   ClusterControlPlaneSecurityGroup:
     Description: The security group of the cluster control plane.
     Type: AWS::EC2::SecurityGroup::Id
@@ -93,6 +98,7 @@ Metadata:
           default: Worker Node Configuration
         Parameters:
           - NodeGroupName
+          - NodeGroupGenerationTimestamp
           - NodeAutoScalingGroupMinSize
           - NodeAutoScalingGroupDesiredCapacity
           - NodeAutoScalingGroupMaxSize
@@ -176,6 +182,7 @@ Resources:
             !Sub |
               #!/bin/bash
               set -o xtrace
+              echo "node group generation timestamp: ${NodeGroupGenerationTimestamp}"
               /etc/eks/bootstrap.sh ${ClusterName} ${BootstrapArguments}
               /opt/aws/bin/cfn-signal --exit-code $? \
                        --stack  ${AWS::StackName} \
