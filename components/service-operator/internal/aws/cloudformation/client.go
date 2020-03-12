@@ -423,7 +423,9 @@ func (r *Client) updateStatus(stack Stack) {
 		}
 		outputs, _ := r.Outputs(ctx, stack)
 		for _, whitelistedKey := range w.GetStackOutputWhitelist() {
-			s.AWS.Info[whitelistedKey] = outputs[whitelistedKey]
+			if val, ok := outputs[whitelistedKey]; ok {
+				s.AWS.Info[whitelistedKey] = val
+			}
 		}
 	}
 	stack.SetStatus(s)
