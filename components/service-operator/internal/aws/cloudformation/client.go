@@ -110,9 +110,13 @@ type Client struct {
 // Calls should be retried if DeadlineExceeded errors are hit
 // Returns any outputs on successful apply.
 // Will update stack with current status
-func (r *Client) Apply(ctx context.Context, stack Stack, params ...*Parameter) (Outputs, error) {
+func (r *Client) Apply(ctx context.Context, stack Stack, params ...*Parameter) (out Outputs, err error) {
 	// always update stack status
-	defer r.updateStatus(stack)
+	defer func () {
+		if err == nil {
+			err = r.updateStatus(stack)
+		}
+	}()
 	// check if exists
 	exists, err := r.exists(ctx, stack)
 	if err != nil {
@@ -242,9 +246,13 @@ func (r *Client) update(ctx context.Context, stack Stack, params ...*Parameter) 
 // Destroy will attempt to deprovision the cloudformation stack and block until complete or the ctx Deadline expires
 // Calls should be retried if DeadlineExceeded errors are hit
 // Will update stack with current status
-func (r *Client) Destroy(ctx context.Context, stack Stack) error {
+func (r *Client) Destroy(ctx context.Context, stack Stack) (err error) {
 	// always update stack status
-	defer r.updateStatus(stack)
+	defer func () {
+		if err == nil {
+			err = r.updateStatus(stack)
+		}
+	}()
 	// fetch current state
 	state, err := r.get(ctx, stack)
 	if err == ErrStackNotFound {
@@ -368,7 +376,7 @@ func (r *Client) get(ctx context.Context, stack Stack) (*State, error) {
 // whitelisted outputs. ignores any errors encountered and just updates
 // whatever it can with the intension of getting as much info visible as
 // possible even under error conditions.
-func (r *Client) updateStatus(stack Stack) {
+func (r *Client) updateStatus(stack Stack) error {
 	// use a fresh context or we might not be able to update status after
 	// deadline is hit, but this feels a little wrong
 	ctx := context.Background()
@@ -421,12 +429,16 @@ func (r *Client) updateStatus(stack Stack) {
 		if s.AWS.Info == nil {
 			s.AWS.Info = map[string]string{}
 		}
-		outputs, _ := r.Outputs(ctx, stack)
+		outputs, err := r.Outputs(ctx, stack)
+		if err != nil {
+			return err
+		}
 		for _, whitelistedKey := range w.GetStackOutputWhitelist() {
 			s.AWS.Info[whitelistedKey] = outputs[whitelistedKey]
 		}
 	}
 	stack.SetStatus(s)
+	return nil
 }
 
 func (r *Client) events(ctx context.Context, stack Stack) ([]*StateEvent, error) {
