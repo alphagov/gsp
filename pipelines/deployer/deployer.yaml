@@ -473,12 +473,20 @@ drain_cluster_task: &drain_cluster_task
       echo "---> OK"
 
       echo 'deleting concourse pipelines'
+      set +e
       kubectl delete -A --all pipelines
+      set -e
       echo "---> OK"
 
       echo 'deleting govsvc.uk custom resources'
       export RESOURCE_TYPES=$(kubectl get crd -o json | jq -r '.items[] | select (.spec.group | endswith(".govsvc.uk")) | .spec.names.singular')
-      kubectl delete -A --all $(echo $RESOURCE_TYPES | tr ' ' ',')
+      export RESOURCE_TYPES_CHARS=$(echo -n $RESOURCE_TYPES | wc -c)
+      if [[ "$RESOURCE_TYPES_CHARS" -gt 0 ]]; then
+        echo "deleting: $RESOURCE_TYPES"
+        kubectl delete -A --all $(echo $RESOURCE_TYPES | tr ' ' ',')
+      else
+        echo "No resource types found"
+      fi
       echo "---> OK"
 
       echo 'deleting PodDisruptionBudgets'
