@@ -55,3 +55,36 @@ module "subnet-2" {
 
 # following range is left over for future needs
 # spare_subnet_block = "10.${var.netnum}.192.0/18"
+
+resource "aws_security_group" "allow-cloudwatch-logs" {
+  name        = "${var.cluster_name}-cloudwatch-logs-sg"
+  description = "Allow all traffic into CloudWatch Logs"
+  vpc_id      = aws_vpc.network.id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [
+      module.subnet-0.private_subnet_cidr,
+      module.subnet-1.private_subnet_cidr,
+      module.subnet-2.private_subnet_cidr,
+    ]
+  }
+}
+
+resource "aws_vpc_endpoint" "cloudwatch-logs-endpoint" {
+  vpc_id              = aws_vpc.network.id
+  vpc_endpoint_type   = "Interface"
+  service_name        = "com.amazonaws.eu-west-2.logs"
+  tags                = {
+    "Name" = "${var.cluster_name}-private-cloudwatch-logs"
+  }
+  subnet_ids          = [
+    module.subnet-0.private_subnet_id,
+    module.subnet-1.private_subnet_id,
+    module.subnet-2.private_subnet_id,
+  ]
+  security_group_ids  = [aws_security_group.allow-cloudwatch-logs.id]
+  private_dns_enabled = true
+}
