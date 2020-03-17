@@ -80,6 +80,8 @@ cluster-autoscaler:
   replicaCount: 2
 
 fluentd-cloudwatch:
+  image:
+    tag: v1.9.3-debian-cloudwatch-1.0
   resources:
     limits:
       memory: 512Mi

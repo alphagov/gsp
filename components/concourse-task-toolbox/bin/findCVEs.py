@@ -18,21 +18,9 @@ GLOBAL_IMAGE_SOURCE_WHITELIST = [
 ]
 
 # whitelists against vulnerabilities we've considered for various reasons
-FLUENTD_1_7_3_VULNERABILITIES_WHITELIST = [
-    'CVE-2019-10220',
-    'CVE-2019-14896',
-    'CVE-2019-14901',
-    'CVE-2019-15505',
-    'CVE-2019-20636',
-]
 
 
 def whitelisted(vulnerability):
-    if vulnerability['image_name'] == 'fluent/fluentd-kubernetes-daemonset:v1.7.3-debian-cloudwatch-1.0' and \
-       vulnerability['vulnerability']['VulnerabilityID'] in FLUENTD_1_7_3_VULNERABILITIES_WHITELIST:
-        # these should be be fixed in:
-        # fluent/fluentd-kubernetes-daemonset:v1.9.3-debian-cloudwatch-1.0
-        return True
     if vulnerability['image_name'].startswith('fluent/fluentd-kubernetes-daemonset:v1.') and \
        vulnerability['vulnerability']['VulnerabilityID'] == 'CVE-2020-8130':
         # this shows up in usr/local/bundle/gems/async-http-0.50.0/examples/fetch/Gemfile.lock -
