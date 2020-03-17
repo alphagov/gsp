@@ -653,8 +653,9 @@ resources:
   type: time
   icon: update
   source:
-    start: 6:00 AM
-    stop: 7:00 PM
+    start: "14:00"
+    stop: "16:00"
+    days: [Monday, Tuesday, Wednesday, Thursday, Friday]
     location: Europe/London
 
 jobs:
