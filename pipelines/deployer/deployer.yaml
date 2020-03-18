@@ -649,7 +649,7 @@ resources:
   source:
     repository: ((task-toolbox-image))
     tag: ((task-toolbox-tag))
-- name: week-daily
+- name: weekdaily
   type: time
   icon: update
   source:
@@ -705,7 +705,7 @@ jobs:
       trigger: true
       params:
         include_source_tarball: true
-    - get: daily
+    - get: weekdaily
       trigger: true
     - get: aws-node-lifecycle-hook
     - get: config
@@ -809,8 +809,8 @@ jobs:
             | jq "$JQ_FILTER" \
             > desired_map.json
           echo "add worker generation timestamp var (ensures nodes are rolled periodically)..."
-          DAILY_TIMESTAMP=$(jq .version.time daily/input)
-          jq "{worker_generation_timestamp: $DAILY_TIMESTAMP}" daily/input \
+          DAILY_TIMESTAMP=$(jq .version.time weekdaily/input)
+          jq "{worker_generation_timestamp: $DAILY_TIMESTAMP}" weekdaily/input \
             > worker_generation_timestamp.json
           echo "merging into tfvars.json..."
           mkdir -p terraform-var-overrides
@@ -821,7 +821,7 @@ jobs:
           cat terraform-var-overrides/overrides.tfvars.json
           echo "OK!"
       inputs:
-      - name: daily
+      - name: weekdaily
       outputs:
       - name: terraform-var-overrides
   - task: generate-managed-namespaces-zones
