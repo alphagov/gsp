@@ -649,11 +649,11 @@ resources:
   source:
     repository: ((task-toolbox-image))
     tag: ((task-toolbox-tag))
-- name: daily
+- name: week-daily
   type: time
   icon: update
   source:
-    start: "14:00"
+    start: "10:00"
     stop: "16:00"
     days: [Monday, Tuesday, Wednesday, Thursday, Friday]
     location: Europe/London
