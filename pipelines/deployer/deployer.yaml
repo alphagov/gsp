@@ -649,7 +649,7 @@ resources:
   source:
     repository: ((task-toolbox-image))
     tag: ((task-toolbox-tag))
-- name: week-daily
+- name: weekdaily
   type: time
   icon: update
   source:
@@ -705,7 +705,7 @@ jobs:
       trigger: true
       params:
         include_source_tarball: true
-    - get: daily
+    - get: weekdaily
       trigger: true
     - get: aws-node-lifecycle-hook
     - get: config
@@ -821,7 +821,7 @@ jobs:
           cat terraform-var-overrides/overrides.tfvars.json
           echo "OK!"
       inputs:
-      - name: daily
+      - name: weekdaily
       outputs:
       - name: terraform-var-overrides
   - task: generate-managed-namespaces-zones
