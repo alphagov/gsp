@@ -65,7 +65,7 @@ cluster-autoscaler:
     balance-similar-node-groups: true
     skip-nodes-with-local-storage: false
   image:
-    tag: v1.14.5 # upgrade this when upgrading kubernetes
+    tag: v1.15.5 # upgrade this when upgrading kubernetes
   rbac:
     create: true
   priorityClassName: gsp-critical
