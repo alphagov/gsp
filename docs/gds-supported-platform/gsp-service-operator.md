@@ -32,7 +32,7 @@ This will create an SQS Queue on AWS named `alexs-test-queue`, with a message re
 
 Here's an example of an S3 Bucket:
 
-```
+```yaml
 apiVersion: v1
 kind: List
 items:
@@ -59,7 +59,7 @@ This will create an S3 Bucket on AWS including the name `alexs-test-bucket`. It 
 
 Here's an example of a Postgres database:
 
-```
+```yaml
 kind: Postgres
 apiVersion: database.govsvc.uk/v1beta1
 metadata:
@@ -75,7 +75,7 @@ This will create a Postgres database on AWS including the name `alexs-test-db`, 
 
 Here's an example of a Redis:
 
-```
+```yaml
 kind: Redis
 apiVersion: database.govsvc.uk/v1beta1
 metadata:
@@ -107,7 +107,7 @@ The combination of the following must fit into 40 characters, be made of alphanu
 ## How to connect to a created queue
 
 The URL of the Queue will be stored inside the `secret` you specified as `QueueURL` (in addition, if you specified the `redriveMaxReceiveCount` parameter in the spec a redrive policy will have been configured with it pointing at the queue URL stored in key `DLQueueURL`). If you make a pod like:
-```
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -131,7 +131,7 @@ You will be able to access the URL of the Queue from inside your pod using `cat 
 
 The service account that the pod runs with will have access to a role that has access to the SQS queue. It should be possible to do the following (for this example we will use `gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -it /bin/ash`):
 
-```
+```json
 / # aws sqs send-message --queue-url $(cat /secrets/QueueURL) --message-body sup --region eu-west-2
 {
     "MD5OfMessageBody": "2eeecd72c567401e6988624b179d0b14",
@@ -153,7 +153,7 @@ The service account that the pod runs with will have access to a role that has a
 ## How to connect to a created bucket
 
 The URL of the Bucket will be stored inside the `secret` you specified as `S3BucketURL`, and the name will be in the `S3BucketName` key. If you make a pod like:
-```
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -176,7 +176,7 @@ You will be able to access the URL of the Bucket from inside your pod using `cat
 
 The service account that the pod runs with will have access to a role that has access to the S3 bucket. It should be possible to do the following (for this example we will use `gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -it /bin/ash`):
 
-```
+```sh
 / # echo hello > world
 / # aws s3 cp ./world s3://$S3_BUCKET_NAME/world --region eu-west-2
 upload: ./world to s3://sandbox-sandbox-gsp-service-operator-test-alexs-test-bucket/world
@@ -190,7 +190,7 @@ hello
 
 If you make a pod like the one above:
 
-```
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -225,7 +225,7 @@ spec:
 
 You will be able to exec into this pod and get a PostgreSQL prompt.
 
-```
+```sh
 $ gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -c myapp-container -it /usr/bin/psql postgres
 psql (11.5, server 10.7)
 SSL connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
@@ -240,7 +240,7 @@ You could also get the read endpoint using the ReadEndpoint key.
 
 If you make a pod like the one above:
 
-```
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -269,7 +269,7 @@ spec:
 ```
 
 You will be able to exec into this pod and connect to Redis after configuring and running stunnel:
-```
+```sh
 $ gds sandbox kubectl exec -n sandbox-gsp-service-operator-test alexs-test-pod -c myapp-container -it /bin/bash
 root@alexs-test-pod:/data# echo "  connect = $STUNNEL_HOSTNAME:$STUNNEL_PORT" >> /etc/stunnel/redis-cli.conf
 root@alexs-test-pod:/data# stunnel /etc/stunnel/redis-cli.conf
