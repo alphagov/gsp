@@ -654,7 +654,7 @@ resources:
   icon: update
   source:
     start: "10:00"
-    stop: "16:00"
+    stop: "19:00"
     days: [Monday, Tuesday, Wednesday, Thursday, Friday]
     location: Europe/London
 
