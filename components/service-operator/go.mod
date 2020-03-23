@@ -7,7 +7,7 @@ require (
 	github.com/awslabs/goformation/v4 v4.7.0
 	github.com/go-logr/logr v0.1.0
 	github.com/imdario/mergo v0.3.8 // indirect
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.3
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.9.0
 	github.com/sanathkr/yaml v0.0.0-20170819201035-0056894fa522
