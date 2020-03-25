@@ -19,7 +19,7 @@ RUN apk add --update \
 	py3-pip \
 	mailcap \
 	ncurses \
-	&& pip3 install awscli s3cmd yq PyYAML \
+	&& pip3 install awscli s3cmd yq PyYAML kubernetes \
 	&& apk -v --purge del py3-pip \
 	&& rm /var/cache/apk/*
 
@@ -72,11 +72,12 @@ RUN curl -LO https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/d
 	&& chmod +x aws-iam-authenticator_0.4.0-alpha.1_linux_amd64 \
 	&& mv aws-iam-authenticator_0.4.0-alpha.1_linux_amd64 /usr/local/bin/aws-iam-authenticator
 
-COPY bin/aws-assume-role bin/setup-kube-deployer bin/determine-platform-version.py /usr/local/bin/
+COPY bin/aws-assume-role bin/setup-kube-deployer bin/determine-platform-version.py bin/findCVEs.py /usr/local/bin/
 
 # --------------------output------------------------
 
 FROM task-toolbox
 COPY --from=hairyhenderson/gomplate:v3.5.0-slim /gomplate /bin/gomplate
+COPY --from=aquasec/trivy@sha256:3cd0f92134bcdac0b00598f275b1d112312341f5a3d19cc492cecfef39e67c42 /usr/local/bin/trivy /usr/local/bin/trivy
 ENTRYPOINT ["/bin/bash"]
 CMD []
