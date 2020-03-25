@@ -133,7 +133,7 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     NodeAutoScalingGroupOnDemandPercentageAboveBase = var.worker_on_demand_percentage_above_base
 
     NodeInstanceProfile          = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
-    NodeVolumeSize               = "40"
+    NodeVolumeSize               = "120"
     BootstrapArguments           = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
     NodeGroupGenerationTimestamp = var.worker_generation_timestamp
     VpcId                        = var.vpc_id
