@@ -72,6 +72,8 @@ github.com/aws/aws-sdk-go v1.29.26 h1:T8LJNOVt0HZgJQySeE+1Pr3ClcX+rb7ddq/ZAjnHzD
 github.com/aws/aws-sdk-go v1.29.26/go.mod h1:1KvfttTE3SPKMpo8g2c6jL3ZKfXtFvKscTgahTma5Xg=
 github.com/aws/aws-sdk-go v1.29.28 h1:4eKUDBN+v1yxpGDxxPY+FG2Abc6yJB6vvkEDRJ9jIW0=
 github.com/aws/aws-sdk-go v1.29.28/go.mod h1:1KvfttTE3SPKMpo8g2c6jL3ZKfXtFvKscTgahTma5Xg=
+github.com/aws/aws-sdk-go v1.29.33 h1:WP85+WHalTFQR2wYp5xR2sjiVAZXew2bBQXGU1QJBXI=
+github.com/aws/aws-sdk-go v1.29.33/go.mod h1:1KvfttTE3SPKMpo8g2c6jL3ZKfXtFvKscTgahTma5Xg=
 github.com/awslabs/goformation/v3 v3.1.0/go.mod h1:hQ5RXo3GNm2laHWKizDzU5DsDy+yNcenSca2UxN0850=
 github.com/awslabs/goformation/v4 v4.6.0 h1:5Dy1ZW4ruMlYlq6+PsSCEwW2w00wv7mkFr006VMIeng=
 github.com/awslabs/goformation/v4 v4.6.0/go.mod h1:MBDN7u1lMNDoehbFuO4uPvgwPeolTMA2TzX1yO6KlxI=
