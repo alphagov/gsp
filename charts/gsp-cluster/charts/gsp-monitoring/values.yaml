@@ -42,7 +42,7 @@ prometheus-operator:
             storageClassName: gp2
       query:
         maxConcurrency: 2
-        maxSamples: 1000000
+        maxSamples: 2500000
         timeout: 10s
       additionalScrapeConfigs:
       - job_name: 'istio-mesh'
