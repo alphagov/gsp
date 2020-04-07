@@ -7,6 +7,7 @@ groups:
   - check-canary
   - check-logging
   - check-tools
+  - check-vulnerabilities
 - name: destroy
   jobs:
   - destroy
@@ -657,6 +658,13 @@ resources:
     stop: "16:00"
     days: [Monday, Tuesday, Wednesday, Thursday, Friday]
     location: Europe/London
+- name: dailymorning
+  type: time
+  icon: update
+  source:
+    start: "09:00"
+    stop: "08:59"
+    location: Europe/London
 
 jobs:
 - name: update
@@ -1030,6 +1038,45 @@ jobs:
     params:
       ACCOUNT_ROLE_ARN: ((account-role-arn))
       CLUSTER_NAME: ((cluster-name))
+
+- name: check-vulnerabilities
+  plan:
+  - get: dailymorning
+    trigger: true
+  - get: task-toolbox
+  - get: platform
+    passed: [apply]
+    trigger: true
+  - get: config
+    passed: [apply]
+    trigger: true
+  - task: check-vulnerabilities
+    image: task-toolbox
+    timeout: 180s
+    params:
+      CLUSTER_NAME: ((cluster-name))
+      ACCOUNT_ROLE_ARN: ((account-role-arn))
+      AWS_REGION: eu-west-2
+      AWS_DEFAULT_REGION: eu-west-2
+    config:
+      platform: linux
+      run:
+        path: /bin/bash
+        args:
+        - -euo
+        - pipefail
+        - -c
+        - |
+          echo "assuming aws deployer role..."
+          AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+          eval "${AWS_CREDS}"
+          echo "updating EKS config"
+          aws eks update-kubeconfig \
+              --name "${CLUSTER_NAME}" \
+              --kubeconfig ./kubeconfig
+          echo "done, looking for CVEs"
+          export KUBECONFIG=$(pwd)/kubeconfig
+          python3 /usr/local/bin/findCVEs.py
 
 - name: destroy
   serial: true
