@@ -7,10 +7,9 @@ import sys
 from kubernetes import client, config
 # whitelists against images that are problematic to pull/scan
 GLOBAL_IMAGE_WHITELIST = [
-    'dduportal/bats:0.4.0', # error in image scan: failed analysis: analyze error: unable to analyze config: json marshal error: unexpected end of JSON input
-    'istio/mixer:1.3.5', # error in image scan: scan failed: failed to apply layers: unknown OS
-    'jaegertracing/all-in-one:1.14', # error in image scan: scan failed: failed to apply layers: unknown OS
-    'k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1', # error in image scan: scan failed: failed to apply layers: unknown OS
+    'istio/mixer:1.3.5', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
+    'jaegertracing/all-in-one:1.14', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
+    'k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
     'k8s.gcr.io/metrics-server-amd64:v0.3.0', # error in image scan: scan failed: failed to apply layers: unknown OS
 ]
 GLOBAL_IMAGE_SOURCE_WHITELIST = [
