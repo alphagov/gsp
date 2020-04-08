@@ -85,6 +85,8 @@ github.com/awslabs/goformation/v4 v4.6.0 h1:5Dy1ZW4ruMlYlq6+PsSCEwW2w00wv7mkFr00
 github.com/awslabs/goformation/v4 v4.6.0/go.mod h1:MBDN7u1lMNDoehbFuO4uPvgwPeolTMA2TzX1yO6KlxI=
 github.com/awslabs/goformation/v4 v4.7.0 h1:O/vC7QTxYU3G0qkbZAMfTeQ7Xlzi7jzT/4OfWisE7xg=
 github.com/awslabs/goformation/v4 v4.7.0/go.mod h1:GcJULxCJfloT+3pbqCluXftdEK2AD/UqpS3hkaaBntg=
+github.com/awslabs/goformation/v4 v4.8.0 h1:UiUhyokRy3suEqBXTnipvY8klqY3Eyl4GCH17brraEc=
+github.com/awslabs/goformation/v4 v4.8.0/go.mod h1:GcJULxCJfloT+3pbqCluXftdEK2AD/UqpS3hkaaBntg=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0 h1:HWo1m869IqiPhD389kmkxeTalrjNbbJTC8LXupb+sl0=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
