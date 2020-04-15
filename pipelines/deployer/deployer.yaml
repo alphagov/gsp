@@ -1060,7 +1060,7 @@ jobs:
     trigger: true
   - task: check-vulnerabilities
     image: task-toolbox
-    timeout: 180s
+    timeout: 600s
     params:
       CLUSTER_NAME: ((cluster-name))
       ACCOUNT_ROLE_ARN: ((account-role-arn))
