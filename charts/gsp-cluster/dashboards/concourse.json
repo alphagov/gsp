@@ -390,7 +390,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{pod=~\"gsp-concourse-web.*\"}) without (container)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"gsp-concourse-web.*\",container!=\"POD\",image!=\"\"}[5m])) by (pod)",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "CPU usage - {{pod}}",
@@ -476,7 +476,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{pod=~\"gsp-concourse-worker.*\"}) without (container)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"gsp-concourse-worker.*\",container!=\"POD\",image!=\"\"}[5m])) by (pod)",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "CPU usage - {{pod}}",
@@ -562,11 +562,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_filesystem_avail_bytes{node_role=\"ci\"}",
+          "expr": "node_filesystem_avail_bytes / on(node) kube_pod_info{pod=~\"gsp-concourse-worker.*\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{instance}}",
+          "legendFormat": "{{node}}",
           "refId": "A"
         }
       ],
@@ -595,7 +595,7 @@
           "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
