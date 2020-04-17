@@ -264,8 +264,8 @@ spec:
     - name: github
       type: registry-image
       source:
-        repository: "govsvc/concourse-github-resource"
-        tag: "gsp-va191b03"
+        repository: {{ $.Values.concourseResources.github.image.repository }}
+        tag: {{ $.Values.concourseResources.github.image.tag }}
     resources:
     - name: src
       type: {{ .configureNamespaceResourceType | default "github" }}
