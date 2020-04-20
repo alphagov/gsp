@@ -12,7 +12,6 @@ repository=$(jq --raw-output '.source.repository // ""' < ${payload})
 github_api_token=$(jq --raw-output '.source.github_api_token // ""' < ${payload})
 required_approval_count=$(jq --raw-output '(.source.required_approval_count // 0)' < ${payload})
 approvers=$(jq --raw-output '(.source.approvers // [])[]' < ${payload} | sort -d)
-echo Approvers: $approvers
 
 if [ -z "${organization}" ]; then
   echo "invalid source configuration: missing required 'organization'" >&2
@@ -43,6 +42,8 @@ fi
 
 exec 3>&1 # make stdout available as fd 3 for the result
 exec 1>&2 # redirect all output to stderr for logging
+
+echo Approvers: $approvers
 
 function build_query() {
 {
