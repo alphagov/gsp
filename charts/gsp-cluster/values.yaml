@@ -759,8 +759,15 @@ concourse:
         type: ClusterIP
       prometheus:
         enabled: true
+      enableBuildAuditing: true
+      enableContainerAuditing: true
+      enableJobAuditing: true
       enablePipelineAuditing: true
+      enableResourceAuditing: true
+      enableSystemAuditing: true
       enableTeamAuditing: true
+      enableWorkerAuditing: true
+      enableVolumeAuditing: true
   persistence:
     enabled: false
   postgresql:
