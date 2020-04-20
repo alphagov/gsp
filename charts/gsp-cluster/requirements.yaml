@@ -4,7 +4,7 @@ dependencies:
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: global.runningOnAws
   - name: "concourse"
-    version: 9.0.0
+    version: 10.0.4
     repository: https://concourse-charts.storage.googleapis.com/
     condition: global.concourse.enabled
   - name: "fluentd-cloudwatch"
