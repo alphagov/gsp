@@ -15,7 +15,6 @@ GLOBAL_IMAGE_WHITELIST = [
 GLOBAL_IMAGE_SOURCE_WHITELIST = [
     '.dkr.ecr.eu-west-2.amazonaws.com/', # ECR
     '.dkr.ecr.us-west-2.amazonaws.com/', # ECR - for EKS upstream
-    'registry.london.verify.govsvc.uk', # TODO: why do we have these old references in sandbox-proxy-node-dev?
     'quay.io/', # https://github.com/aquasecurity/trivy/issues/401
 ]
 
