@@ -48,7 +48,7 @@ func (r *ServiceAccountController) Reconcile(req ctrl.Request) (res ctrl.Result,
 		// ran out of time, most likely waiting on
 		// a long running provisioning, come back a bit later
 		res.Requeue = true
-		res.RequeueAfter = time.Second * 1
+		res.RequeueAfter = cloudformation.DefaultRequeueTimeout
 		err = nil
 	}
 	r.Log.Info("reconciled",

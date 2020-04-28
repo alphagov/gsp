@@ -33,10 +33,10 @@ var (
 	DefaultReconcileDeadline = time.Minute * 1
 	// DefaultRequeueTimeout is the default time when a reconcile needs
 	// requeuing after deadline is hit
-	DefaultRequeueTimeout = time.Second * 1
+	DefaultRequeueTimeout = time.Second * 10
 	// DefaultPollingInterval is the frequency that cloudformation client
 	// polls for state changes
-	DefaultPollingInterval = time.Second * 5
+	DefaultPollingInterval = time.Second * 20
 	// DefaultReconcileSuccessRetryDelay is the default delay after a successful
 	// Reconcile that Reconcile will be called again if RequeueOnSuccess is true
 	DefaultReconcileSuccessRetryDelay = time.Hour * 1
