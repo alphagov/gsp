@@ -4,6 +4,9 @@ test_allow_correct_specification {
   input := {
     "review": {
       "object": {
+        "metadata": {
+          "namespace": "sometenant"
+        },
         "spec": {
           "exportTo": ["."]
         }
@@ -18,6 +21,9 @@ test_deny_exportto_single_value {
   input := {
     "review": {
       "object": {
+        "metadata": {
+          "namespace": "sometenant"
+        },
         "spec": {
           "exportTo": "."
         }
@@ -32,6 +38,9 @@ test_deny_multiple_exportto_values {
   input := {
     "review": {
       "object": {
+        "metadata": {
+          "namespace": "sometenant"
+        },
         "spec": {
           "exportTo": [
               ".",
@@ -49,6 +58,9 @@ test_deny_exportto_star {
   input := {
     "review": {
       "object": {
+        "metadata": {
+          "namespace": "sometenant"
+        },
         "spec": {
           "exportTo": ["*"]
         }
@@ -63,6 +75,9 @@ test_deny_exportto_random_string {
   input := {
     "review": {
       "object": {
+        "metadata": {
+          "namespace": "sometenant"
+        },
         "spec": {
           "exportTo": ["slfkjefgl"]
         }
@@ -77,6 +92,9 @@ test_deny_exportto_unset {
   input := {
     "review": {
       "object": {
+        "metadata": {
+          "namespace": "sometenant"
+        },
         "spec": {
         }
       }
