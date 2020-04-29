@@ -123,7 +123,9 @@ func SetupControllerEnv() (client.Client, func()) {
 			"IAMRoleName":    "testrole",
 		})),
 		controllers.SQSCloudFormationController(newAWSClient(nil)),
-		controllers.PrincipalCloudFormationController(newAWSClient(nil)),
+		controllers.PrincipalCloudFormationController(newAWSClient(map[string]string{
+			"IAMRoleArn": "test-role-arn",
+		})),
 		controllers.PostgresCloudFormationController(newAWSClient(map[string]string{
 			"Endpoint":     "something.local.govsandbox.uk",
 			"ReadEndpoint": "something-ro.local.govsandbox.uk",
