@@ -7,8 +7,7 @@ import sys
 from kubernetes import client, config
 # whitelists against images that are problematic to pull/scan
 GLOBAL_IMAGE_WHITELIST = [
-    'istio/mixer:1.3.5', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
-    'jaegertracing/all-in-one:1.14', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
+    'jaegertracing/all-in-one:1.16', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
     'k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
     'k8s.gcr.io/metrics-server-amd64:v0.3.0', # error in image scan: scan failed: failed to apply layers: unknown OS
 ]
@@ -19,14 +18,6 @@ GLOBAL_IMAGE_SOURCE_WHITELIST = [
 ]
 
 # whitelists against vulnerabilities we've considered for various reasons
-ISTIO_1_3_5_VULNERABILITIES_WHITELIST = [
-    'CVE-2018-20961',
-    'CVE-2019-14287',
-    'CVE-2019-14896',
-    'CVE-2019-14901',
-    'CVE-2019-15505',
-    'CVE-2019-15926'
-]
 FLUENTD_1_7_3_VULNERABILITIES_WHITELIST = [
     'CVE-2019-10220',
     'CVE-2019-14896',
@@ -37,11 +28,6 @@ FLUENTD_1_7_3_VULNERABILITIES_WHITELIST = [
 
 
 def whitelisted(vulnerability):
-    if vulnerability['image_name'].startswith('istio/') and \
-       vulnerability['image_name'].endswith(':1.3.5') and \
-       vulnerability['vulnerability']['VulnerabilityID'] in ISTIO_1_3_5_VULNERABILITIES_WHITELIST:
-        # these should be fixed in :1.5.1.
-        return True
     if vulnerability['image_name'] == 'fluent/fluentd-kubernetes-daemonset:v1.7.3-debian-cloudwatch-1.0' and \
        vulnerability['vulnerability']['VulnerabilityID'] in FLUENTD_1_7_3_VULNERABILITIES_WHITELIST:
         # these should be be fixed in:
