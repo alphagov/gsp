@@ -183,8 +183,11 @@ func (r *ServiceAccountController) reconcileServiceAccountWithContext(ctx contex
 	if sa.Annotations == nil {
 		sa.Annotations = map[string]string{}
 	}
-	sa.Annotations["eks.amazonaws.com/role-arn"] = principal.Status.AWS.Info[access.IAMRoleArnOutputName]
-
+	arn := principal.Status.AWS.Info[access.IAMRoleArnOutputName]
+	if arn == "" {
+		return fmt.Errorf("role name unavailable")
+	}
+	sa.Annotations["eks.amazonaws.com/role-arn"] = arn
 	return nil
 }
 
