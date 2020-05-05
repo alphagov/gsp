@@ -47,6 +47,8 @@ def whitelisted(vulnerability):
 trivy_cache = {}
 config.load_kube_config()
 vulnerabilities = []
+exceptions_encountered = False
+
 for pod in client.CoreV1Api().list_pod_for_all_namespaces(watch=False).items:
     for container in pod.spec.containers:
         image_name = container.image.replace('docker.io/', '')
@@ -56,15 +58,20 @@ for pod in client.CoreV1Api().list_pod_for_all_namespaces(watch=False).items:
             continue
         if image_name not in trivy_cache:
             trivy_cache[image_name] = []
-            data = json.loads(subprocess.check_output([
-                'trivy',
-                '--format', 'json',
-                '--quiet',
-                '--ignore-unfixed', # remove this if you want to learn about CVE-2005-2541
-                '-s', 'CRITICAL',
-                image_name
-            ]))
-            for target in data:
+            try:
+                output = subprocess.check_output([
+                    'trivy',
+                    '--format', 'json',
+                    '--quiet',
+                    '--ignore-unfixed', # remove this if you want to learn about CVE-2005-2541
+                    '-s', 'CRITICAL',
+                    image_name
+                ])
+            except subprocess.CalledProcessError as e:
+                print(e)
+                exceptions_encountered = True
+                continue
+            for target in json.loads(output):
                 trivy_cache[image_name] += target.get('Vulnerabilities') or []
         for trivy_vulnerability_obj in trivy_cache[image_name]:
             vulnerability = {
@@ -87,5 +94,5 @@ for pod in client.CoreV1Api().list_pod_for_all_namespaces(watch=False).items:
                 vulnerabilities.append(vulnerability)
                 print(json.dumps(vulnerability, indent=4))
 
-if len(vulnerabilities) > 0:
+if len(vulnerabilities) > 0 or exceptions_encountered:
     sys.exit(1)
