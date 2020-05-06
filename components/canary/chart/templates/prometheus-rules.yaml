@@ -15,6 +15,7 @@ spec:
       annotations:
         message: The Canary rotation is overdue. Check in-cluster concourse.
       expr: time() - max(canary_chart_commit_timestamp{namespace="{{ .Release.Namespace }}"}) without (pod) > 600
+      for: 15m
       labels:
         severity: critical
         layer: cicd
