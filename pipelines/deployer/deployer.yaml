@@ -1066,6 +1066,7 @@ jobs:
       ACCOUNT_ROLE_ARN: ((account-role-arn))
       AWS_REGION: eu-west-2
       AWS_DEFAULT_REGION: eu-west-2
+    privileged: true
     config:
       platform: linux
       run:
@@ -1084,6 +1085,7 @@ jobs:
               --kubeconfig ./kubeconfig
           echo "done, looking for CVEs"
           export KUBECONFIG=$(pwd)/kubeconfig
+          /usr/bin/dockerd &
           python3 /usr/local/bin/findCVEs.py
 
 - name: destroy

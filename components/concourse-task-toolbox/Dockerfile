@@ -20,6 +20,7 @@ RUN apk add --update \
 	mailcap \
 	ncurses \
 	rpm \
+	docker \
 	&& pip3 install awscli s3cmd yq PyYAML kubernetes \
 	&& apk -v --purge del py3-pip \
 	&& rm /var/cache/apk/*
