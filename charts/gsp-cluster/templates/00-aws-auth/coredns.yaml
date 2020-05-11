@@ -37,7 +37,7 @@ spec:
       - args:
         - -conf
         - /etc/coredns/Corefile
-        image: 602401143452.dkr.ecr.eu-west-2.amazonaws.com/eks/coredns:v1.3.1
+        image: 602401143452.dkr.ecr.eu-west-2.amazonaws.com/eks/coredns:v1.6.6
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
