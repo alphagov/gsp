@@ -1,7 +1,7 @@
 dependencies:
 - name: cluster-autoscaler
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 5.1.0
+  version: 7.1.0
 - name: concourse
   repository: https://concourse-charts.storage.googleapis.com/
   version: 10.0.4
@@ -11,5 +11,5 @@ dependencies:
 - name: cert-manager
   repository: https://charts.jetstack.io/
   version: v0.11.0
-digest: sha256:510d0f5b241b9b998535a62ba57c3a2163e7b2b1854fa0a837ee95506687fc74
-generated: "2020-04-16T21:15:05.780440251+01:00"
+digest: sha256:1044c1474a82606a056cf41cb0122dcc71a0919680448705714f173142b78a66
+generated: "2020-05-11T17:40:00.588055587+01:00"
