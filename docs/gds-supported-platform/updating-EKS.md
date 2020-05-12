@@ -61,7 +61,7 @@ An [AutoScaling lifecycle hook](https://github.com/alphagov/gsp/tree/master/comp
 helps ensure that instances are drained before retirement as the rolling
 deployment takes place.
 
-* See [PR207: Bump worker nodes AMI](https://github.com/alphagov/gsp/pull/207/files) for an example of changing the worker node AMI ID
+* See [PR1134: Bump worker nodes AMI](https://github.com/alphagov/gsp/pull/1134/files) for an example of changing the worker node EKS version.
 
 ## Final touches
 
