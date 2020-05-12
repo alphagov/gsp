@@ -26,6 +26,8 @@ httpsEgressSafelist: []
 httpEgressSafelist: []
 
 cluster-autoscaler:
+  image:
+    tag: v1.15.5
   cloudProvider: aws
   awsRegion: eu-west-2
   autoDiscovery:
