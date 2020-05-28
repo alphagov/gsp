@@ -146,6 +146,13 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
     aws_eks_cluster.eks-cluster,
     aws_cloudformation_stack.worker-nodes,
   ]
+
+  lifecycle {
+    ignore_changes = [
+      parameters["NodeAutoScalingGroupDesiredCapacity"],
+      parameters["NodeAutoScalingGroupMinInstancesInService"],
+    ]
+  }
 }
 
 resource "aws_autoscaling_lifecycle_hook" "worker-nodes-per-az-lifecycle-hook" {
