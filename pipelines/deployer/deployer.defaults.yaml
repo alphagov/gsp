@@ -3,7 +3,6 @@ worker-eks-version: "1.15"
 
 config-trigger: true
 config-version: "master"
-config-path: "."
 
 platform-uri: "https://github.com/alphagov/gsp.git"
 platform-organization: "alphagov"
