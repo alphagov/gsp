@@ -690,9 +690,9 @@ jobs:
   - set_pipeline: ((concourse-pipeline-name))
     file: platform/pipelines/deployer/deployer.yaml
     var_files:
-    - platform/pipelines/deployer/deployer.defaults.yaml
-    - config/((config-path))
     - trusted-contributors/github.vars.yaml
+    - config/((config-path))
+    - platform/pipelines/deployer/deployer.defaults.yaml
 
 - name: deploy
   serial: true
