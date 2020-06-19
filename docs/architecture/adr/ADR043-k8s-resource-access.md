@@ -72,6 +72,7 @@ rules:
   - namespaces
   - nodes
   - persistentvolumeclaims
+  - persistentvolumes
   - pods/log
   verbs:
   - get
@@ -568,6 +569,7 @@ rules:
 - apiGroups: [""]
   resources:
   - persistentvolumeclaims
+  - persistentvolumes
   verbs:
   - create
   - delete

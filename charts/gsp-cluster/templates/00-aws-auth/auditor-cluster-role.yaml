@@ -25,6 +25,7 @@ rules:
   - namespaces
   - nodes
   - persistentvolumeclaims
+  - persistentvolumes
   - pods/log
   verbs:
   - get
