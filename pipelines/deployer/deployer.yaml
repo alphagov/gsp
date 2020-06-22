@@ -37,7 +37,8 @@ unpack_release: &unpack_release
   inputs:
   - name: platform
   outputs:
-  - name: platform
+  - name: platform-unpacked
+    path: platform
 
 generate_cluster_values: &generate_cluster_values
   platform: linux
@@ -96,10 +97,12 @@ generate_managed_namespaces_zones: &generate_managed_namespaces_zones
       echo "generating external dns config for managed namespaces..."
       gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-zones.tf > platform/pipelines/deployer/managed-namespaces-zones.tf
   inputs:
-  - name: platform
+  - name: platform-unpacked-with-hook
+    path: platform
   - name: config
   outputs:
-  - name: platform
+  - name: platform-unpacked-with-hook-and-managed-zones
+    path: platform
 
 generate_managed_namespaces_values: &generate_managed_namespaces_values
   platform: linux
@@ -741,10 +744,12 @@ jobs:
             cp aws-node-lifecycle-hook/aws-node-lifecycle-hook.zip ./platform/modules/k8s-cluster/
           fi
       inputs:
-      - name: platform
+      - name: platform-unpacked
+        path: platform
       - name: aws-node-lifecycle-hook
       outputs:
-      - name: platform
+      - name: platform-unpacked-with-hook
+        path: platform
   - task: scale-autoscaler-down
     image: task-toolbox
     timeout: 40s
@@ -833,7 +838,7 @@ jobs:
   - put: cluster-state
     params:
       env_name: ((account-name))
-      terraform_source: platform/pipelines/deployer
+      terraform_source: platform-unpacked-with-hook-and-managed-zones/pipelines/deployer
       var_files:
       - terraform-var-overrides/overrides.tfvars.json
   - task: generate-user-terraform
