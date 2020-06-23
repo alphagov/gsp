@@ -25,19 +25,22 @@ unpack_release: &unpack_release
     - -c
     - |
       if [ "$PLATFORM_RESOURCE_TYPE" == "git" ]; then
-        # This task only necessary for the github-release resource type
+        # Untarring is only necessary for the github-release resource
+        # type; for git type we just need to copy the input volume to
+        # the output
+        cp -R platform-release/* platform-source
         exit 0
       fi
       echo "preparing keyring to verify release..."
       echo "${CLUSTER_PUBLIC_KEY}" > key
       gpg --import key
-      gpg --verify platform/source.tar.gz.asc
+      gpg --verify platform-release/source.tar.gz.asc
       echo "unpacking src tarball..."
-      tar -xvf platform/source.tar.gz -C platform --strip-components=1
+      tar -xvf platform-release/source.tar.gz -C platform-source --strip-components=1
   inputs:
-  - name: platform
+  - name: platform-release
   outputs:
-  - name: platform
+  - name: platform-source
 
 generate_cluster_values: &generate_cluster_values
   platform: linux
@@ -95,11 +98,13 @@ generate_managed_namespaces_zones: &generate_managed_namespaces_zones
     - |
       echo "generating external dns config for managed namespaces..."
       gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-zones.tf > platform/pipelines/deployer/managed-namespaces-zones.tf
+      cp -R platform/* platform-merged-source
   inputs:
-  - name: platform
+  - name: platform-source-with-hook
+    path: platform
   - name: config
   outputs:
-  - name: platform
+  - name: platform-merged-source
 
 generate_managed_namespaces_values: &generate_managed_namespaces_values
   platform: linux
@@ -115,7 +120,8 @@ generate_managed_namespaces_values: &generate_managed_namespaces_values
       echo "generating istio gateway values for managed namespaces..."
       gomplate -d config=config/${CONFIG_VALUES_PATH} -f platform/templates/managed-namespaces-gateways.yaml > managed-namespaces-values/gateways-values.yaml
   inputs:
-  - name: platform
+  - name: platform-source
+    path: platform
   - name: config
   outputs:
   - name: managed-namespaces-values
@@ -135,7 +141,7 @@ generate_users_terraform: &generate_users_terraform
       cd users
       echo "creating terraform for user roles from user data"
       yq '.[]' "${ACCOUNT_NAME}-trusted-developers.yaml" \
-        | jq '[{key: (.name | gsub("[^a-z-A-Z0-9]"; "-")), value: {source: "../platform/modules/gsp-user", user_name: .name, user_arn: .ARN, cluster_name: "${var.cluster_name}"}}] | from_entries' \
+        | jq '[{key: (.name | gsub("[^a-z-A-Z0-9]"; "-")), value: {source: "../platform-merged-source/modules/gsp-user", user_name: .name, user_arn: .ARN, cluster_name: "${var.cluster_name}"}}] | from_entries' \
         | jq -s '{module: . | add, variable: { aws_account_role_arn: { type: "string" }, cluster_name: { type: "string" } }, provider: { aws: { region: "eu-west-2", assume_role: { role_arn: "${var.aws_account_role_arn}" } } } }' \
         > ../users-terraform/users.tf.json
       cat ../users-terraform/users.tf.json
@@ -258,7 +264,8 @@ apply_cluster_chart: &apply_cluster_chart
   - name: cluster-values
   - name: config
   - name: user-values
-  - name: platform
+  - name: platform-release
+    path: platform
   - name: managed-namespaces-values
 
 check_conformance: &check_conformance
@@ -539,8 +546,6 @@ drain_cluster_task: &drain_cluster_task
         aws ec2 delete-volume --volume-id "${VOLUME_ID}"
       done
       echo "---> OK"
-  inputs:
-  - name: platform
 
 resource_types:
 - name: terraform
@@ -560,7 +565,7 @@ resource_types:
     tag: 97e441efbfb06ac7fb09786fd74c64b05f9cc907
 
 resources:
-- name: platform
+- name: platform-release
   type: ((platform-resource-type))
   source:
     # Parameters for if platform-resource-type is set to github-release
@@ -667,7 +672,7 @@ jobs:
   serial_groups: [cluster-modification]
   plan:
   - get: task-toolbox
-  - get: platform
+  - get: platform-release
     trigger: ((platform-trigger))
     params:
       include_source_tarball: true
@@ -683,16 +688,16 @@ jobs:
       PLATFORM_RESOURCE_TYPE: ((platform-resource-type))
   - task: generate-trusted-contributors
     image: task-toolbox
-    file: platform/pipelines/tasks/generate-trusted-contributors.yaml
+    file: platform-source/pipelines/tasks/generate-trusted-contributors.yaml
     params:
       ACCOUNT_NAME: ((account-name))
       CLUSTER_PUBLIC_KEY: ((ci-system-gpg-public))
   - set_pipeline: ((concourse-pipeline-name))
-    file: platform/pipelines/deployer/deployer.yaml
+    file: platform-source/pipelines/deployer/deployer.yaml
     var_files:
     - trusted-contributors/github.vars.yaml
     - config/((config-path))
-    - platform/pipelines/deployer/deployer.defaults.yaml
+    - platform-source/pipelines/deployer/deployer.defaults.yaml
 
 - name: deploy
   serial: true
@@ -700,7 +705,7 @@ jobs:
   plan:
   - in_parallel:
     - get: task-toolbox
-    - get: platform
+    - get: platform-release
       passed: [update]
       trigger: true
       params:
@@ -733,18 +738,20 @@ jobs:
         - pipefail
         - -c
         - |
+          cp -R platform-source/* platform-source-with-hook
           if [ "$PLATFORM_RESOURCE_TYPE" == "github-release" ]; then
             echo "copying aws-node-lifecycle-hook..."
-            cp platform/aws-node-lifecycle-hook.zip ./platform/modules/k8s-cluster/
+            cp platform-release/aws-node-lifecycle-hook.zip platform-source-with-hook/modules/k8s-cluster/
           else
             echo "stealing aws-node-lifecycle-hook from latest in S3 instead of a release"
-            cp aws-node-lifecycle-hook/aws-node-lifecycle-hook.zip ./platform/modules/k8s-cluster/
+            cp aws-node-lifecycle-hook/aws-node-lifecycle-hook.zip platform-source-with-hook/modules/k8s-cluster/
           fi
       inputs:
-      - name: platform
+      - name: platform-source
+      - name: platform-release
       - name: aws-node-lifecycle-hook
       outputs:
-      - name: platform
+      - name: platform-source-with-hook
   - task: scale-autoscaler-down
     image: task-toolbox
     timeout: 40s
@@ -833,7 +840,7 @@ jobs:
   - put: cluster-state
     params:
       env_name: ((account-name))
-      terraform_source: platform/pipelines/deployer
+      terraform_source: platform-merged-source/pipelines/deployer
       var_files:
       - terraform-var-overrides/overrides.tfvars.json
   - task: generate-user-terraform
@@ -852,7 +859,7 @@ jobs:
   serial_groups: [cluster-modification]
   plan:
   - in_parallel:
-    - get: platform
+    - get: platform-release
       passed: [deploy]
       trigger: true
     - get: config
@@ -952,7 +959,7 @@ jobs:
 - name: check-canary
   plan:
   - get: task-toolbox
-  - get: platform
+  - get: platform-release
     passed: [apply]
     trigger: true
   - get: config
@@ -969,7 +976,7 @@ jobs:
 - name: check-logging
   plan:
   - get: task-toolbox
-  - get: platform
+  - get: platform-release
     passed: [apply]
     trigger: true
   - get: config
@@ -1016,7 +1023,7 @@ jobs:
 - name: check-tools
   plan:
   - get: task-toolbox
-  - get: platform
+  - get: platform-release
     passed: [apply]
     trigger: true
   - get: config
@@ -1036,7 +1043,7 @@ jobs:
   - get: dailymorning
     trigger: true
   - get: task-toolbox
-  - get: platform
+  - get: platform-release
     passed: [apply]
     trigger: true
   - get: config
@@ -1078,7 +1085,7 @@ jobs:
   - get: task-toolbox
   - get: config
   - get: users
-  - get: platform
+  - get: platform-release
     params:
       include_source_tarball: true
   - task: unpack-gsp-release
@@ -1100,7 +1107,7 @@ jobs:
     config: *generate_users_terraform
     params:
       ACCOUNT_NAME: ((account-name))
-  - task: remove-prevent-destroy
+  - task: remove-prevent-destroy-and-fake-aws-node-lifecycle-hook-zip
     image: task-toolbox
     timeout: 10s
     config:
@@ -1112,39 +1119,31 @@ jobs:
         - pipefail
         - -c
         - |
-          sed -i'' -e '/prevent_destroy = true/d' platform/modules/k8s-cluster/main.tf platform/modules/gsp-subnet/public.tf
+          cp -R platform-source/* platform-source-for-destroy
+          sed -i'' -e '/prevent_destroy = true/d' platform-source-for-destroy/modules/k8s-cluster/main.tf platform-source-for-destroy/modules/gsp-subnet/public.tf
+          # This is here because the node lifecycle hook isn't here
+          # without the ensure-aws-node-lifecycle-hook task; but
+          # Terraform expects it to generate the hash, even on destroy
+          touch platform-source-for-destroy/modules/k8s-cluster/aws-node-lifecycle-hook.zip
       inputs:
-      - name: platform
+      - name: platform-source
       outputs:
-      - name: platform
-  - task: hack-aws-node-lifecycle-hook-zip
-    image: task-toolbox
-    timeout: 10s
-    config:
-      platform: linux
-      run:
-        path: /bin/bash
-        args:
-        - -euo
-        - pipefail
-        - -c
-        - |
-          # This is here in case we are running off the git repo instead of a release, we won't have the built ZIP but Terraform expects it to generate the hash, even on destroy
-          touch platform/modules/k8s-cluster/aws-node-lifecycle-hook.zip
-      inputs:
-      - name: platform
-      outputs:
-      - name: platform
+      - name: platform-source-for-destroy
   - task: generate-managed-namespaces-zones
     timeout: 10m
-    config: *generate_managed_namespaces_zones
+    config:
+      <<: *generate_managed_namespaces_zones
+      inputs:
+      - name: platform-source-for-destroy
+        path: platform
+      - name: config
     image: task-toolbox
     params:
       CONFIG_VALUES_PATH: ((config-values-path))
   - put: cluster-state
     params:
       env_name: ((account-name))
-      terraform_source: platform/pipelines/deployer
+      terraform_source: platform-merged-source/pipelines/deployer
       action: destroy
     get_params:
       action: destroy
