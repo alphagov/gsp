@@ -246,11 +246,6 @@ prometheus-operator:
         - source_labels: [instance]
           target_label: node
   grafana:
-    image:
-      # TODO Remove this when the upstream chart
-      # has been updated to include either
-      # >= 6.7.4 or >= 7.0.2
-      tag: 6.7.4
     podLabels:
       talksToAWSMetadataService: "true"
     additionalDataSources:
