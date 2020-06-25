@@ -11,7 +11,7 @@ organization=$(jq --raw-output '.source.organization // ""' < ${payload})
 repository=$(jq --raw-output '.source.repository // ""' < ${payload})
 github_api_token=$(jq --raw-output '.source.github_api_token // ""' < ${payload})
 required_approval_count=$(jq --raw-output '(.source.required_approval_count // 0)' < ${payload})
-approvers=$(jq --raw-output '(.source.approvers // [])[]' < ${payload} | sort -df)
+approvers=$(jq --raw-output '(.source.approvers // [])[]' < ${payload} | sort)
 
 if [ -z "${organization}" ]; then
   echo "invalid source configuration: missing required 'organization'" >&2
@@ -122,7 +122,7 @@ if [ "${commit_signature_valid_string}" != "true" ] ; then
   exit 1
 fi
 
-approvals=$(echo "${api_response}" | jq --raw-output .data.repository.object.associatedPullRequests.nodes[].reviews.nodes[].author.login | grep -v "${commit_signature_author}" | sort -df)
+approvals=$(echo "${api_response}" | jq --raw-output .data.repository.object.associatedPullRequests.nodes[].reviews.nodes[].author.login | grep -v "${commit_signature_author}" | sort)
 echo Approvals: $approvals
 
 
