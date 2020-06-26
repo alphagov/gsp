@@ -1018,7 +1018,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(node_memory_MemFree_bytes / node_memory_MemTotal_bytes) and on(node) kube_pod_info{pod=~\"gsp-concourse-worker.*\"}",
+          "expr": "1 - (((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) and on(node) kube_pod_info{pod=~\"gsp-concourse-worker.*\"}))",
           "interval": "",
           "legendFormat": "{{node}}",
           "refId": "A"
@@ -1310,5 +1310,5 @@
   "timezone": "",
   "title": "Concourse",
   "uid": "xgwl_AUiz",
-  "version": 1
+  "version": 2
 }
