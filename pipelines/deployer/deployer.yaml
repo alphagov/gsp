@@ -209,11 +209,6 @@ apply_cluster_chart: &apply_cluster_chart
       echo "RELEASE_TAG=${RELEASE_TAG}"
       echo "Removing EKS-provided pod security policy clusterrolebinding (if it exists)"
       kubectl delete --ignore-not-found=true clusterrolebinding eks:podsecuritypolicy:authenticated
-      ### start of temporary tidyup
-      echo "removing old prometheus related jobs..."
-      kubectl -n gsp-system delete --ignore-not-found=true job gsp-prometheus-operator-admission-create
-      kubectl -n gsp-system delete --ignore-not-found=true job gsp-prometheus-operator-admission-patch
-      ### end of temporary tidyup
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
       mkdir -p kube-system-manifests
