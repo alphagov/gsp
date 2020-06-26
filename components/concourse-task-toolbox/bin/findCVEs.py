@@ -15,8 +15,8 @@ GLOBAL_IMAGE_WHITELIST = [
     'quay.io/coreos/prometheus-config-reloader:v0.38.1', # error in image scan: scan failed: failed to apply layers: unknown OS
     'quay.io/coreos/prometheus-operator:v0.38.1', # error in image scan: scan failed: failed to apply layers: unknown OS
     'quay.io/kiali/kiali:v1.9', # error in image scan: failed analysis: analyze error: unable to analyze config: json marshal error: unexpected end of JSON input
-    'quay.io/prometheus/node-exporter:v0.18.1', # error in image scan: scan failed: failed to apply layers: unknown OS
-    'quay.io/prometheus/prometheus:v2.17.2', # error in image scan: scan failed: failed to apply layers: unknown OS
+    'quay.io/prometheus/node-exporter:v1.0.0', # error in image scan: scan failed: failed to apply layers: unknown OS
+    'quay.io/prometheus/prometheus:v2.18.1', # error in image scan: scan failed: failed to apply layers: unknown OS
     'quay.io/bitnami/sealed-secrets-controller:v0.7.0', # error in image scan: failed analysis: analyze error: unable to analyze config: json marshal error: unexpected end of JSON input
     'quay.io/calico/node:v3.8.1', # error in image scan: failed analysis: analyze error: unable to analyze config: json marshal error: unexpected end of JSON input
     'quay.io/open-policy-agent/gatekeeper:v3.0.4-beta.1', # error in image scan: failed analysis: analyze error: unable to analyze config: json marshal error: unexpected end of JSON input
