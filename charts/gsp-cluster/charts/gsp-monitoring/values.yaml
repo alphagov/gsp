@@ -276,3 +276,11 @@ prometheus-operator:
     enabled: false
   alertmanager:
     enabled: false
+
+  prometheus-node-exporter:
+    # extraArgs is a manual merge with the upstream chart's values
+    # so may fall out of sync in the future.
+    extraArgs:
+    - --collector.buddyinfo
+    - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+)($|/)
+    - --collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$
