@@ -733,7 +733,7 @@ concourse:
     emptyDirSize: 60Gi
     resources:
       requests:
-        cpu: 2000m
+        cpu: 3750m
         memory: 12Gi
     env:
     - name: CONCOURSE_GARDEN_DNS_PROXY_ENABLE
