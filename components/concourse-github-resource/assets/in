@@ -106,6 +106,7 @@ api_response=$( \
         "https://api.github.com/graphql" \
 )
 
+echo API response: $api_response
 pr_author=$(echo $api_response | jq --raw-output ".data.repository.object.associatedPullRequests.nodes[].author.login")
 echo PR author: $pr_author
 commit_signature_author=$(echo $api_response | jq --raw-output ".data.repository.object.associatedPullRequests.nodes[].commits.nodes[0].commit.signature.signer.login")
