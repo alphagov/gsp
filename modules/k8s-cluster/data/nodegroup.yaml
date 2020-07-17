@@ -1,4 +1,5 @@
 ---
+# Note: Changing this file may cause the cluster-management nodes to be replaced as this is not done often and it'll usually cause an UpdateStack to get a new NodeImageId value.
 AWSTemplateFormatVersion: 2010-09-09
 Description: Amazon EKS - Node Group
 
