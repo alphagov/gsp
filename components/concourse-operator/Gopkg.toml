@@ -27,7 +27,7 @@ ignored = [
 
 [[constraint]]
   name="github.com/concourse/concourse"
-  version="v5.8.0"
+  version="v6.4.0"
 
 # STANZAS BELOW ARE GENERATED AND MAY BE WRITTEN - DO NOT MODIFY BELOW THIS LINE.
 

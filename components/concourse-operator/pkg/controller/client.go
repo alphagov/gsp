@@ -41,7 +41,7 @@ func newClient(cfg ConcourseClientConfig) (concourse.Client, error) {
 	oauth2Config := oauth2.Config{
 		ClientID:     "fly",
 		ClientSecret: "Zmx5",
-		Endpoint:     oauth2.Endpoint{TokenURL: tokenClient.URL() + "/sky/token"},
+		Endpoint:     oauth2.Endpoint{TokenURL: tokenClient.URL() + "/sky/issuer/token"},
 		Scopes:       []string{"openid", "profile", "email", "federated:id", "groups"},
 	}
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, tokenClient.HTTPClient())
@@ -49,10 +49,14 @@ func newClient(cfg ConcourseClientConfig) (concourse.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("resource: couldn't obtain auth token: %s", err)
 	}
+	idToken, ok := token.Extra("id_token").(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to find id_token extra in oauth2 token")
+	}
 	// create a concourse client
 	client := concourse.NewClient(cfg.ATCAddr, &http.Client{
 		Transport: ConcourseAuthTransport{
-			AccessToken:     token.AccessToken,
+			AccessToken:     idToken,
 			TokenType:       token.TokenType,
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: cfg.InsecureSkipVerify},
 		},
