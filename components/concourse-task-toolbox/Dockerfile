@@ -1,4 +1,4 @@
-FROM hashicorp/terraform:0.11.10 AS task-toolbox
+FROM hashicorp/terraform:0.12.29 AS task-toolbox
 
 RUN apk add --update \
 	curl \
