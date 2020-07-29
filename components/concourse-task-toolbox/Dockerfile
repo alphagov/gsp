@@ -21,7 +21,6 @@ RUN apk add --update \
 	ncurses \
 	rpm \
 	&& pip3 install awscli s3cmd yq PyYAML kubernetes \
-	&& apk -v --purge del py3-pip \
 	&& rm /var/cache/apk/*
 
 # install kubeseal
