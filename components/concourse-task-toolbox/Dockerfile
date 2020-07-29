@@ -19,6 +19,7 @@ RUN apk add --update \
 	py3-pip \
 	mailcap \
 	ncurses \
+	gnupg \
 	rpm \
 	&& pip3 install awscli s3cmd yq PyYAML kubernetes \
 	&& rm /var/cache/apk/*
