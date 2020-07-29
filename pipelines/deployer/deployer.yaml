@@ -1154,3 +1154,26 @@ jobs:
       action: destroy
     get_params:
       action: destroy
+  - task: final-cleanup
+    image: task-toolbox
+    config:
+      platform: linux
+      params:
+        ACCOUNT_ROLE_ARN: ((account-role-arn))
+        CLUSTER_NAME: ((cluster-name))
+      run:
+        path: /bin/bash
+        args:
+        - -eu
+        - -c
+        - |
+          echo "assuming aws deployer role..."
+          AWS_CREDS="$(aws-assume-role $ACCOUNT_ROLE_ARN)"
+          eval "${AWS_CREDS}"
+          echo "cleaning up orphaned log groups..."
+          aws logs delete-log-group --log-group-name /aws/containerinsights/${CLUSTER_NAME}/application
+          aws logs delete-log-group --log-group-name /aws/containerinsights/${CLUSTER_NAME}/dataplane
+          aws logs delete-log-group --log-group-name /aws/containerinsights/${CLUSTER_NAME}/host
+          aws logs delete-log-group --log-group-name /aws/eks/${CLUSTER_NAME}/cluster
+          aws logs delete-log-group --log-group-name /aws/lambda/${CLUSTER_NAME}-aws-node-lifecycle-hook
+          echo "done with log groups"
