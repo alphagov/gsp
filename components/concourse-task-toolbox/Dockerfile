@@ -82,3 +82,4 @@ COPY --from=hairyhenderson/gomplate:v3.5.0-slim /gomplate /bin/gomplate
 COPY --from=aquasec/trivy@sha256:3cd0f92134bcdac0b00598f275b1d112312341f5a3d19cc492cecfef39e67c42 /usr/local/bin/trivy /usr/local/bin/trivy
 ENTRYPOINT ["/bin/bash"]
 CMD []
+
