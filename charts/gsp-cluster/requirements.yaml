@@ -8,7 +8,7 @@ dependencies:
     repository:  https://concourse-charts.storage.googleapis.com/
     condition: global.concourse.enabled
   - name: "fluentd-cloudwatch"
-    version: 0.12.1
+    version: 0.13.0
     repository: https://kubernetes-charts-incubator.storage.googleapis.com/
     condition: global.runningOnAws
   - name: "cert-manager"
