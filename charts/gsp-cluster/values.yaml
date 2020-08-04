@@ -80,6 +80,7 @@ cluster-autoscaler:
   replicaCount: 2
 
 fluentd-cloudwatch:
+  avoidExtensionsV1Beta1ApiVersion: true
   image:
     tag: v1.9.3-debian-cloudwatch-1.0
   resources:
