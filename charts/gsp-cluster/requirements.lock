@@ -5,11 +5,8 @@ dependencies:
 - name: concourse
   repository: https://concourse-charts.storage.googleapis.com/
   version: 11.4.0
-- name: fluentd-cloudwatch
-  repository: https://kubernetes-charts-incubator.storage.googleapis.com/
-  version: 0.12.1
 - name: cert-manager
   repository: https://charts.jetstack.io/
   version: v0.11.0
-digest: sha256:0692181f44612d03b596378a3ad254dd4938cc5f50cc2618943bf75eb9d068f3
-generated: "2020-07-21T16:22:24.720181+01:00"
+digest: sha256:7a1f4daadebb067bd9173642e3347bc05b023f3531e46b0d2099b3cbd71d419f
+generated: "2020-08-04T13:50:37.912398679+01:00"
