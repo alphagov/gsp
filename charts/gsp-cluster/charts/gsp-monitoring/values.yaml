@@ -4,6 +4,8 @@ prometheus-operator:
       general: false # see templates/rules-general.yaml for replacement
       kubernetesSystem: false # see templates/rules-kubernetes-system.yaml for replacement
       alertmanager: false
+  kubeApiServer:
+    enabled: false
   kubeControllerManager:
     enabled: false
   kubeScheduler:
