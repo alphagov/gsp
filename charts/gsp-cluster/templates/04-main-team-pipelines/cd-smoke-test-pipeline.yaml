@@ -28,7 +28,7 @@ spec:
       type: time
       icon: update
       source:
-        interval: 2m
+        interval: 4m
 
     - name: src
       type: github
@@ -87,6 +87,8 @@ spec:
       - get: src
         passed: ["build"]
       - get: ecr
+        passed: ["build"]
+      - get: timer
         passed: ["build"]
         trigger: true
 
