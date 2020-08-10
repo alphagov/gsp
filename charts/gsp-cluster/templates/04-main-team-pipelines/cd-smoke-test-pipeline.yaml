@@ -88,8 +88,7 @@ spec:
         passed: ["build"]
       - get: ecr
         passed: ["build"]
-      - get: timer
-        passed: ["build"]
+        version: every
         trigger: true
 
       - task: generate-chart-values
