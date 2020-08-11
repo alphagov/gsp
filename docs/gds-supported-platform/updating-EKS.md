@@ -28,7 +28,7 @@ The value for this variable comes either from the cluster's "cluster-config" or
 from the default values provided by the gsp deployer pipeline.
 
 Most clusters do not pin a specific EKS version, so updating the default
-`eks-version` is usually all that is required to upgrade all cluster.
+`eks-version` is usually all that is required to upgrade all clusters.
 
 * See [PR568: upgrade EKS control plane](https://github.com/alphagov/gsp/pull/568/files) for an example of updating default control-plane version.
 

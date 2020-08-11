@@ -119,7 +119,7 @@ $helm template \
 		| sed 's/${bootstrap_role_arns}/[]/' \
 		| sed 's/${concourse_teams}/["org:team"]/' \
 		| sed 's/${egress_ip_addresses}/[]/' \
-		| sed 's/${eks_version}/1.14/' \
+		| sed 's/${eks_version}/1.16/' \
 		| sed 's/${external_dns_map}/externalDns: []/' \
 	) \
 	--values output/values.yaml \
