@@ -24,6 +24,7 @@ GLOBAL_IMAGE_WHITELIST = [
 GLOBAL_IMAGE_SOURCE_WHITELIST = [
     '.dkr.ecr.eu-west-2.amazonaws.com/', # ECR
     '.dkr.ecr.us-west-2.amazonaws.com/', # ECR - for EKS upstream
+    'registry.london.verify.govsvc.uk/', # legacy harbor images still laying around
 ]
 
 # whitelists against vulnerabilities we've considered for various reasons
