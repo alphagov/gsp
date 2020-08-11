@@ -771,6 +771,8 @@ concourse:
       enableTeamAuditing: true
       enableWorkerAuditing: true
       enableVolumeAuditing: true
+      defaultBuildLogsToRetain: 500
+      maxBuildLogsToRetain: 5000
   persistence:
     enabled: false
   postgresql:
