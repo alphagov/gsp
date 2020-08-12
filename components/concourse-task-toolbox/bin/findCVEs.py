@@ -10,7 +10,7 @@ GLOBAL_IMAGE_WHITELIST = [
     'jaegertracing/all-in-one:1.16', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
     'k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1', # error in image scan: scan failed: failed to apply layers: unknown OS - no shell, no ls - possibly scratch
     'k8s.gcr.io/metrics-server-amd64:v0.3.0', # error in image scan: scan failed: failed to apply layers: unknown OS
-    'quay.io/calico/typha:v3.13.0', # error in image scan: scan failed: failed to apply layers: unknown OS
+    'quay.io/calico/typha:v3.13.4', # error in image scan: scan failed: failed to apply layers: unknown OS
     'quay.io/coreos/configmap-reload:v0.0.1', # error in image scan: scan failed: failed to apply layers: unknown OS
     'quay.io/coreos/prometheus-config-reloader:v0.38.1', # error in image scan: scan failed: failed to apply layers: unknown OS
     'quay.io/coreos/prometheus-operator:v0.38.1', # error in image scan: scan failed: failed to apply layers: unknown OS
