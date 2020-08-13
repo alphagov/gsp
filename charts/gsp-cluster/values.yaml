@@ -73,10 +73,10 @@ cluster-autoscaler:
     enabled: true
     namespace: gsp-system
   nodeSelector:
-    node-role.kubernetes.io/cluster-management: ""
+    node.kubernetes.io/cluster-management: ""
   tolerations:
   - effect: NoSchedule
-    key: node-role.kubernetes.io/cluster-management
+    key: node.kubernetes.io/cluster-management
   replicaCount: 2
 
 fluentd-cloudwatch:

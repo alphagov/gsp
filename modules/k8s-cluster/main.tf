@@ -74,7 +74,7 @@ resource "aws_cloudformation_stack" "worker-nodes" {
     NodeAutoScalingGroupMaxSize         = "0"
     NodeInstanceType                    = "t3.medium"
     NodeVolumeSize                      = "40"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node.kubernetes.io/worker --event-qps=0\""
     VpcId                               = var.vpc_id
     Subnets                             = join(",", var.private_subnet_ids)
   }
@@ -134,7 +134,7 @@ resource "aws_cloudformation_stack" "worker-nodes-per-az" {
 
     NodeInstanceProfile          = aws_cloudformation_stack.worker-nodes.outputs["NodeInstanceProfile"]
     NodeVolumeSize               = "120"
-    BootstrapArguments           = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/worker --event-qps=0\""
+    BootstrapArguments           = "--kubelet-extra-args \"--node-labels=node.kubernetes.io/worker --event-qps=0\""
     NodeGroupGenerationTimestamp = var.worker_generation_timestamp
     VpcId                        = var.vpc_id
     Subnets                      = element(data.aws_subnet.private_subnets.*.id, count.index)
@@ -182,7 +182,7 @@ resource "aws_cloudformation_stack" "kiam-server-nodes" {
     NodeAutoScalingGroupMaxSize         = "3"
     NodeInstanceType                    = "t3.medium"
     NodeVolumeSize                      = "40"
-    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node-role.kubernetes.io/cluster-management --register-with-taints=node-role.kubernetes.io/cluster-management=:NoSchedule --event-qps=0\""
+    BootstrapArguments                  = "--kubelet-extra-args \"--node-labels=node.kubernetes.io/cluster-management --register-with-taints=node.kubernetes.io/cluster-management=:NoSchedule --event-qps=0\""
     VpcId                               = var.vpc_id
     Subnets                             = join(",", var.private_subnet_ids)
   }

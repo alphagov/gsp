@@ -4,7 +4,7 @@ test_allow_cluster_management_gsp_system {
   input := {
     "parameters": {
       "restricted_roles": [
-        "node-role.kubernetes.io/cluster-management"
+        "node.kubernetes.io/cluster-management"
       ]
     },
     "review": {
@@ -17,7 +17,7 @@ test_allow_cluster_management_gsp_system {
             {
               "effect": "NoSchedule",
               "operator": "Exists",
-              "key": "node-role.kubernetes.io/cluster-management"
+              "key": "node.kubernetes.io/cluster-management"
             }
           ]
         }
@@ -32,7 +32,7 @@ test_allow_cluster_management_kube_system {
   input := {
     "parameters": {
       "restricted_roles": [
-        "node-role.kubernetes.io/cluster-management"
+        "node.kubernetes.io/cluster-management"
       ]
     },
     "review": {
@@ -45,7 +45,7 @@ test_allow_cluster_management_kube_system {
             {
               "effect": "NoSchedule",
               "operator": "Exists",
-              "key": "node-role.kubernetes.io/cluster-management"
+              "key": "node.kubernetes.io/cluster-management"
             }
           ]
         }
@@ -60,7 +60,7 @@ test_deny_cluster_management_exists_main {
   input := {
     "parameters": {
       "restricted_roles": [
-        "node-role.kubernetes.io/cluster-management"
+        "node.kubernetes.io/cluster-management"
       ]
     },
     "review": {
@@ -73,7 +73,7 @@ test_deny_cluster_management_exists_main {
             {
               "effect": "NoSchedule",
               "operator": "Exists",
-              "key": "node-role.kubernetes.io/cluster-management"
+              "key": "node.kubernetes.io/cluster-management"
             }
           ]
         }
@@ -88,7 +88,7 @@ test_deny_cluster_management_equal_main {
   input := {
     "parameters": {
       "restricted_roles": [
-        "node-role.kubernetes.io/cluster-management"
+        "node.kubernetes.io/cluster-management"
       ]
     },
     "review": {
@@ -102,7 +102,7 @@ test_deny_cluster_management_equal_main {
               "effect": "NoSchedule",
               "operator": "Equal",
               "value": "",
-              "key": "node-role.kubernetes.io/cluster-management"
+              "key": "node.kubernetes.io/cluster-management"
             }
           ]
         }
@@ -117,7 +117,7 @@ test_deny_cluster_management_no_effect_main {
   input := {
     "parameters": {
       "restricted_roles": [
-        "node-role.kubernetes.io/cluster-management"
+        "node.kubernetes.io/cluster-management"
       ]
     },
     "review": {
@@ -128,7 +128,7 @@ test_deny_cluster_management_no_effect_main {
         "spec": {
           "tolerations": [
             {
-              "key": "node-role.kubernetes.io/cluster-management"
+              "key": "node.kubernetes.io/cluster-management"
             }
           ]
         }
@@ -143,7 +143,7 @@ test_deny_no_key_main {
   input := {
     "parameters": {
       "restricted_roles": [
-        "node-role.kubernetes.io/cluster-management"
+        "node.kubernetes.io/cluster-management"
       ]
     },
     "review": {
