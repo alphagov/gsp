@@ -316,7 +316,7 @@ check_conformance: &check_conformance
         --plugin e2e \
         --e2e-focus "Pods should be submitted and removed" \
         --kube-conformance-image "govsvc/conformance-amd64:0.0.1559644071" \
-        --plugin-env e2e.ALLOWED_NOT_READY_NODES=$(kubectl get nodes --selector "! node-role.kubernetes.io/worker"  --no-headers=true | wc -l) # only wait for worker nodes
+        --plugin-env e2e.ALLOWED_NOT_READY_NODES=$(kubectl get nodes --selector "! node.kubernetes.io/worker"  --no-headers=true | wc -l) # only wait for worker nodes
 
       sleep 10 # wait for results to be written
       results=$(sonobuoy retrieve)

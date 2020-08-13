@@ -12,5 +12,5 @@ spec:
         kinds: ["Pod"]
   parameters:
     restricted_roles:
-    - node-role.kubernetes.io/cluster-management
+    - node.kubernetes.io/cluster-management
 {{ end }}
