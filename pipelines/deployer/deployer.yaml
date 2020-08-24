@@ -210,10 +210,6 @@ apply_cluster_chart: &apply_cluster_chart
       echo "Removing EKS-provided pod security policy clusterrolebinding (if it exists)"
       kubectl delete --ignore-not-found=true clusterrolebinding eks:podsecuritypolicy:authenticated
       ### Start of temporary tidyup code ###
-      kubectl delete --ignore-not-found=true --namespace gsp-system servicemonitor gsp-prometheus-operator-apiserver
-      kubectl delete --ignore-not-found=true --namespace gsp-system configmap gsp-prometheus-operator-apiserver
-      kubectl delete --ignore-not-found=true --namespace gsp-system prometheusrule gsp-prometheus-operator-kube-apiserver-slos
-      kubectl delete --ignore-not-found=true --namespace gsp-system prometheusrule gsp-prometheus-operator-kube-apiserver.rules
       ### End of temporary tidyup code ###
       echo "rendering ${CHART_NAME} chart..."
       mkdir -p manifests
