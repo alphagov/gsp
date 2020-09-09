@@ -34,7 +34,7 @@ func init() {
 
 const (
 	Engine                       = "aurora-postgresql"
-	EngineVersion                = "10.13"
+	EngineVersion                = "10.11"
 	Family                       = "aurora-postgresql10"
 	DefaultClass                 = "db.r5.large"
 	DefaultInstanceCount         = 2
