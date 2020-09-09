@@ -34,6 +34,7 @@ func init() {
 
 const (
 	Engine                       = "aurora-postgresql"
+	EngineVersion                = "10.13"
 	Family                       = "aurora-postgresql10"
 	DefaultClass                 = "db.r5.large"
 	DefaultInstanceCount         = 2
@@ -154,6 +155,7 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 
 	template.Resources[PostgresResourceCluster] = &cloudformation.AWSRDSDBCluster{
 		Engine:                      Engine,
+		EngineVersion:               EngineVersion,
 		MasterUsername:              masterUsernameSecretRef,
 		MasterUserPassword:          masterPasswordSecretRef,
 		DBClusterParameterGroupName: cloudformation.Ref(PostgresResourceClusterParameterGroup),
@@ -180,6 +182,7 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 			DBClusterIdentifier:     cloudformation.Ref(PostgresResourceCluster),
 			DBInstanceClass:         coalesce(p.Spec.AWS.InstanceType, DefaultClass),
 			Engine:                  Engine,
+			EngineVersion:           EngineVersion,
 			PubliclyAccessible:      false,
 			DBParameterGroupName:    cloudformation.Ref(PostgresResourceParameterGroup),
 			Tags:                    tags,
