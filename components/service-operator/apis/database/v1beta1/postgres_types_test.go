@@ -211,6 +211,7 @@ var _ = Describe("Postgres", func() {
 
 			It("should have an RDS cluster resource with sensible defaults", func() {
 				Expect(cluster.Engine).To(Equal("aurora-postgresql"))
+				Expect(cluster.EngineVersion).To(HavePrefix("10"))
 				Expect(cluster.DBClusterParameterGroupName).ToNot(BeEmpty())
 				Expect(cluster.VpcSecurityGroupIds).ToNot(BeNil())
 				Expect(cluster.MasterUsername).ToNot(BeEmpty())
@@ -247,6 +248,7 @@ var _ = Describe("Postgres", func() {
 					Expect(instance.PubliclyAccessible).To(BeFalse())
 					Expect(instance.DBInstanceClass).To(Equal("db.r5.large"))
 					Expect(instance.Engine).To(Equal("aurora-postgresql"))
+					Expect(instance.EngineVersion).To(HavePrefix("10"))
 					Expect(instance.Tags).To(Equal(tags))
 					Expect(instance.DeleteAutomatedBackups).To(Equal(false))
 					Expect(instance.CACertificateIdentifier).To(Equal("rds-ca-2019"))
