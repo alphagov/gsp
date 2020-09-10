@@ -155,7 +155,6 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 
 	template.Resources[PostgresResourceCluster] = &cloudformation.AWSRDSDBCluster{
 		Engine:                      Engine,
-		EngineVersion:               EngineVersion,
 		MasterUsername:              masterUsernameSecretRef,
 		MasterUserPassword:          masterPasswordSecretRef,
 		DBClusterParameterGroupName: cloudformation.Ref(PostgresResourceClusterParameterGroup),
