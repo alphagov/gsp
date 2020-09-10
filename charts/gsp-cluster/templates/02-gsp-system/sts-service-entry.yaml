@@ -11,6 +11,7 @@ metadata:
 spec:
   hosts:
   - sts.amazonaws.com
+  - sts.eu-west-2.amazonaws.com
   ports:
   - name: https
     number: 443
