@@ -211,7 +211,6 @@ var _ = Describe("Postgres", func() {
 
 			It("should have an RDS cluster resource with sensible defaults", func() {
 				Expect(cluster.Engine).To(Equal("aurora-postgresql"))
-				Expect(cluster.EngineVersion).To(HavePrefix("10"))
 				Expect(cluster.DBClusterParameterGroupName).ToNot(BeEmpty())
 				Expect(cluster.VpcSecurityGroupIds).ToNot(BeNil())
 				Expect(cluster.MasterUsername).ToNot(BeEmpty())
