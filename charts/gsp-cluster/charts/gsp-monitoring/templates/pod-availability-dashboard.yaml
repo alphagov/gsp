@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: '{{ .Release.Name }}-grafana-pod-availability-dashboard'
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  pod-availability.json: |-
+{{ .Files.Get "dashboards/pod-availability.json" | indent 4 }}
