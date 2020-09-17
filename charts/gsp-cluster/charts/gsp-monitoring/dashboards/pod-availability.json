@@ -15,8 +15,8 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": 38,
-    "iteration": 1599829881855,
+    "id": 16,
+    "iteration": 1600346746230,
     "links": [],
     "panels": [
         {
@@ -353,7 +353,12 @@
             "pointradius": 2,
             "points": false,
             "renderer": "flot",
-            "seriesOverrides": [],
+            "seriesOverrides": [
+                {
+                    "alias": "Number of nodes",
+                    "yaxis": 2
+                }
+            ],
             "spaceLength": 10,
             "stack": false,
             "steppedLine": false,
@@ -361,8 +366,14 @@
                 {
                     "expr": "sum(avg by(node) (kube_node_spec_unschedulable))",
                     "interval": "",
-                    "legendFormat": "Count",
+                    "legendFormat": "Number of nodes that cannot schedule pods",
                     "refId": "A"
+                },
+                {
+                    "expr": "count(kube_node_info)",
+                    "interval": "",
+                    "legendFormat": "Number of nodes",
+                    "refId": "B"
                 }
             ],
             "thresholds": [],
@@ -389,7 +400,7 @@
                     "label": null,
                     "logBase": 1,
                     "max": null,
-                    "min": null,
+                    "min": "0",
                     "show": true
                 },
                 {
@@ -397,13 +408,13 @@
                     "label": null,
                     "logBase": 1,
                     "max": null,
-                    "min": null,
+                    "min": "0",
                     "show": true
                 }
             ],
             "yaxis": {
-                "align": false,
-                "alignLevel": null
+                "align": true,
+                "alignLevel": 0
             }
         },
         {
