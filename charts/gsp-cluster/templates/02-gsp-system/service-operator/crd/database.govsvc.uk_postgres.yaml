@@ -37,6 +37,11 @@ spec:
             aws:
               description: AWS specific subsection of the resource.
               properties:
+                engineVersion:
+                  description: EngineVersion is the version of RDS postgresql to use
+                    (it is only optional to cater for existing databases; this should
+                    be specified on anything new)
+                  type: string
                 instanceCount:
                   description: InstanceCount is the number of database instances in
                     the cluster (defaults to 2 if not set)

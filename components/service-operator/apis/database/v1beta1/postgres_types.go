@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -34,8 +35,7 @@ func init() {
 
 const (
 	Engine                       = "aurora-postgresql"
-	EngineVersion                = "10.11"
-	Family                       = "aurora-postgresql10"
+	DefaultParameterGroupFamily  = "aurora-postgresql10"
 	DefaultClass                 = "db.r5.large"
 	DefaultInstanceCount         = 2
 	DefaultBackupRetentionPeriod = 7
@@ -67,6 +67,9 @@ type PostgresAWSSpec struct {
 	InstanceType string `json:"instanceType,omitempty"`
 	// InstanceCount is the number of database instances in the cluster (defaults to 2 if not set)
 	InstanceCount int `json:"instanceCount,omitempty"`
+	// EngineVersion is the version of RDS postgresql to use
+	// (it is only optional to cater for existing databases; this should be specified on anything new)
+	EngineVersion string `json:"engineVersion,omitempty"`
 }
 
 // PostgresSpec defines the desired state of Postgres
@@ -153,7 +156,7 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 	masterUsernameSecretRef := cloudformation.Join("", []string{"{{resolve:secretsmanager:", cloudformation.Ref(PostgresResourceMasterCredentials), ":SecretString:username}}"})
 	masterPasswordSecretRef := cloudformation.Join("", []string{"{{resolve:secretsmanager:", cloudformation.Ref(PostgresResourceMasterCredentials), ":SecretString:password}}"})
 
-	template.Resources[PostgresResourceCluster] = &cloudformation.AWSRDSDBCluster{
+	cluster := cloudformation.AWSRDSDBCluster{
 		Engine:                      Engine,
 		MasterUsername:              masterUsernameSecretRef,
 		MasterUserPassword:          masterPasswordSecretRef,
@@ -166,6 +169,13 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 		BackupRetentionPeriod: DefaultBackupRetentionPeriod,
 	}
 
+	// for backwards compatibility only specify EngineVersion if the k8s object specifies it
+	if len(p.Spec.AWS.EngineVersion) > 0 {
+		cluster.EngineVersion = p.Spec.AWS.EngineVersion
+	}
+
+	template.Resources[PostgresResourceCluster] = &cluster
+
 	template.Resources[PostgresResourceMasterCredentialsAttachment] = &cloudformation.AWSSecretsManagerSecretTargetAttachment{
 		SecretId:   cloudformation.Ref(PostgresResourceMasterCredentials),
 		TargetId:   cloudformation.Ref(PostgresResourceCluster),
@@ -177,11 +187,10 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 		instanceCount = DefaultInstanceCount
 	}
 	for i := 0; i < instanceCount; i++ {
-		template.Resources[fmt.Sprintf("%s%d", PostgresResourceInstance, i)] = &cloudformation.AWSRDSDBInstance{
+		instance := cloudformation.AWSRDSDBInstance{
 			DBClusterIdentifier:     cloudformation.Ref(PostgresResourceCluster),
 			DBInstanceClass:         coalesce(p.Spec.AWS.InstanceType, DefaultClass),
 			Engine:                  Engine,
-			EngineVersion:           EngineVersion,
 			PubliclyAccessible:      false,
 			DBParameterGroupName:    cloudformation.Ref(PostgresResourceParameterGroup),
 			Tags:                    tags,
@@ -189,11 +198,23 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 			DeleteAutomatedBackups:  false,
 			CACertificateIdentifier: "rds-ca-2019",
 		}
+
+		// for backwards compatibility only specify EngineVersion if the k8s object specifies it
+		if len(p.Spec.AWS.EngineVersion) > 0 {
+			instance.EngineVersion = p.Spec.AWS.EngineVersion
+		}
+
+		template.Resources[fmt.Sprintf("%s%d", PostgresResourceInstance, i)] = &instance
+	}
+
+	parameterGroupFamily, err := parameterGroupFamilyFromEngineVersion(p.Spec.AWS.EngineVersion)
+	if err != nil {
+		return nil, err
 	}
 
 	template.Resources[PostgresResourceClusterParameterGroup] = &cloudformation.AWSRDSDBClusterParameterGroup{
 		Description: "GSP Service Operator Cluster Parameter Group",
-		Family:      Family,
+		Family:      parameterGroupFamily,
 		Parameters: map[string]string{
 			"timezone": "UTC",
 		},
@@ -202,7 +223,7 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 
 	template.Resources[PostgresResourceParameterGroup] = &cloudformation.AWSRDSDBParameterGroup{
 		Description: "GSP Service Operator Parameter Group",
-		Family:      Family,
+		Family:      parameterGroupFamily,
 		Parameters: map[string]string{
 			"application_name": p.GetStackName(),
 		},
@@ -388,4 +409,34 @@ func coalesce(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func parameterGroupFamilyFromEngineVersion(engineVersion string) (string, error) {
+	if engineVersion == "" {
+		return DefaultParameterGroupFamily, nil
+	}
+
+	versionTokens := strings.SplitN(engineVersion, ".", 2)
+	if len(versionTokens) < 1 {
+		return "", fmt.Errorf("failed to parse version tokens from %v", engineVersion)
+	}
+
+	majorVersion, err := strconv.ParseInt(versionTokens[0], 0, 64)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse major version from %v: %v", versionTokens[0], err)
+	}
+
+	family := ""
+	switch majorVersion {
+	case 9:
+		family = "aurora-postgresql9.6"
+	case 10:
+		family = "aurora-postgresql10"
+	case 11:
+		family = "aurora-postgresql11"
+	default:
+		return "", fmt.Errorf("version %v not recognised", majorVersion)
+	}
+
+	return family, nil
 }
