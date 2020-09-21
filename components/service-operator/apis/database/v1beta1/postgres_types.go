@@ -156,7 +156,7 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 	masterUsernameSecretRef := cloudformation.Join("", []string{"{{resolve:secretsmanager:", cloudformation.Ref(PostgresResourceMasterCredentials), ":SecretString:username}}"})
 	masterPasswordSecretRef := cloudformation.Join("", []string{"{{resolve:secretsmanager:", cloudformation.Ref(PostgresResourceMasterCredentials), ":SecretString:password}}"})
 
-	cluster := cloudformation.AWSRDSDBCluster{
+	template.Resources[PostgresResourceCluster] = &cloudformation.AWSRDSDBCluster{
 		Engine:                      Engine,
 		MasterUsername:              masterUsernameSecretRef,
 		MasterUserPassword:          masterPasswordSecretRef,
@@ -167,14 +167,8 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 		},
 		DBSubnetGroupName:     cloudformation.Ref(DBSubnetGroupNameParameterName),
 		BackupRetentionPeriod: DefaultBackupRetentionPeriod,
+		EngineVersion:         p.Spec.AWS.EngineVersion,
 	}
-
-	// for backwards compatibility only specify EngineVersion if the k8s object specifies it
-	if len(p.Spec.AWS.EngineVersion) > 0 {
-		cluster.EngineVersion = p.Spec.AWS.EngineVersion
-	}
-
-	template.Resources[PostgresResourceCluster] = &cluster
 
 	template.Resources[PostgresResourceMasterCredentialsAttachment] = &cloudformation.AWSSecretsManagerSecretTargetAttachment{
 		SecretId:   cloudformation.Ref(PostgresResourceMasterCredentials),
@@ -187,7 +181,7 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 		instanceCount = DefaultInstanceCount
 	}
 	for i := 0; i < instanceCount; i++ {
-		instance := cloudformation.AWSRDSDBInstance{
+		template.Resources[fmt.Sprintf("%s%d", PostgresResourceInstance, i)] = &cloudformation.AWSRDSDBInstance{
 			DBClusterIdentifier:     cloudformation.Ref(PostgresResourceCluster),
 			DBInstanceClass:         coalesce(p.Spec.AWS.InstanceType, DefaultClass),
 			Engine:                  Engine,
@@ -197,14 +191,8 @@ func (p *Postgres) GetStackTemplate() (*cloudformation.Template, error) {
 			DBSubnetGroupName:       cloudformation.Ref(DBSubnetGroupNameParameterName),
 			DeleteAutomatedBackups:  false,
 			CACertificateIdentifier: "rds-ca-2019",
+			EngineVersion:           p.Spec.AWS.EngineVersion,
 		}
-
-		// for backwards compatibility only specify EngineVersion if the k8s object specifies it
-		if len(p.Spec.AWS.EngineVersion) > 0 {
-			instance.EngineVersion = p.Spec.AWS.EngineVersion
-		}
-
-		template.Resources[fmt.Sprintf("%s%d", PostgresResourceInstance, i)] = &instance
 	}
 
 	parameterGroupFamily, err := parameterGroupFamilyFromEngineVersion(p.Spec.AWS.EngineVersion)
