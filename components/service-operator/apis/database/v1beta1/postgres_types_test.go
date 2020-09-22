@@ -211,6 +211,7 @@ var _ = Describe("Postgres", func() {
 
 			It("should have an RDS cluster resource with sensible defaults", func() {
 				Expect(cluster.Engine).To(Equal("aurora-postgresql"))
+				Expect(cluster.EngineVersion).To(BeEmpty())
 				Expect(cluster.DBClusterParameterGroupName).ToNot(BeEmpty())
 				Expect(cluster.VpcSecurityGroupIds).ToNot(BeNil())
 				Expect(cluster.MasterUsername).ToNot(BeEmpty())
@@ -219,6 +220,15 @@ var _ = Describe("Postgres", func() {
 				Expect(cluster.BackupRetentionPeriod).To(Equal(7))
 			})
 
+			Context("when spec.aws.engineVersion is set", func() {
+				BeforeEach(func() {
+					postgres.Spec.AWS.EngineVersion = "10.11"
+				})
+
+				It("should have an engine version specified", func() {
+					Expect(cluster.EngineVersion).To(Equal("10.11"))
+				})
+			})
 		})
 
 		Context("instance resources", func() {
@@ -247,7 +257,7 @@ var _ = Describe("Postgres", func() {
 					Expect(instance.PubliclyAccessible).To(BeFalse())
 					Expect(instance.DBInstanceClass).To(Equal("db.r5.large"))
 					Expect(instance.Engine).To(Equal("aurora-postgresql"))
-					Expect(instance.EngineVersion).To(HavePrefix("10"))
+					Expect(instance.EngineVersion).To(BeEmpty())
 					Expect(instance.Tags).To(Equal(tags))
 					Expect(instance.DeleteAutomatedBackups).To(Equal(false))
 					Expect(instance.CACertificateIdentifier).To(Equal("rds-ca-2019"))
@@ -274,8 +284,64 @@ var _ = Describe("Postgres", func() {
 				})
 			})
 
+			Context("when spec.aws.engineVersion is set", func() {
+				BeforeEach(func() {
+					postgres.Spec.AWS.EngineVersion = "10.11"
+				})
+
+				It("should include engineVersion on each instance", func() {
+					for _, instance := range instances {
+						Expect(instance.EngineVersion).To(Equal("10.11"))
+					}
+				})
+			})
+
 		})
 
-	})
+		Context("parameter group", func() {
 
+			var parameterGroup *cloudformation.AWSRDSDBClusterParameterGroup
+
+			JustBeforeEach(func() {
+				t, err := postgres.GetStackTemplate()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(t.Resources[v1beta1.PostgresResourceClusterParameterGroup]).To(BeAssignableToTypeOf(&cloudformation.AWSRDSDBClusterParameterGroup{}))
+				parameterGroup = t.Resources[v1beta1.PostgresResourceClusterParameterGroup].(*cloudformation.AWSRDSDBClusterParameterGroup)
+			})
+
+			It("should have a sensible default", func() {
+				Expect(parameterGroup.Family).To(Equal(v1beta1.DefaultParameterGroupFamily))
+			})
+
+			Context("when spec.aws.engineVersion is set to 9.x", func() {
+				BeforeEach(func() {
+					postgres.Spec.AWS.EngineVersion = "9.6.18"
+				})
+
+				It("should have the correct value", func() {
+					Expect(parameterGroup.Family).To(Equal("aurora-postgresql9.6"))
+				})
+			})
+
+			Context("when spec.aws.engineVersion is set to 10.x", func() {
+				BeforeEach(func() {
+					postgres.Spec.AWS.EngineVersion = "10.7"
+				})
+
+				It("should have the correct value", func() {
+					Expect(parameterGroup.Family).To(Equal("aurora-postgresql10"))
+				})
+			})
+
+			Context("when spec.aws.engineVersion is set to 11.x", func() {
+				BeforeEach(func() {
+					postgres.Spec.AWS.EngineVersion = "11.8"
+				})
+
+				It("should have the correct value", func() {
+					Expect(parameterGroup.Family).To(Equal("aurora-postgresql11"))
+				})
+			})
+		})
+	})
 })
