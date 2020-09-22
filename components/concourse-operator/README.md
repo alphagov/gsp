@@ -83,16 +83,19 @@ The operator is deployed as part of https://github.com/alphagov/gsp-ci-system.
 ## Developing
 
 Driven by `make`. To build the docker image:
+
 ```
 make docker-build
 ```
 
 To tag and publish the built docker image:
+
 ```
 make docker-push
 ```
 
 It was originally built using [kubebuilder](https://github.com/kubernetes-sigs/kubebuilder) with:
+
 ```
 kubebuilder init --domain k8s.io
 kubebuilder create api --group concourse --version v1beta1 --kind Pipeline
