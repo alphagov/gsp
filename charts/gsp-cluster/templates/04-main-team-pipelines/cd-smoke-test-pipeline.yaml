@@ -55,7 +55,7 @@ spec:
         repository: ((canary.ImageRepositoryURI))
 
     jobs:
-    - name: build
+    - name: build-deploy
       serial: true
       plan:
       - get: timer
@@ -80,17 +80,6 @@ spec:
         params:
           image: image/image.tar
           additional_tags: src/.git/short_ref
-
-    - name: deploy
-      serial: true
-      plan:
-      - get: src
-        passed: ["build"]
-      - get: ecr
-        passed: ["build"]
-        version: every
-        trigger: true
-
       - task: generate-chart-values
         config:
           platform: linux
