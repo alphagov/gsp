@@ -584,6 +584,11 @@ rules:
   - patch
   - update
   - watch
+- apiGroups: [""]
+  resources:
+  - pods/exec
+  verbs:
+  - create
 
 - apiGroups: ["access.govsvc.uk"]
   resources:
