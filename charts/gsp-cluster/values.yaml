@@ -718,6 +718,7 @@ fluentd-cloudwatch:
       </label>
 
 concourse:
+  imageTag: 6.6.0
   web:
     nameOverride: concourse-web
     replicas: 2
