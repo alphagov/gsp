@@ -78,7 +78,7 @@ spec:
 
 ## Example operator deployment
 
-The operator is deployed as part of https://github.com/alphagov/gsp-ci-system.
+The operator is deployed as part of https://github.com/alphagov/gsp.
 
 ## Developing
 
