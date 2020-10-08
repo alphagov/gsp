@@ -82,7 +82,7 @@ cluster-autoscaler:
 fluentd-cloudwatch:
   avoidExtensionsV1Beta1ApiVersion: true
   image:
-    tag: v1.9.3-debian-cloudwatch-1.0
+    tag: v1.11.3-debian-cloudwatch-1.0
   resources:
     limits:
       memory: 512Mi
