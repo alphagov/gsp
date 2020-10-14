@@ -27,6 +27,7 @@ func NewClientFromEnv(team string) (concourse.Client, error) {
 		Password:           os.Getenv("CONCOURSE_PASSWORD"),
 		TeamName:           team,
 		InsecureSkipVerify: os.Getenv("CONCOURSE_INSECURE_SKIP_VERIFY") == "true",
+		EnableTracing:      os.Getenv("CONCOURSE_ENABLE_TRACING") == "true",
 	}
 	return newClient(cfg)
 }
