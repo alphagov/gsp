@@ -50,14 +50,10 @@ func newClient(cfg ConcourseClientConfig) (concourse.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("resource: couldn't obtain auth token: %s", err)
 	}
-	idToken, ok := token.Extra("id_token").(string)
-	if !ok {
-		return nil, fmt.Errorf("failed to find id_token extra in oauth2 token")
-	}
 	// create a concourse client
 	client := concourse.NewClient(cfg.ATCAddr, &http.Client{
 		Transport: ConcourseAuthTransport{
-			AccessToken:     idToken,
+			AccessToken:     token.AccessToken,
 			TokenType:       token.TokenType,
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: cfg.InsecureSkipVerify},
 		},
