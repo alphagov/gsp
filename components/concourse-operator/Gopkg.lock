@@ -10,6 +10,30 @@
   version = "v0.34.0"
 
 [[projects]]
+  digest = "1:c2ce258146df34e6fdbfc373b3ae1b74d973b25a5c9162d9095c1f4f9ff74c3f"
+  name = "code.cloudfoundry.org/clock"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "02e53af36e6c978af692887ed449b74026d76fec"
+  version = "1.0.0"
+
+[[projects]]
+  digest = "1:a5ced35ec731972db63b2b4bac7dcdca37654b065944227ebf7ddc89e5b05dbb"
+  name = "code.cloudfoundry.org/lager"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "b152b7147a2a0154109a5194fcc7f4a933283abb"
+  version = "v2.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:5d8e332cfe7ef3998d626663afc10a7e28dad0cb8e64ac2c78e924b8ffa7820f"
+  name = "github.com/aryann/difflib"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "e206f873d14a916d3d26c40ab667bca123f365a3"
+
+[[projects]]
   branch = "master"
   digest = "1:ad4589ec239820ee99eb01c1ad47ebc5f8e02c4f5103a9b210adff9696d89f36"
   name = "github.com/beorn7/perks"
@@ -26,20 +50,39 @@
   revision = "6226ea591a40176dd3ff9cd8eff81ed6ca721a00"
 
 [[projects]]
-  digest = "1:79d04affad4b549c7cc6cb5352836b2db6ae74b5463410b12ada57343f15baca"
+  digest = "1:4aa08a353c0ed3a115473dca7b60067f6430c5a1f189b420336545b1fbc542fa"
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "c2975ffa541a1caeca5f76c396cb8c3e7b3bb5f8"
+  version = "v4.1.0"
+
+[[projects]]
+  digest = "1:bf946512a46ba4e58d470e250b22120cef0801c53a17f1d95ee19be6de24394e"
   name = "github.com/concourse/concourse"
   packages = [
     ".",
     "atc",
+    "atc/configvalidate",
+    "atc/creds",
     "atc/event",
     "go-concourse/concourse",
     "go-concourse/concourse/concoursefakes",
     "go-concourse/concourse/eventstream",
     "go-concourse/concourse/internal",
+    "vars",
   ]
   pruneopts = "T"
-  revision = "5ffc88a8d5c7c82a225ab11997ddfc1fde230e18"
-  version = "v5.3.0"
+  revision = "76187be2e06dc66278ee582a0a50117a2fcbf630"
+  version = "v6.6.0"
+
+[[projects]]
+  digest = "1:831789922bb15131f9897803cefc34be56f74cd397d17b3d01aaa76a4ad42cb6"
+  name = "github.com/concourse/retryhttp"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "6a003fc35c779962eecfa68271bc67664056a3e2"
+  version = "v1.0.2"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -189,6 +232,22 @@
   revision = "c63ab54fda8f77302f8d414e19933f2b6026a089"
 
 [[projects]]
+  digest = "1:d06fbb4c29d4266211e7fa20d29b61469db346e6df1bea40a70cea066cf25019"
+  name = "github.com/hashicorp/errwrap"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "7b00e5db719c64d14dd0caaacbd13e76254d02c0"
+  version = "v1.1.0"
+
+[[projects]]
+  digest = "1:8aa2b4301dac6d0e002849c008f0d017ef0f6b50813cb7ac3b0dbc04fc3fb8be"
+  name = "github.com/hashicorp/go-multierror"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "2004d9dba6b07a5b8d133209244f376680f9d472"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:8ec8d88c248041a6df5f6574b87bc00e7e0b493881dad2e7ef47b11dc69093b5"
   name = "github.com/hashicorp/golang-lru"
   packages = [
@@ -270,6 +329,22 @@
   revision = "81af80346b1a01caae0cbc27fd3c1ba5b11e189f"
 
 [[projects]]
+  digest = "1:c1713caccdaac0eaaaa03671ca911ad7c326fcc78edbc0863a2eb8dac77f834b"
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "2e1b0c1546e0173c0907cf05c67b8ba29ed8b4d1"
+  version = "v0.1.8"
+
+[[projects]]
+  digest = "1:7a42645bfd802bb87392720f2e400178bb5c2da645e6ff57b2bebd5b9565b5d3"
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "7b513a986450394f7bbf1476909911b3aa3a55ce"
+  version = "v0.0.12"
+
+[[projects]]
   digest = "1:a8e3d14801bed585908d130ebfc3b925ba642208e6f30d879437ddfc7bb9b413"
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
@@ -278,12 +353,12 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
-  name = "github.com/mitchellh/mapstructure"
+  branch = "master"
+  digest = "1:a71afc8120f4c16fd642c021cf27720fadb91a7a190488bb6bc6f0d358e11708"
+  name = "github.com/mgutz/ansi"
   packages = ["."]
   pruneopts = "T"
-  revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
-  version = "v1.1.2"
+  revision = "d51e80ef957dba7f19388ca64afefbd5a096af30"
 
 [[projects]]
   digest = "1:33422d238f147d247752996a26574ac48dcf472976eda7f5134015f06bf16563"
@@ -350,6 +425,14 @@
   pruneopts = "T"
   revision = "65fb64232476ad9046e57c26cd0bff3d3a8dc6cd"
   version = "v1.4.3"
+
+[[projects]]
+  digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
+  name = "github.com/patrickmn/go-cache"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+  version = "v2.1.0"
 
 [[projects]]
   digest = "1:e5d0bd87abc2781d14e274807a470acd180f0499f8bf5bb18606e9ec22ad9de9"
@@ -1000,12 +1083,21 @@
   revision = "5818a3a284a11812aaed11d5ca0bcadec2c50e83"
   version = "v0.1.0"
 
+[[projects]]
+  digest = "1:36d2b2cb1fa6e4a731e38c3582c203213cdbc52c5f202af07db6dc6eeaec88dc"
+  name = "sigs.k8s.io/yaml"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "9fc95527decd95bb9d28cc2eab08179b2d0f6971"
+  version = "v1.2.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/concourse/concourse",
     "github.com/concourse/concourse/atc",
+    "github.com/concourse/concourse/atc/configvalidate",
     "github.com/concourse/concourse/go-concourse/concourse",
     "github.com/concourse/concourse/go-concourse/concourse/concoursefakes",
     "github.com/emicklei/go-restful",

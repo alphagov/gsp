@@ -173,7 +173,7 @@ func (r *ReconcileTeam) update(instance *concoursev1beta1.Team) error {
 	if err != nil {
 		return err
 	}
-	_, _, _, err = concourseClient.Team(team.Name).CreateOrUpdate(team)
+	_, _, _, _, err = concourseClient.Team(team.Name).CreateOrUpdate(team)
 	if err != nil {
 		return err
 	}

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/concourse/concourse/atc"
-	"gopkg.in/yaml.v2"
 )
 
 type ValidationTestCase struct {
@@ -61,7 +60,7 @@ jobs:
 	{
 		Name:                      "non-existant-resource",
 		Valid:                     false,
-		ValidationMessageContains: "non-existant-resource refers to a resource that does not exist",
+		ValidationMessageContains: "jobs.bad-job.plan.do[0].get(non-existant-resource): unknown resource",
 		Pipeline: `
 jobs:
 - name: bad-job
@@ -92,7 +91,7 @@ func TestPipelineValidation(t *testing.T) {
 func testPipelineValidation(tc ValidationTestCase) error {
 	h := &PipelineCreateUpdateHandler{}
 	var config atc.Config
-	unmarshalError := yaml.Unmarshal([]byte(tc.Pipeline), &config)
+	unmarshalError := atc.UnmarshalConfig([]byte(tc.Pipeline), &config)
 	if unmarshalError != nil {
 		return fmt.Errorf("did not expect unmarshalError but got: %v", unmarshalError)
 	}

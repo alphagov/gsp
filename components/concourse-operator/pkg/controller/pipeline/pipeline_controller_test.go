@@ -54,7 +54,8 @@ func TestReconcile(t *testing.T) {
 	pipelineString := `---
 jobs:
  - name: say-hello
-   task:
+   plan:
+   - task:
      config:
       platform: linux
       image_resource:
@@ -64,7 +65,7 @@ jobs:
         path: echo
         args: [hello world]
 `
-	err := yaml.Unmarshal([]byte(pipelineString), &config)
+	err := atc.UnmarshalConfig([]byte(pipelineString), &config)
 	g.Expect(err).NotTo(gomega.HaveOccurred())
 
 	pipelineResourceWithConfig := &concoursev1beta1.Pipeline{
