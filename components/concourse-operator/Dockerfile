@@ -1,4 +1,4 @@
-FROM golang:1.11 as builder
+FROM golang:1.13 as builder
 
 # install dep (required when not vendored)
 RUN wget https://github.com/golang/dep/releases/download/v0.5.3/dep-linux-amd64 \
