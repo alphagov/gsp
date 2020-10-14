@@ -27,7 +27,7 @@ ignored = [
 
 [[constraint]]
   name="github.com/concourse/concourse"
-  version="v6.4.0"
+  version="v6.6.0"
 
 # STANZAS BELOW ARE GENERATED AND MAY BE WRITTEN - DO NOT MODIFY BELOW THIS LINE.
 
@@ -44,3 +44,4 @@ ignored = [
 name = "gopkg.in/fsnotify.v1"
 source = "https://github.com/fsnotify/fsnotify.git"
 version="v1.4.7"
+
