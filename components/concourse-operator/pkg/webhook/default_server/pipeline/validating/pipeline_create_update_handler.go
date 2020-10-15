@@ -74,9 +74,7 @@ func (h *PipelineCreateUpdateHandler) validationWarnings(config *atc.Config) ([]
 	}
 
 	if len(errorMessages) > 0 {
-		for _, err := range errorMessages {
-			warnings = append(warnings, err)
-		}
+		warnings = append(warnings, errorMessages...)
 	}
 
 	return warnings, nil
@@ -92,34 +90,28 @@ func (h *PipelineCreateUpdateHandler) Handle(ctx context.Context, req types.Requ
 	if err != nil {
 		return admission.ErrorResponse(http.StatusBadRequest, err)
 	}
+	return h.handle(ctx, obj)
+}
 
-	var config atc.Config
-
-	if len(obj.Spec.Config.Jobs) > 0 {
-		config = obj.Spec.Config
-	} else if obj.Spec.PipelineString != "" {
-		err := atc.UnmarshalConfig([]byte(obj.Spec.PipelineString), &config)
+func (h *PipelineCreateUpdateHandler) handle(ctx context.Context, obj *concoursev1beta1.Pipeline) types.Response {
+	if obj.Spec.PipelineString == "" && len(obj.Spec.Config.Config.Jobs) == 0 {
+		return admission.ValidationResponse(false, "need to define `config` or `pipelineString`")
+	}
+	if obj.Spec.PipelineString != "" {
+		var cfg atc.Config
+		err := atc.UnmarshalConfig([]byte(obj.Spec.PipelineString), &cfg)
 		if err != nil {
 			return admission.ErrorResponse(http.StatusInternalServerError, err)
 		}
-	} else {
-		return admission.ValidationResponse(false, "need to define `config` or `pipelineString`")
+		obj.Spec.Config.Config = cfg
 	}
 
-	allowed, reason, err := h.Validate(&obj.Spec.Config)
+	allowed, reason, err := h.Validate(&obj.Spec.Config.Config)
 	if err != nil {
 		return admission.ErrorResponse(http.StatusInternalServerError, err)
 	}
 	return admission.ValidationResponse(allowed, reason)
 }
-
-//var _ inject.Client = &PipelineCreateUpdateHandler{}
-//
-//// InjectClient injects the client into the PipelineCreateUpdateHandler
-//func (h *PipelineCreateUpdateHandler) InjectClient(c client.Client) error {
-//	h.Client = c
-//	return nil
-//}
 
 var _ inject.Decoder = &PipelineCreateUpdateHandler{}
 

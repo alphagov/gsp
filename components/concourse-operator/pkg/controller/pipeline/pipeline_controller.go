@@ -23,7 +23,6 @@ import (
 
 	concoursev1beta1 "github.com/alphagov/gsp/components/concourse-operator/pkg/apis/concourse/v1beta1"
 	"github.com/concourse/concourse/go-concourse/concourse"
-	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -32,6 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	"sigs.k8s.io/yaml"
 )
 
 const (
@@ -129,7 +129,7 @@ func (r *ReconcilePipeline) update(teamName string, instance *concoursev1beta1.P
 	var pipelineYAML []byte
 	var err error
 
-	if len(instance.Spec.Config.Jobs) > 0 {
+	if len(instance.Spec.Config.Config.Jobs) > 0 {
 		pipelineYAML, err = yaml.Marshal(instance.Spec.Config)
 		if err != nil {
 			return err

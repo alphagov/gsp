@@ -23,14 +23,22 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+type PipelineConfig struct {
+	atc.Config
+}
+
+func (cfg *PipelineConfig) UnmarshalJSON(data []byte) error {
+	return atc.UnmarshalConfig(data, &cfg.Config)
+}
+
 // PipelineSpec defines the desired state of Pipeline
 type PipelineSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Config         atc.Config `json:"config,omitempty"`
-	PipelineString string     `json:"pipelineString,omitempty"`
-	Paused         bool       `json:"paused,omitempty"`
-	Exposed        bool       `json:"exposed,omitempty"`
+	Config         PipelineConfig `json:"config,omitempty"`
+	PipelineString string         `json:"pipelineString,omitempty"`
+	Paused         bool           `json:"paused,omitempty"`
+	Exposed        bool           `json:"exposed,omitempty"`
 }
 
 // PipelineStatus defines the observed state of Pipeline
