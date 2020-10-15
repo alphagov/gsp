@@ -1105,7 +1105,6 @@
     "github.com/onsi/gomega",
     "golang.org/x/net/context",
     "golang.org/x/oauth2",
-    "gopkg.in/yaml.v2",
     "k8s.io/api/admissionregistration/v1beta1",
     "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1",
     "k8s.io/apimachinery/pkg/api/errors",
@@ -1136,6 +1135,7 @@
     "sigs.k8s.io/controller-runtime/pkg/webhook/admission/types",
     "sigs.k8s.io/controller-tools/cmd/controller-gen",
     "sigs.k8s.io/testing_frameworks/integration",
+    "sigs.k8s.io/yaml",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

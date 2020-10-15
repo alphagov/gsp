@@ -26,11 +26,11 @@ import (
 	"github.com/concourse/concourse/go-concourse/concourse"
 	fakes "github.com/concourse/concourse/go-concourse/concourse/concoursefakes"
 	"github.com/onsi/gomega"
-	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/yaml"
 )
 
 const timeout = time.Second * 5
@@ -74,7 +74,9 @@ jobs:
 			Namespace: "xxxx-myteam",
 		},
 		Spec: concoursev1beta1.PipelineSpec{
-			Config: config,
+			Config: concoursev1beta1.PipelineConfig{
+				Config: config,
+			},
 		},
 	}
 
