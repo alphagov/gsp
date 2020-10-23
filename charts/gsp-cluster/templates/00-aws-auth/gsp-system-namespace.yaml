@@ -11,3 +11,12 @@ metadata:
 {{ if .Values.global.cloudHsm.public }}
     talksToHsm: "true"
 {{ end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerhubpull
+  namespace: gsp-system
+data:
+  .dockerconfigjson: {{ .Values.global.dockerHubCredentials | b64enc }}
+type: kubernetes.io/dockerconfigjson

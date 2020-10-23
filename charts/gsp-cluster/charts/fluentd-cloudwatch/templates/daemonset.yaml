@@ -40,6 +40,8 @@ spec:
               mountPath: /config-volume
             - name: config
               mountPath: /etc/fluentd
+      imagePullSecrets:
+      - name: dockerhubpull
       containers:
       - name: {{ template "fluentd-cloudwatch.fullname" . }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

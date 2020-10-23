@@ -636,6 +636,8 @@ resources:
       enable_nlb: ((enable-nlb))
       cls_destination_enabled: ((cls-destination-enabled))
       cls_destination_arn: ((cls-destination-arn))
+      dockerhub_username: ((dockerhub-tenants-username))
+      dockerhub_password: ((dockerhub-tenants-password))
 - name: user-state
   type: terraform
   source:

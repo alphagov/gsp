@@ -7,3 +7,12 @@ metadata:
     namespace: istio-system
     istio-injection: disabled
     istio: system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerhubpull
+  namespace: istio-system
+data:
+  .dockerconfigjson: {{ .Values.global.dockerHubCredentials | b64enc }}
+type: kubernetes.io/dockerconfigjson

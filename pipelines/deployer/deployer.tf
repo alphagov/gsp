@@ -98,6 +98,14 @@ variable "cls_destination_arn" {
   type = string
 }
 
+variable "dockerhub_username" {
+  type = string
+}
+
+variable "dockerhub_password" {
+  type = string
+}
+
 data "aws_caller_identity" "current" {
 }
 
@@ -186,6 +194,9 @@ module "gsp-cluster" {
 
   managed_namespaces_zones = local.external-dns-namespace-zones
   cluster_zone_ids         = local.cluster_zone_ids
+
+  dockerhub_username = var.dockerhub_username
+  dockerhub_password = var.dockerhub_password
 }
 
 output "kubeconfig" {

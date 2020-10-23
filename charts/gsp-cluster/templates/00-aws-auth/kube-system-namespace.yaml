@@ -8,3 +8,12 @@ metadata:
     istio-injection: disabled
     kube-system: "true"
     control-plane: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerhubpull
+  namespace: kube-system
+data:
+  .dockerconfigjson: {{ .Values.global.dockerHubCredentials | b64enc }}
+type: kubernetes.io/dockerconfigjson

@@ -17,6 +17,9 @@ global:
   # move these to gsp-namespace terraform output
   canary:
     verificationKeys: []
+  dockerHubCredentials: ${dockerhub_credentials}
+  dockerHubUsername: ${dockerhub_username}
+  dockerHubPassword: ${dockerhub_password}
 
 adminRoleARNs: ${admin_role_arns}
 devRoleARNs: []

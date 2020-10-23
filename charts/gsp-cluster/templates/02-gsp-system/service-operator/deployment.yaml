@@ -23,6 +23,8 @@ spec:
       labels:
         control-plane: {{ .Release.Name }}-service-operator
     spec:
+      imagePullSecrets:
+      - name: dockerhubpull
       containers:
       - command:
         - /manager

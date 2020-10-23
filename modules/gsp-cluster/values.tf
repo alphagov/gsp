@@ -39,5 +39,14 @@ data "template_file" "values" {
     grafana_default_admin_password                 = jsonencode(random_password.grafana_default_admin_password.result)
     eks_version                                    = var.eks_version
     cert_manager_role_arn                          = aws_iam_role.cert_manager.arn
+    dockerhub_username                             = var.dockerhub_username
+    dockerhub_password                             = var.dockerhub_password
+    dockerhub_credentials                          = jsonencode({
+        "auths" = {
+            "https://index.docker.io/v1/" = {
+                "auth" = base64encode(format("%s:%s", var.dockerhub_username, var.dockerhub_password))
+            }
+        }
+    })
   }
 }

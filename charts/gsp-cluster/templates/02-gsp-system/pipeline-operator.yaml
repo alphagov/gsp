@@ -26,6 +26,8 @@ spec:
         control-plane: concourse-operator
         controller-tools.k8s.io: "1.0"
     spec:
+      imagePullSecrets:
+      - name: dockerhubpull
       containers:
       - command:
         - /manager
