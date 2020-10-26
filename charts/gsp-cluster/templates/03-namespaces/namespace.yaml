@@ -345,7 +345,7 @@ metadata:
   name: dockerhubpull
   namespace: {{ .name }}
 data:
-  .dockerconfigjson: {{ .Values.global.dockerHubCredentials }}
+  .dockerconfigjson: {{ $.Values.global.dockerHubCredentials }}
 type: kubernetes.io/dockerconfigjson
 ---
 apiVersion: v1
@@ -354,6 +354,6 @@ metadata:
   name: dockerhubpull-concourse
   namespace: {{ .name }}
 data:
-  username: {{ .Values.global.dockerHubUsername | b64enc }}
-  password: {{ .Values.global.dockerHubPassword | b64enc }}
+  username: {{ $.Values.global.dockerHubUsername | b64enc }}
+  password: {{ $.Values.global.dockerHubPassword | b64enc }}
 {{- end }}
