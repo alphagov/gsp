@@ -14,5 +14,5 @@ metadata:
   name: dockerhubpull
   namespace: istio-system
 data:
-  .dockerconfigjson: {{ .Values.global.dockerHubCredentials | b64enc }}
+  .dockerconfigjson: {{ .Values.global.dockerHubCredentials }}
 type: kubernetes.io/dockerconfigjson

@@ -41,12 +41,12 @@ data "template_file" "values" {
     cert_manager_role_arn                          = aws_iam_role.cert_manager.arn
     dockerhub_username                             = var.dockerhub_username
     dockerhub_password                             = var.dockerhub_password
-    dockerhub_credentials                          = jsonencode({
+    dockerhub_credentials                          = base64encode(jsonencode({
         "auths" = {
             "https://index.docker.io/v1/" = {
                 "auth" = base64encode(format("%s:%s", var.dockerhub_username, var.dockerhub_password))
             }
         }
-    })
+    }))
   }
 }

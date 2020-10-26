@@ -18,5 +18,5 @@ metadata:
   name: dockerhubpull
   namespace: gsp-system
 data:
-  .dockerconfigjson: {{ .Values.global.dockerHubCredentials | b64enc }}
+  .dockerconfigjson: {{ .Values.global.dockerHubCredentials }}
 type: kubernetes.io/dockerconfigjson
