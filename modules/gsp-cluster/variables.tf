@@ -194,3 +194,13 @@ variable "cluster_zone_ids" {
   default     = []
   description = "List of DNS zone IDs associated with the cluster"
 }
+
+variable "dockerhub_username" {
+  default     = ""
+  description = "The username to use when pulling from DockerHub"
+}
+
+variable "dockerhub_password" {
+  default     = ""
+  description = "The password to use when pulling from DockerHub"
+}

@@ -82,6 +82,8 @@ spec:
         runAsUser: 1001
         runAsNonRoot: true
       serviceAccountName: {{ $.Release.Name }}-external-dns
+      imagePullSecrets:
+      - name: dockerhubpull
       containers:
       - name: external-dns
         image: "docker.io/bitnami/external-dns:0.5.18-debian-9-r4"

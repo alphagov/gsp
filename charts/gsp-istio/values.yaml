@@ -13,6 +13,8 @@ global:
   # disappear. unfortunately the istio helm chart only lets you set
   # priorityClassName for all services at once
   priorityClassName: gsp-critical
+  imagePullSecrets:
+  - dockerhubpull
 
 istio-cni:
   excludeNamespaces:

@@ -121,6 +121,7 @@ $helm template \
 		| sed 's/${egress_ip_addresses}/[]/' \
 		| sed 's/${eks_version}/1.16/' \
 		| sed 's/${external_dns_map}/externalDns: []/' \
+		| sed 's/${dockerhub_credentials}/DEADBEEF/' \
 	) \
 	--values output/values.yaml \
 	--set 'global.cloudHsm.enabled=true' \

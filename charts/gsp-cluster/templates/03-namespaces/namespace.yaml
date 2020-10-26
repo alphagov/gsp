@@ -339,3 +339,21 @@ subjects:
     apiGroup: rbac.authorization.k8s.io
     name: system:authenticated
 {{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerhubpull
+  namespace: {{ .name }}
+data:
+  .dockerconfigjson: {{ .Values.global.dockerHubCredentials }}
+type: kubernetes.io/dockerconfigjson
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerhubpull-concourse
+  namespace: {{ .name }}
+data:
+  username: {{ .Values.global.dockerHubUsername | b64enc }}
+  password: {{ .Values.global.dockerHubPassword | b64enc }}

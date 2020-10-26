@@ -16,6 +16,8 @@ spec:
         name: ssm-agent
     spec:
       hostNetwork: true
+      imagePullSecrets:
+      - name: dockerhubpull
       containers:
       - image: {{ .Values.AWSSSMAgent.image.repository }}:{{ .Values.AWSSSMAgent.image.tag }}
         name: ssm-agent
