@@ -25,6 +25,8 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+      imagePullSecrets:
+      - name: dockerhubpull
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.canary.image.repository }}:{{ .Values.canary.image.tag }}"
