@@ -266,6 +266,8 @@ spec:
       source:
         repository: {{ $.Values.concourseResources.github.image.repository }}
         tag: {{ $.Values.concourseResources.github.image.tag }}
+        username: ((dockerhubpull-concourse.username))
+        password: ((dockerhubpull-concourse.password))
     resources:
     - name: src
       type: {{ .configureNamespaceResourceType | default "github" }}
@@ -298,6 +300,8 @@ spec:
             source:
               repository: {{ $.Values.concourseResources.task.image.repository | quote }}
               tag: {{ $.Values.concourseResources.task.image.tag | quote }}
+              username: ((dockerhubpull-concourse.username))
+              password: ((dockerhubpull-concourse.password))
           inputs:
           - name: src
           params:
