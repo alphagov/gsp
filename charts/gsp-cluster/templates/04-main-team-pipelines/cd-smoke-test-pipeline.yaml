@@ -71,7 +71,10 @@ spec:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: vito/oci-build-task}
+            source:
+              repository: vito/oci-build-task
+              username: ((dockerhubpull-concourse.username))
+              password: ((dockerhubpull-concourse.password))
           params:
             CONTEXT: src/components/canary
           inputs:
