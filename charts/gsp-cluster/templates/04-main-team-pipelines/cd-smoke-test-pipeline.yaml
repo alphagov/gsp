@@ -75,14 +75,21 @@ spec:
               repository: vito/oci-build-task
               username: ((dockerhubpull-concourse.username))
               password: ((dockerhubpull-concourse.password))
-          params:
-            CONTEXT: src/components/canary
           inputs:
           - name: src
           outputs:
           - name: image
           run:
-            path: build
+            path: ash
+            args:
+            - -c
+            - |
+              AUTH="$(echo -n '((dockerhubpull-concourse.username)):((dockerhubpull-concourse.password))' | base64)"
+              mkdir docker_creds
+              cat > docker_creds/config.json <<EOF
+              { "auths": { "https://index.docker.io/v1/": { "auth": "$AUTH" }}}
+              EOF
+              CONTEXT=src/components/canary DOCKER_CONFIG=docker_creds build
       - put: ecr
         params:
           image: image/image.tar
