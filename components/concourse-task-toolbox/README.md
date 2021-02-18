@@ -3,7 +3,7 @@
 
 ## Overview
 
-Image containing tools for concourse task scripts
+Image containing tools for concourse task scripts.
 
 ## Versioning
 

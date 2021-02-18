@@ -78,5 +78,3 @@ with the gds cli to execute the tests:
 ```
 gds aws gsp-sandbox-admin -- ./hack/test_integration.sh
 ```
-
-

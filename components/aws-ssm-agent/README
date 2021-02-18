@@ -1,1 +1,1 @@
-This directory just holds a Dockerfile used to build the AWS SSM agent container we run inside EKS.
+This directory just holds a Dockerfile used to build the AWS SSM agent container we run inside EKS
