@@ -40,14 +40,6 @@ variable "k8s_splunk_index" {
   type = string
 }
 
-variable "hsm_splunk_hec_token" {
-  type = string
-}
-
-variable "hsm_splunk_index" {
-  type = string
-}
-
 variable "minimum_workers_per_az_count" {
   type = string
 }
@@ -123,20 +115,6 @@ module "gsp-network" {
   source       = "../../modules/gsp-network"
   cluster_name = var.cluster_name
   netnum       = var.cluster_number
-}
-
-module "hsm" {
-  source                   = "../../modules/hsm"
-  subnet_cidr_map          = module.gsp-network.private_subnet_cidr_mapping
-  source_security_group_id = module.gsp-cluster.worker_security_group_id
-  cluster_name             = var.cluster_name
-  splunk                   = var.splunk_enabled
-  splunk_hec_url           = var.splunk_hec_url
-  splunk_hec_token         = var.hsm_splunk_hec_token
-  splunk_index             = var.hsm_splunk_index
-
-  cls_destination_enabled = var.cls_destination_enabled
-  cls_destination_arn     = var.cls_destination_arn
 }
 
 module "gsp-cluster" {
