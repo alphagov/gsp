@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-// Start configures a lifecycle handler and registers it with the lambda handler
+// Start configures a lifecycle handler and registers it with the lambda handler.
 func Start() error {
 	awsClient, err := awsclient.New()
 	if err != nil {

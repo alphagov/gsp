@@ -9,7 +9,7 @@ Extends the [upstream terraform resource](https://github.com/ljfranklin/terrafor
 
 ## Versioning
 
-Please bump `VERSION` file
+Please bump `VERSION` file.
 
 ## Building
 
