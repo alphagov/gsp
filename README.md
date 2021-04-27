@@ -1,76 +1,32 @@
 # GSP [![IRC](https://img.shields.io/badge/kubernetes-v1.16-0099ef.svg)]() <img align="right" src="./docs/assets/gsp.png" alt="gsp" width="30%" height="whatever">
 
 ***
-This project solves some specific needs of GDS. It is not generally useful for people outside of GDS. You should consider using [GOV.UK PaaS](https://www.cloud.service.gov.uk/) if you are looking for somewhere to run your services.
+This project solved some specific needs of GDS. It was not generally useful for people outside of GDS. You should consider using [GOV.UK PaaS](https://www.cloud.service.gov.uk/) if you are looking for somewhere to run your services.
+This is a decommissioning notice detailing issues that would need to be solved in order to re-use this codebase. It only documents issues known at time of repository archiving, when it will cease being updated.
+For the old README prior to archiving, see [README-old.md](/README-old.md)
 ***
 
-GSP (GDS Supported Platform) is a Kubernetes distribution maintained by the [Government Digital Service](https://www.gov.uk/government/organisations/government-digital-service) created to meet the common needs of running digital services in production.
+GSP ([GDS](https://www.gov.uk/government/organisations/government-digital-service) Supported Platform) was a Kubernetes distribution based on Amazon EKS.
 
-* Reduce onboarding/support burden by sharing a consistent base and common declarative language
-* Reduce costs to programmes by sharing infrastructure where possible
-* Minimise vendor lock-in while leveraging managed services by using non-proprietary configuration language and abstractions
-* Improve service team delivery by providing release automation and observability tooling
-* Increase service team confidence in deployments by enabling strong parity between local development and production environments
-* Avoid development bottlenecks and platform stagnation by encouraging all teams to extend and evolve the shared GSP base to meet emerging needs
+Technically:
+* The Kubernetes/EKS version is behind - we're on 1.16 and the latest is 1.20. 1.16 will not be possible to use after July 2021.
+ * There's a TODO in `pipelines/deployer/deployer.yaml` about k8s 1.15 we can probably remove.
+* GSP relies on Istio 1.5.8 which became end-of-life on 2020-08-24. Also 1.6 was end-of-life on 2020-11-23, 1.7 was end-of-life on 2021-02-25, and 1.8 will be end-of-life on 2021-05-12.
+* GSP ran Prometheus and Grafana through prometheus-operator 8.15.6, and it's no longer developed at `git@github.com:helm/charts.git` stable/prometheus-operator - the latest version of chart we were using is now deprecated.
+* The check-vulnerabilities job in each cluster deployment pipeline would find all sorts of things in the third-party images we used like cluster-autoscaler, concourse-web, external-dns, fluentd-cloudwatch, fluentd-kubernetes-daemonset, and more. Some of these may be resolvable by upgrading the version of the software used.
+* It's based on Terraform but with some weird extra CloudFormation that should be merged into the Terraform - `modules/k8s-cluster/data/nodegroup-v2.yaml` and (especially obscure, but possibly unnecessary depending on the item below) `modules/k8s-cluster/data/nodegroup.yaml`.
+* We're not completely certain that the cluster-management nodes still necessary, it may be possible to put gatekeeper and the cluster-autoscaler on normal worker nodes.
+* There is a strange distinction between the k8s-cluster and gsp-cluster terraform modules which should probably be eliminated.
+* Some of the docs are written with gds-cli in mind but gds-cli dropped support for GSP in version 4, so you'll either need to convince gds-cli to reimplement that support or eliminate the dependency by going back to plain aws-vault.
+* We wrote our own service operator, but then AWS made https://aws.amazon.com/blogs/containers/aws-controllers-for-kubernetes-ack/ which probably obsoletes part of it already - and in future, likely all of it. If you're going to re-use the GSP code, remove the obsolete parts of our service operator (ECR, SQS, S3) and use AWS's, then eventually remove ours all together when they add RDS+ElastiCache
+* We tried to have working, daily replacement of the underlying EC2 instances, but our experience with node rolling in GSP was complicated, with multiple incidents. There's some problems lurking somewhere that need tracking down and solving. It may be possible to use EKS Fargate and eliminate the EC2 instances.
+* GSP did not support automatically getting certs for non-govsvc.uk domains (i.e., subdomains of service.gov.uk), leading us to do some odd tricks involving separately terraforming CloudFront distributions in front of GSP. You would probably want to solve this if you use it.
+* The `lambda_splunk_forwarder` terraform module still lurks but new clusters should be using CSLS to ship logs, so this Lambda should be eliminated and not re-used. It only survived until GSP decommissioning because swapping it out on the existing production cluster may have been an issue that lead to dropped logs.
+* There's still some CloudHSM support lurking in GSP, this should be eliminated and not re-used.
+* It was set up for the govsvc.uk domain which may have to be re-reigstered or transferred.
+* Permissions issues [documented here](https://docs.google.com/document/d/1za1H8XZaDd9LUUpOd0fmbwY3EOz35G39d7xJ5F_e6A4/edit?usp=sharing)
 
-GSP provides a suite of pre-configured components along with upstream Kubernetes, much like a GNU/Linux distribution provides a suite of userspace components along with the upstream Linux kernel.
-
-## Features
-
-- A declarative continuous delivery workflow - merging to master triggers deployment to production
-- A container platform based on industry standard [Docker](https://docs.docker.com/) and [Kubernetes](https://kubernetes.io)
-- Build and release automation powered by [ConcourseCI](https://concourse-ci.org/)
-- Monitoring and alerting with [Prometheus](https://prometheus.io/), [Alertmanager](https://prometheus.io/docs/alerting/alertmanager/) and [Grafana](https://grafana.com/)
-- Secure git-based secrets configuration with [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets)
-- Ingress management and service mesh with [Istio](https://istio.io/)
-- Protective monitoring provided by GDS TechOps CyberSecurity with [Splunk](https://www.splunk.com/)
-- Cloud infrastructure hosted on [AWS](https://aws.amazom.com) across multiple availability zones in London
-- Kubernetes control plane with [AWS EKS](https://aws.amazon.com/eks/)
-- An [AWS CloudHSM](https://docs.aws.amazon.com/crypto/latest/userguide/awscryp-service-hsm.html) providing secure storage for cryptographic keys
-
-## Non goals
-
-GSP is not a managed service.
-
-If you are a team looking for a fully managed platform, we recommend you evaluate [GOV.UK PaaS](https://docs.cloud.service.gov.uk) before attempting to run and manage your own GSP instance. 
-
-The platform has been designed to complement an organisation that practices a Reliability Engineering model that assumes there exists a small number of infrastructure and reliability focused members capable of supporting a much larger team or programme.
-
-![](./docs/assets/paas-spectrum.png)
-
-The figure above illustrates where we think GSP fits on a "PaaS Spectrum":
-
-* On the right-hand-side we have the situation where service teams all design their deployment architectures in isolation using (hopefully) cloud managed services which gives the ultimate in flexibility at the cost of poor knowledge share across the organisation and a need for dedicated infrastructure expertise.
-* On the left-hand-side we have the fully managed GOV.UK PaaS platform where a service team may not need any infrastructure expertise but at the cost of flexibility.
-* Sitting between the two is GSP which is:
-	* more complex for service teams compared to PaaS, in exchange for greater flexibility over the platform itself
-	* more opinionated than a bespoke architecture, in exchange for greater knowledge/code sharing between teams
-	* more isolated than GOV.UK PaaS, but encourages sharing as much as possible 
-
-
-## Getting started
-
-Come talk to the Automate team. We're on Slack in #re-autom8 and on the east side of the 6th floor.
-
-You also might want to look at how other teams are using GSP:
-
-- [Verify eIDAS proxy node](https://github.com/alphagov/verify-proxy-node/tree/master/ci)
-- [Verify Document Checking Service (private repo)](https://github.com/alphagov/doc-checking)
-
-## Contributing
-
-Contributions encouraged!
-
-Changes require commits signed by [GDS Trusted Developers](https://github.com/alphagov/gds-trusted-developers)
-
-## Help and support
-
-The platform is maintained by [GDS Reliability Engineering](https://reliability-engineering.cloudapps.digital/) and support for GDS service teams is provided according to the [Technology & Operations Shared Responsibility Model](https://reliability-engineering.cloudapps.digital/documentation/strategy-and-principles/techops-shared-responsibility-model.html)
-
-For help or support:
-
-- read our [documentation](/docs)
-- raise an [issue](https://github.com/alphagov/gsp/issues)
-- message the team on the Reliability [Engineering Slack channel](https://gds.slack.com/messages/CAD6NP598) [#reliability-eng](https://gds.slack.com/messages/CAD6NP598)
-
-
+More broadly:
+* Ultimately, an organisation needs strong justification to run multiple platforms like this. If we were to spin this back up it'd have to replace existing systems.
+* Kubernetes is complicated from a developer point of view, requiring lots of tricky YAML documents.
+* The security model was motivated by a particular high-security project which made it tricky to get things done as everything needed to go through GitOps.
